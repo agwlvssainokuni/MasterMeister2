@@ -1,0 +1,99 @@
+# プロジェクトディレクトリ構成
+
+[docs/REQUIREMENTS.md](./REQUIREMENTS.md) の要件に基づくディレクトリ構成案。
+
+## トップレベル構成
+
+要件（4章）で指定されている3分割を採用する。
+
+```
+MasterMeister2/
+├── backend/        # Spring Boot アプリケーション (Java 25, Gradle 9.6)
+├── frontend/       # React アプリケーション (Vite)
+├── devenv/         # 開発環境 (Docker Compose)
+├── docs/           # ドキュメント（要件定義など）
+├── LICENSE
+└── README.md
+```
+
+## backend/ 構成
+
+機能数が多く（登録/承認、RDBMS接続管理、スキーマ取込、権限、マスタメンテ、クエリビルダー、保存クエリ、クエリ実行/履歴、監査ログ）、単独開発かつMVP段階的リリースという方針のため、レイヤー別ではなく**機能（ドメイン）別パッケージ**を採用し、機能単位で追加・変更しやすくする。
+
+```
+backend/
+├── build.gradle.kts
+├── settings.gradle.kts
+├── gradle/ , gradlew, gradlew.bat
+└── src/
+    ├── main/
+    │   ├── java/cherry/mastermeister/
+    │   │   ├── MasterMeisterApplication.java
+    │   │   ├── config/           # 共通設定 (SecurityConfig, JpaConfig, MailConfig, DataSourceConfig 等)
+    │   │   ├── common/           # 共通例外, 共通レスポンス, ページング等のユーティリティ
+    │   │   ├── auth/             # 5.3 ユーザ認証（ログイン/セッション or JWT）
+    │   │   ├── userregistration/ # 5.1 ユーザ登録（申請→メール→承認/却下）
+    │   │   ├── rdbmsconnection/  # 5.2 対象RDBMS接続情報管理
+    │   │   ├── schema/           # 5.2 スキーマ取込（テーブル/ビュー/カラム構造の読取）
+    │   │   ├── permission/       # 5.2 テーブル/カラム権限、YAMLエクスポート/インポート
+    │   │   ├── masterdata/       # 5.4 マスタ一覧・絞込・編集・作成/削除の統一API
+    │   │   ├── querybuilder/     # 5.5 クエリビルダー（SQL生成/逆解析）
+    │   │   ├── savedquery/       # 5.6 クエリ保存（公開/非公開、実行、編集権限）
+    │   │   ├── queryexecution/   # 5.7 クエリ実行（パラメータ化, ページング）
+    │   │   ├── queryhistory/     # 5.8 クエリ履歴（一覧・絞込）
+    │   │   ├── audit/            # 6章 監査ログ記録・参照（管理者のみ）
+    │   │   └── mail/             # メール送信（登録確認, 承認結果通知）
+    │   └── resources/
+    │       ├── application.yml
+    │       ├── application-dev.yml
+    │       ├── db/migration/     # 内部DB(H2)スキーマ管理 (Flyway等)
+    │       └── static/           # frontendビルド成果物の組込先（実行可能WAR化）
+    └── test/
+        └── java/cherry/mastermeister/...  # 各機能パッケージに対応
+```
+
+- 各機能パッケージ内部は `controller / service / repository(or dao) / entity(or model) / dto` を持たせる（機能ごとに縦割り、パッケージ内は横割り）。
+- `rdbmsconnection` / `schema` / `queryexecution` は対象RDBMS（MySQL/MariaDB/PostgreSQL/H2）を跨ぐ処理となるため、方言差異を吸収する `dialect/` サブパッケージを設けることも検討する（DB種別ごとのスキーマ取得SQL差異など）。
+
+## frontend/ 構成
+
+バックエンドの機能単位に対応させ、featureごとに画面・APIクライアント・状態管理をまとめる。
+
+```
+frontend/
+├── package.json, vite.config.ts, tsconfig.json
+└── src/
+    ├── main.tsx, App.tsx
+    ├── routes/                  # 画面遷移定義
+    ├── features/
+    │   ├── auth/                # ログイン
+    │   ├── userRegistration/    # 登録申請〜承認画面（一般/管理者）
+    │   ├── rdbmsConnection/     # RDBMS接続設定（管理者）
+    │   ├── schema/              # スキーマ取込（管理者）
+    │   ├── permission/          # 権限設定・YAML入出力（管理者）
+    │   ├── masterData/          # テーブル一覧・レコード一覧編集
+    │   ├── queryBuilder/        # クエリビルダー
+    │   ├── savedQuery/          # 保存クエリ管理
+    │   ├── queryExecution/      # クエリ実行
+    │   ├── queryHistory/        # クエリ履歴
+    │   └── auditLog/            # 監査ログ閲覧（管理者）
+    ├── components/              # 共通UIコンポーネント
+    ├── api/                     # 共通APIクライアント（axios/fetch設定, 型付きエンドポイント）
+    ├── hooks/                   # 共通カスタムフック
+    ├── store/                   # 認証状態等のグローバル状態管理
+    └── types/                   # API型定義（バックエンドDTOに対応）
+```
+
+- 各 `features/xxx/` 配下は `components/`, `hooks/`, `api.ts`, `types.ts` を持つ想定。
+
+## devenv/ 構成
+
+```
+devenv/
+├── docker-compose.yml   # MailPit, MySQL, MariaDB, PostgreSQL をまとめて起動
+├── mysql/init/          # 初期化SQL（任意）
+├── mariadb/init/
+└── postgres/init/
+```
+
+H2はアプリ組込のためコンテナ不要（要件どおり）。
