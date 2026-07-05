@@ -14,4 +14,16 @@
  * limitations under the License.
  */
 
-rootProject.name = "mastermeister"
+package cherry.mastermeister;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class MasterMeisterApplicationTests {
+
+    @Test
+    void contextLoads() {
+    }
+
+}

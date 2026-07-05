@@ -14,4 +14,16 @@
  * limitations under the License.
  */
 
-rootProject.name = "mastermeister"
+package cherry.mastermeister;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class MasterMeisterApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(MasterMeisterApplication.class, args);
+    }
+
+}
