@@ -1,0 +1,53 @@
+services:
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: mastermeister-mailpit
+    ports:
+      - "1025:1025" # SMTP
+      - "8025:8025" # Web UI
+
+  mysql:
+    image: mysql:lts
+    container_name: mastermeister-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: mastermeister
+      MYSQL_DATABASE: mastermeister
+      MYSQL_USER: mastermeister
+      MYSQL_PASSWORD: mastermeister
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d
+
+  mariadb:
+    image: mariadb:lts
+    container_name: mastermeister-mariadb
+    environment:
+      MARIADB_ROOT_PASSWORD: mastermeister
+      MARIADB_DATABASE: mastermeister
+      MARIADB_USER: mastermeister
+      MARIADB_PASSWORD: mastermeister
+    ports:
+      - "3307:3306"
+    volumes:
+      - mariadb-data:/var/lib/mysql
+      - ./mariadb/init:/docker-entrypoint-initdb.d
+
+  postgres:
+    image: postgres:18
+    container_name: mastermeister-postgres
+    environment:
+      POSTGRES_DB: mastermeister
+      POSTGRES_USER: mastermeister
+      POSTGRES_PASSWORD: mastermeister
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d
+
+volumes:
+  mysql-data:
+  mariadb-data:
+  postgres-data:
