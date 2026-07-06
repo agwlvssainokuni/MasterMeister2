@@ -3,7 +3,7 @@
 ## Project Information
 - **Project Type**: Brownfield
 - **Start Date**: 2026-07-06T10:38:36Z
-- **Current Stage**: INCEPTION - Workspace Detection (complete)
+- **Current Stage**: INCEPTION - Requirements Analysis (awaiting user approval)
 
 ## Workspace State
 - **Existing Code**: Yes
@@ -20,7 +20,11 @@
 - **Structure patterns**: See code-generation.md Critical Rules
 
 ## Extension Configuration
-- No extensions opted into yet (security-baseline, resiliency-baseline, property-based-testing all available, not yet presented/decided).
+| Extension | Enabled | Decided At |
+|---|---|---|
+| security-baseline | No (deferred — user plans to opt in after core features are implemented) | 2026-07-06T20:26:00Z |
+| resiliency-baseline | No (deferred — user plans to opt in after core features are implemented) | 2026-07-06T20:26:00Z |
+| property-based-testing | Yes — enforce all PBT rules as blocking constraints | 2026-07-06T20:26:00Z |
 
 ## Reverse Engineering Status
 - [x] Reverse Engineering - Completed on 2026-07-06T10:41:00Z, approved by user on 2026-07-06T10:52:00Z
@@ -29,8 +33,8 @@
 ## Stage Progress
 - [x] Workspace Detection — 2026-07-06T10:38:36Z
 - [x] Reverse Engineering — 2026-07-06T10:41:00Z (approved 2026-07-06T10:52:00Z)
-- [ ] Requirements Analysis (in progress)
-- [ ] Current Stage: INCEPTION - Requirements Analysis
+- [x] Requirements Analysis — 2026-07-06T20:30:00Z (awaiting user approval)
+- [ ] Current Stage: INCEPTION - Requirements Analysis (awaiting approval)
 - [ ] User Stories
 - [ ] Workflow Planning
 - [ ] Application Design
