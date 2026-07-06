@@ -30,8 +30,6 @@
   拡張は `requirements.md` 4章の決定によりオプトアウト（後日追加予定）。
 
 ### Component Relationships (Brownfield Only)
-```markdown
-## Component Relationships
 - **Primary Component**: backend/src/main/java/cherry/mastermeister/{feature packages}（新規）,
   frontend/src/features/{feature dirs}（新規）
 - **Infrastructure Components**: devenv/docker-compose.yml（変更不要、開発時の対象RDBMS/SMTP用）
@@ -41,7 +39,6 @@
   決定順序がバックエンド側の実装順序を規定する）
 - **Supporting Components**: audit/（全機能パッケージから横断的に呼び出される）、mail/（
   userregistration の確認・承認結果通知で使用）
-```
 
 For each related component:
 - **backend feature packages**: Change Type = Major（新規実装）／Change Reason = Direct
@@ -221,8 +218,7 @@ frontend側の対応する feature ディレクトリ（`auth`, `userRegistratio
 `queryHistory`, `auditLog`）は、対応するbackend APIの契約確定後に着手する（並行開発ではなく、
 バックエンド先行のシーケンシャル/ハイブリッド方式）。
 
-```markdown
-## Module Update Strategy
+### Module Update Strategy
 - **Update Approach**: Sequential（backend機能パッケージ間は上記依存順）+ Hybrid
   （各backendパッケージのAPI確定後、対応するfrontend featureは並行着手可能）
 - **Critical Path**: config/common → auth/userregistration → rdbmsconnection/schema →
@@ -231,7 +227,6 @@ frontend側の対応する feature ディレクトリ（`auth`, `userRegistratio
   クエリビルダーのSQL生成/逆解析ロジック（backend querybuilder ⇔ frontend queryBuilder）
 - **Testing Checkpoints**: 各backendパッケージ完成時に単体テスト、対応frontend feature結合後に
   結合テスト、全ユニット完了後にBuild and Testステージでシステム全体を検証
-```
 
 ## Estimated Timeline
 - **Total Phases**: INCEPTION（Workflow Planning以降2ステージ）+ CONSTRUCTION（ユニット数分の
