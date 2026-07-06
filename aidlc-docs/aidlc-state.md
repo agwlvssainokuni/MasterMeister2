@@ -3,7 +3,13 @@
 ## Project Information
 - **Project Type**: Brownfield
 - **Start Date**: 2026-07-06T10:38:36Z
-- **Current Stage**: INCEPTION - User Stories (generated, awaiting user approval)
+- **Current Stage**: INCEPTION - Workflow Planning (plan created, awaiting user approval)
+
+## Execution Plan Summary
+- **Plan Document**: aidlc-docs/inception/plans/execution-plan.md
+- **Risk Level**: Medium
+- **Stages to Execute**: Application Design, Units Generation, then per-unit Functional Design / NFR Requirements / NFR Design / Code Generation, then Build and Test
+- **Stages to Skip**: Infrastructure Design (no new infra beyond existing devenv/docker-compose.yml; WAR packaging handled in Code Generation)
 
 ## Workspace State
 - **Existing Code**: Yes
@@ -34,8 +40,19 @@
 - [x] Workspace Detection — 2026-07-06T10:38:36Z
 - [x] Reverse Engineering — 2026-07-06T10:41:00Z (approved 2026-07-06T10:52:00Z)
 - [x] Requirements Analysis — 2026-07-06T20:30:00Z (approved 2026-07-06T20:33:00Z)
-- [ ] Current Stage: INCEPTION - User Stories (generated, awaiting user approval)
-- [x] User Stories — generated 2026-07-06T21:05:00Z (awaiting user approval)
-- [ ] Workflow Planning
-- [ ] Application Design
-- [ ] Units Generation
+- [x] User Stories — generated 2026-07-06T21:05:00Z (approved 2026-07-06T21:10:00Z)
+- [x] Workflow Planning — plan created 2026-07-06T21:20:00Z (awaiting user approval)
+- [ ] Current Stage: INCEPTION - Workflow Planning (plan created, awaiting user approval)
+- [ ] Application Design - EXECUTE
+- [ ] Units Generation - EXECUTE
+
+### CONSTRUCTION PHASE (per unit, once units are defined)
+- [ ] Functional Design - EXECUTE
+- [ ] NFR Requirements - EXECUTE
+- [ ] NFR Design - EXECUTE
+- [ ] Infrastructure Design - SKIP
+- [ ] Code Generation - EXECUTE
+- [ ] Build and Test - EXECUTE
+
+### OPERATIONS PHASE
+- [ ] Operations - PLACEHOLDER
