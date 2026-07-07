@@ -263,3 +263,19 @@
 **Context**: CONSTRUCTION PHASE - Per-Unit Loop, U1 NFR Requirements, Steps 5-6 complete. Presenting Step 7 standardized completion message next; awaiting Step 8 explicit approval.
 
 ---
+
+## CONSTRUCTION - U1 NFR Requirements - Approved (Step 8)
+**Timestamp**: 2026-07-08T08:10:00Z
+**User Input**: "レビュー完了しました。"
+**AI Response**: "Logged explicit approval of U1 (Platform Foundation) NFR Requirements artifacts (nfr-requirements.md, tech-stack-decisions.md). Marked U1's NFR Requirements cell [x] approved in aidlc-state.md's per-unit table. Updated Current Stage to reflect transition to NFR Design assessment for U1."
+**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U1 NFR Requirements stage COMPLETE (Step 9). Next: assess NFR Design applicability for U1 per construction/nfr-design.md Execute/Skip criteria.
+
+---
+
+## CONSTRUCTION - U1 NFR Design - Plan Created
+**Timestamp**: 2026-07-08T08:15:00Z
+**User Input**: (none — proceeding automatically per adaptive workflow once NFR Requirements was approved)
+**AI Response**: "Assessed NFR Design applicability for U1 per nfr-design.md's Execute/Skip criteria (top-level CLAUDE.md): EXECUTEs, because U1's NFR Requirements produced concrete non-functional decisions (JWT filter-chain verification scheme, DialectStrategy Strategy-pattern implementation, H2 file-mode persistence, audit-log indexing, mail timeout/retry, Logback pattern) that need translation into design patterns and logical components. Read nfr-requirements.md and tech-stack-decisions.md in full (Step 1). Created aidlc-docs/construction/plans/u1-platform-foundation-nfr-design-plan.md (Steps 2-4) with 6 questions covering all 5 mandatory categories: Security Patterns (Q1: JwtAuthenticationFilter/SecurityFilterChain structure with AuthenticationEntryPoint/AccessDeniedHandler; Q2: permitAll pattern for auth endpoints, deferring exact paths to U2), Logical Components (Q3: DialectStrategyFactory resolution via RdbmsType-keyed Spring bean map; Q6: MailConfig/HikariCP/logback-spring.xml placement), Resilience Patterns (Q4: try-catch + REQUIRES_NEW propagation only, no Resilience4j, consistent with resiliency-baseline being deferred), and Performance/Scalability Patterns (Q5: JPA @Table(indexes=...) annotations, no Flyway/Liquibase given no migration tooling exists yet)."
+**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U1 NFR Design, Steps 1-4 complete per nfr-design.md. Awaiting user answers to all 6 [Answer]: tags before proceeding to Step 5 (answer analysis).
+
+---

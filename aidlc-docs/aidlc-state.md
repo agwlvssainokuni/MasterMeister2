@@ -3,7 +3,7 @@
 ## Project Information
 - **Project Type**: Brownfield
 - **Start Date**: 2026-07-06T10:38:36Z
-- **Current Stage**: CONSTRUCTION - Per-Unit Loop - U1: Platform Foundation - NFR Requirements (artifacts generated 2026-07-08, awaiting user approval)
+- **Current Stage**: CONSTRUCTION - Per-Unit Loop - U1: Platform Foundation - NFR Design (Part 1 Planning, plan created 2026-07-08, awaiting user answers)
 
 ## Execution Plan Summary
 - **Plan Document**: aidlc-docs/inception/plans/execution-plan.md
@@ -53,7 +53,7 @@ Infrastructure Design is SKIP for all units (execution-plan.md: no new infra bey
 
 | ユニット | Functional Design | NFR Requirements | NFR Design | Infrastructure Design | Code Generation |
 |---|---|---|---|---|---|
-| U1: Platform Foundation | [x] approved 2026-07-07T22:27:00Z | [ ] generated, awaiting approval | [ ] | SKIP | [ ] |
+| U1: Platform Foundation | [x] approved 2026-07-07T22:27:00Z | [x] approved 2026-07-08T08:10:00Z | [ ] EXECUTE (planning) | SKIP | [ ] |
 | U2: Auth & User Registration | [ ] | [ ] | [ ] | SKIP | [ ] |
 | U3: RDBMS Connection & Schema Import | [ ] | [ ] | [ ] | SKIP | [ ] |
 | U4: Permission Management | [ ] | [ ] | [ ] | SKIP | [ ] |
