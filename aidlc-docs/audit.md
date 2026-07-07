@@ -279,3 +279,19 @@
 **Context**: CONSTRUCTION PHASE - Per-Unit Loop, U1 NFR Design, Steps 1-4 complete per nfr-design.md. Awaiting user answers to all 6 [Answer]: tags before proceeding to Step 5 (answer analysis).
 
 ---
+
+## CONSTRUCTION - U1 NFR Design - Q6 Correction (JavaMailSender Auto-Configuration)
+**Timestamp**: 2026-07-08T08:20:00Z
+**User Input**: "Spring Bootの標準設定項目にJavaMailSenderの設定ってありませんでしたっけ？" (after answering Q1=A, Q2=A, Q4=A, Q5=A, Q3=A in separate messages, all filled directly by the AI into the plan file per each instruction)
+**AI Response**: "Confirmed the user's technical correction: spring-boot-starter-mail's MailSenderAutoConfiguration already auto-configures a JavaMailSender bean from spring.mail.* properties (including spring.mail.properties.mail.smtp.connectiontimeout/mail.smtp.timeout), so Question 6's original recommended option A (a dedicated MailConfig @Configuration class) was inaccurate/unnecessary. Corrected Question 6's option A in u1-platform-foundation-nfr-design-plan.md to remove the MailConfig class and rely on Spring Boot's auto-configuration plus application.yml properties, and adjusted option B's wording accordingly for consistency."
+**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U1 NFR Design, Step 4 in-flight correction based on user's technical review, before Q6 was answered.
+
+---
+
+## CONSTRUCTION - U1 NFR Design - Plan Answers Received (Step 5 analysis)
+**Timestamp**: 2026-07-08T08:23:00Z
+**User Input**: "一旦コミット。" (after all 6 [Answer]: tags were filled — Q1=A, Q2=A, Q3=A, Q4=A, Q5=A, Q6=A — via a mix of direct chat instructions per-question and the AI editing the plan file accordingly)
+**AI Response**: "Committed the answered plan (a231a2d). Performed Step 5 answer analysis per nfr-design.md: all 6 answers select the recommended option A with no vagueness, contradiction, or ambiguity — no follow-up questions needed. Proceeded to Step 6: generated aidlc-docs/construction/u1-platform-foundation/nfr-design/nfr-design-patterns.md (JWT filter chain structure with AuthenticationEntryPoint/AccessDeniedHandler, permitAll pattern for auth endpoints, DialectStrategyFactory Map-based resolution, try-catch + REQUIRES_NEW resilience pattern for mail/audit, JPA @Table(indexes=...) for audit log indexing, Spring Boot mail auto-configuration + application.yml + logback-spring.xml placement) and logical-components.md (component tables for Security, RDBMS Dialect, Audit, Mail packages, plus configuration file inventory and an explicit note deferring refresh-token entity/logic and exact auth endpoint paths to U2). Verified PBT applicability: per property-based-testing.md's Enforcement Integration table, NFR Design is not a stage with applicable PBT rules (only Functional Design/PBT-01, NFR Requirements/PBT-09, Code Generation/PBT-01 through PBT-10, Build and Test/PBT-08 are listed) — marked N/A, no blocking finding."
+**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U1 NFR Design, Steps 5-6 complete. Presenting Step 7 standardized completion message next; awaiting Step 8 explicit approval.
+
+---
