@@ -231,3 +231,19 @@
 **Context**: CONSTRUCTION PHASE - Per-Unit Loop, U1 Functional Design. PBT-01 blocking finding logged and remediated per property-based-testing.md's Blocking PBT Finding Behavior. Presenting the remediation to the user for re-confirmation before proceeding to NFR Requirements.
 
 ---
+
+## CONSTRUCTION - U1 Functional Design - PBT-01 Remediation Approved
+**Timestamp**: 2026-07-07T22:36:00Z
+**User Input**: "レビュー完了しました。"
+**AI Response**: "Logged explicit approval of the PBT-01 remediation (Testable Properties section, P1-P9) added to business-logic-model.md. U1 Functional Design stage (including the PBT-01 blocking finding) is now fully resolved and approved. Proceeding to assess NFR Requirements applicability for U1 per construction/nfr-requirements.md."
+**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U1 Functional Design fully COMPLETE (including PBT-01 remediation). Next: NFR Requirements Steps 1-4 (analyze functional design, create plan with context-appropriate questions) for U1.
+
+---
+
+## CONSTRUCTION - U1 NFR Requirements - Plan Created
+**Timestamp**: 2026-07-07T22:38:00Z
+**User Input**: (none — proceeding automatically per adaptive workflow once Functional Design was fully approved)
+**AI Response**: "Assessed NFR Requirements applicability for U1 per nfr-requirements.md's Execute/Skip criteria (top-level CLAUDE.md): EXECUTEs, because SecurityConfig (JWT verification filter chain, CORS, endpoint authorization) is a genuine security design decision owned by U1; DialectStrategy/internal-DB persistence are tech-stack decisions; audit-log data volume raises scalability/indexing concerns; mail send has an undetermined reliability policy (timeout/retry); and PBT-09 (framework selection) still needs confirming. Read all 4 Functional Design artifacts including the newly-added Testable Properties section (Step 1). Created aidlc-docs/construction/plans/u1-platform-foundation-nfr-requirements-plan.md (Steps 2-4) with 8 questions covering: JWT verification scheme (HS256, env-var secret, access-token-only, recommended), CORS policy (dev-profile-only, given WAR bundles the frontend build as same-origin static resources per PROJECT_STRUCTURE.md), DialectStrategy implementation approach (Strategy pattern, no external SQL-dialect library), internal H2 persistence mode (file-based, default HikariCP sizing), audit-log indexing/retention (index on occurredAt/userId/eventCategory+eventType, no retention-policy implementation this phase), mail send timeout/retry policy (short timeout, no retry), application logging approach (Logback plain-text to stdout), and PBT-09 framework confirmation (jqwik)."
+**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U1 NFR Requirements, Steps 1-4 complete per nfr-requirements.md. Awaiting user answers to all 8 [Answer]: tags before proceeding to Step 5 (answer analysis).
+
+---
