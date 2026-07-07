@@ -41,6 +41,8 @@ C. その他（具体的な構成を指定）
 
 [Answer]:
 
+A
+
 ---
 
 ## Question 2: Security Patterns — リフレッシュエンドポイントの扱い
@@ -59,6 +61,8 @@ C. その他（具体的な方針を指定）
 
 [Answer]:
 
+A
+
 ---
 
 ## Question 3: Logical Components — DialectStrategyの解決方式
@@ -74,6 +78,8 @@ B. `if`/`switch`文で直接インスタンス化する
 C. その他（具体的な解決方式を指定）
 
 [Answer]:
+
+A
 
 ---
 
@@ -92,6 +98,8 @@ C. その他（具体的な実装方式を指定）
 
 [Answer]:
 
+A
+
 ---
 
 ## Question 5: Performance/Scalability Patterns — 監査ログインデックスの実装方式
@@ -107,6 +115,8 @@ C. その他（具体的な実装方式を指定）
 
 [Answer]:
 
+A
+
 ---
 
 ## Question 6: Logical Components — MailConfig / HikariCP / Logbackの設定コンポーネント化
@@ -115,18 +125,23 @@ C. その他（具体的な実装方式を指定）
 ロギングパターン（正規表現パース対応レイアウト）を、それぞれどのコンポーネント/設定ファイルに
 落とし込むかを確認したい。
 
-A. (1) `MailConfig`（`@Configuration`）で`JavaMailSender`のBeanを定義し、
-   `mail.smtp.connectiontimeout`/`mail.smtp.timeout`を5秒に設定する。
+A. (1) メール送信は`spring-boot-starter-mail`の自動設定（`MailSenderAutoConfiguration`）に委ね、
+   専用の`MailConfig`クラスは設けない。`application.yml`の`spring.mail.host`/`port`等に加え、
+   `spring.mail.properties.mail.smtp.connectiontimeout`/`mail.smtp.timeout`を5秒に設定する
+   （Spring Bootが`JavaMailSender`のBeanを自動生成するため、プログラム的なカスタマイズが
+   不要な限り`@Configuration`クラスは不要）。
    (2) 内部DBの接続プールは`application.yml`の`spring.datasource.hikari.*`で既定値を明示し、
    個別の`@Configuration`クラスは設けない。
    (3) ロギングパターンは`logback-spring.xml`（`src/main/resources/`）に
    `nfr-requirements.md` 5.1のパターン文字列を設定する。
-   （推奨。Spring Bootの標準的な設定ファイル配置に従う）
-B. 全て`application.yml`のみで完結させ、専用の`@Configuration`クラス/`logback-spring.xml`は
-   設けない
+   （推奨。Spring Bootの標準的な設定ファイル配置・自動設定に従う）
+B. 全て`application.yml`のみで完結させ、`logback-spring.xml`も設けない
+   （ロギングパターンは`application.yml`の`logging.pattern.console`で設定する）
 C. その他（具体的な配置方針を指定）
 
 [Answer]:
+
+A
 
 ---
 
