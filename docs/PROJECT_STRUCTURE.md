@@ -31,6 +31,7 @@ backend/
     │   │   ├── MasterMeisterApplication.java
     │   │   ├── config/           # 共通設定 (SecurityConfig, JpaConfig, MailConfig, DataSourceConfig 等)
     │   │   ├── common/           # 共通例外, 共通レスポンス, ページング等のユーティリティ
+    │   │   │   └── dialect/      # 対象RDBMS方言吸収 (DialectStrategy, DB種別ごとの実装)
     │   │   ├── auth/             # 5.3 ユーザ認証（ログイン/セッション or JWT）
     │   │   ├── userregistration/ # 5.1 ユーザ登録（申請→メール→承認/却下）
     │   │   ├── rdbmsconnection/  # 5.2 対象RDBMS接続情報管理
@@ -53,7 +54,7 @@ backend/
 ```
 
 - 各機能パッケージ内部は `controller / service / repository(or dao) / entity(or model) / dto` を持たせる（機能ごとに縦割り、パッケージ内は横割り）。
-- `rdbmsconnection` / `schema` / `queryexecution` は対象RDBMS（MySQL/MariaDB/PostgreSQL/H2）を跨ぐ処理となるため、方言差異を吸収する `dialect/` サブパッケージを設けることも検討する（DB種別ごとのスキーマ取得SQL差異など）。
+- 対象RDBMS（MySQL/MariaDB/PostgreSQL/H2）の方言差異（識別子クォート、ページング句、NULLソート順、スキーマ/カタログ解釈等）は、パッケージごとに個別実装せず `common/dialect/` に `DialectStrategy`（Strategyパターン）として一元化する（Application Designで確定。`rdbmsconnection` / `schema` / `masterdata` / `querybuilder` / `queryexecution` が共通で参照する）。
 
 ## frontend/ 構成
 
