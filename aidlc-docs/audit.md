@@ -215,3 +215,19 @@
 **Context**: CONSTRUCTION PHASE - Per-Unit Loop, U1 Functional Design, Step 6 complete. Next: Step 7 (present standardized completion message) and Step 8 (wait for explicit approval).
 
 ---
+
+## CONSTRUCTION - U1 Functional Design - Approved (Step 8)
+**Timestamp**: 2026-07-07T22:27:00Z
+**User Input**: "レビュー完了しました。"
+**AI Response**: "Logged explicit approval of U1 (Platform Foundation) Functional Design artifacts (domain-entities.md, business-rules.md, business-logic-model.md, frontend-components.md). Marked U1's Functional Design cell [x] approved in aidlc-state.md's per-unit table. Updated Current Stage to reflect transition to NFR Requirements assessment for U1."
+**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U1 Functional Design stage COMPLETE (Step 9). Next: assess NFR Requirements applicability for U1 per construction/nfr-requirements.md Execute/Skip criteria.
+
+---
+
+## CONSTRUCTION - U1 Functional Design - PBT-01 Blocking Finding Identified and Remediated
+**Timestamp**: 2026-07-07T22:29:00Z
+**User Input**: (none — self-identified during transition to NFR Requirements assessment)
+**AI Response**: "Before proceeding to NFR Requirements, verified compliance of U1's approved Functional Design artifacts against the enabled `property-based-testing` extension (aidlc-state.md Extension Configuration: enabled, full enforcement). Found a blocking PBT finding: Rule PBT-01 (Property Identification During Design) requires a 'Testable Properties' section in the Functional Design artifacts, identifying testable property categories for each component with business logic; this section was absent from all 4 artifacts when Step 7's completion message was presented and approved. This is a process error on my part — the PBT compliance check should have been performed before presenting Step 7, per CLAUDE.md's mandatory extension-enforcement rule ('Non-compliance with any applicable enabled extension rule is a blocking finding — do NOT present stage completion until resolved'). Remediated by appending a 'テスト可能な性質（Testable Properties, PBT-01）' section to business-logic-model.md, identifying 9 properties (P1-P9) across AuditLogService.record/search, MailService.send, and the common exception-to-HTTP mapping, categorized per PBT-01's taxonomy (Invariant, Round-trip, Range constraint, Oracle); DialectStrategy (P9) marked N/A for this stage with rationale (out of Functional Design scope per this unit's own scoping decision, deferred to Code Generation planning for whichever unit implements it). Also noted PBT-09 (framework selection) as a forward pointer to NFR Requirements: jqwik (JUnit 5 integration) proposed as the Java PBT framework candidate, to be confirmed at that stage."
+**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U1 Functional Design. PBT-01 blocking finding logged and remediated per property-based-testing.md's Blocking PBT Finding Behavior. Presenting the remediation to the user for re-confirmation before proceeding to NFR Requirements.
+
+---
