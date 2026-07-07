@@ -36,8 +36,8 @@
    - `DialectStrategyFactory.resolve(dbType)` で方言差異を吸収しつつメタデータを読み取る
    - 結果を内部DBへ保存し、`AuditLogService.record(...)` で取り込み結果（成功/失敗）を記録
 3. 管理者操作: `GroupService.createGroup(...)` / `addUserToGroup(...)`（ADM-1）
-4. 管理者操作: `PermissionAssignmentService.setPrimaryPermission(...)` /
-   `setAuxiliaryPermission(...)`（ユーザ or グループ単位、MVP-9 / ADM-2）
+4. 管理者操作: `PermissionAssignmentService.setPermission(...)` /
+   `setAuxPermission(...)`（ユーザ or グループ単位、MVP-9 / ADM-2）
    - `SchemaQueryService.getTableDetail(...)` で対象テーブル/カラムの妥当性を検証してから設定
    - `AuditLogService.record(...)` で権限変更を記録
 5. `PermissionAssignmentService.exportPermissionsAsYaml(...)` /
@@ -48,11 +48,11 @@
 
 ## フロー3: マスタデータ閲覧・絞り込み（MVP-10, MVP-11, GEN-1, GEN-2）
 
-1. `MasterDataQueryService.listAccessibleTables(connectionId, userId)`
-   - 内部で `EffectivePermissionResolver.listAccessibleTableIds(...)` を呼び出し、
-     `SchemaQueryService.listTables(...)` の結果をフィルタする
-2. `MasterDataQueryService.listRecords(connectionId, tableId, userId, criteria, page)`
-   - UI組立条件の場合: `EffectivePermissionResolver.resolveEffectiveColumnLevels(...)` で
+1. `MasterDataQueryService.listAccessibleTables(userId, connectionId, schema)`
+   - 内部で `EffectivePermissionResolver.listAccessibleTables(userId, connectionId, schema)` を
+     呼び出し、`SchemaQueryService.listTables(connectionId, schema)` の結果をフィルタする
+2. `MasterDataQueryService.listRecords(userId, connectionId, schema, table, criteria, page)`
+   - UI組立条件の場合: `EffectivePermissionResolver.resolveEffectiveColumnPermissions(...)` で
      R以上のカラムのみ絞り込み・ソート対象にする
    - 手入力WHERE/ORDER BYの場合: カラム権限フィルタを適用せずそのまま実行
      （GEN-2、設計上の意図的例外。表示列自体は読み取り権限フィルタの対象のまま）
@@ -63,10 +63,10 @@
 ## フロー4: マスタデータ編集・作成・削除（統一API、GEN-3〜GEN-5）
 
 1. フロントエンドは編集・作成・削除の全操作をまとめて
-   `MasterDataMutationService.applyChanges(connectionId, tableId, userId, request)` へ送信する
+   `MasterDataMutationService.applyChanges(userId, connectionId, schema, table, request)` へ送信する
 2. `MasterDataMutationService` は実行前に、リクエスト内の全操作について
    `EffectivePermissionResolver` を用いて可否を検証する:
-   - 更新対象カラムは `resolveEffectiveColumnLevels(...)` がRU以上であること
+   - 更新対象カラムは `resolveEffectiveColumnPermissions(...)` がRU以上であること
    - 作成操作は `canCreate(...)` がtrueであること
    - 削除操作は `canDelete(...)` がtrueであること
 3. 検証を通過した操作のみ、対象RDBMSへの単一トランザクション内でまとめて実行する

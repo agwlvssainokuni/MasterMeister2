@@ -43,7 +43,9 @@
 4. **Service → 内部DB**: Spring Data JPA のRepositoryを介してアクセスする。
 5. **対象RDBMS接続の伝搬**: 全REST APIエンドポイントは `connectionId` をパスパラメータとして
    明示的に受け取る（例: `/api/connections/{connectionId}/tables`,
-   `/api/connections/{connectionId}/masterdata/{tableId}/records`）。JWTやサーバ側セッションに
+   `/api/connections/{connectionId}/schemas/{schema}/tables/{table}/records`）。テーブル/カラムは
+   `tableId` 等の内部IDではなく `schema`/`table`（/`column`）の名前で識別し、`permission` /
+   `schema` パッケージと識別方式を統一する。JWTやサーバ側セッションに
    接続情報を保持しない（Question 4 = A）。
 6. **横断的関心事の呼び出し**: 監査ログ（`AuditLogService.record(...)`）は、対象操作を行う
    サービスの実装コード内で明示的に呼び出す（AOPは使用しない、Question 5 = B）。
@@ -104,9 +106,9 @@ sequenceDiagram
     participant DB as 対象RDBMS
     participant AL as AuditLogService
 
-    FE->>MC: POST /connections/id/masterdata/tableId/mutations
-    MC->>MM: applyChanges(connectionId, tableId, userId, request)
-    MM->>PR: canCreate / canDelete / resolveEffectiveColumnLevels
+    FE->>MC: POST /connections/{id}/schemas/{schema}/tables/{table}/mutations
+    MC->>MM: applyChanges(userId, connectionId, schema, table, request)
+    MM->>PR: canCreate / canDelete / resolveEffectiveColumnPermissions
     PR-->>MM: 判定結果
     alt 権限NG
         MM-->>MC: PermissionDeniedException
