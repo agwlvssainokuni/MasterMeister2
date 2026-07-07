@@ -183,3 +183,19 @@
 **Context**: INCEPTION PHASE - Units Generation stage, Part 2 Generation (Steps 12-15) complete. Next: Step 16 (present standardized completion message) and Step 17 (wait for explicit approval) before marking Units Generation stage complete and transitioning to CONSTRUCTION PHASE.
 
 ---
+
+## Units Generation - Approved (Part 2, Step 17-18)
+**Timestamp**: 2026-07-07T22:02:00Z
+**User Input**: "レビュー完了しました。"
+**AI Response**: "🔧 Units Generation Complete message (7-unit summary, dependency matrix, story coverage) was presented; user approved. Marking Units Generation stage complete in aidlc-state.md. INCEPTION PHASE is now fully complete (Workspace Detection, Reverse Engineering, Requirements Analysis, User Stories, Workflow Planning, Application Design, Units Generation all done and approved). Transitioning to CONSTRUCTION PHASE, Per-Unit Loop, starting with U1 (Platform Foundation) per the approved build order (U1→U2→U3→U4→{U5,U6}→U7)."
+**Context**: INCEPTION PHASE complete. Entering CONSTRUCTION PHASE per-unit loop for U1: assessing Functional Design applicability per functional-design.md conditional criteria.
+
+---
+
+## CONSTRUCTION - U1 Functional Design - Plan Created
+**Timestamp**: 2026-07-07T22:05:00Z
+**User Input**: (none — proceeding automatically per adaptive workflow once Units Generation was approved)
+**AI Response**: "Assessed Functional Design applicability for U1 (Platform Foundation) per functional-design.md's Execute/Skip criteria: common/config are purely technical (DialectStrategy, SecurityConfig etc.) with no business domain model, but audit (AuditLogService) needs a domain model (audit event taxonomy) and record/search business rules, and mail (MailService) needs notification-trigger business rules — so Functional Design EXECUTEs for U1, scoped to audit+mail business logic plus U1's frontend common infrastructure and auditLog/ screen. Read unit-of-work.md and unit-of-work-story-map.md U1 sections (Step 1). Created aidlc-docs/construction/plans/u1-platform-foundation-functional-design-plan.md (Steps 2-4) with 7 questions covering: audit event taxonomy (fixed enum categories), audit-record failure handling (must not block primary business operation), transaction boundary between target-RDBMS operations and audit recording (separate transactions, confirming component-dependency.md's mutation flow diagram), audit search defaults (pagination/sort), mail template approach (inline templates, no template engine given only 2 mail types), scope of the shared frontend foundation (API client, auth state, layout/nav, routing, shared UI components), and common exception-to-HTTP-status mapping."
+**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U1 Functional Design, Steps 1-4 complete per functional-design.md. Awaiting user answers to all 7 [Answer]: tags before proceeding to Step 5 (answer analysis).
+
+---

@@ -3,7 +3,7 @@
 ## Project Information
 - **Project Type**: Brownfield
 - **Start Date**: 2026-07-06T10:38:36Z
-- **Current Stage**: INCEPTION - Units Generation (Part 2 - Generation, artifacts generated, awaiting user approval)
+- **Current Stage**: CONSTRUCTION - Per-Unit Loop - U1: Platform Foundation - Functional Design (Part 1 Planning, plan created 2026-07-07T22:05:00Z, awaiting user answers)
 
 ## Execution Plan Summary
 - **Plan Document**: aidlc-docs/inception/plans/execution-plan.md
@@ -44,14 +44,24 @@
 - [x] Workflow Planning — plan created 2026-07-06T21:20:00Z (approved 2026-07-07T07:50:00Z)
 - [x] Application Design — artifacts generated 2026-07-07T20:15:00Z (approved 2026-07-07T21:38:00Z)
 - [x] Units Generation Part 1 (Planning) — plan created 2026-07-07T21:42:00Z, answered 2026-07-07T21:49:00Z, approved 2026-07-07T21:52:00Z
-- [ ] Current Stage: INCEPTION - Units Generation (Part 2 - Generation, artifacts generated 2026-07-07T21:58:00Z, awaiting user approval)
+- [x] Units Generation Part 2 (Generation) — artifacts generated 2026-07-07T21:58:00Z, approved 2026-07-07T22:02:00Z
+- [x] INCEPTION PHASE COMPLETE — 2026-07-07T22:02:00Z
 
-### CONSTRUCTION PHASE (per unit, once units are defined)
-- [ ] Functional Design - EXECUTE
-- [ ] NFR Requirements - EXECUTE
-- [ ] NFR Design - EXECUTE
-- [ ] Infrastructure Design - SKIP
-- [ ] Code Generation - EXECUTE
+### CONSTRUCTION PHASE — Per-Unit Loop
+Approved build order (`unit-of-work-dependency.md`): U1 → U2 → U3 → U4 → {U5, U6} → U7
+Infrastructure Design is SKIP for all units (execution-plan.md: no new infra beyond existing devenv/docker-compose.yml).
+
+| ユニット | Functional Design | NFR Requirements | NFR Design | Infrastructure Design | Code Generation |
+|---|---|---|---|---|---|
+| U1: Platform Foundation | [ ] EXECUTE (planning) | [ ] | [ ] | SKIP | [ ] |
+| U2: Auth & User Registration | [ ] | [ ] | [ ] | SKIP | [ ] |
+| U3: RDBMS Connection & Schema Import | [ ] | [ ] | [ ] | SKIP | [ ] |
+| U4: Permission Management | [ ] | [ ] | [ ] | SKIP | [ ] |
+| U5: Master Data Maintenance | [ ] | [ ] | [ ] | SKIP | [ ] |
+| U6: Query Builder | [ ] | [ ] | [ ] | SKIP | [ ] |
+| U7: Saved Query / Execution / History | [ ] | [ ] | [ ] | SKIP | [ ] |
+
+### Build and Test (after all units complete)
 - [ ] Build and Test - EXECUTE
 
 ### OPERATIONS PHASE
