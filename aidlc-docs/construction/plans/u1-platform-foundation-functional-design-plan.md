@@ -25,10 +25,10 @@
 
 ## 成果物生成タスク（`construction/functional-design.md` Step 6）
 
-- [ ] `aidlc-docs/construction/u1-platform-foundation/functional-design/business-logic-model.md`
-- [ ] `aidlc-docs/construction/u1-platform-foundation/functional-design/business-rules.md`
-- [ ] `aidlc-docs/construction/u1-platform-foundation/functional-design/domain-entities.md`
-- [ ] `aidlc-docs/construction/u1-platform-foundation/functional-design/frontend-components.md`
+- [x] `aidlc-docs/construction/u1-platform-foundation/functional-design/business-logic-model.md`
+- [x] `aidlc-docs/construction/u1-platform-foundation/functional-design/business-rules.md`
+- [x] `aidlc-docs/construction/u1-platform-foundation/functional-design/domain-entities.md`
+- [x] `aidlc-docs/construction/u1-platform-foundation/functional-design/frontend-components.md`
       （共通基盤: APIクライアント・認証状態管理・レイアウト/ナビゲーション、および `auditLog/` 画面）
 
 ---
