@@ -42,7 +42,8 @@
    使用しない）。
 4. **Service → 内部DB**: Spring Data JPA のRepositoryを介してアクセスする。
 5. **対象RDBMS接続の伝搬**: 全REST APIエンドポイントは `connectionId` をパスパラメータとして
-   明示的に受け取る（例: `/api/connections/{connectionId}/tables`,
+   明示的に受け取る（例: `/api/connections/{connectionId}/schemas`,
+   `/api/connections/{connectionId}/schemas/{schema}/tables`,
    `/api/connections/{connectionId}/schemas/{schema}/tables/{table}/records`）。テーブル/カラムは
    `tableId` 等の内部IDではなく `schema`/`table`（/`column`）の名前で識別し、`permission` /
    `schema` パッケージと識別方式を統一する。JWTやサーバ側セッションに

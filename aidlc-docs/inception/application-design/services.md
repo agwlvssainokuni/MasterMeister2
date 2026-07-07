@@ -36,11 +36,14 @@
    - `DialectStrategyFactory.resolve(dbType)` で方言差異を吸収しつつメタデータを読み取る
    - 結果を内部DBへ保存し、`AuditLogService.record(...)` で取り込み結果（成功/失敗）を記録
 3. 管理者操作: `GroupService.createGroup(...)` / `addUserToGroup(...)`（ADM-1）
-4. 管理者操作: `PermissionAssignmentService.setPermission(...)` /
+4. 管理者操作: `SchemaQueryService.listSchemas(connectionId)` / `listTables(connectionId, schema)`
+   でスキーマ・テーブル一覧を取得し、設定対象を選択する（管理者は権限フィルタなしで
+   取り込み済み全スキーマ/テーブルを閲覧できる）
+5. 管理者操作: `PermissionAssignmentService.setPermission(...)` /
    `setAuxPermission(...)`（ユーザ or グループ単位、MVP-9 / ADM-2）
    - `SchemaQueryService.getTableDetail(...)` で対象テーブル/カラムの妥当性を検証してから設定
    - `AuditLogService.record(...)` で権限変更を記録
-5. `PermissionAssignmentService.exportPermissionsAsYaml(...)` /
+6. `PermissionAssignmentService.exportPermissionsAsYaml(...)` /
    `importPermissionsFromYaml(...)`（ADM-4, ADM-5）
    - インポート時は形式検証に失敗したら反映せずエラー、成功時のみ `AuditLogService.record(...)`
 
@@ -48,10 +51,13 @@
 
 ## フロー3: マスタデータ閲覧・絞り込み（MVP-10, MVP-11, GEN-1, GEN-2）
 
-1. `MasterDataQueryService.listAccessibleTables(userId, connectionId, schema)`
+1. `MasterDataQueryService.listAccessibleSchemas(userId, connectionId)`
+   - 内部で `EffectivePermissionResolver.listAccessibleSchemas(userId, connectionId)` を呼び出し、
+     `SchemaQueryService.listSchemas(connectionId)` の結果をフィルタする
+2. `MasterDataQueryService.listAccessibleTables(userId, connectionId, schema)`
    - 内部で `EffectivePermissionResolver.listAccessibleTables(userId, connectionId, schema)` を
      呼び出し、`SchemaQueryService.listTables(connectionId, schema)` の結果をフィルタする
-2. `MasterDataQueryService.listRecords(userId, connectionId, schema, table, criteria, page)`
+3. `MasterDataQueryService.listRecords(userId, connectionId, schema, table, criteria, page)`
    - UI組立条件の場合: `EffectivePermissionResolver.resolveEffectiveColumnPermissions(...)` で
      R以上のカラムのみ絞り込み・ソート対象にする
    - 手入力WHERE/ORDER BYの場合: カラム権限フィルタを適用せずそのまま実行
@@ -79,8 +85,9 @@
 
 ## フロー5: クエリビルダーでのSQL作成・保存・実行（GEN-6〜GEN-12）
 
-1. `QueryBuilderMetadataService.listSelectableTables/Columns(...)`
-   - `EffectivePermissionResolver` による読み取り権限フィルタを適用
+1. `QueryBuilderMetadataService.listSelectableSchemas/Tables/Columns(...)`
+   - `EffectivePermissionResolver` による読み取り権限フィルタを適用（`listAccessibleSchemas`
+     相当のスキーマ絞り込みを含む）
 2. `SqlGenerationService.generate(model)` でUI入力からSQLを生成
 3. 生成したSQLは以下のいずれかに連携する:
    - `SavedQueryService.saveQuery(...)` へ渡して保存（GEN-10）

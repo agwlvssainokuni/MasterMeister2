@@ -136,6 +136,9 @@ Permission resolveEffectiveTablePermission(Long userId, Long connectionId, Strin
 Map<String, Permission> resolveEffectiveColumnPermissions(Long userId, Long connectionId, String schema, String table)
 boolean canCreate(Long userId, Long connectionId, String schema, String table)
 boolean canDelete(Long userId, Long connectionId, String schema, String table)
+List<String> listAccessibleSchemas(Long userId, Long connectionId)
+   // 配下に1つ以上アクセス可能テーブル（resolveEffectiveTablePermission != NONE）を持つ
+   // スキーマのリスト
 List<String> listAccessibleTables(Long userId, Long connectionId, String schema)
    // resolveEffectiveTablePermission != NONE となるテーブルのリスト
 ```
@@ -160,6 +163,7 @@ List<String> listAccessibleTables(Long userId, Long connectionId, String schema)
 
 ### `MasterDataQueryService`
 ```
+List<String> listAccessibleSchemas(Long userId, Long connectionId)
 List<TableSummary> listAccessibleTables(Long userId, Long connectionId, String schema)
 PageResult<RecordDto> listRecords(Long userId, Long connectionId, String schema, String table, FilterCriteria criteria, PageRequest page)
    // criteria は UI組立条件（読み取り権限のあるカラムのみ選択可）と
@@ -181,6 +185,7 @@ MutationResult applyChanges(Long userId, Long connectionId, String schema, Strin
 
 ### `QueryBuilderMetadataService`
 ```
+List<String> listSelectableSchemas(Long userId, Long connectionId)
 List<TableRef> listSelectableTables(Long userId, Long connectionId, String schema)
 List<ColumnRef> listSelectableColumns(Long userId, Long connectionId, String schema, String table)
 ```

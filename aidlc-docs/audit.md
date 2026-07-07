@@ -135,3 +135,11 @@
 **Context**: INCEPTION PHASE - Application Design stage, artifacts already generated and awaiting approval; this was a consistency-correction pass triggered by the user's direct edit to component-methods.md, not a new formal question round. Approval gate (レビュー完了しました。) is still open.
 
 ---
+
+## Application Design - Missing Schema-Listing Step Added
+**Timestamp**: 2026-07-07T21:30:00Z
+**User Input**: "services.mdについて。指定可能なschema名を取得する処理の呼び出しを追加しなければならないのでは？"
+**AI Response**: "Confirmed the gap: after switching to schema+table name-based identification, services.md's flows (masterdata view, query builder, permission setup) referenced a `schema` parameter with no documented step for obtaining the list of available schema names, and SchemaQueryService.listSchemas(connectionId) (defined in component-methods.md) was never referenced from services.md. Added EffectivePermissionResolver.listAccessibleSchemas(userId, connectionId) (mirroring the existing listAccessibleTables pattern) plus corresponding MasterDataQueryService.listAccessibleSchemas and QueryBuilderMetadataService.listSelectableSchemas to component-methods.md. Updated services.md: Flow2 (permission setup) now has an explicit admin schema/table browsing step via SchemaQueryService (unfiltered, since admins configure permissions themselves) before setPermission/setAuxPermission; Flow3 (masterdata view) and Flow5 (query builder) now start with a permission-filtered schema-listing step before table/column listing. Updated components.md (EffectivePermissionResolver, MasterDataQueryService, QueryBuilderMetadataService, SchemaQueryService rows) and component-dependency.md (added /api/connections/{connectionId}/schemas and .../schemas/{schema}/tables URL examples) to match. A plan-mode toggle occurred mid-edit (all edits had already completed by then); user confirmed via AskUserQuestion to exit plan mode and continue with normal commit flow, which plan mode then did automatically."
+**Context**: INCEPTION PHASE - Application Design stage, further consistency-correction pass following the earlier schema+table identification-scheme unification. Approval gate (レビュー完了しました。) is still open.
+
+---
