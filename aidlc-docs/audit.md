@@ -255,3 +255,11 @@
 **Context**: CONSTRUCTION PHASE - Per-Unit Loop, U1 NFR Requirements, Step 5 in progress. Blocking on Q1 ambiguity resolution before artifact generation (Step 6).
 
 ---
+
+## CONSTRUCTION - U1 NFR Requirements - Follow-up Answers Received, Artifacts Generated
+**Timestamp**: 2026-07-08T08:02:00Z
+**User Input**: "回答を記入しました。一旦コミットしてください。" (Follow-up answers: 1-a=A [DB-persisted, stateful refresh tokens], 1-b=custom [access token 10min, refresh token 24h], 1-c=A [single-use rotating with reuse detection forcing full session logout], 1-d=A [U1 SecurityConfig verifies access tokens only; refresh token issuance/storage/rotation is U2 AuthenticationService's responsibility])
+**AI Response**: "Committed the follow-up answers (187343d). All Q1 ambiguity is now resolved — Step 5 complete, no remaining vague/ambiguous responses across Q1-Q8 (including follow-ups). Proceeded to Step 6: generated aidlc-docs/construction/u1-platform-foundation/nfr-requirements/nfr-requirements.md (Security: HS256 JWT, 10min access/24h refresh token TTL, DB-persisted stateful refresh tokens with single-use rotation and reuse-detection forced logout, U1/U2 responsibility boundary, dev-only CORS; Tech Stack: DialectStrategy Strategy pattern, H2 file-based persistence with default HikariCP, PBT-09 jqwik; Scalability: audit-log indexes on occurredAt/userId/eventCategory+eventType, no retention policy this phase; Reliability: 5s SMTP timeout, no retry; Maintainability: Logback plain-text stdout with a regex-parseable log pattern) and tech-stack-decisions.md (16-row decision table, plus explicit U1/U2 responsibility-boundary record for the JWT/refresh-token split; added jjwt (io.jsonwebtoken) as the JWT library decision, a new but low-risk tech-stack pick directly implied by the already-confirmed HS256/refresh-token requirements rather than requiring a further question round). Verified PBT-09 compliance: jqwik confirmed and documented in tech-stack-decisions.md row 16, satisfying nfr-requirements.md's PBT Compliance section requirement (property-based-testing.md Enforcement Integration: NFR Requirements stage → PBT-09) before presenting the Step 7 completion message."
+**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U1 NFR Requirements, Steps 5-6 complete. Presenting Step 7 standardized completion message next; awaiting Step 8 explicit approval.
+
+---
