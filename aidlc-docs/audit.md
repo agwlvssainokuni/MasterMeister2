@@ -247,3 +247,11 @@
 **Context**: CONSTRUCTION PHASE - Per-Unit Loop, U1 NFR Requirements, Steps 1-4 complete per nfr-requirements.md. Awaiting user answers to all 8 [Answer]: tags before proceeding to Step 5 (answer analysis).
 
 ---
+
+## CONSTRUCTION - U1 NFR Requirements - Step 5 Answer Analysis, Q1 Ambiguity Found
+**Timestamp**: 2026-07-08T07:53:00Z
+**User Input**: "回答を記入しました。一旦コミットしてください。" (answers filled directly into u1-platform-foundation-nfr-requirements-plan.md: Q1="Aを基本として、リフレッシュトークン機構を追加。", Q2=A, Q3=A, Q4=A, Q5=A, Q6=A, Q7="A / ただし、ログのレイアウトはパースのしやすさ(正規表現によるログ監視のしやすさ)を考慮する。", Q8=A)
+**AI Response**: "Committed the answered plan (ce31e3c). Performed Step 5 answer analysis per nfr-requirements.md: Q2-Q8 are unambiguous (all confirm the recommended option, Q7 adds a clear, directly-actionable constraint about regex-parseable log layout). Q1 is ambiguous/underspecified: the answer combines the recommended access-token-only approach with a refresh token mechanism (previously offered as a separate option C), but leaves storage/statefulness, expiry values, rotation policy, and the U1/U2 responsibility boundary undetermined — all of which directly affect SecurityConfig's design (owned by U1) and domain-entities.md (which currently has no RefreshToken persistence model). Per Step 5's instruction to flag ambiguity and generate follow-up questions rather than proceed, added a 'Follow-up Questions (Round 2)' section to the plan file with four sub-questions (1-a: storage/verification method — recommended: DB-persisted, stateful, so logout can immediately revoke; 1-b: expiry values; 1-c: rotation policy — recommended: single-use rotating with reuse detection; 1-d: U1/U2 responsibility boundary — recommended: U1's SecurityConfig only verifies access tokens, refresh token issuance/storage/rotation is U2's AuthenticationService responsibility). Not proceeding to Step 6 (nfr-requirements.md/tech-stack-decisions.md generation) until these are answered."
+**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U1 NFR Requirements, Step 5 in progress. Blocking on Q1 ambiguity resolution before artifact generation (Step 6).
+
+---
