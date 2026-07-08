@@ -335,3 +335,27 @@
 **Context**: CONSTRUCTION PHASE - Per-Unit Loop, U1 Code Generation, Part 1 Planning Steps 2-5 complete per code-generation.md. Presenting plan summary and requesting approval next (Steps 6-7).
 
 ---
+
+## CONSTRUCTION - U1 Code Generation - Part 1 Plan Approved (Step 8)
+**Timestamp**: 2026-07-08T09:00:00Z
+**User Input**: "レビュー完了しました。" then "レビュー完了しました。ステップごとにコミットしてください。" (approval, followed by an explicit instruction to commit after each step of Part 2 Generation rather than as a single batch)
+**AI Response**: "Logged explicit approval of u1-platform-foundation-code-generation-plan.md (16 steps). Recorded user's instruction to commit after each step during Part 2 Generation (deviates from the default of a single end-of-stage commit; will scope each commit to the files produced by that specific step, using the step's own description as the commit message subject). Proceeding to Part 2 (Steps 10-16 of code-generation.md): execute the plan sequentially, marking checkboxes [x] in the plan file immediately after each step, committing after each step completes."
+**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U1 Code Generation, Part 1 Planning COMPLETE (Step 9 next: update aidlc-state.md). Beginning Part 2 Generation.
+
+---
+
+## CONSTRUCTION - U1 Code Generation - Step 1 Complete (Project Structure Setup)
+**Timestamp**: 2026-07-08T09:05:00Z
+**User Input**: (none — executing approved plan Step 1 per code-generation.md Part 2)
+**AI Response**: "Added war plugin + bootWar-eligible dependencies to backend/build.gradle.kts (spring-boot-starter-security/data-jpa/mail/thymeleaf, H2 runtime, jjwt-api/impl/jackson, spring-security-test, jqwik). Per user correction, moved all non-BOM-managed dependency versions (jjwt 0.12.6, jqwik 1.9.1) into the dependencyManagement.dependencies block rather than inlining them on the dependencies entries, consistent with how the Spring Boot BOM is already imported. Added react-router-dom, zustand, and vitest/@testing-library/react/jest-dom/user-event/jsdom to frontend/package.json, added a 'test': 'vitest run' script (resolving CLAUDE.md's previously-noted absence of a frontend test runner), configured vite.config.ts with a test block (jsdom environment, setupFiles), created frontend/src/test/setup.ts importing @testing-library/jest-dom, and added vitest/jest-dom types to tsconfig.app.json. Created frontend/src/styles/design-tokens.css with CSS custom properties for colors (primary/secondary/info/success/warning/error/text/background/surface/border), font-size scale, spacing scale, and border-radius per frontend-components.md's design system section. Marked Step 1 checkboxes [x] in the plan file."
+**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U1 Code Generation, Part 2 Generation, Step 1 of 16 complete. Committing per user's per-step instruction, then proceeding to Step 2 (Business Logic Generation).
+
+---
+
+## CONSTRUCTION - U1 Code Generation - Step 1 Correction (npm install / vitest version)
+**Timestamp**: 2026-07-08T09:08:00Z
+**User Input**: "frontendはpackage-lock.jsonも修正する必要があるはず。npm installして反映する必要があるのでは？"
+**AI Response**: "Ran npm install in frontend/ to sync package-lock.json with the package.json edits. Initial install surfaced 5 vulnerabilities (1 critical, 1 high, 3 moderate) from vitest 2.1.8's bundled esbuild/vite-node transitive deps; bumped vitest to ^4.1.10 (confirmed peerDependencies supports vite ^8.0.0, matching this project's vite ^8.1.1) and re-ran npm install — 0 vulnerabilities remained. Verified npx vitest run (no test files yet, expected) and npm run build both succeed with the new dependency set."
+**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U1 Code Generation, Part 2 Generation, Step 1 correction before commit. package-lock.json now included in the Step 1 commit alongside package.json.
+
+---

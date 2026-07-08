@@ -16,6 +16,7 @@
 
 plugins {
     java
+    war
     id("org.springframework.boot") version "4.1.0"
     id("io.spring.dependency-management") version "1.1.7"
 }
@@ -34,11 +35,28 @@ dependencyManagement {
     imports {
         mavenBom("org.springframework.boot:spring-boot-dependencies:4.1.0")
     }
+    dependencies {
+        dependency("io.jsonwebtoken:jjwt-api:0.12.6")
+        dependency("io.jsonwebtoken:jjwt-impl:0.12.6")
+        dependency("io.jsonwebtoken:jjwt-jackson:0.12.6")
+        dependency("net.jqwik:jqwik:1.9.1")
+    }
 }
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-mail")
+    implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
+    implementation("io.jsonwebtoken:jjwt-api")
+    runtimeOnly("io.jsonwebtoken:jjwt-impl")
+    runtimeOnly("io.jsonwebtoken:jjwt-jackson")
+    runtimeOnly("com.h2database:h2")
+    providedRuntime("org.springframework.boot:spring-boot-starter-tomcat")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.security:spring-security-test")
+    testImplementation("net.jqwik:jqwik")
 }
 
 tasks.withType<JavaCompile> {

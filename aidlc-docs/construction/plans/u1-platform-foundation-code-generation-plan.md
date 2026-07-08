@@ -55,7 +55,7 @@ U1（Platform Foundation）の Code Generation 計画。本ドキュメントが
 ## ステップ一覧
 
 ### Step 1: プロジェクト構造セットアップ（依存関係追加）
-- [ ] 1-1. `backend/build.gradle.kts` に依存関係を追加:
+- [x] 1-1. `backend/build.gradle.kts` に依存関係を追加:
   `spring-boot-starter-security`, `spring-boot-starter-data-jpa`, `spring-boot-starter-mail`,
   `spring-boot-starter-thymeleaf`, `com.h2database:h2`（runtime）,
   `io.jsonwebtoken:jjwt-api` / `jjwt-impl`（runtime）/ `jjwt-jackson`（runtime）,
@@ -63,7 +63,7 @@ U1（Platform Foundation）の Code Generation 計画。本ドキュメントが
   `org.springframework.security:spring-security-test`（testImplementation）。
   `war`プラグインを追加し`bootWar`タスクが実行可能WARを生成できるようにする
   （`build.gradle.kts`既存のBOM/JavaCompile UTF-8設定・ライセンスヘッダは維持）。
-- [ ] 1-2. `frontend/package.json` に依存関係を追加:
+- [x] 1-2. `frontend/package.json` に依存関係を追加:
   `react-router-dom`（ルーティング）, `zustand`（`authStore`用の軽量状態管理。
   `frontend-components.md`が要求する状態は`currentUser`/`token`のみで、Redux等の
   重量ライブラリは過剰と判断——低リスクな技術選定のため質問なしで決定）,
@@ -71,7 +71,7 @@ U1（Platform Foundation）の Code Generation 計画。本ドキュメントが
   `@testing-library/user-event`, `jsdom`。`vite.config.ts`にVitestの`test`設定
   （`environment: 'jsdom'`）を追加。`package.json`に`"test": "vitest run"`スクリプトを追加
   （CLAUDE.md記載の「No test runner is configured yet」を解消）。
-- [ ] 1-3. `frontend/src/styles/design-tokens.css` を新規作成（`frontend-components.md`
+- [x] 1-3. `frontend/src/styles/design-tokens.css` を新規作成（`frontend-components.md`
   デザインシステム節: プライマリ/セカンダリ色、警告/エラー/成功色、フォントサイズ・
   スペーシングスケール、ボーダー半径のCSSカスタムプロパティを`:root`スコープで定義）。
 
