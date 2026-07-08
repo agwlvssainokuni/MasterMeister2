@@ -3,7 +3,7 @@
 ## Project Information
 - **Project Type**: Brownfield
 - **Start Date**: 2026-07-06T10:38:36Z
-- **Current Stage**: CONSTRUCTION - Per-Unit Loop - U1: Platform Foundation - NFR Design (artifacts generated 2026-07-08, awaiting user approval)
+- **Current Stage**: CONSTRUCTION - Per-Unit Loop - U1: Platform Foundation - Code Generation Part 1 (Planning) plan created 2026-07-08, awaiting approval
 
 ## Execution Plan Summary
 - **Plan Document**: aidlc-docs/inception/plans/execution-plan.md
@@ -18,7 +18,7 @@
 - **Project Structure**: Monolith-ish multi-module workspace — `backend/` (Spring Boot 4.1 skeleton, package `cherry.mastermeister`), `frontend/` (React 19 + TypeScript, Vite template), `devenv/` (Docker Compose: MailPit, MySQL, MariaDB, PostgreSQL), `docs/` (REQUIREMENTS.md, PROJECT_STRUCTURE.md)
 - **Feature Code**: None yet — backend has only the default `@SpringBootApplication` class and context-load test; frontend is the unmodified Vite template
 - **Reverse Engineering Needed**: Yes (no prior reverse-engineering artifacts exist in `aidlc-docs/inception/reverse-engineering/`)
-- **Workspace Root**: /Users/agawa/Documents/project/git/MasterMeister2
+- **Workspace Root**: ~/Documents/project/git/MasterMeister2
 
 ## Code Location Rules
 - **Application Code**: Workspace root (NEVER in aidlc-docs/)
@@ -53,7 +53,7 @@ Infrastructure Design is SKIP for all units (execution-plan.md: no new infra bey
 
 | ユニット | Functional Design | NFR Requirements | NFR Design | Infrastructure Design | Code Generation |
 |---|---|---|---|---|---|
-| U1: Platform Foundation | [x] approved 2026-07-07T22:27:00Z | [x] approved 2026-07-08T08:10:00Z | [ ] generated, awaiting approval | SKIP | [ ] |
+| U1: Platform Foundation | [x] approved 2026-07-07T22:27:00Z | [x] approved 2026-07-08T08:10:00Z | [x] approved 2026-07-08T08:30:00Z | SKIP | [ ] |
 | U2: Auth & User Registration | [ ] | [ ] | [ ] | SKIP | [ ] |
 | U3: RDBMS Connection & Schema Import | [ ] | [ ] | [ ] | SKIP | [ ] |
 | U4: Permission Management | [ ] | [ ] | [ ] | SKIP | [ ] |

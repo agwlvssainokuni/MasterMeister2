@@ -29,9 +29,12 @@ backend/
     ├── main/
     │   ├── java/cherry/mastermeister/
     │   │   ├── MasterMeisterApplication.java
-    │   │   ├── config/           # 共通設定 (SecurityConfig, JpaConfig, MailConfig, DataSourceConfig 等)
+    │   │   ├── config/           # 共通設定 (JpaConfig, DataSourceConfig 等。MailはSpring Boot自動設定に委ねる)
     │   │   ├── common/           # 共通例外, 共通レスポンス, ページング等のユーティリティ
     │   │   │   └── dialect/      # 対象RDBMS方言吸収 (DialectStrategy, DB種別ごとの実装)
+    │   │   ├── security/         # JWT認証 (SecurityConfig, JwtAuthenticationFilter, JwtTokenValidator,
+    │   │   │                     #  RestAuthenticationEntryPoint, RestAccessDeniedHandler, WebConfig)
+    │   │   │                     #  U1 NFR Design（logical-components.md）で確定した専用パッケージ
     │   │   ├── auth/             # 5.3 ユーザ認証（ログイン/セッション or JWT）
     │   │   ├── userregistration/ # 5.1 ユーザ登録（申請→メール→承認/却下）
     │   │   ├── rdbmsconnection/  # 5.2 対象RDBMS接続情報管理
@@ -47,8 +50,11 @@ backend/
     │   └── resources/
     │       ├── application.yml
     │       ├── application-dev.yml
-    │       ├── db/migration/     # 内部DB(H2)スキーマ管理 (Flyway等)
+    │       ├── logback-spring.xml
     │       └── static/           # frontendビルド成果物の組込先（実行可能WAR化）
+    │       # 内部DB(H2)のスキーマ管理はFlyway/Liquibase等のマイグレーションツールを
+    │       # 導入せず、JPAの自動DDL生成（spring.jpa.hibernate.ddl-auto）に委ねる
+    │       # （U1 NFR Design Question 5 = A で確定。db/migration/ は使用しない）
     └── test/
         └── java/cherry/mastermeister/...  # 各機能パッケージに対応
 ```

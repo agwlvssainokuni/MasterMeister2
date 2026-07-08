@@ -12,14 +12,15 @@
 1. `UserRegistrationService.requestRegistration(email)`
    - 内部で `RegistrationTokenService.issueToken(email, expiry)` を呼び出し（新規メールアドレスの
      場合のみ）
-   - `MailService.sendRegistrationConfirmation(email, token)` を呼び出す
+   - `MailService.send(MailNotificationType.REGISTRATION_CONFIRMATION, email, variables)` を呼び出す
    - 呼び出し結果はメールアドレスの新規/既存を問わず同一（列挙攻撃対策）
 2. `UserRegistrationService.completeRegistration(token, rawPassword)`
    - `RegistrationTokenService.validate(token)` でトークンを検証
    - パスワードをハッシュ化してユーザを「承認待ち」状態で永続化
 3. 管理者操作: `UserRegistrationService.listPendingUsers()` → 一覧表示
 4. 管理者操作: `UserRegistrationService.approveUser(...)` / `rejectUser(...)`
-   - 完了後 `MailService.sendApprovalResult(email, approved)` を呼び出す
+   - 完了後 `MailService.send(MailNotificationType.REGISTRATION_APPROVED または
+     REGISTRATION_REJECTED, email, variables)` を呼び出す
    - `AuditLogService.record(...)` を明示的に呼び出す（管理操作の記録）
 5. `AuthenticationService.login(email, rawPassword)`
    - 承認済みユーザのみ認証成功。失敗時は `AuditLogService.record(...)` でログイン失敗を記録
@@ -33,7 +34,7 @@
    - `AuditLogService.record(...)` で接続設定変更を記録
 2. `SchemaImportService.importSchema(connectionId)`
    - `ConnectionPoolRegistry.getDataSource(connectionId)` で対象RDBMSへの接続を取得
-   - `DialectStrategyFactory.resolve(dbType)` で方言差異を吸収しつつメタデータを読み取る
+   - `DialectStrategyFactory.resolve(rdbmsType)` で方言差異を吸収しつつメタデータを読み取る
    - 結果を内部DBへ保存し、`AuditLogService.record(...)` で取り込み結果（成功/失敗）を記録
 3. 管理者操作: `GroupService.createGroup(...)` / `addUserToGroup(...)`（ADM-1）
 4. 管理者操作: `SchemaQueryService.listSchemas(connectionId)` / `listTables(connectionId, schema)`
