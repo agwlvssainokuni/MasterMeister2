@@ -384,6 +384,14 @@
 
 ---
 
+## CONSTRUCTION - U2 NFR Requirements - Approved (Step 8)
+**Timestamp**: 2026-07-09T10:10:00Z
+**User Input**: "レビュー完了しました。コミットしてください。"
+**AI Response**: "Logged explicit approval of U2 (Auth & User Registration) NFR Requirements artifacts (nfr-requirements.md, tech-stack-decisions.md). Marked U2's NFR Requirements cell [x] approved in aidlc-state.md's per-unit table. Updated Current Stage to reflect transition to NFR Design assessment for U2."
+**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U2 NFR Requirements stage COMPLETE (Step 9). Next: assess NFR Design applicability for U2 per construction/nfr-design.md Execute/Skip criteria.
+
+---
+
 ## CONSTRUCTION - U1 Code Generation - Part 1 Plan Approved (Step 8)
 **Timestamp**: 2026-07-08T09:00:00Z
 **User Input**: "レビュー完了しました。" then "レビュー完了しました。ステップごとにコミットしてください。" (approval, followed by an explicit instruction to commit after each step of Part 2 Generation rather than as a single batch)

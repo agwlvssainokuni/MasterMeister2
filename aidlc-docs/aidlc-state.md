@@ -3,7 +3,7 @@
 ## Project Information
 - **Project Type**: Brownfield
 - **Start Date**: 2026-07-06T10:38:36Z
-- **Current Stage**: CONSTRUCTION - Per-Unit Loop - U2: Auth & User Registration - NFR Requirements artifacts generated 2026-07-09T10:00:00Z (nfr-requirements.md, tech-stack-decisions.md), Step 7 completion message pending, awaiting Step 8 user approval.
+- **Current Stage**: CONSTRUCTION - Per-Unit Loop - U2: Auth & User Registration - NFR Requirements approved 2026-07-09T10:10:00Z. Next: assess NFR Design applicability for U2.
 
 ## Execution Plan Summary
 - **Plan Document**: aidlc-docs/inception/plans/execution-plan.md
@@ -54,7 +54,7 @@ Infrastructure Design is SKIP for all units (execution-plan.md: no new infra bey
 | ユニット | Functional Design | NFR Requirements | NFR Design | Infrastructure Design | Code Generation |
 |---|---|---|---|---|---|
 | U1: Platform Foundation | [x] approved 2026-07-07T22:27:00Z | [x] approved 2026-07-08T08:10:00Z | [x] approved 2026-07-08T08:30:00Z | SKIP | [x] approved 2026-07-08T23:45:00Z |
-| U2: Auth & User Registration | [x] approved 2026-07-09T09:30:00Z | [ ] | [ ] | SKIP | [ ] |
+| U2: Auth & User Registration | [x] approved 2026-07-09T09:30:00Z | [x] approved 2026-07-09T10:10:00Z | [ ] | SKIP | [ ] |
 | U3: RDBMS Connection & Schema Import | [ ] | [ ] | [ ] | SKIP | [ ] |
 | U4: Permission Management | [ ] | [ ] | [ ] | SKIP | [ ] |
 | U5: Master Data Maintenance | [ ] | [ ] | [ ] | SKIP | [ ] |
