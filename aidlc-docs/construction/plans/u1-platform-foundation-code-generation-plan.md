@@ -76,13 +76,13 @@ U1（Platform Foundation）の Code Generation 計画。本ドキュメントが
   スペーシングスケール、ボーダー半径のCSSカスタムプロパティを`:root`スコープで定義）。
 
 ### Step 2: ビジネスロジック生成
-- [ ] 2-1. `backend/src/main/java/cherry/mastermeister/common/exception/` に
+- [x] 2-1. `backend/src/main/java/cherry/mastermeister/common/exception/` に
   `PermissionDeniedException` / `EntityNotFoundException` / `ValidationException`
   （いずれも`RuntimeException`継承、共通基底クラスは設けない）を生成。
-- [ ] 2-2. `backend/src/main/java/cherry/mastermeister/common/` に
+- [x] 2-2. `backend/src/main/java/cherry/mastermeister/common/` に
   `PageRequest`（page, pageSize）, `PageResult<T>`（content, totalCount, page, pageSize）,
   `ErrorResponse`（error, message — `business-rules.md` 3.1のレスポンスDTO形式）を生成。
-- [ ] 2-3. `backend/src/main/java/cherry/mastermeister/common/dialect/` に
+- [x] 2-3. `backend/src/main/java/cherry/mastermeister/common/dialect/` に
   `RdbmsType`（enum: `MYSQL`/`MARIADB`/`POSTGRESQL`/`H2`）、`DialectStrategy`
   （インタフェース: `getRdbmsType()`, `quoteIdentifier(String)`, `buildPagingClause(int, int)`,
   `buildNullsOrderingClause(SortDirection, NullsOrder)`, `getSchemaResolutionMode()`。
@@ -92,7 +92,7 @@ U1（Platform Foundation）の Code Generation 計画。本ドキュメントが
   `LIMIT n OFFSET m`構文、`NULLS FIRST/LAST`または`ORDER BY (col IS NULL)`エミュレーションの
   方言差異を実装）、`DialectStrategyFactory`（`Map<RdbmsType, DialectStrategy>`をSpring自動集約で
   受け取り`resolve(RdbmsType)`で解決）を生成。
-- [ ] 2-4. `backend/src/main/java/cherry/mastermeister/security/` に
+- [x] 2-4. `backend/src/main/java/cherry/mastermeister/security/` に
   `JwtTokenValidator`（HS256署名・有効期限検証、`application.yml`の`mm.app.jwt.secret`
   （環境変数経由）を使用、`JwtClaims`レコード（`userId: Long`, `role: String`）を返す、
   失敗時は内部例外を投げ`JwtAuthenticationFilter`が捕捉）、
@@ -106,7 +106,7 @@ U1（Platform Foundation）の Code Generation 計画。本ドキュメントが
   `authenticated()`。`JwtAuthenticationFilter`を`UsernamePasswordAuthenticationFilter`より前に
   追加）、
   `WebConfig`（`@Profile("dev")`、CORS許可: `localhost:5173`）を生成。
-- [ ] 2-5. `backend/src/main/java/cherry/mastermeister/audit/` に
+- [x] 2-5. `backend/src/main/java/cherry/mastermeister/audit/` に
   `EventCategory`（enum: `AUTHENTICATION`/`ADMIN_OPERATION`/`DATA_ACCESS`）、
   `EventType`（enum、`domain-entities.md`の14種）、`Result`（enum: `SUCCESS`/`FAILURE`）、
   `AuditLog`（JPAエンティティ。`domain-entities.md`のフィールド定義、
@@ -119,7 +119,7 @@ U1（Platform Foundation）の Code Generation 計画。本ドキュメントが
   `search(criteria, page)`は`occurredAt`降順固定、`application.yml`の
   `mm.app.audit.default-page-size`/`page-size-options`を参照してページサイズ既定値・上限を
   適用する（P5））を生成。
-- [ ] 2-6. `backend/src/main/java/cherry/mastermeister/mail/` に
+- [x] 2-6. `backend/src/main/java/cherry/mastermeister/mail/` に
   `MailNotificationType`（enum: `REGISTRATION_CONFIRMATION`/`REGISTRATION_APPROVED`/
   `REGISTRATION_REJECTED`）、
   `MailService`（`@Service`。`JavaMailSender` + Thymeleaf `TemplateEngine`を使用し、
@@ -129,7 +129,7 @@ U1（Platform Foundation）の Code Generation 計画。本ドキュメントが
   `backend/src/main/resources/templates/mail/` に3つのThymeleafテンプレート
   （`registration-confirmation.html`, `registration-approved.html`,
   `registration-rejected.html`）を生成（変数プレースホルダ: 宛先名, リンクURL, 有効期限等）。
-- [ ] 2-7. `backend/src/main/java/cherry/mastermeister/config/` に
+- [x] 2-7. `backend/src/main/java/cherry/mastermeister/config/` に
   `GlobalExceptionHandler`（`@RestControllerAdvice`。`business-rules.md` 3.1の
   マッピング: `PermissionDeniedException`→403, `EntityNotFoundException`→404,
   `ValidationException`→400, 未捕捉`Exception`→500。全て`ErrorResponse`形式で返却）を生成。

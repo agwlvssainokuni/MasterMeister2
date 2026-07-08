@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>登録承認のお知らせ</title>
+</head>
+<body>
+<p><span th:text="${recipientName}">〇〇</span> 様</p>
+<p>MasterMeisterへのご登録申請が承認されました。以下のリンクからログインしてください。</p>
+<p><a th:href="${linkUrl}" th:text="${linkUrl}">ログインリンク</a></p>
+</body>
+</html>

@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>メールアドレス確認</title>
+</head>
+<body>
+<p><span th:text="${recipientName}">〇〇</span> 様</p>
+<p>MasterMeisterへのご登録ありがとうございます。以下のリンクをクリックして、メールアドレスの確認を完了してください。</p>
+<p><a th:href="${linkUrl}" th:text="${linkUrl}">確認リンク</a></p>
+<p>このリンクの有効期限は <span th:text="${expiryDateTime}">2026-01-01 00:00</span> です。</p>
+</body>
+</html>
