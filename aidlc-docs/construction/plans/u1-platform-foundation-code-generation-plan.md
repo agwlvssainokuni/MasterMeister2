@@ -238,7 +238,7 @@ Functional Design時点でスコープ外(P9)とされていたため、本Code 
   呼び出し）, `types.ts`（`AuditLog`型定義、バックエンドDTOに対応）を生成。
 
 ### Step 12: フロントエンドコンポーネント単体テスト
-- [ ] 12-1. Vitest + React Testing Library で以下のexample-basedテストを生成:
+- [x] 12-1. Vitest + React Testing Library で以下のexample-basedテストを生成:
   `apiClient`（401時の自動ログアウト呼び出し、エラーDTOパース）, `authStore`
   （状態遷移）, `useAuth`/`usePagination`, `ProtectedRoute`（未認証リダイレクト、
   `requiredRole`不一致時の挙動）, `DataTable`/`Pagination`/`ToastNotification`/
