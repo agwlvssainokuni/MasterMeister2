@@ -399,3 +399,11 @@
 **Context**: CONSTRUCTION PHASE - Per-Unit Loop, U1 Code Generation, Part 2 Generation, Step 6 of 16 complete. Committing per user's standing per-step-commit instruction (bundling the build.gradle.kts tomcat-scope fix with the two new test files, since they were discovered and resolved together during this step's verification), then proceeding to Step 7 (API Layer Summary).
 
 ---
+
+## CONSTRUCTION - U1 Code Generation - Step 7 Complete (API Layer Summary)
+**Timestamp**: 2026-07-08T21:40:00Z
+**User Input**: (none — executing approved plan Step 7 per code-generation.md Part 2)
+**AI Response**: "Generated aidlc-docs/construction/u1-platform-foundation/code/api-layer-summary.md: an endpoint table (GET /api/audit-logs, authentication + ROLE_ADMIN enforced entirely by SecurityConfig, not duplicated in the controller); the endpoint's full request shape (5 optional filter query parameters plus page/pageSize with their defaults and mm.app.audit.* bounding behavior) and response shape (PageResult<AuditLogResponse> with a JSON example, noting the fixed occurredAt-descending sort and the deliberate AuditLogResponse/AuditLog entity separation); a shared error-response table covering both the two Spring-Security-originated statuses (401 via RestAuthenticationEntryPoint, 403 via RestAccessDeniedHandler) and GlobalExceptionHandler's four business-exception mappings, with an ErrorResponse JSON example; and a short table crediting AuditLogControllerTest/GlobalExceptionHandlerTest's Step 6 coverage. Marked plan checkbox 7-1 [x]."
+**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U1 Code Generation, Part 2 Generation, Step 7 of 16 complete. Committing per user's standing per-step-commit instruction, then proceeding to Step 8 (Repository Layer Generation).
+
+---

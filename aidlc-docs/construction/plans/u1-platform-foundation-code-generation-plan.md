@@ -190,7 +190,7 @@ Functional Design時点でスコープ外(P9)とされていたため、本Code 
   Arbitraryで網羅）を`GlobalExceptionHandlerTest`に生成。
 
 ### Step 7: APIレイヤサマリ
-- [ ] 7-1. `aidlc-docs/construction/u1-platform-foundation/code/api-layer-summary.md`
+- [x] 7-1. `aidlc-docs/construction/u1-platform-foundation/code/api-layer-summary.md`
   を生成し、エンドポイント一覧（パス・メソッド・認可要件・リクエスト/レスポンス形状）を記載。
 
 ### Step 8: リポジトリレイヤ生成
