@@ -252,7 +252,7 @@ Functional Design時点でスコープ外(P9)とされていたため、本Code 
   `data-testid`一覧を記載。
 
 ### Step 14: データベースマイグレーションスクリプト
-- [ ] 14-1. **該当なし（N/A）**: U1 NFR Design Question 5 = A の決定
+- [x] 14-1. **該当なし（N/A）**: U1 NFR Design Question 5 = A の決定
   （`nfr-design-patterns.md` 4.1）により、内部DB(H2)のスキーマ管理はJPAの自動DDL生成
   （`spring.jpa.hibernate.ddl-auto`）に委ね、Flyway/Liquibase等のマイグレーションツールは
   導入しない。`docs/PROJECT_STRUCTURE.md`は本方針に合わせ`db/migration/`エントリを

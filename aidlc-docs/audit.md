@@ -455,3 +455,11 @@
 **Context**: CONSTRUCTION PHASE - Per-Unit Loop, U1 Code Generation, Part 2 Generation, Step 13 of 16 complete. Committing per user's standing per-step-commit instruction, then proceeding to Step 14 (DB Migration Scripts — N/A per U1 NFR Design Q5, no-op acknowledgment only).
 
 ---
+
+## CONSTRUCTION - U1 Code Generation - Step 14 Complete (DB Migration Scripts - N/A)
+**Timestamp**: 2026-07-08T22:28:00Z
+**User Input**: "続けて。" (continue — same standing authorization carried over from prior steps, no further check-ins expected between Part 2 Generation steps).
+**AI Response**: "Step 14 is explicitly scoped as N/A by the plan itself: per U1 NFR Design Question 5 = A, the internal DB (H2) schema is managed via JPA's automatic DDL generation (spring.jpa.hibernate.ddl-auto), so no Flyway/Liquibase migration scripts are introduced in this unit. No code was generated for this step. Marked plan checkbox 14-1 [x] as a no-op acknowledgment."
+**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U1 Code Generation, Part 2 Generation, Step 14 of 16 complete (N/A, no artifacts). Committing the checkbox/audit bookkeeping per user's standing per-step-commit instruction, then proceeding to Step 15 (Documentation Generation — testing-summary.md).
+
+---
