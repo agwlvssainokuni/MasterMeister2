@@ -180,10 +180,10 @@ Functional Design時点でスコープ外(P9)とされていたため、本Code 
   （`frontend-components.md`の想定エンドポイントに準拠）を生成。
 
 ### Step 6: APIレイヤ単体テスト
-- [ ] 6-1. `AuditLogControllerTest`（`@WebMvcTest` + `spring-security-test`の
+- [x] 6-1. `AuditLogControllerTest`（`@WebMvcTest` + `spring-security-test`の
   `@WithMockUser`）: 正常系（絞り込みあり/なし、ページング）、管理者以外での403、
   未認証での401をexample-basedテストで検証。
-- [ ] 6-2. **P8**（`GlobalExceptionHandler`の例外→HTTPステータスマッピング、Oracle性質）:
+- [x] 6-2. **P8**（`GlobalExceptionHandler`の例外→HTTPステータスマッピング、Oracle性質）:
   スタブController経由で`PermissionDeniedException`/`EntityNotFoundException`/
   `ValidationException`/汎用`Exception`をそれぞれ投げさせ、`business-rules.md` 3.1の
   マッピング表と一致することを検証するjqwik `@Property`テスト（例外種別4値の直積を
