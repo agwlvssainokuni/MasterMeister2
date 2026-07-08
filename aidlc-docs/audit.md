@@ -392,6 +392,14 @@
 
 ---
 
+## CONSTRUCTION - U2 NFR Design - Plan Created
+**Timestamp**: 2026-07-09T10:15:00Z
+**User Input**: (none — proceeding automatically per adaptive workflow once U2 NFR Requirements was approved)
+**AI Response**: "Assessed NFR Design applicability for U2 per nfr-design.md's Execute/Skip criteria (top-level CLAUDE.md): EXECUTEs, because U2's NFR Requirements produced concrete non-functional decisions (BCrypt configuration, opaque token generation, sessionStorage client-side sync, admin-bootstrap credential handling, tokenHash indexing) needing translation into design patterns/logical components. Explicitly justified skipping a dedicated Resilience Patterns question: U1's nfr-design-patterns.md 3.1 (try-catch + REQUIRES_NEW for MailService/AuditLogService) already covers U2's usage of those shared components, no new resilience concern exists. Read U2's nfr-requirements.md/tech-stack-decisions.md plus U1's nfr-design-patterns.md as prior context (Step 1). Created aidlc-docs/construction/plans/u2-auth-user-registration-nfr-design-plan.md (Steps 2-4) with 5 questions: Q1 PasswordEncoder bean placement (added to existing U1 SecurityConfig, no new @Configuration class, recommended); Q2 opaque token generation implementation (shared TokenGenerator component providing generate()/hash() reused by both RegistrationTokenService and RefreshTokenService, recommended to avoid duplicated SecureRandom logic); Q3 admin-bootstrap implementation pattern (ApplicationRunner in the auth package, idempotency check via UserRepository lookup by bootstrap email, no-op if bootstrap email/password unset, recommended); Q4 tokenHash indexing implementation (unique @Column constraint only, no redundant @Table(indexes=...), contrasted against U1's AuditLog composite-index pattern which is a different case — non-unique columns); Q5 client-side sessionStorage sync implementation (zustand persist middleware with sessionStorage storage adapter, recommended over manual setItem/removeItem calls scattered through authStore)."
+**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U2 NFR Design, Steps 1-4 complete per nfr-design.md. Awaiting user answers to all 5 [Answer]: tags before proceeding to Step 5 (answer analysis).
+
+---
+
 ## CONSTRUCTION - U1 Code Generation - Part 1 Plan Approved (Step 8)
 **Timestamp**: 2026-07-08T09:00:00Z
 **User Input**: "レビュー完了しました。" then "レビュー完了しました。ステップごとにコミットしてください。" (approval, followed by an explicit instruction to commit after each step of Part 2 Generation rather than as a single batch)
