@@ -4,30 +4,41 @@
 
 ---
 
-## 1. Security / Auth（`cherry.mastermeister.auth`想定）
+## 1. Security（`cherry.mastermeister.security`）
+
+`auth`・`userregistration`どちらの業務ロジックにも属さない認証基盤の道具は、U1で確立済みの
+`security`パッケージに集約する（ユーザレビューにより`OpaqueTokenGenerator`検討時に確定）。
 
 | コンポーネント | 種別 | 責務 |
 |---|---|---|
 | `SecurityConfig`（U1既存、拡張） | `@Configuration` | `PasswordEncoder` Bean（BCrypt、`mm.app.security.password-encoder-strength`で強度指定）を追加する |
 | `OpaqueTokenGenerator` | Component | `generate(): String`（32バイトSecureRandom、URL-safe base64）、`hash(String): String`（SHA-256）。`RegistrationToken`/`RefreshToken`の双方から利用される |
-| `AdminBootstrapRunner` | `ApplicationRunner` | 起動時、`mm.app.admin.bootstrap.email`/`password`が設定済みかつ`role = ADMIN`の`User`が0件の場合のみ、bcryptハッシュ化した1件のADMIN Userを作成する（冪等） |
-| `RefreshToken` | JPA Entity | `userId`, `familyId`, `tokenHash`（`@Column(unique = true)`）, `expiresAt`, `rotatedAt`, `revokedAt`, `createdAt` |
-| `RefreshTokenService` | Service | リフレッシュトークンの発行・検証・ローテーション・reuse detection時の一括失効（`domain-entities.md`参照）。`OpaqueTokenGenerator`を利用 |
-| `AuthenticationService` | Service | ログイン（`login`）、ログアウト（`logout`）。認証成功時は`JwtTokenProvider`（U1責務境界）でアクセストークンを発行し、`RefreshTokenService`でリフレッシュトークンを発行する |
+| `JwtTokenProvider`（U2責務、訂正） | Component | アクセストークン（JWT）の発行。U1の`JwtTokenValidator`（検証専用）と対になる発行専用コンポーネント。以前「U1責務境界」と誤記していたが、U1側成果物の記述と揃えてU2責務に訂正 |
 
 ---
 
-## 2. User Registration（`cherry.mastermeister.userregistration`想定）
+## 2. Auth（`cherry.mastermeister.auth`想定）
+
+| コンポーネント | 種別 | 責務 |
+|---|---|---|
+| `AdminBootstrapRunner` | `ApplicationRunner` | 起動時、`mm.app.admin.bootstrap.email`/`password`が設定済みかつ`role = ADMIN`の`User`が0件の場合のみ、bcryptハッシュ化した1件のADMIN Userを作成する（冪等） |
+| `RefreshToken` | JPA Entity | `userId`, `familyId`, `tokenHash`（`@Column(unique = true)`）, `expiresAt`, `rotatedAt`, `revokedAt`, `createdAt` |
+| `RefreshTokenService` | Service | リフレッシュトークンの発行・検証・ローテーション・reuse detection時の一括失効（`domain-entities.md`参照）。`OpaqueTokenGenerator`（`security`パッケージ）を利用 |
+| `AuthenticationService` | Service | ログイン（`login`）、ログアウト（`logout`）。認証成功時は`JwtTokenProvider`（`security`パッケージ、U2責務）でアクセストークンを発行し、`RefreshTokenService`でリフレッシュトークンを発行する |
+
+---
+
+## 3. User Registration（`cherry.mastermeister.userregistration`想定）
 
 | コンポーネント | 種別 | 責務 |
 |---|---|---|
 | `RegistrationToken` | JPA Entity | `email`, `tokenHash`（`@Column(unique = true)`）, `expiresAt`, `invalidatedAt`, `consumedAt`, `createdAt` |
-| `RegistrationTokenService` | Service | `validate(token)`（`VALID`/`EXPIRED`/`NOT_FOUND`判定）、トークン発行・無効化。`OpaqueTokenGenerator`を利用 |
+| `RegistrationTokenService` | Service | `validate(token)`（`VALID`/`EXPIRED`/`NOT_FOUND`判定）、トークン発行・無効化。`OpaqueTokenGenerator`（`security`パッケージ）を利用 |
 | `UserRegistrationService` | Service | `requestRegistration`/`completeRegistration`/`approveUser`/`rejectUser`/`listPendingUsers`（`business-rules.md` 1節） |
 
 ---
 
-## 3. Frontend（`features/auth/`, `features/userRegistration/`）
+## 4. Frontend（`features/auth/`, `features/userRegistration/`）
 
 | コンポーネント | 種別 | 責務 |
 |---|---|---|
@@ -37,7 +48,7 @@
 
 ---
 
-## 4. 設定ファイル
+## 5. 設定ファイル
 
 | ファイル | 内容 |
 |---|---|
@@ -45,10 +56,11 @@
 
 ---
 
-## 5. U1/U2責務境界の再確認
+## 6. U1/U2責務境界の再確認
 
 - U1の`SecurityConfig`はアクセストークン検証フィルタチェーンを担当し、本ユニットで
   `PasswordEncoder` Beanを追加する形で拡張する（新しい`@Configuration`クラスは作らない）。
-- U1の`JwtTokenProvider`（アクセストークン発行、U1 NFR Requirements 1.1で確定）と本ユニットの
-  `OpaqueTokenGenerator`（`RegistrationToken`/`RefreshToken`という非JWTトークンの生成）は
-  明確に役割が異なるコンポーネントである。
+- `JwtTokenProvider`（アクセストークン発行）・`OpaqueTokenGenerator`（`RegistrationToken`/
+  `RefreshToken`という非JWTトークンの生成）はいずれもU2の責務であり、両者とも`security`
+  パッケージに配置するが、役割が明確に異なるコンポーネントとして共存する（U1は
+  `JwtTokenValidator`＝検証専用のみを担当し、発行は行わない）。

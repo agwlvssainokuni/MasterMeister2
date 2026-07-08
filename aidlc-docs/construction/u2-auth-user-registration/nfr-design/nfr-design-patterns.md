@@ -13,19 +13,34 @@
   int strength)`が`new BCryptPasswordEncoder(strength)`を返す。
 - 専用の`@Configuration`クラスは新設しない。認証関連のBean定義は`SecurityConfig`に集約する。
 
-### 1.2 不透明トークン生成の実装方式（Question 2）
+### 1.2 不透明トークン生成の実装方式（Question 2、ユーザレビューによりパッケージ確定）
 
-- 共通コンポーネント`OpaqueTokenGenerator`を1つ設ける（`RegistrationToken`/`RefreshToken`が
-  共有する`auth`パッケージ、またはその両方から参照可能な位置に配置。具体的なパッケージは
-  Code Generationで確定）。
+- 共通コンポーネント`OpaqueTokenGenerator`を`cherry.mastermeister.security`パッケージに配置する。
+  `auth`（`RefreshTokenService`）・`userregistration`（`RegistrationTokenService`）のいずれの
+  業務ロジックにも属さない認証基盤の道具であり、`security`パッケージから両パッケージへ対称に
+  参照させることで、`auth`↔`userregistration`間の依存発生を避ける（U1で`PasswordEncoder`
+  Beanを`SecurityConfig`＝`security`パッケージに置いた方針と一貫させる）。
 - `generate(): String`（32バイトの`SecureRandom`バイト列をURL-safe base64エンコードした平文
   トークン）と`hash(String plainToken): String`（SHA-256ハッシュ、DB保存用の`tokenHash`列に
   使用）を提供する。
 - `RegistrationTokenService`・`RefreshTokenService`（いずれもCode Generationで具体化）の双方が
   `OpaqueTokenGenerator`を利用し、生成・ハッシュ化ロジックの重複を避ける。
-- 命名は`OpaqueTokenGenerator`とし、U1で導入済みの`JwtTokenProvider`（アクセストークン＝JWT用）
-  と明確に区別する（ユーザレビューによる命名修正、`u2-auth-user-registration-nfr-design-plan.md`
-  Question 2参照）。
+- 命名は`OpaqueTokenGenerator`とし、`JwtTokenProvider`（アクセストークン＝JWT用、同じく
+  `security`パッケージに配置。1.2.1参照）と明確に区別する（ユーザレビューによる命名修正、
+  `u2-auth-user-registration-nfr-design-plan.md` Question 2参照）。
+
+### 1.2.1 JwtTokenProviderの責務所在の訂正
+
+- `u2-auth-user-registration/functional-design/business-rules.md`・`business-logic-model.md`で
+  使用されている`JwtTokenProvider`（アクセストークン発行）は、U1側成果物
+  （`u1-platform-foundation/nfr-requirements/nfr-requirements.md` 1.1、`tech-stack-decisions.md`、
+  `nfr-design/logical-components.md`）で一貫して**U2（本ユニット）の責務**と確定している。
+  本ユニットの`logical-components.md`（本改訂前の版）で「U1責務境界」としていたのは誤記であり、
+  本改訂で「U2責務、`security`パッケージに配置」に訂正する（`OpaqueTokenGenerator`のパッケージ
+  検討に伴いユーザレビューで判明・訂正）。
+- `JwtTokenProvider`は`OpaqueTokenGenerator`と同様、`auth`固有の業務ロジックではなく認証基盤の
+  道具であるため、`cherry.mastermeister.security`パッケージに配置する（U1の
+  `JwtTokenValidator`＝検証専用、と対になる発行専用コンポーネント）。
 
 ### 1.3 初期管理者ブートストラップの実装パターン（Question 3、domain-entities.mdとの整合修正あり）
 

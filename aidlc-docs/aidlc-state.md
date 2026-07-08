@@ -3,7 +3,7 @@
 ## Project Information
 - **Project Type**: Brownfield
 - **Start Date**: 2026-07-06T10:38:36Z
-- **Current Stage**: CONSTRUCTION - Per-Unit Loop - U2: Auth & User Registration - NFR Design artifacts generated 2026-07-09T10:30:00Z (nfr-design-patterns.md, logical-components.md), Step 7 completion message pending, awaiting Step 8 user approval.
+- **Current Stage**: CONSTRUCTION - Per-Unit Loop - U2: Auth & User Registration - NFR Design Step 7 completion message presented 2026-07-09T10:35:00Z; OpaqueTokenGenerator package placement (→ security) and JwtTokenProvider ownership mislabel corrected per user review 2026-07-09T10:40:00Z; awaiting Step 8 user approval.
 
 ## Execution Plan Summary
 - **Plan Document**: aidlc-docs/inception/plans/execution-plan.md

@@ -607,3 +607,19 @@
 
 ---
 
+## CONSTRUCTION - U2 NFR Design - Step 7 Completion Message Presented
+**Timestamp**: 2026-07-09T10:35:00Z
+**User Input**: (none — automatic workflow continuation)
+**AI Response**: "Presented the mandatory standardized Step 7 completion message ('# 🎨 NFR Design Complete - u2-auth-user-registration') summarizing the design patterns and logical components generated in Step 6, pointing to aidlc-docs/construction/u2-auth-user-registration/nfr-design/ for review, and closing with the exact 2-option REVIEW REQUIRED/WHAT'S NEXT block (Request Changes vs Continue to Next Stage naming Code Generation)."
+**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U2 NFR Design, Step 7 complete. Awaiting Step 8 explicit approval.
+
+---
+
+## CONSTRUCTION - U2 NFR Design - Change Request: OpaqueTokenGenerator Package Placement
+**Timestamp**: 2026-07-09T10:40:00Z
+**User Input**: "OpaqueTokenGeneratorのパッケージをどこにするか検討。auth, userregistrationの両者から使うことになるので。" ... "OKです。"
+**AI Response**: "Before approving Step 8, user raised that nfr-design-patterns.md 1.2 had left OpaqueTokenGenerator's package placement unresolved ('auth package, or Code Generationで確定') despite it being used by both the auth package (RefreshTokenService) and the userregistration package (RegistrationTokenService). Analyzed against docs/PROJECT_STRUCTURE.md, which already establishes cherry.mastermeister.security as U1's shared package for cross-cutting authentication-mechanism components (SecurityConfig, JwtAuthenticationFilter, JwtTokenValidator) — and noted NFR Design 1.1 had already decided to add the PasswordEncoder bean to SecurityConfig in that same package rather than to auth. Recommended placing OpaqueTokenGenerator in security for symmetry and to avoid a directional dependency between auth and userregistration. While researching this, also discovered logical-components.md incorrectly labeled JwtTokenProvider as 'U1責務境界', contradicting U1's own artifacts (u1-platform-foundation/nfr-requirements/nfr-requirements.md 1.1, tech-stack-decisions.md, nfr-design/logical-components.md), which consistently assign JwtTokenProvider issuance to U2. Proposed correcting both the package placement and the ownership mislabel; user approved with 'OKです'. Updated nfr-design-patterns.md (1.2 now specifies cherry.mastermeister.security as OpaqueTokenGenerator's package; new 1.2.1 documents the JwtTokenProvider ownership correction) and logical-components.md (restructured into a new Section 1 'Security' — cherry.mastermeister.security — holding SecurityConfig extension, OpaqueTokenGenerator, and JwtTokenProvider; Section 2 'Auth' retains AdminBootstrapRunner/RefreshToken/RefreshTokenService/AuthenticationService; subsequent sections renumbered 3-6; Section 6 responsibility-boundary note rewritten accordingly)."
+**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U2 NFR Design, in-review design change applied after Step 7 message, prior to Step 8 approval. Treated as a low-blast-radius correction (package placement + doc-ownership fix) per this project's established unilateral-correction precedent, made explicit and confirmed by the user before editing.
+
+---
+
