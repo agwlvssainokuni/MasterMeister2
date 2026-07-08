@@ -1,0 +1,19 @@
+.audit-log-badge {
+  display: inline-block;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  color: #fff;
+}
+
+.audit-log-badge-authentication {
+  background-color: var(--color-info);
+}
+
+.audit-log-badge-admin-operation {
+  background-color: var(--color-warning);
+}
+
+.audit-log-badge-data-access {
+  background-color: var(--color-success);
+}

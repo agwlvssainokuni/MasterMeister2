@@ -211,17 +211,17 @@ Functional Design時点でスコープ外(P9)とされていたため、本Code 
   を生成し、`AuditLogRepository`のクエリメソッド一覧とインデックス設計を記載。
 
 ### Step 11: フロントエンドコンポーネント生成
-- [ ] 11-1. `frontend/src/api/apiClient.ts`（fetchラッパー。ベースURL、`Authorization`
+- [x] 11-1. `frontend/src/api/apiClient.ts`（fetchラッパー。ベースURL、`Authorization`
   ヘッダ自動付与、共通エラーDTOパース、401受信時は`authStore`のログアウト処理呼び出し＋
   ログイン画面リダイレクト）。`data-testid`要件は本コンポーネント自体には該当しない
   （非UI）。
-- [ ] 11-2. `frontend/src/store/authStore.ts`（zustand。`currentUser: {id, email, role} |
+- [x] 11-2. `frontend/src/store/authStore.ts`（zustand。`currentUser: {id, email, role} |
   null`, `token: string | null`, ログイン/ログアウトアクション）。
-- [ ] 11-3. `frontend/src/hooks/useAuth.ts`, `frontend/src/hooks/usePagination.ts`。
-- [ ] 11-4. `frontend/src/routes/ProtectedRoute.tsx`（`requiredRole`prop対応）,
+- [x] 11-3. `frontend/src/hooks/useAuth.ts`, `frontend/src/hooks/usePagination.ts`。
+- [x] 11-4. `frontend/src/routes/ProtectedRoute.tsx`（`requiredRole`prop対応）,
   `frontend/src/routes/AppRouter.tsx`（react-router-dom使用、`features/*/routes`集約。
   現時点では`auditLog/`のみ登録）。
-- [ ] 11-5. `frontend/src/components/` に `AppLayout.tsx`（`data-testid="app-layout-nav"`等）,
+- [x] 11-5. `frontend/src/components/` に `AppLayout.tsx`（`data-testid="app-layout-nav"`等）,
   `DataTable.tsx`（`data-testid="data-table-{列名}-header"`等、ソート可能列に
   `data-testid="data-table-sort-button"`パターン）, `Pagination.tsx`
   （`data-testid="pagination-prev-button"` / `pagination-next-button"` /
@@ -229,7 +229,7 @@ Functional Design時点でスコープ外(P9)とされていたため、本Code 
   （`data-testid="toast-notification-{severity}"`）, `ConfirmDialog.tsx`
   （`data-testid="confirm-dialog-confirm-button"` / `confirm-dialog-cancel-button"`）を
   自動化テスト対応（`data-testid`属性、`{component}-{element-role}`命名）で生成。
-- [ ] 11-6. `frontend/src/features/auditLog/` に
+- [x] 11-6. `frontend/src/features/auditLog/` に
   `AuditLogPage.tsx`（`data-testid="audit-log-page-search-input"`等の下位要素経由）,
   `AuditLogFilterPanel.tsx`（`data-testid="audit-log-filter-date-from-input"` /
   `-date-to-input"` / `-user-select"` / `-category-select"` / `-type-select"` /
