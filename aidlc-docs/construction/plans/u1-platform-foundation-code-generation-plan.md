@@ -168,7 +168,7 @@ Functional Design時点でスコープ外(P9)とされていたため、本Code 
   testing-summary.md`（Step 15で生成）に明記する。（方針表明のみ。実ファイルはStep 15で生成）
 
 ### Step 4: ビジネスロジックサマリ
-- [ ] 4-1. `aidlc-docs/construction/u1-platform-foundation/code/business-logic-summary.md`
+- [x] 4-1. `aidlc-docs/construction/u1-platform-foundation/code/business-logic-summary.md`
   を生成し、Step 2・Step 3で生成したクラス一覧とP1〜P12の対応関係を表形式で記載する。
 
 ### Step 5: APIレイヤ生成
