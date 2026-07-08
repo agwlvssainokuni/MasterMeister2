@@ -423,3 +423,11 @@
 **Context**: CONSTRUCTION PHASE - Per-Unit Loop, U1 Code Generation, Part 2 Generation, Step 9 of 16 complete. Committing per user's standing per-step-commit instruction, then proceeding to Step 10 (Repository Layer Summary).
 
 ---
+
+## CONSTRUCTION - U1 Code Generation - Step 10 Complete (Repository Layer Summary)
+**Timestamp**: 2026-07-08T22:05:00Z
+**User Input**: (none — executing approved plan Step 10 per code-generation.md Part 2, continuing directly from Step 9 per the user's earlier "続けて。")
+**AI Response**: "Generated aidlc-docs/construction/u1-platform-foundation/code/repository-layer-summary.md: a method table for AuditLogRepository documenting its single search(criteria, pageable) query and the design rationale for collapsing all 32 combinations of the 5 independently-nullable filter fields into one SpEL-based JPQL @Query rather than generating per-combination dynamic query method names; an index table crediting the 3 indexes already defined on AuditLog since Step 2 (idx_audit_log_occurred_at for range/sort, idx_audit_log_user_id for equality, idx_audit_log_category_type as a composite), with a noted caveat that an eventType-only lookup would not benefit from the composite index's leading-column rule; and a Step 9 test-coverage summary table crediting AuditLogRepositoryTest's P2 round-trip property test (1000 cases) plus its 4 example-based CRUD/filter tests. Marked plan checkbox 10-1 [x]."
+**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U1 Code Generation, Part 2 Generation, Step 10 of 16 complete. Committing per user's standing per-step-commit instruction, then proceeding to Step 11 (Frontend Components Generation).
+
+---

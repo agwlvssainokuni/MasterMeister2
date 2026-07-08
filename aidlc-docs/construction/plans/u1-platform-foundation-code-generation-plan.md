@@ -207,7 +207,7 @@ Functional Design時点でスコープ外(P9)とされていたため、本Code 
 - [x] 9-2. 基本CRUD・フィルタクエリメソッドのexample-basedテストを追加。
 
 ### Step 10: リポジトリレイヤサマリ
-- [ ] 10-1. `aidlc-docs/construction/u1-platform-foundation/code/repository-layer-summary.md`
+- [x] 10-1. `aidlc-docs/construction/u1-platform-foundation/code/repository-layer-summary.md`
   を生成し、`AuditLogRepository`のクエリメソッド一覧とインデックス設計を記載。
 
 ### Step 11: フロントエンドコンポーネント生成
