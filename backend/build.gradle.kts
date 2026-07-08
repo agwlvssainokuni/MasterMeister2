@@ -40,6 +40,7 @@ dependencyManagement {
         dependency("io.jsonwebtoken:jjwt-impl:0.12.6")
         dependency("io.jsonwebtoken:jjwt-jackson:0.12.6")
         dependency("net.jqwik:jqwik:1.9.1")
+        dependency("net.jqwik:jqwik-spring:0.12.0")
     }
 }
 
@@ -55,8 +56,10 @@ dependencies {
     runtimeOnly("com.h2database:h2")
     providedRuntime("org.springframework.boot:spring-boot-starter-tomcat")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("net.jqwik:jqwik")
+    testImplementation("net.jqwik:jqwik-spring")
 }
 
 tasks.withType<JavaCompile> {

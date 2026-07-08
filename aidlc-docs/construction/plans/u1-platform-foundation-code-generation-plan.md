@@ -139,33 +139,33 @@ U1（Platform Foundation）の Code Generation 計画。本ドキュメントが
 （PBT-09確定）。`business-logic-model.md`のP1〜P8に加え、`common/dialect`は
 Functional Design時点でスコープ外(P9)とされていたため、本Code Generation計画で
 テスト可能な性質を新たに識別する（P9再識別 = P10〜P12）。
-- [ ] 3-1. **P1**（`AuditLogService.record`は内部DB書き込み失敗時も例外を伝播しない）:
+- [x] 3-1. **P1**（`AuditLogService.record`は内部DB書き込み失敗時も例外を伝播しない）:
   `AuditLogRepository`をモック化し任意の例外を投げさせるjqwik `@Property`テストを
   `AuditLogServiceTest`に生成。
-- [ ] 3-2. **P3〜P5**（`AuditLogService.search`のフィルタ正当性・降順整列・ページサイズ上限）:
+- [x] 3-2. **P3〜P5**（`AuditLogService.search`のフィルタ正当性・降順整列・ページサイズ上限）:
   `@DataJpaTest`相当のSpring統合テストスライス上で、jqwik Arbitraryにより生成した
   `AuditLog`集合と`AuditLogFilterCriteria`の組み合わせに対する`@Property`テストを
   `AuditLogServiceTest`に生成。
-- [ ] 3-3. **P6**（`MailService.send`は送信失敗時も例外を伝播しない）:
+- [x] 3-3. **P6**（`MailService.send`は送信失敗時も例外を伝播しない）:
   `JavaMailSender`をモック化し送信時に例外を投げさせるjqwik `@Property`テストを
   `MailServiceTest`に生成。
-- [ ] 3-4. **P7**（テンプレート変数が本文に反映され未解決プレースホルダが残らない）:
+- [x] 3-4. **P7**（テンプレート変数が本文に反映され未解決プレースホルダが残らない）:
   jqwikでランダムな変数マップ（宛先名・URL文字列等）を生成し、生成された本文に
   各値が出現し`${`を含まないことを検証する`@Property`テストを`MailServiceTest`に生成。
-- [ ] 3-5. **P10**（`DialectStrategy.quoteIdentifier`は各方言で構文的に妥当な識別子クォートを
+- [x] 3-5. **P10**（`DialectStrategy.quoteIdentifier`は各方言で構文的に妥当な識別子クォートを
   返す。任意の英数字識別子に対し、クォート文字で開始・終了し内部にクォート文字の
   エスケープ漏れがない）、**P11**（`buildPagingClause`が生成する句は`limit`/`offset`の
   非負整数に対し常に構文的に妥当なSQL断片となる）、**P12**（`buildNullsOrderingClause`が
   `NullsOrder`の指定と実際の並び順意図が矛盾しない句を生成する）:
   4実装クラス（`MySqlDialectStrategy`等）それぞれに対しjqwik `@Property`テストを
   `DialectStrategyTest`（パラメータ化、各実装で共通の性質を検証）に生成。
-- [ ] 3-6. **P8**は本ステップではなくStep 5（API Layer Unit Testing）で検証する
-  （`@ControllerAdvice`はHTTPレイヤの関心事のため）。
-- [ ] 3-7. **PBT-10（補完的テスト戦略）**の明示: 上記jqwikによるproperty-basedテストは
+- [x] 3-6. **P8**は本ステップではなくStep 5（API Layer Unit Testing）で検証する
+  （`@ControllerAdvice`はHTTPレイヤの関心事のため）。（Step 6実施時に対応）
+- [x] 3-7. **PBT-10（補完的テスト戦略）**の明示: 上記jqwikによるproperty-basedテストは
   業務ルールの不変条件・境界・オラクル比較を対象とし、API/Repository/Frontendレイヤの
   配線・契約確認（後述Step 5/8/11）は従来のexample-basedテスト（MockMvc, @DataJpaTest,
   Vitest+RTL）で行う方針を`aidlc-docs/construction/u1-platform-foundation/code/
-  testing-summary.md`（Step 15で生成）に明記する。
+  testing-summary.md`（Step 15で生成）に明記する。（方針表明のみ。実ファイルはStep 15で生成）
 
 ### Step 4: ビジネスロジックサマリ
 - [ ] 4-1. `aidlc-docs/construction/u1-platform-foundation/code/business-logic-summary.md`
