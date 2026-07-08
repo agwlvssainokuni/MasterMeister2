@@ -236,46 +236,6 @@
 **Timestamp**: 2026-07-07T22:36:00Z
 **User Input**: "レビュー完了しました。"
 **AI Response**: "Logged explicit approval of the PBT-01 remediation (Testable Properties section, P1-P9) added to business-logic-model.md. U1 Functional Design stage (including the PBT-01 blocking finding) is now fully resolved and approved. Proceeding to assess NFR Requirements applicability for U1 per construction/nfr-requirements.md."
-
----
-
-## CONSTRUCTION - U2 Functional Design - Admin Bootstrap AI Proposal Approved
-**Timestamp**: 2026-07-09T09:00:00Z
-**User Input**: "domain-model.mdに記載の、初期管理者アカウントのプロビジョニングについて、AI提案を承認する。"
-**AI Response**: "Updated domain-entities.md's '設計判断（AI提案、Q1〜Q7の対象外事項）' section to record explicit user approval of the ApplicationRunner-based admin bootstrap mechanism (mm.app.admin.bootstrap.email/password, idempotent creation of one APPROVED ADMIN User when none exists). Section heading and body text updated from open-to-challenge phrasing to '（承認済み）' with an approval date. The second AI-proposed decision (JSON-body token delivery, business-rules.md 2.1) remains open for review pending the overall Step 8 approval of the U2 Functional Design stage."
-**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U2 Functional Design, artifacts under review (Step 7/8 gate open). Partial review feedback incorporated; full stage approval (Continue to Next Stage vs Request Changes) still pending.
-
----
-
-## CONSTRUCTION - U2 Functional Design - /admin Routing Convention Formalized (Retroactive to U1)
-**Timestamp**: 2026-07-09T09:10:00Z
-**User Input**: "frontend-components.mdについて質問します。AppRouter.tsxへ /admin/pending-users を追加しますが、これは管理者専用の画面だから /admin というプレフィクスをつけた、という理解であっていますか？また、このポリシーは他の画面についても適用されますか？" followed by AskUserQuestion answer: "規約として確定する（推奨）" (formalize the /admin prefix as a project-wide routing convention for admin-only screens and retroactively apply it to U1's AuditLogPage)
-**AI Response**: "Confirmed the /admin prefix in U2's PendingUsersPage route was intentional (admin-only screen) but pointed out it had not yet been formalized as a convention — U1's frontend-components.md defined AuditLogPage's ProtectedRoute requiredRole=\"ADMIN\" composition but never assigned it a concrete AppRouter path. Asked the user whether to formalize via AskUserQuestion; user chose to formalize and retroactively apply. Updated U1's frontend-components.md: added a routing-convention note under routes/ (admin-only screens under ProtectedRoute requiredRole=\"ADMIN\" must use an /admin path prefix, binding on all future units) and added an explicit 'AppRouter.tsxへの追加' table assigning AuditLogPage the path /admin/audit-logs. Updated U2's frontend-components.md route table to cite the now-formalized U1 convention instead of standing alone as a U2-local choice."
-**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U2 Functional Design, artifacts under review (Step 7/8 gate still open). Cross-unit doc-sync: U1's already-approved frontend-components.md was amended post-approval to add a route path and codify a convention surfaced during U2's review — low-risk additive change, not a re-litigation of any prior U1 decision.
-
----
-
-## CONSTRUCTION - U2 Functional Design - API Authorization Path Convention Confirmed (No /api/admin Prefix)
-**Timestamp**: 2026-07-09T09:20:00Z
-**User Input**: "もう一つ質問です。APIについて、SecurityConfigでhasRole(\"ADMIN\")によるアクセス制限を実施すると理解しています。こちらもパスで管理者専用APIを区別できるようにする、という方針について検討してください。" followed by AskUserQuestion answer: "現行方式を踏襲（推奨）" (keep the existing per-path-pattern hasRole(\"ADMIN\") approach in SecurityConfig rather than introducing an /api/admin/** prefix)
-**AI Response**: "Analyzed the already-implemented SecurityConfig.java (requestMatchers(\"/api/audit-logs/**\").hasRole(\"ADMIN\")) and U2's planned registrations endpoints (GET /api/registrations/pending, POST /api/registrations/{userId}/approve, POST /api/registrations/{userId}/reject — all sub-paths of the same registrations resource shared with public POST /api/registrations and POST /api/registrations/complete). Recommended against a blanket /api/admin/** prefix because it would fracture the REST resource hierarchy for endpoints that mix public and admin-only actions on the same resource, and would require reworking already-committed U1 code for no benefit. Presented the analysis and asked via AskUserQuestion; user confirmed the current per-pattern approach. Documented the confirmed convention in U1's nfr-design-patterns.md as new section 1.3 (explicitly noting frontend /admin route prefix and backend API path structure are independent, deliberately divergent conventions), and added a new business-rules.md section 5 (API認可) to U2's Functional Design artifacts listing the three concrete hasRole(\"ADMIN\") path patterns for registrations endpoints plus the two permitAll() ones."
-**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U2 Functional Design, artifacts under review (Step 7/8 gate still open). Second cross-unit doc-sync of this review round: U1's approved NFR Design artifact amended post-approval (additive, low-risk) to codify an authorization convention surfaced during U2's review.
-
----
-
-## CONSTRUCTION - U2 Functional Design - Approved (Step 8)
-**Timestamp**: 2026-07-09T09:30:00Z
-**User Input**: "レビュー完了しました。コミットしてください。"
-**AI Response**: "Committed all review-feedback edits (d5a2c0c): domain-entities.md (admin-bootstrap AI proposal marked approved), U1's frontend-components.md (/admin routing convention formalized + AuditLogPage route added retroactively), U2's frontend-components.md (route table cites the convention), U1's nfr-design-patterns.md (new §1.3: API authorization stays per-path-pattern hasRole(\"ADMIN\"), no /api/admin prefix), U2's business-rules.md (new §5: concrete admin-only path patterns for registrations endpoints), and audit.md. Logged explicit approval of U2 (Auth & User Registration) Functional Design artifacts (domain-entities.md, business-rules.md, business-logic-model.md, frontend-components.md, plus the two cross-unit U1 doc-sync amendments). Marking U2's Functional Design cell [x] approved in aidlc-state.md's per-unit table. Updated Current Stage to reflect transition to NFR Requirements assessment for U2."
-**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U2 Functional Design stage COMPLETE (Step 9). Next: assess NFR Requirements applicability for U2 per construction/nfr-requirements.md Execute/Skip criteria.
-
----
-
-## CONSTRUCTION - U2 NFR Requirements - Plan Created
-**Timestamp**: 2026-07-09T09:35:00Z
-**User Input**: (none — proceeding automatically per adaptive workflow once U2 Functional Design was approved)
-**AI Response**: "Assessed NFR Requirements applicability for U2 per nfr-requirements.md's Execute/Skip criteria (top-level CLAUDE.md): EXECUTEs, because several U2-specific security/tech-stack/reliability decisions remain undetermined after U1's NFR Requirements (which settled the JWT scheme and refresh-token rotation policy but not U2-specific concerns): BCrypt cost factor, client-side token storage strategy, login brute-force protection, admin-bootstrap plaintext-password handling, opaque-token byte length/entropy, and token-lookup indexing/scalability. Read all 4 U2 Functional Design artifacts plus U1's nfr-requirements.md/tech-stack-decisions.md as prior context to avoid duplicate questions (Step 1). Created aidlc-docs/construction/plans/u2-auth-user-registration-nfr-requirements-plan.md (Steps 2-4) with 6 questions: Q1 BCrypt strength (default 10, configurable via mm.app.security.password-encoder-strength); Q2 client-side token storage (in-memory authStore only, no localStorage/sessionStorage, recommended over persistence-with-XSS-risk tradeoffs); Q3 login brute-force protection (defer to security-baseline extension opt-in, consistent with the project's already-declined security-baseline/resiliency-baseline extensions); Q4 admin-bootstrap plaintext password handling (bcrypt-hash at startup, no forced first-login password change since password-change itself is out of this unit's story scope); Q5 opaque token entropy (32 bytes / 256 bits for both RegistrationToken and RefreshToken); Q6 token-lookup scalability (unique-constraint index only, no external cache layer, given small internal-tool scale). Availability and Usability categories assessed as having no new U2-specific open items and were not given dedicated questions, per Step 1's rationale documented in the plan file."
-**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U2 NFR Requirements, Steps 1-4 complete per nfr-requirements.md. Awaiting user answers to all 6 [Answer]: tags before proceeding to Step 5 (answer analysis).
 **Context**: CONSTRUCTION PHASE - Per-Unit Loop, U1 Functional Design fully COMPLETE (including PBT-01 remediation). Next: NFR Requirements Steps 1-4 (analyze functional design, create plan with context-appropriate questions) for U1.
 
 ---
@@ -373,30 +333,6 @@
 **User Input**: "続けて。" (continuation instruction covering the whole Code Generation Part 1 Planning sequence)
 **AI Response**: "Created aidlc-docs/construction/plans/u1-platform-foundation-code-generation-plan.md covering all 16 mandated categories (Project Structure Setup through Deployment Artifacts Generation) with unit context (stories ADM-6 + cross-cutting AuditLogService.record consumers across U2-U7, no unit dependencies, owned entity AuditLog, provided interfaces AuditLogService/MailService/common DTOs+exceptions/DialectStrategy/security JWT verification). Key technical decisions made within this plan (low blast radius, no question round): Gradle dependency additions (spring-boot-starter-security/data-jpa/mail/thymeleaf, H2, jjwt, jqwik, spring-security-test, war plugin for executable WAR packaging); frontend dependency additions (react-router-dom, zustand for authStore, vitest+RTL+jsdom for the previously-absent frontend test runner); package layout matching the newly doc-synced security/ package; JwtAuthenticationFilter reads role as a generic String claim rather than depending on U2's Role type, preserving the U1/U2 boundary. Identified and incorporated PBT properties P10-P12 for DialectStrategy (quoteIdentifier/buildPagingClause/buildNullsOrderingClause syntactic validity per dialect) — the re-identification explicitly deferred by business-logic-model.md's P9 entry to this Code Generation planning stage, satisfying PBT-01 for this stage. Mapped all of P1-P12 to specific jqwik @Property tests across Business Logic/API/Repository Unit Testing steps, and added an explicit PBT-10 (complementary testing strategy) note distinguishing property-based tests (business rule invariants) from example-based tests (API wiring via MockMvc, repository via @DataJpaTest, frontend via Vitest+RTL). Updated aidlc-state.md Current Stage to reflect the plan awaiting approval."
 **Context**: CONSTRUCTION PHASE - Per-Unit Loop, U1 Code Generation, Part 1 Planning Steps 2-5 complete per code-generation.md. Presenting plan summary and requesting approval next (Steps 6-7).
-
----
-
-## CONSTRUCTION - U2 NFR Requirements - Answers Received, Artifacts Generated
-**Timestamp**: 2026-07-09T10:00:00Z
-**User Input**: "Q1: A, Q2: B, Q3: A, A4: A, Q5: A, A6: A"
-**AI Response**: "Filled all 6 [Answer]: tags into u2-auth-user-registration-nfr-requirements-plan.md. Performed Step 5 answer analysis per nfr-requirements.md: all answers are clean single-letter selections against fully-specified options, no vague/ambiguous language ('depends', 'maybe', etc.) — no follow-up round needed. Note: Q2=B is a deliberate deviation from the recommended option A (in-memory-only authStore storage), choosing sessionStorage instead; the choice is fully specified and unambiguous, just not the recommended one. Proceeded to Step 6: generated aidlc-docs/construction/u2-auth-user-registration/nfr-requirements/nfr-requirements.md (Security: BCrypt strength=10 configurable via mm.app.security.password-encoder-strength; sessionStorage for client-side token storage per Q2=B; no brute-force protection this phase, deferred to security-baseline extension opt-in; admin-bootstrap password bcrypt-hashed at startup with no forced password-change; 32-byte/256-bit opaque token entropy for RegistrationToken/RefreshToken; Scalability: tokenHash unique-constraint index only, no external cache; PBT: jqwik reused from U1, no re-selection) and tech-stack-decisions.md (7-row decision table plus a dedicated note explaining the Q2=B deviation from the recommended in-memory-only approach and the Code Generation implementation implications for authStore's sessionStorage sync)."
-**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U2 NFR Requirements, Steps 5-6 complete. Presenting Step 7 standardized completion message next; awaiting Step 8 explicit approval.
-
----
-
-## CONSTRUCTION - U2 NFR Requirements - Approved (Step 8)
-**Timestamp**: 2026-07-09T10:10:00Z
-**User Input**: "レビュー完了しました。コミットしてください。"
-**AI Response**: "Logged explicit approval of U2 (Auth & User Registration) NFR Requirements artifacts (nfr-requirements.md, tech-stack-decisions.md). Marked U2's NFR Requirements cell [x] approved in aidlc-state.md's per-unit table. Updated Current Stage to reflect transition to NFR Design assessment for U2."
-**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U2 NFR Requirements stage COMPLETE (Step 9). Next: assess NFR Design applicability for U2 per construction/nfr-design.md Execute/Skip criteria.
-
----
-
-## CONSTRUCTION - U2 NFR Design - Plan Created
-**Timestamp**: 2026-07-09T10:15:00Z
-**User Input**: (none — proceeding automatically per adaptive workflow once U2 NFR Requirements was approved)
-**AI Response**: "Assessed NFR Design applicability for U2 per nfr-design.md's Execute/Skip criteria (top-level CLAUDE.md): EXECUTEs, because U2's NFR Requirements produced concrete non-functional decisions (BCrypt configuration, opaque token generation, sessionStorage client-side sync, admin-bootstrap credential handling, tokenHash indexing) needing translation into design patterns/logical components. Explicitly justified skipping a dedicated Resilience Patterns question: U1's nfr-design-patterns.md 3.1 (try-catch + REQUIRES_NEW for MailService/AuditLogService) already covers U2's usage of those shared components, no new resilience concern exists. Read U2's nfr-requirements.md/tech-stack-decisions.md plus U1's nfr-design-patterns.md as prior context (Step 1). Created aidlc-docs/construction/plans/u2-auth-user-registration-nfr-design-plan.md (Steps 2-4) with 5 questions: Q1 PasswordEncoder bean placement (added to existing U1 SecurityConfig, no new @Configuration class, recommended); Q2 opaque token generation implementation (shared TokenGenerator component providing generate()/hash() reused by both RegistrationTokenService and RefreshTokenService, recommended to avoid duplicated SecureRandom logic); Q3 admin-bootstrap implementation pattern (ApplicationRunner in the auth package, idempotency check via UserRepository lookup by bootstrap email, no-op if bootstrap email/password unset, recommended); Q4 tokenHash indexing implementation (unique @Column constraint only, no redundant @Table(indexes=...), contrasted against U1's AuditLog composite-index pattern which is a different case — non-unique columns); Q5 client-side sessionStorage sync implementation (zustand persist middleware with sessionStorage storage adapter, recommended over manual setItem/removeItem calls scattered through authStore)."
-**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U2 NFR Design, Steps 1-4 complete per nfr-design.md. Awaiting user answers to all 5 [Answer]: tags before proceeding to Step 5 (answer analysis).
 
 ---
 
@@ -583,3 +519,67 @@
 **Context**: CONSTRUCTION PHASE - Per-Unit Loop, U2 Functional Design, Step 6 complete. Presenting the standardized 2-option completion message per functional-design.md Step 7, awaiting explicit approval (Step 8) before marking the stage complete in aidlc-state.md.
 
 ---
+## CONSTRUCTION - U2 Functional Design - Admin Bootstrap AI Proposal Approved
+**Timestamp**: 2026-07-09T09:00:00Z
+**User Input**: "domain-model.mdに記載の、初期管理者アカウントのプロビジョニングについて、AI提案を承認する。"
+**AI Response**: "Updated domain-entities.md's '設計判断（AI提案、Q1〜Q7の対象外事項）' section to record explicit user approval of the ApplicationRunner-based admin bootstrap mechanism (mm.app.admin.bootstrap.email/password, idempotent creation of one APPROVED ADMIN User when none exists). Section heading and body text updated from open-to-challenge phrasing to '（承認済み）' with an approval date. The second AI-proposed decision (JSON-body token delivery, business-rules.md 2.1) remains open for review pending the overall Step 8 approval of the U2 Functional Design stage."
+**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U2 Functional Design, artifacts under review (Step 7/8 gate open). Partial review feedback incorporated; full stage approval (Continue to Next Stage vs Request Changes) still pending.
+
+---
+
+## CONSTRUCTION - U2 Functional Design - /admin Routing Convention Formalized (Retroactive to U1)
+**Timestamp**: 2026-07-09T09:10:00Z
+**User Input**: "frontend-components.mdについて質問します。AppRouter.tsxへ /admin/pending-users を追加しますが、これは管理者専用の画面だから /admin というプレフィクスをつけた、という理解であっていますか？また、このポリシーは他の画面についても適用されますか？" followed by AskUserQuestion answer: "規約として確定する（推奨）" (formalize the /admin prefix as a project-wide routing convention for admin-only screens and retroactively apply it to U1's AuditLogPage)
+**AI Response**: "Confirmed the /admin prefix in U2's PendingUsersPage route was intentional (admin-only screen) but pointed out it had not yet been formalized as a convention — U1's frontend-components.md defined AuditLogPage's ProtectedRoute requiredRole=\"ADMIN\" composition but never assigned it a concrete AppRouter path. Asked the user whether to formalize via AskUserQuestion; user chose to formalize and retroactively apply. Updated U1's frontend-components.md: added a routing-convention note under routes/ (admin-only screens under ProtectedRoute requiredRole=\"ADMIN\" must use an /admin path prefix, binding on all future units) and added an explicit 'AppRouter.tsxへの追加' table assigning AuditLogPage the path /admin/audit-logs. Updated U2's frontend-components.md route table to cite the now-formalized U1 convention instead of standing alone as a U2-local choice."
+**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U2 Functional Design, artifacts under review (Step 7/8 gate still open). Cross-unit doc-sync: U1's already-approved frontend-components.md was amended post-approval to add a route path and codify a convention surfaced during U2's review — low-risk additive change, not a re-litigation of any prior U1 decision.
+
+---
+
+## CONSTRUCTION - U2 Functional Design - API Authorization Path Convention Confirmed (No /api/admin Prefix)
+**Timestamp**: 2026-07-09T09:20:00Z
+**User Input**: "もう一つ質問です。APIについて、SecurityConfigでhasRole(\"ADMIN\")によるアクセス制限を実施すると理解しています。こちらもパスで管理者専用APIを区別できるようにする、という方針について検討してください。" followed by AskUserQuestion answer: "現行方式を踏襲（推奨）" (keep the existing per-path-pattern hasRole(\"ADMIN\") approach in SecurityConfig rather than introducing an /api/admin/** prefix)
+**AI Response**: "Analyzed the already-implemented SecurityConfig.java (requestMatchers(\"/api/audit-logs/**\").hasRole(\"ADMIN\")) and U2's planned registrations endpoints (GET /api/registrations/pending, POST /api/registrations/{userId}/approve, POST /api/registrations/{userId}/reject — all sub-paths of the same registrations resource shared with public POST /api/registrations and POST /api/registrations/complete). Recommended against a blanket /api/admin/** prefix because it would fracture the REST resource hierarchy for endpoints that mix public and admin-only actions on the same resource, and would require reworking already-committed U1 code for no benefit. Presented the analysis and asked via AskUserQuestion; user confirmed the current per-pattern approach. Documented the confirmed convention in U1's nfr-design-patterns.md as new section 1.3 (explicitly noting frontend /admin route prefix and backend API path structure are independent, deliberately divergent conventions), and added a new business-rules.md section 5 (API認可) to U2's Functional Design artifacts listing the three concrete hasRole(\"ADMIN\") path patterns for registrations endpoints plus the two permitAll() ones."
+**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U2 Functional Design, artifacts under review (Step 7/8 gate still open). Second cross-unit doc-sync of this review round: U1's approved NFR Design artifact amended post-approval (additive, low-risk) to codify an authorization convention surfaced during U2's review.
+
+---
+
+## CONSTRUCTION - U2 Functional Design - Approved (Step 8)
+**Timestamp**: 2026-07-09T09:30:00Z
+**User Input**: "レビュー完了しました。コミットしてください。"
+**AI Response**: "Committed all review-feedback edits (d5a2c0c): domain-entities.md (admin-bootstrap AI proposal marked approved), U1's frontend-components.md (/admin routing convention formalized + AuditLogPage route added retroactively), U2's frontend-components.md (route table cites the convention), U1's nfr-design-patterns.md (new §1.3: API authorization stays per-path-pattern hasRole(\"ADMIN\"), no /api/admin prefix), U2's business-rules.md (new §5: concrete admin-only path patterns for registrations endpoints), and audit.md. Logged explicit approval of U2 (Auth & User Registration) Functional Design artifacts (domain-entities.md, business-rules.md, business-logic-model.md, frontend-components.md, plus the two cross-unit U1 doc-sync amendments). Marking U2's Functional Design cell [x] approved in aidlc-state.md's per-unit table. Updated Current Stage to reflect transition to NFR Requirements assessment for U2."
+**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U2 Functional Design stage COMPLETE (Step 9). Next: assess NFR Requirements applicability for U2 per construction/nfr-requirements.md Execute/Skip criteria.
+
+---
+
+## CONSTRUCTION - U2 NFR Requirements - Plan Created
+**Timestamp**: 2026-07-09T09:35:00Z
+**User Input**: (none — proceeding automatically per adaptive workflow once U2 Functional Design was approved)
+**AI Response**: "Assessed NFR Requirements applicability for U2 per nfr-requirements.md's Execute/Skip criteria (top-level CLAUDE.md): EXECUTEs, because several U2-specific security/tech-stack/reliability decisions remain undetermined after U1's NFR Requirements (which settled the JWT scheme and refresh-token rotation policy but not U2-specific concerns): BCrypt cost factor, client-side token storage strategy, login brute-force protection, admin-bootstrap plaintext-password handling, opaque-token byte length/entropy, and token-lookup indexing/scalability. Read all 4 U2 Functional Design artifacts plus U1's nfr-requirements.md/tech-stack-decisions.md as prior context to avoid duplicate questions (Step 1). Created aidlc-docs/construction/plans/u2-auth-user-registration-nfr-requirements-plan.md (Steps 2-4) with 6 questions: Q1 BCrypt strength (default 10, configurable via mm.app.security.password-encoder-strength); Q2 client-side token storage (in-memory authStore only, no localStorage/sessionStorage, recommended over persistence-with-XSS-risk tradeoffs); Q3 login brute-force protection (defer to security-baseline extension opt-in, consistent with the project's already-declined security-baseline/resiliency-baseline extensions); Q4 admin-bootstrap plaintext password handling (bcrypt-hash at startup, no forced first-login password change since password-change itself is out of this unit's story scope); Q5 opaque token entropy (32 bytes / 256 bits for both RegistrationToken and RefreshToken); Q6 token-lookup scalability (unique-constraint index only, no external cache layer, given small internal-tool scale). Availability and Usability categories assessed as having no new U2-specific open items and were not given dedicated questions, per Step 1's rationale documented in the plan file."
+**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U2 NFR Requirements, Steps 1-4 complete per nfr-requirements.md. Awaiting user answers to all 6 [Answer]: tags before proceeding to Step 5 (answer analysis).
+
+---
+
+## CONSTRUCTION - U2 NFR Requirements - Answers Received, Artifacts Generated
+**Timestamp**: 2026-07-09T10:00:00Z
+**User Input**: "Q1: A, Q2: B, Q3: A, A4: A, Q5: A, A6: A"
+**AI Response**: "Filled all 6 [Answer]: tags into u2-auth-user-registration-nfr-requirements-plan.md. Performed Step 5 answer analysis per nfr-requirements.md: all answers are clean single-letter selections against fully-specified options, no vague/ambiguous language ('depends', 'maybe', etc.) — no follow-up round needed. Note: Q2=B is a deliberate deviation from the recommended option A (in-memory-only authStore storage), choosing sessionStorage instead; the choice is fully specified and unambiguous, just not the recommended one. Proceeded to Step 6: generated aidlc-docs/construction/u2-auth-user-registration/nfr-requirements/nfr-requirements.md (Security: BCrypt strength=10 configurable via mm.app.security.password-encoder-strength; sessionStorage for client-side token storage per Q2=B; no brute-force protection this phase, deferred to security-baseline extension opt-in; admin-bootstrap password bcrypt-hashed at startup with no forced password-change; 32-byte/256-bit opaque token entropy for RegistrationToken/RefreshToken; Scalability: tokenHash unique-constraint index only, no external cache; PBT: jqwik reused from U1, no re-selection) and tech-stack-decisions.md (7-row decision table plus a dedicated note explaining the Q2=B deviation from the recommended in-memory-only approach and the Code Generation implementation implications for authStore's sessionStorage sync)."
+**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U2 NFR Requirements, Steps 5-6 complete. Presenting Step 7 standardized completion message next; awaiting Step 8 explicit approval.
+
+---
+
+## CONSTRUCTION - U2 NFR Requirements - Approved (Step 8)
+**Timestamp**: 2026-07-09T10:10:00Z
+**User Input**: "レビュー完了しました。コミットしてください。"
+**AI Response**: "Logged explicit approval of U2 (Auth & User Registration) NFR Requirements artifacts (nfr-requirements.md, tech-stack-decisions.md). Marked U2's NFR Requirements cell [x] approved in aidlc-state.md's per-unit table. Updated Current Stage to reflect transition to NFR Design assessment for U2."
+**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U2 NFR Requirements stage COMPLETE (Step 9). Next: assess NFR Design applicability for U2 per construction/nfr-design.md Execute/Skip criteria.
+
+---
+
+## CONSTRUCTION - U2 NFR Design - Plan Created
+**Timestamp**: 2026-07-09T10:15:00Z
+**User Input**: (none — proceeding automatically per adaptive workflow once U2 NFR Requirements was approved)
+**AI Response**: "Assessed NFR Design applicability for U2 per nfr-design.md's Execute/Skip criteria (top-level CLAUDE.md): EXECUTEs, because U2's NFR Requirements produced concrete non-functional decisions (BCrypt configuration, opaque token generation, sessionStorage client-side sync, admin-bootstrap credential handling, tokenHash indexing) needing translation into design patterns/logical components. Explicitly justified skipping a dedicated Resilience Patterns question: U1's nfr-design-patterns.md 3.1 (try-catch + REQUIRES_NEW for MailService/AuditLogService) already covers U2's usage of those shared components, no new resilience concern exists. Read U2's nfr-requirements.md/tech-stack-decisions.md plus U1's nfr-design-patterns.md as prior context (Step 1). Created aidlc-docs/construction/plans/u2-auth-user-registration-nfr-design-plan.md (Steps 2-4) with 5 questions: Q1 PasswordEncoder bean placement (added to existing U1 SecurityConfig, no new @Configuration class, recommended); Q2 opaque token generation implementation (shared TokenGenerator component providing generate()/hash() reused by both RegistrationTokenService and RefreshTokenService, recommended to avoid duplicated SecureRandom logic); Q3 admin-bootstrap implementation pattern (ApplicationRunner in the auth package, idempotency check via UserRepository lookup by bootstrap email, no-op if bootstrap email/password unset, recommended); Q4 tokenHash indexing implementation (unique @Column constraint only, no redundant @Table(indexes=...), contrasted against U1's AuditLog composite-index pattern which is a different case — non-unique columns); Q5 client-side sessionStorage sync implementation (zustand persist middleware with sessionStorage storage adapter, recommended over manual setItem/removeItem calls scattered through authStore)."
+**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U2 NFR Design, Steps 1-4 complete per nfr-design.md. Awaiting user answers to all 5 [Answer]: tags before proceeding to Step 5 (answer analysis).
+
+---
+
