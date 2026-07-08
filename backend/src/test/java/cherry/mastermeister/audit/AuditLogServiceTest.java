@@ -32,7 +32,7 @@ import net.jqwik.api.Combinators;
 import net.jqwik.api.ForAll;
 import net.jqwik.api.Property;
 import net.jqwik.api.Provide;
-import net.jqwik.api.lifecycle.BeforeProperty;
+import net.jqwik.spring.JqwikSpringSupport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 
@@ -41,6 +41,7 @@ import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
  * {@code AuditLogRepository} はStep 8で生成されるため、本テストはStep 8完了後にのみ
  * コンパイル・実行可能（グリーン確認はBuild and Testステージで行う）。
  */
+@JqwikSpringSupport
 @DataJpaTest
 class AuditLogServiceTest {
 
@@ -49,13 +50,6 @@ class AuditLogServiceTest {
 
     @Autowired
     private AuditLogRepository auditLogRepository;
-
-    private AuditLogService auditLogService;
-
-    @BeforeProperty
-    void setUp() {
-        auditLogService = new AuditLogService(auditLogRepository, DEFAULT_PAGE_SIZE, PAGE_SIZE_OPTIONS);
-    }
 
     // P1: 内部DB書き込み失敗時も例外を伝播しない
     @Property
@@ -84,6 +78,7 @@ class AuditLogServiceTest {
         auditLogRepository.deleteAll();
         auditLogRepository.saveAll(auditLogs);
 
+        AuditLogService auditLogService = new AuditLogService(auditLogRepository, DEFAULT_PAGE_SIZE, PAGE_SIZE_OPTIONS);
         PageResult<AuditLog> result = auditLogService.search(
                 criteria, new cherry.mastermeister.common.PageRequest(0, requestedPageSize));
 

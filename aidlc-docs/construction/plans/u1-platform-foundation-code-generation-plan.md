@@ -194,7 +194,7 @@ Functional Design時点でスコープ外(P9)とされていたため、本Code 
   を生成し、エンドポイント一覧（パス・メソッド・認可要件・リクエスト/レスポンス形状）を記載。
 
 ### Step 8: リポジトリレイヤ生成
-- [ ] 8-1. `backend/src/main/java/cherry/mastermeister/audit/AuditLogRepository.java`
+- [x] 8-1. `backend/src/main/java/cherry/mastermeister/audit/AuditLogRepository.java`
   （`JpaRepository<AuditLog, Long>` + Spring Data JPAの動的クエリメソッド、または
   `AuditLogService`から呼び出す`@Query`によるフィルタ検索メソッドを定義。
   `dateFrom`/`dateTo`/`userId`/`eventCategory`/`eventType`のnull許容組み合わせに対応）を生成。

@@ -1,3 +1,15 @@
 spring:
   application:
     name: mastermeister
+  mail:
+    host: ${SPRING_MAIL_HOST:localhost}
+    port: ${SPRING_MAIL_PORT:1025}
+    username: ${SPRING_MAIL_USERNAME:no-reply@mastermeister.local}
+
+mm:
+  app:
+    jwt:
+      secret: ${MM_APP_JWT_SECRET:dev-only-secret-please-override-in-production-32bytes}
+    audit:
+      default-page-size: 20
+      page-size-options: 20,50,100
