@@ -599,3 +599,11 @@
 
 ---
 
+## CONSTRUCTION - U2 NFR Design - Artifacts Generated (Step 6), Q3 Aligned to domain-entities.md
+**Timestamp**: 2026-07-09T10:30:00Z
+**User Input**: (none — proceeding automatically per adaptive workflow once Step 5 confirmed no ambiguity)
+**AI Response**: "While drafting nfr-design-patterns.md's admin-bootstrap section (Question 3), found that Q3's option A text ('check for a User matching the bootstrap email') conflicts with the already-approved domain-entities.md decision recorded 2026-07-09 ('idempotency check: no User with role = ADMIN exists yet'). Treated domain-entities.md's already-user-approved wording as authoritative (it was explicitly deliberated and approved earlier this session, whereas Q3's phrasing was my own drafting error) and corrected the design pattern to use the role=ADMIN-existence check, with an inline note documenting the correction and its rationale — consistent with this project's established pattern of resolving low-blast-radius internal inconsistencies unilaterally rather than opening a new question round. Generated aidlc-docs/construction/u2-auth-user-registration/nfr-design/nfr-design-patterns.md (PasswordEncoder bean added to U1's SecurityConfig; OpaqueTokenGenerator shared component with generate()/hash(); AdminBootstrapRunner with the corrected role=ADMIN idempotency check; sessionStorage sync via zustand persist middleware; tokenHash unique-constraint-only indexing; Resilience Patterns deferred to U1's existing try-catch+REQUIRES_NEW pattern; PBT N/A for this stage) and logical-components.md (component tables for auth/userregistration packages — OpaqueTokenGenerator, AdminBootstrapRunner, RefreshToken/RefreshTokenService, RegistrationToken/RegistrationTokenService/UserRegistrationService — plus frontend authStore+persist middleware components, configuration file inventory, and an explicit U1/U2 JwtTokenProvider-vs-OpaqueTokenGenerator responsibility-boundary note)."
+**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U2 NFR Design, Step 6 complete. Presenting Step 7 standardized completion message next; awaiting Step 8 explicit approval.
+
+---
+
