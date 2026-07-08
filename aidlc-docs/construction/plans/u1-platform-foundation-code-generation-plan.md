@@ -200,11 +200,11 @@ Functional Design時点でスコープ外(P9)とされていたため、本Code 
   `dateFrom`/`dateTo`/`userId`/`eventCategory`/`eventType`のnull許容組み合わせに対応）を生成。
 
 ### Step 9: リポジトリレイヤ単体テスト
-- [ ] 9-1. **P2**（書き込んだ`AuditLog`の全フィールドが読み出しで同一値として得られる、
+- [x] 9-1. **P2**（書き込んだ`AuditLog`の全フィールドが読み出しで同一値として得られる、
   Round-trip）: `@DataJpaTest`（組み込みH2）上でjqwikによりランダムな`AuditLog`
   （全フィールドの境界値・null許容フィールド込み）を生成し保存→再読込→フィールド一致を
   検証する`@Property`テストを`AuditLogRepositoryTest`に生成。
-- [ ] 9-2. 基本CRUD・フィルタクエリメソッドのexample-basedテストを追加。
+- [x] 9-2. 基本CRUD・フィルタクエリメソッドのexample-basedテストを追加。
 
 ### Step 10: リポジトリレイヤサマリ
 - [ ] 10-1. `aidlc-docs/construction/u1-platform-foundation/code/repository-layer-summary.md`
