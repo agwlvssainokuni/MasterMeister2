@@ -623,3 +623,11 @@
 
 ---
 
+## CONSTRUCTION - U2 NFR Design - Approved (Step 8)
+**Timestamp**: 2026-07-09T10:45:00Z
+**User Input**: "レビュー完了しました。コミットしてください。"
+**AI Response**: "Recorded explicit Step 8 approval for U2 (Auth & User Registration) NFR Design — nfr-design-patterns.md and logical-components.md (including the OpaqueTokenGenerator/JwtTokenProvider security-package correction) are approved as-is. Updated aidlc-state.md: marked U2's NFR Design cell [x] approved 2026-07-09T10:45:00Z; Infrastructure Design remains SKIP for U2 per execution-plan.md. Proceeding next to U2's Code Generation stage (Part 1 Planning)."
+**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U2 NFR Design stage complete. Next: Code Generation (Part 1 Planning) for U2.
+
+---
+

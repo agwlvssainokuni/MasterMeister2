@@ -3,7 +3,7 @@
 ## Project Information
 - **Project Type**: Brownfield
 - **Start Date**: 2026-07-06T10:38:36Z
-- **Current Stage**: CONSTRUCTION - Per-Unit Loop - U2: Auth & User Registration - NFR Design Step 7 completion message presented 2026-07-09T10:35:00Z; OpaqueTokenGenerator package placement (→ security) and JwtTokenProvider ownership mislabel corrected per user review 2026-07-09T10:40:00Z; awaiting Step 8 user approval.
+- **Current Stage**: CONSTRUCTION - Per-Unit Loop - U2: Auth & User Registration - NFR Design approved 2026-07-09T10:45:00Z. Proceeding to Code Generation (Part 1 Planning).
 
 ## Execution Plan Summary
 - **Plan Document**: aidlc-docs/inception/plans/execution-plan.md
@@ -54,7 +54,7 @@ Infrastructure Design is SKIP for all units (execution-plan.md: no new infra bey
 | ユニット | Functional Design | NFR Requirements | NFR Design | Infrastructure Design | Code Generation |
 |---|---|---|---|---|---|
 | U1: Platform Foundation | [x] approved 2026-07-07T22:27:00Z | [x] approved 2026-07-08T08:10:00Z | [x] approved 2026-07-08T08:30:00Z | SKIP | [x] approved 2026-07-08T23:45:00Z |
-| U2: Auth & User Registration | [x] approved 2026-07-09T09:30:00Z | [x] approved 2026-07-09T10:10:00Z | [ ] | SKIP | [ ] |
+| U2: Auth & User Registration | [x] approved 2026-07-09T09:30:00Z | [x] approved 2026-07-09T10:10:00Z | [x] approved 2026-07-09T10:45:00Z | SKIP | [ ] |
 | U3: RDBMS Connection & Schema Import | [ ] | [ ] | [ ] | SKIP | [ ] |
 | U4: Permission Management | [ ] | [ ] | [ ] | SKIP | [ ] |
 | U5: Master Data Maintenance | [ ] | [ ] | [ ] | SKIP | [ ] |
