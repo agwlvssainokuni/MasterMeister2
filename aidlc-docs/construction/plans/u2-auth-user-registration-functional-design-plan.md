@@ -29,7 +29,7 @@
     U2=トークン発行・リフレッシュトークンの永続化/検証/ローテーション/失効。
   - パスワードポリシー（requirements.md 3.4）: bcrypt等の標準的ハッシュ化のみ、強度ポリシーなし。
   - 登録トークン有効期限（`docs/REQUIREMENTS.md` 5.1）: デフォルト3時間、
-    設定キー`mm.app.user-registration.token-expiry-hours`。
+    設定キーはQ5でDuration形式`mm.app.user-registration.token-expiry`（デフォルト`3h`）に確定。
   - `SecurityConfig`は既に`/api/auth/**`をpermitAllとして構成済み（U1、Step 6生成）。
     登録申請系エンドポイントの認可設定はU2側で追加が必要（具体的パスはCode Generationで決定）。
 
@@ -57,7 +57,7 @@
   残る。
 - **C**: その他（自由記述）
 
-[Answer]: 
+[Answer]: A
 
 ---
 
@@ -74,7 +74,7 @@
 - **B**: 平文のままDBに保存する（実装をシンプルにする代わりに、DB漏洩時のリスクが残る）。
 - **C**: その他（自由記述）
 
-[Answer]: 
+[Answer]: A
 
 ---
 
@@ -90,7 +90,7 @@
   メールは再送されない。
 - **C**: その他（自由記述）
 
-[Answer]: 
+[Answer]: A
 
 ---
 
@@ -106,7 +106,7 @@
   再度登録フローを最初からやり直せるようにする。
 - **C**: その他（自由記述）
 
-[Answer]: 
+[Answer]: A
 
 ---
 
@@ -115,12 +115,13 @@
 登録確認トークンとリフレッシュトークンの有効期限設定キー名を確定する
 （`docs/REQUIREMENTS.md`/U1 NFR Requirementsで大枠は決定済み、キー名の最終確認）。
 
-- **A（推奨）**: `mm.app.user-registration.token-expiry-hours`（デフォルト`3`）、
-  `mm.app.jwt.refresh-token-expiry`（デフォルト`24h`、U1が導入した
-  `mm.app.jwt.access-token-expiry`=`10m`と命名を揃えたDuration形式）。
+- **A（推奨）**: `mm.app.user-registration.token-expiry`（デフォルト`3h`、Duration形式。
+  U1が導入した`mm.app.jwt.access-token-expiry`=`10m`と命名・形式を揃える）、
+  `mm.app.jwt.refresh-token-expiry`（デフォルト`24h`、同じくDuration形式）。
 - **B**: 別の命名規則を採用する（自由記述）。
 
-[Answer]: 
+[Answer]: A（登録トークンの設定キーもDuration形式とする。`mm.app.user-registration.token-expiry-hours`ではなく
+`mm.app.user-registration.token-expiry`（デフォルト`3h`）とする）
 
 ---
 
@@ -136,7 +137,7 @@
   失敗のみ記録）。
 - **C**: その他（自由記述）
 
-[Answer]: 
+[Answer]: A
 
 ---
 
@@ -158,13 +159,30 @@ U1の`frontend-components.md`と同様の粒度で、本ユニットのフロン
   - `AppRouter.tsx`（U1で新設済み）にログイン・登録関連のパブリックルートを追加する。
 - **B**: 別の粒度・構成を希望する（自由記述）。
 
-[Answer]: 
+[Answer]: A
 
 ---
 
 ## Step 5: 回答分析
 
-（回答受領後、曖昧・矛盾がないか確認しここに記録する）
+全7問について回答を受領（Q1〜Q4・Q6・Q7=A、Q5=Aだが登録トークンの設定キーは
+Duration形式`mm.app.user-registration.token-expiry`（デフォルト`3h`）に調整）。
+整合性確認:
+
+- Q1（`completeRegistration`成功時に`User`作成）とQ4（却下された`User`は既存扱いで
+  再登録不可）は矛盾しない — 却下は「`User`が存在する」ことが前提の操作であり、
+  Q1のモデルと整合する。
+- Q2（トークンはハッシュ化して保存）はQ3（再送信時に旧トークンを無効化し新トークンを
+  発行）と組み合わせても問題なし — 無効化は「ハッシュ値照合で該当レコードを
+  失効済みにする」操作として実装可能。
+- Q5の調整（Duration形式への統一）はQ1〜Q4・Q6・Q7のいずれとも独立しており、
+  他の回答に影響しない。
+- Q6（`userId`は不明メールの場合`null`、パスワード誤りの場合は設定）はQ1の
+  `User`作成モデルと整合（`User`が存在しないなら`userId`を採番できないのは当然）。
+- Q7（フロントエンド構成）は既存の`AppRouter.tsx`（U1で新設済み）にルート追加する
+  前提で、バックエンドの決定（Q1〜Q6）と技術的な矛盾なし。
+
+曖昧・矛盾点なし。Step 6（成果物生成）に進む。
 
 ## Step 6: 成果物生成チェックリスト
 

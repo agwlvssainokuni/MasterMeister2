@@ -495,3 +495,19 @@
 **Context**: CONSTRUCTION PHASE - Per-Unit Loop, U2 Functional Design, Steps 1-4 complete per functional-design.md. Awaiting user answers to all 7 [Answer]: tags before proceeding to Step 5 (answer analysis).
 
 ---
+
+## CONSTRUCTION - U2 Functional Design - Q5 Answered
+**Timestamp**: 2026-07-09T00:05:00Z
+**User Input**: "Q5は概ねAでOK。ただし、ユーザ登録のトークンもDuration形式。"
+**AI Response**: "Recorded Q5's answer as option A with an adjustment: the registration-token expiry config key changes from the originally-proposed integer-hours form (mm.app.user-registration.token-expiry-hours, default 3) to a Duration-format key mm.app.user-registration.token-expiry (default 3h), matching the Duration format already used by U1's mm.app.jwt.access-token-expiry and this plan's own mm.app.jwt.refresh-token-expiry proposal. Updated both Q5's option A description and the [Answer] tag in u2-auth-user-registration-functional-design-plan.md, and updated the corresponding bullet in Step 1's '既存の確定事項' section to reflect the finalized Duration-format key name. Q1-Q4, Q6, Q7 remain unanswered."
+**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U2 Functional Design, Step 4 (question answering) in progress — 1 of 7 questions answered. Awaiting remaining 6 answers before Step 5 (answer analysis).
+
+---
+
+## CONSTRUCTION - U2 Functional Design - Q1-Q4, Q6, Q7 Answered / Step 5 Analysis Complete
+**Timestamp**: 2026-07-09T00:10:00Z
+**User Input**: "Q1, Q2, Q3, Q4, Q6, Q7 は A とします。"
+**AI Response**: "Recorded [Answer]: A for Q1 (User row created only at completeRegistration success, state=PENDING_APPROVAL), Q2 (opaque SecureRandom tokens, hashed-at-rest storage for both RegistrationToken and RefreshToken), Q3 (resending requestRegistration invalidates the existing valid token and issues+emails a new one), Q4 (rejected users are treated as existing and cannot self-service re-register), Q6 (AuditLog.userId is null for login failures against unknown emails, set for password-mismatch failures against known users), Q7 (LoginPage/authApi.ts, RegistrationRequestPage/PasswordSetupPage/PendingUsersPage, AppRouter.tsx route additions) in u2-auth-user-registration-functional-design-plan.md. All 7 questions (including Q5, answered in the prior turn) are now answered. Performed Step 5 answer analysis: cross-checked all 7 answers for consistency (Q1/Q4 don't conflict since rejection presupposes an existing User row; Q2/Q3 compose cleanly since token invalidation is a hash-lookup-and-expire operation; Q6 aligns with Q1's User-creation model; Q5's Duration-format adjustment is orthogonal to the others; Q7's frontend plan has no technical conflict with the backend decisions). No ambiguity or contradiction found — recorded the analysis in the plan's Step 5 section and proceeding to Step 6 (artifact generation)."
+**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U2 Functional Design, Step 5 complete, all 7 questions answered with no follow-up needed. Proceeding to Step 6: generate domain-entities.md, business-rules.md, business-logic-model.md (with PBT-01 Testable Properties section), frontend-components.md.
+
+---
