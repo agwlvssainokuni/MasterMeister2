@@ -247,7 +247,7 @@ Functional Design時点でスコープ外(P9)とされていたため、本Code 
   バリデーション — 開始日時>終了日時時のエラー表示）。
 
 ### Step 13: フロントエンドコンポーネントサマリ
-- [ ] 13-1. `aidlc-docs/construction/u1-platform-foundation/code/frontend-summary.md`
+- [x] 13-1. `aidlc-docs/construction/u1-platform-foundation/code/frontend-summary.md`
   を生成し、共通基盤コンポーネントと`auditLog/`機能のコンポーネント一覧・
   `data-testid`一覧を記載。
 
