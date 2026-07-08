@@ -260,7 +260,7 @@ Functional Design時点でスコープ外(P9)とされていたため、本Code 
   マイグレーションスクリプトを生成しない。
 
 ### Step 15: ドキュメント生成
-- [ ] 15-1. Step 4/7/10/13で生成した各サマリに加え、
+- [x] 15-1. Step 4/7/10/13で生成した各サマリに加え、
   `aidlc-docs/construction/u1-platform-foundation/code/testing-summary.md`
   （PBT-10補完的テスト戦略の説明、P1〜P12とテストクラスの対応表、
   example-basedテスト一覧）を生成する。
