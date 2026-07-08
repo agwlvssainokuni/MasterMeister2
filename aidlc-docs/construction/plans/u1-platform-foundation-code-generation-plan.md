@@ -266,18 +266,18 @@ Functional Design時点でスコープ外(P9)とされていたため、本Code 
   example-basedテスト一覧）を生成する。
 
 ### Step 16: デプロイ成果物生成
-- [ ] 16-1. `backend/build.gradle.kts`: `war`プラグイン追加、`bootWar`タスクが
+- [x] 16-1. `backend/build.gradle.kts`: `war`プラグイン追加、`bootWar`タスクが
   実行可能WARを生成するよう構成（12-factor、env-var設定）。
-- [ ] 16-2. `backend/src/main/resources/application.yml`: 共通設定
+- [x] 16-2. `backend/src/main/resources/application.yml`: 共通設定
   （`spring.datasource.url=jdbc:h2:file:...`、`spring.jpa.hibernate.ddl-auto`,
   `spring.mail.*`（環境変数プレースホルダ）+
   `spring.mail.properties.mail.smtp.connectiontimeout`/`mail.smtp.timeout`=5000,
   `spring.datasource.hikari.*`既定値, `mm.app.jwt.secret`（環境変数）,
   `mm.app.jwt.access-token-expiry`=10m, `mm.app.audit.default-page-size`=20,
   `mm.app.audit.page-size-options`=[20,50,100]）を追加。
-- [ ] 16-3. `backend/src/main/resources/application-dev.yml`: 開発プロファイル
+- [x] 16-3. `backend/src/main/resources/application-dev.yml`: 開発プロファイル
   （MailPit接続先、CORS有効化フラグ等）を追加。
-- [ ] 16-4. `backend/src/main/resources/logback-spring.xml`: 標準出力プレーンテキスト、
+- [x] 16-4. `backend/src/main/resources/logback-spring.xml`: 標準出力プレーンテキスト、
   パターン `%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} [%thread] %-5level %logger{36} - %msg%n`
   （`nfr-requirements.md` 5.1）を生成。
 

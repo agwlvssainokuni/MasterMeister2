@@ -30,3 +30,6 @@ build/
 
 # jqwik
 .jqwik-database
+
+# Internal H2 database (file-based persistence, jdbc:h2:file:./data/...)
+data/

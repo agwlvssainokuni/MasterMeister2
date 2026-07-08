@@ -1,15 +1,32 @@
 spring:
   application:
     name: mastermeister
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:h2:file:./data/mastermeister}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 10
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+  jpa:
+    hibernate:
+      ddl-auto: update
   mail:
     host: ${SPRING_MAIL_HOST:localhost}
     port: ${SPRING_MAIL_PORT:1025}
     username: ${SPRING_MAIL_USERNAME:no-reply@mastermeister.local}
+    properties:
+      mail:
+        smtp:
+          connectiontimeout: 5000
+          timeout: 5000
 
 mm:
   app:
     jwt:
       secret: ${MM_APP_JWT_SECRET:dev-only-secret-please-override-in-production-32bytes}
+      access-token-expiry: 10m
     audit:
       default-page-size: 20
       page-size-options: 20,50,100
