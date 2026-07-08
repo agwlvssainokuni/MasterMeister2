@@ -43,6 +43,12 @@
 | `ProtectedRoute` | 未認証時はログイン画面へリダイレクト。`requiredRole`propで管理者専用ルートを制御（`auditLog/`等が使用） |
 | `AppRouter` | 全ユニットの`features/*/routes`を集約するルートルーター |
 
+**ルーティング規約（全ユニット共通、U2レビュー時に確定）**: `ProtectedRoute requiredRole="ADMIN"`
+配下の管理者専用画面のパスには、必ず`/admin`プレフィクスを付ける（例:
+`/admin/audit-logs`、U2の`/admin/pending-users`）。一般ユーザも利用する認証必須画面や
+未認証パブリック画面にはこのプレフィクスを付けない。以後のユニット（U3以降）の管理者専用
+画面もこの規約に従う。
+
 ### components/ — 共通UIコンポーネント
 | コンポーネント | Props | 責務 |
 |---|---|---|
@@ -91,3 +97,9 @@ AuditLogPage（ルート、ProtectedRoute requiredRole="ADMIN"配下）
 
 （正確なエンドポイントパス・パラメータ名はCode Generation段階で確定。`AuditLogService.search`
 のシグネチャに準拠する）
+
+### AppRouter.tsxへの追加
+
+| パス | コンポーネント | 認可 |
+|---|---|---|
+| `/admin/audit-logs` | `AuditLogPage` | `ProtectedRoute requiredRole="ADMIN"`（上記ルーティング規約に基づく） |

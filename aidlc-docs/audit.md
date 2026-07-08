@@ -236,6 +236,30 @@
 **Timestamp**: 2026-07-07T22:36:00Z
 **User Input**: "レビュー完了しました。"
 **AI Response**: "Logged explicit approval of the PBT-01 remediation (Testable Properties section, P1-P9) added to business-logic-model.md. U1 Functional Design stage (including the PBT-01 blocking finding) is now fully resolved and approved. Proceeding to assess NFR Requirements applicability for U1 per construction/nfr-requirements.md."
+
+---
+
+## CONSTRUCTION - U2 Functional Design - Admin Bootstrap AI Proposal Approved
+**Timestamp**: 2026-07-09T09:00:00Z
+**User Input**: "domain-model.mdに記載の、初期管理者アカウントのプロビジョニングについて、AI提案を承認する。"
+**AI Response**: "Updated domain-entities.md's '設計判断（AI提案、Q1〜Q7の対象外事項）' section to record explicit user approval of the ApplicationRunner-based admin bootstrap mechanism (mm.app.admin.bootstrap.email/password, idempotent creation of one APPROVED ADMIN User when none exists). Section heading and body text updated from open-to-challenge phrasing to '（承認済み）' with an approval date. The second AI-proposed decision (JSON-body token delivery, business-rules.md 2.1) remains open for review pending the overall Step 8 approval of the U2 Functional Design stage."
+**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U2 Functional Design, artifacts under review (Step 7/8 gate open). Partial review feedback incorporated; full stage approval (Continue to Next Stage vs Request Changes) still pending.
+
+---
+
+## CONSTRUCTION - U2 Functional Design - /admin Routing Convention Formalized (Retroactive to U1)
+**Timestamp**: 2026-07-09T09:10:00Z
+**User Input**: "frontend-components.mdについて質問します。AppRouter.tsxへ /admin/pending-users を追加しますが、これは管理者専用の画面だから /admin というプレフィクスをつけた、という理解であっていますか？また、このポリシーは他の画面についても適用されますか？" followed by AskUserQuestion answer: "規約として確定する（推奨）" (formalize the /admin prefix as a project-wide routing convention for admin-only screens and retroactively apply it to U1's AuditLogPage)
+**AI Response**: "Confirmed the /admin prefix in U2's PendingUsersPage route was intentional (admin-only screen) but pointed out it had not yet been formalized as a convention — U1's frontend-components.md defined AuditLogPage's ProtectedRoute requiredRole=\"ADMIN\" composition but never assigned it a concrete AppRouter path. Asked the user whether to formalize via AskUserQuestion; user chose to formalize and retroactively apply. Updated U1's frontend-components.md: added a routing-convention note under routes/ (admin-only screens under ProtectedRoute requiredRole=\"ADMIN\" must use an /admin path prefix, binding on all future units) and added an explicit 'AppRouter.tsxへの追加' table assigning AuditLogPage the path /admin/audit-logs. Updated U2's frontend-components.md route table to cite the now-formalized U1 convention instead of standing alone as a U2-local choice."
+**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U2 Functional Design, artifacts under review (Step 7/8 gate still open). Cross-unit doc-sync: U1's already-approved frontend-components.md was amended post-approval to add a route path and codify a convention surfaced during U2's review — low-risk additive change, not a re-litigation of any prior U1 decision.
+
+---
+
+## CONSTRUCTION - U2 Functional Design - API Authorization Path Convention Confirmed (No /api/admin Prefix)
+**Timestamp**: 2026-07-09T09:20:00Z
+**User Input**: "もう一つ質問です。APIについて、SecurityConfigでhasRole(\"ADMIN\")によるアクセス制限を実施すると理解しています。こちらもパスで管理者専用APIを区別できるようにする、という方針について検討してください。" followed by AskUserQuestion answer: "現行方式を踏襲（推奨）" (keep the existing per-path-pattern hasRole(\"ADMIN\") approach in SecurityConfig rather than introducing an /api/admin/** prefix)
+**AI Response**: "Analyzed the already-implemented SecurityConfig.java (requestMatchers(\"/api/audit-logs/**\").hasRole(\"ADMIN\")) and U2's planned registrations endpoints (GET /api/registrations/pending, POST /api/registrations/{userId}/approve, POST /api/registrations/{userId}/reject — all sub-paths of the same registrations resource shared with public POST /api/registrations and POST /api/registrations/complete). Recommended against a blanket /api/admin/** prefix because it would fracture the REST resource hierarchy for endpoints that mix public and admin-only actions on the same resource, and would require reworking already-committed U1 code for no benefit. Presented the analysis and asked via AskUserQuestion; user confirmed the current per-pattern approach. Documented the confirmed convention in U1's nfr-design-patterns.md as new section 1.3 (explicitly noting frontend /admin route prefix and backend API path structure are independent, deliberately divergent conventions), and added a new business-rules.md section 5 (API認可) to U2's Functional Design artifacts listing the three concrete hasRole(\"ADMIN\") path patterns for registrations endpoints plus the two permitAll() ones."
+**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U2 Functional Design, artifacts under review (Step 7/8 gate still open). Second cross-unit doc-sync of this review round: U1's approved NFR Design artifact amended post-approval (additive, low-risk) to codify an authorization convention surfaced during U2's review.
 **Context**: CONSTRUCTION PHASE - Per-Unit Loop, U1 Functional Design fully COMPLETE (including PBT-01 remediation). Next: NFR Requirements Steps 1-4 (analyze functional design, create plan with context-appropriate questions) for U1.
 
 ---

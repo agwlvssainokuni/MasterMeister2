@@ -115,7 +115,7 @@ PendingUsersPage（ProtectedRoute requiredRole="ADMIN"配下）
 | `/login` | `LoginPage` | パブリック |
 | `/register` | `RegistrationRequestPage` | パブリック |
 | `/register/complete` | `PasswordSetupPage` | パブリック |
-| `/admin/pending-users` | `PendingUsersPage` | `ProtectedRoute requiredRole="ADMIN"` |
+| `/admin/pending-users` | `PendingUsersPage` | `ProtectedRoute requiredRole="ADMIN"`（U1 `frontend-components.md`のルーティング規約: 管理者専用画面は`/admin`プレフィクス） |
 
 U1の`AppLayout`（ヘッダー・ナビゲーション）は`/login`・`/register`・`/register/complete`では
 表示しない（未認証パブリックページのため、専用のシンプルなレイアウトを使用する。

@@ -90,9 +90,9 @@ reuse-detection方式を実装するエンティティ。
 
 ---
 
-## 設計判断（AI提案、Q1〜Q7の対象外事項）
+## 設計判断（AI提案、Q1〜Q7の対象外事項 — ユーザ承認済み）
 
-### 初期管理者アカウントのプロビジョニング
+### 初期管理者アカウントのプロビジョニング（承認済み）
 
 自己登録フロー（MVP-1〜MVP-6、`RegistrationRequestPage`〜`completeRegistration`）は
 一貫して`role = USER`のアカウントのみを作成する（ストーリーの関連ペルソナは「一般ユーザ」であり、
@@ -100,11 +100,11 @@ reuse-detection方式を実装するエンティティ。
 一方、`requirements.md`/`stories.md`のいずれにも初期管理者アカウントの作成手順は明記されていない
 （Q1〜Q7の質問票作成時に見落とした事項であり、本来ならQ1〜Q7と同様に質問すべき内容だが、
 既回答（Q1〜Q4・Q6・Q7 = A, Q5 = A+調整）のいずれとも矛盾しない独立した追加事項のため、
-U1のThymeleaf提案（`business-rules.md` 2.1）と同様にAI提案として扱い、ここに明記する。
+U1のThymeleaf提案（`business-rules.md` 2.1）と同様にAI提案として扱い、ここに明記した。
 
-**提案**: 起動時（`ApplicationRunner`）に、`mm.app.admin.bootstrap.email`/
+**確定内容**: 起動時（`ApplicationRunner`）に、`mm.app.admin.bootstrap.email`/
 `mm.app.admin.bootstrap.password`設定値が存在し、かつ`User`テーブルに`role = ADMIN`の行が
 1件も存在しない場合のみ、指定されたメールアドレス・パスワード（bcryptハッシュ化）で
 `status = APPROVED`の`User`を1件作成する。設定値が未指定、またはADMIN行が既に存在する場合は
 何もしない（冪等・べき等起動）。具体的なプロパティキー名・実装クラスはCode Generation段階で
-確定する。この提案に異論があれば、U2 Functional Designのレビュー時に指摘可能。
+確定する。（ユーザ承認: 2026-07-09）

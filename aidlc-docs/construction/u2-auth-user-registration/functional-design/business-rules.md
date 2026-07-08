@@ -112,3 +112,23 @@
 
 bcrypt（Spring Securityの`PasswordEncoder`実装、具体的なコストファクタはCode Generationで
 決定）を使用する。強度ポリシー（最低文字数・文字種混在等）は設けない（`requirements.md` 3.4）。
+
+---
+
+## 5. API認可（`SecurityConfig`、U1 NFR Design 1.3の規約に基づく）
+
+U1 NFR Design 1.3で確定した「管理者専用APIはパスパターンごとに`hasRole("ADMIN")`を明示指定する」
+方針に従い、本ユニットの管理者専用エンドポイントを以下のパターンで保護する（`/api/admin/**`の
+ような包括プレフィクスは使わない。`GET /api/registrations/pending`
+等は`POST /api/registrations`と同一の`registrations`リソースの一部であるため）。
+
+| パスパターン | 対象 |
+|---|---|
+| `GET /api/registrations/pending` | `listPendingUsers` |
+| `POST /api/registrations/*/approve` | `approveUser` |
+| `POST /api/registrations/*/reject` | `rejectUser` |
+
+`POST /api/registrations`（`requestRegistration`）・`POST /api/registrations/complete`
+（`completeRegistration`）は`permitAll()`（列挙攻撃対策上、未認証ユーザからの呼び出しを前提と
+するため）。正確なパスは`component-methods.md`のシグネチャに準拠し、`SecurityConfig`への
+具体的な`requestMatchers()`追加はCode Generation段階で行う。

@@ -26,6 +26,20 @@
 - 具体的なエンドポイントパス一覧はU2（Auth & User Registration）のFunctional Designで確定する。
   U1では「認証系エンドポイントはpermitAllパターンで除外する」という設計方針のみを確定する。
 
+### 1.3 管理者専用APIの認可方式（規約、U2レビュー時に確定）
+
+- 管理者専用エンドポイントは、`/api/admin/**`のような包括プレフィクスではなく、
+  `SecurityConfig`の`requestMatchers()`で**個別のパスパターンごとに`hasRole("ADMIN")`を
+  明示指定**する（既存実装 `requestMatchers("/api/audit-logs/**").hasRole("ADMIN")`と同方式）。
+- 理由: 管理者専用アクションが公開/一般ユーザ向けエンドポイントと同一リソース階層に属する
+  ケース（例: `GET /api/registrations/pending`、`POST /api/registrations/{userId}/approve`は
+  `POST /api/registrations`と同じ`registrations`リソースの一部）があり、これを`/api/admin/**`に
+  分離するとREST階層が崩れるため。APIパスは「操作対象リソース」を表現し、「誰がアクセス
+  できるか」は`SecurityConfig`の認可ルールで表現する、という役割分担を維持する。
+- フロントエンドのルーティング規約（管理者専用画面は`/admin`プレフィクス、
+  `frontend-components.md` routes/参照）とは独立した方針であり、画面パスとAPIパスが
+  一致しないことを許容する。
+
 ---
 
 ## 2. Logical Components / Design Patterns（Tech Stack関連）
