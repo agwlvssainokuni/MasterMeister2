@@ -172,7 +172,7 @@ Functional Design時点でスコープ外(P9)とされていたため、本Code 
   を生成し、Step 2・Step 3で生成したクラス一覧とP1〜P12の対応関係を表形式で記載する。
 
 ### Step 5: APIレイヤ生成
-- [ ] 5-1. `backend/src/main/java/cherry/mastermeister/audit/AuditLogController.java`
+- [x] 5-1. `backend/src/main/java/cherry/mastermeister/audit/AuditLogController.java`
   （`@RestController`, `@RequestMapping("/api/audit-logs")`。`GET /api/audit-logs`
   （クエリパラメータ: dateFrom, dateTo, userId, eventCategory, eventType, page, pageSize）→
   `AuditLogService.search(...)`。管理者ロールチェックは`SecurityConfig`の

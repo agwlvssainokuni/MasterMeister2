@@ -383,3 +383,11 @@
 **Context**: CONSTRUCTION PHASE - Per-Unit Loop, U1 Code Generation, Part 2 Generation, Step 4 of 16 complete. Committing per user's standing per-step-commit instruction, then proceeding to Step 5 (API Layer Generation).
 
 ---
+
+## CONSTRUCTION - U1 Code Generation - Step 5 Complete (API Layer Generation)
+**Timestamp**: 2026-07-08T10:40:00Z
+**User Input**: (none — executing approved plan Step 5 per code-generation.md Part 2)
+**AI Response**: "Generated backend/src/main/java/cherry/mastermeister/audit/AuditLogController.java — @RestController at /api/audit-logs, single GET endpoint mapping query parameters (dateFrom, dateTo, userId, eventCategory, eventType, page, pageSize) to AuditLogFilterCriteria/PageRequest and delegating to AuditLogService.search(...); admin-only authorization is enforced entirely by SecurityConfig's existing hasRole(\"ADMIN\") mapping on /api/audit-logs/**, per the plan's explicit instruction not to duplicate the check in the controller. Also generated AuditLogResponse (a response record separate from the AuditLog JPA entity, avoiding entity-as-DTO leakage) with a static from(AuditLog) mapper, and mapped PageResult<AuditLog> to PageResult<AuditLogResponse> in the controller. Verified compilation (./gradlew compileJava, BUILD SUCCESSFUL) using the same temporary local-only AuditLogRepository stub pattern established in Step 3 (created, verified, then deleted before commit — Step 8 still owns the real repository). Marked plan checkbox 5-1 [x]."
+**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U1 Code Generation, Part 2 Generation, Step 5 of 16 complete. Committing per user's standing per-step-commit instruction, then proceeding to Step 6 (API Layer Unit Testing).
+
+---
