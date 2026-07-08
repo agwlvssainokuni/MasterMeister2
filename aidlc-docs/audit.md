@@ -583,3 +583,19 @@
 
 ---
 
+## CONSTRUCTION - U2 NFR Design - Q2 Naming Correction (TokenGenerator to OpaqueTokenGenerator)
+**Timestamp**: 2026-07-09T10:20:00Z
+**User Input**: "Q2 について。アクセストークンとリフレッシュトークンもあるので、シンプルにTokenGeneratorという命名だと混乱しそう。他の名前の方が良いのでは？"
+**AI Response**: "Agreed: TokenGenerator was ambiguous against U1's already-introduced JwtTokenProvider (access tokens) and didn't distinguish which of RegistrationToken/RefreshToken it covered. Renamed the proposed component to OpaqueTokenGenerator in Question 2's option A, with an inline note explaining the name change makes explicit that it handles non-JWT (opaque, SecureRandom-based) tokens only, contrasting cleanly with JwtTokenProvider."
+**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U2 NFR Design, Step 4 in-flight correction based on user's naming review, before Q2 was answered.
+
+---
+
+## CONSTRUCTION - U2 NFR Design - Plan Answers Received (Step 5 analysis)
+**Timestamp**: 2026-07-09T10:25:00Z
+**User Input**: "OKです。では、Q1: A1, Q2: A, Q3: A, Q4: A, Q5: A でレビュー完了です。コミットしてください。"
+**AI Response**: "Filled all 5 [Answer]: tags into u2-auth-user-registration-nfr-design-plan.md (Q1=A treating the 'A1' typo as A, confirmed unambiguous against the option text). Performed Step 5 answer analysis per nfr-design.md: all 5 answers select the recommended option A with no vagueness or ambiguity — no follow-up questions needed. Committing the answered plan now; proceeding next to Step 6 (generate nfr-design-patterns.md/logical-components.md) before presenting the mandatory Step 7 completion message and awaiting a separate Step 8 approval, since 'レビュー完了です' here refers to the question set, not yet-to-be-generated artifacts."
+**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U2 NFR Design, Step 5 complete. Proceeding to Step 6 artifact generation.
+
+---
+
