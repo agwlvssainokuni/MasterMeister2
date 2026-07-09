@@ -799,3 +799,11 @@
 
 ---
 
+## CONSTRUCTION - U3 Functional Design - Step 7/8/9 Approval
+**Timestamp**: 2026-07-10T02:00:00Z
+**AI Response (Step 7)**: Presented the standardized 2-option completion message summarizing the four Step 6 artifacts (domain-entities.md, business-rules.md, business-logic-model.md with PBT-01 P1-P11, frontend-components.md) and offering "A. Request Changes" or "B. Continue to Next Stage" per construction/functional-design.md's mandated format (no emergent 3-option behavior).
+**User Input**: "レビュー完了しました。コミットしてください。"
+**Context**: Per-Unit Loop, U3 Functional Design Step 8 (wait for explicit approval) — user's response is interpreted as approval to continue to the next stage (equivalent to option B), with an explicit instruction to commit the approval record. Proceeding to Step 9: record approval, update aidlc-state.md Stage Progress table for U3 Functional Design, and commit.
+
+---
+
