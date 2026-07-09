@@ -83,6 +83,24 @@ class MailServiceTest {
         assertThat(body).doesNotContain("${");
     }
 
+    // メールテンプレートのライセンス表記（Thymeleafパーサーレベルコメントブロック
+    // <!--/* ... */--> で囲んである）が配信メール本文に残らないことを検証する
+    @Property
+    void sendDoesNotLeakLicenseHeaderIntoMailBody(
+            @ForAll("notificationTypes") MailNotificationType type
+    ) throws Exception {
+        JavaMailSender javaMailSender = mock(JavaMailSender.class);
+        MimeMessage mimeMessage = newMimeMessage();
+        when(javaMailSender.createMimeMessage()).thenReturn(mimeMessage);
+        MailService mailService = new MailService(javaMailSender, templateEngine(), "noreply@example.com");
+
+        mailService.send(type, "user@example.com", variablesFor(type));
+
+        String body = (String) mimeMessage.getContent();
+        assertThat(body).doesNotContain("Copyright");
+        assertThat(body).doesNotContain("Apache License");
+    }
+
     private static MimeMessage newMimeMessage() {
         return new MimeMessage(Session.getDefaultInstance(new Properties()));
     }
