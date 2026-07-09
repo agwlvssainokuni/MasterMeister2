@@ -27,6 +27,17 @@ mm:
     jwt:
       secret: ${MM_APP_JWT_SECRET:dev-only-secret-please-override-in-production-32bytes}
       access-token-expiry: 10m
+      refresh-token-expiry: ${MM_APP_JWT_REFRESH_TOKEN_EXPIRY:24h}
     audit:
       default-page-size: 20
       page-size-options: 20,50,100
+    security:
+      password-encoder-strength: ${MM_APP_SECURITY_PASSWORD_ENCODER_STRENGTH:10}
+    user-registration:
+      token-expiry: ${MM_APP_USER_REGISTRATION_TOKEN_EXPIRY:3h}
+    admin:
+      bootstrap:
+        email: ${MM_APP_ADMIN_BOOTSTRAP_EMAIL:}
+        password: ${MM_APP_ADMIN_BOOTSTRAP_PASSWORD:}
+    frontend:
+      base-url: ${MM_APP_FRONTEND_BASE_URL:http://localhost:5173}

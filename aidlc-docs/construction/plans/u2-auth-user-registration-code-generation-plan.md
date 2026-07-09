@@ -366,17 +366,17 @@ U1の`common.dialect`（P9〜P12）と同様、本Code Generation計画で新た
       `data-testid`一覧を記載。
 
 ### Step 14: データベースマイグレーションスクリプト
-- [ ] 14-1. **該当なし（N/A）**: U1と同様、内部DB(H2)のスキーマ管理はJPAの自動DDL生成に
+- [x] 14-1. **該当なし（N/A）**: U1と同様、内部DB(H2)のスキーマ管理はJPAの自動DDL生成に
       委ね、Flyway/Liquibase等は導入しない（U1 NFR Design Question 5 = A を踏襲）。
 
 ### Step 15: ドキュメント生成
-- [ ] 15-1. Step 4/7/10/13で生成した各サマリに加え、
+- [x] 15-1. Step 4/7/10/13で生成した各サマリに加え、
       `aidlc-docs/construction/u2-auth-user-registration/code/testing-summary.md`
       （P1〜P13とテストクラスの対応表、example-basedテスト一覧、PBT-10補完的テスト戦略の
       再確認）を生成する。
 
 ### Step 16: デプロイ成果物生成
-- [ ] 16-1. `backend/src/main/resources/application.yml`（既存、ブラウンフィールド修正）に
+- [x] 16-1. `backend/src/main/resources/application.yml`（既存、ブラウンフィールド修正）に
       追記: `mm.app.security.password-encoder-strength`（既定`10`）,
       `mm.app.user-registration.token-expiry`（既定`3h`）,
       `mm.app.jwt.refresh-token-expiry`（既定`24h`）,
