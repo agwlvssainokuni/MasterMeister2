@@ -3,7 +3,7 @@
 ## Project Information
 - **Project Type**: Brownfield
 - **Start Date**: 2026-07-06T10:38:36Z
-- **Current Stage**: CONSTRUCTION - Per-Unit Loop - U2: Auth & User Registration - Code Generation Part 1 (Planning) approved 2026-07-09T11:15:00Z. Beginning Part 2 (Generation) per u2-auth-user-registration-code-generation-plan.md.
+- **Current Stage**: CONSTRUCTION - Per-Unit Loop - U2: Auth & User Registration - Code Generation Part 2 (Generation) in progress per u2-auth-user-registration-code-generation-plan.md. Step 2 (business logic, 2-1〜2-15) complete, including Step 8's repository interfaces (8-1〜8-3) pulled forward for compilation. Next: Step 3 (jqwik property tests).
 
 ## Execution Plan Summary
 - **Plan Document**: aidlc-docs/inception/plans/execution-plan.md

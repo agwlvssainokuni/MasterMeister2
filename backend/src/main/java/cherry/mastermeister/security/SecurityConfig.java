@@ -16,12 +16,16 @@
 
 package cherry.mastermeister.security;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -41,6 +45,11 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/registrations").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/registrations/complete").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/registrations/pending").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/registrations/*/approve").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/registrations/*/reject").hasRole("ADMIN")
                         .requestMatchers("/api/audit-logs/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex
@@ -53,6 +62,13 @@ public class SecurityConfig {
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter(JwtTokenValidator jwtTokenValidator) {
         return new JwtAuthenticationFilter(jwtTokenValidator);
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder(
+            @Value("${mm.app.security.password-encoder-strength:10}") int strength
+    ) {
+        return new BCryptPasswordEncoder(strength);
     }
 
 }

@@ -105,7 +105,7 @@ U1（Platform Foundation）のみに依存（`unit-of-work-dependency.md`）:
       いずれもU1 Code Generation Step 1で追加済み。新規依存の追加は不要。
 
 ### Step 2: ビジネスロジック生成
-- [ ] 2-1. `backend/src/main/java/cherry/mastermeister/security/SecurityConfig.java`
+- [x] 2-1. `backend/src/main/java/cherry/mastermeister/security/SecurityConfig.java`
       （既存、ブラウンフィールド修正）に以下を追記:
       - `@Bean PasswordEncoder passwordEncoder(@Value("${mm.app.security.password-encoder-strength:10}") int strength)`
         が`new BCryptPasswordEncoder(strength)`を返す（`nfr-design-patterns.md` 1.1）。
@@ -117,37 +117,37 @@ U1（Platform Foundation）のみに依存（`unit-of-work-dependency.md`）:
         `requestMatchers(HttpMethod.POST, "/api/registrations/*/reject").hasRole("ADMIN")`
         （`business-rules.md` 5節のパスパターンに準拠。`/api/auth/**`は既存の`permitAll()`が
         `/api/auth/login`・`/api/auth/refresh`・`/api/auth/logout`をカバーするため変更不要）。
-- [ ] 2-2. `backend/src/main/java/cherry/mastermeister/security/OpaqueTokenGenerator.java`
+- [x] 2-2. `backend/src/main/java/cherry/mastermeister/security/OpaqueTokenGenerator.java`
       （新規、`@Component`）: `String generate()`（32バイト`SecureRandom`→URL-safe base64、
       パディングなし）、`String hash(String plainToken)`（SHA-256、16進文字列）を実装
       （`nfr-design-patterns.md` 1.2）。
-- [ ] 2-3. `backend/src/main/java/cherry/mastermeister/security/JwtTokenProvider.java`
+- [x] 2-3. `backend/src/main/java/cherry/mastermeister/security/JwtTokenProvider.java`
       （新規、`@Component`）: `String generateToken(Long userId, Role role, Duration expiry)`
       （U1の`JwtTokenValidator`と同じ`mm.app.jwt.secret`（環境変数）でHS256署名。クレームに
       `userId`・`role`（`role.name()`文字列）を設定）、
       `JwtClaims parseAndValidate(String rawToken)`（失敗時`InvalidTokenException`をスロー。
       U1の`JwtTokenValidator`と同じ秘密鍵・検証ロジックを用いる）を実装
       （`component-methods.md`のシグネチャ準拠）。
-- [ ] 2-4. `backend/src/main/java/cherry/mastermeister/userregistration/` に
+- [x] 2-4. `backend/src/main/java/cherry/mastermeister/userregistration/` に
       `Role`（enum: `ADMIN`, `USER`）、`UserStatus`（enum: `PENDING_APPROVAL`, `APPROVED`,
       `REJECTED`）、`User`（JPAエンティティ。`domain-entities.md`のフィールド定義:
       `id`, `email`（`@Column(unique = true, nullable = false)`）, `passwordHash`, `role`,
       `status`, `createdAt`, `decidedAt`）を生成。
-- [ ] 2-5. `backend/src/main/java/cherry/mastermeister/userregistration/` に
+- [x] 2-5. `backend/src/main/java/cherry/mastermeister/userregistration/` に
       `RegistrationToken`（JPAエンティティ。`domain-entities.md`のフィールド定義:
       `id`, `email`, `tokenHash`（`@Column(unique = true, nullable = false)`）, `expiresAt`,
       `invalidatedAt`, `consumedAt`, `createdAt`）、`RegistrationTokenStatus`（enum:
       `VALID`, `EXPIRED`, `NOT_FOUND`）を生成。
-- [ ] 2-6. `backend/src/main/java/cherry/mastermeister/userregistration/` に
+- [x] 2-6. `backend/src/main/java/cherry/mastermeister/userregistration/` に
       `TokenExpiredException`, `TokenNotFoundException`, `InvalidUserStateException`
       （いずれも`RuntimeException`継承）を生成。
-- [ ] 2-7. `backend/src/main/java/cherry/mastermeister/userregistration/RegistrationTokenService.java`
+- [x] 2-7. `backend/src/main/java/cherry/mastermeister/userregistration/RegistrationTokenService.java`
       （`@Service`）: `String issueToken(String email, Duration expiry)`（`OpaqueTokenGenerator`
       で生成、`tokenHash`のみ永続化し平文を戻り値として返す）、
       `RegistrationTokenStatus validate(String token)`（`domain-entities.md`の判定ロジック:
       未検出→`NOT_FOUND`、`invalidatedAt`/`consumedAt`設定済みまたは`expiresAt`超過→
       `EXPIRED`、それ以外→`VALID`）を実装。
-- [ ] 2-8. `backend/src/main/java/cherry/mastermeister/userregistration/UserRegistrationService.java`
+- [x] 2-8. `backend/src/main/java/cherry/mastermeister/userregistration/UserRegistrationService.java`
       （`@Service`）: `requestRegistration(String email)`（`business-rules.md` 1.2の分岐、
       `AuditLogService`呼び出しは対象外——`business-rules.md`に監査記録要件の明記なし）、
       `completeRegistration(String token, String rawPassword)`（`RegistrationTokenService.validate`
@@ -158,16 +158,16 @@ U1（Platform Foundation）のみに依存（`unit-of-work-dependency.md`）:
       成功時`MailService.send(...)`+`AuditLogService.record(ADMIN_OPERATION, ...)`）、
       `List<PendingUserSummary> listPendingUsers()`（`status = PENDING_APPROVAL`、
       `createdAt`昇順）を実装（`business-rules.md` 1節、`business-logic-model.md`フロー1〜3）。
-- [ ] 2-9. `backend/src/main/java/cherry/mastermeister/userregistration/PendingUserSummary.java`
+- [x] 2-9. `backend/src/main/java/cherry/mastermeister/userregistration/PendingUserSummary.java`
       （record: `Long id, String email, Instant createdAt`）を生成。
-- [ ] 2-10. `backend/src/main/java/cherry/mastermeister/auth/RefreshToken.java`
+- [x] 2-10. `backend/src/main/java/cherry/mastermeister/auth/RefreshToken.java`
       （JPAエンティティ。`domain-entities.md`のフィールド定義: `id`, `userId`, `familyId`,
       `tokenHash`（`@Column(unique = true, nullable = false)`）, `expiresAt`, `rotatedAt`,
       `revokedAt`, `createdAt`）を生成。
-- [ ] 2-11. `backend/src/main/java/cherry/mastermeister/auth/` に
+- [x] 2-11. `backend/src/main/java/cherry/mastermeister/auth/` に
       `AuthenticationFailedException`, `InvalidTokenException`（いずれも`RuntimeException`
       継承）、`AuthToken`（record: `String accessToken, String refreshToken`）を生成。
-- [ ] 2-12. `backend/src/main/java/cherry/mastermeister/auth/RefreshTokenService.java`
+- [x] 2-12. `backend/src/main/java/cherry/mastermeister/auth/RefreshTokenService.java`
       （`@Service`）: `String issue(Long userId)`（新規`familyId`（UUID）で`RefreshToken`を
       1件作成し平文トークンを返す）、`RotationResult rotate(String rawToken)`（record:
       `Long userId, String newPlainToken`。`domain-entities.md`の有効性判定+
@@ -175,7 +175,7 @@ U1（Platform Foundation）のみに依存（`unit-of-work-dependency.md`）:
       同一`familyId`全行の`revokedAt`を一括更新してから`InvalidTokenException`をスロー）、
       `void revoke(String rawToken)`（対象行のみ`revokedAt`設定、`business-rules.md` 2.3）を
       実装。いずれも`OpaqueTokenGenerator`を利用。
-- [ ] 2-13. `backend/src/main/java/cherry/mastermeister/auth/AuthenticationService.java`
+- [x] 2-13. `backend/src/main/java/cherry/mastermeister/auth/AuthenticationService.java`
       （`@Service`）: `AuthToken login(String email, String rawPassword)`（`business-rules.md`
       2.1の判定+`AuditLogService.record(AUTHENTICATION, LOGIN_FAILURE/LOGIN_SUCCESS, ...)`、
       成功時`JwtTokenProvider.generateToken`+`RefreshTokenService.issue`）、
@@ -185,13 +185,13 @@ U1（Platform Foundation）のみに依存（`unit-of-work-dependency.md`）:
       `AuditLogService.record(AUTHENTICATION, LOGOUT, ...)`）を実装
       （`business-rules.md` 2節、`component-methods.md`の拡張——本計画「パッケージ設計判断」
       参照）。
-- [ ] 2-14. `backend/src/main/java/cherry/mastermeister/userregistration/AdminBootstrapRunner.java`
+- [x] 2-14. `backend/src/main/java/cherry/mastermeister/userregistration/AdminBootstrapRunner.java`
       （`ApplicationRunner`）: `mm.app.admin.bootstrap.email`/`mm.app.admin.bootstrap.password`
       が両方設定済み、かつ`UserRepository`で`role = ADMIN`の`User`が0件の場合のみ、
       `PasswordEncoder`でハッシュ化したパスワードで`role = ADMIN`, `status = APPROVED`の
       `User`を1件作成する（`nfr-design-patterns.md` 1.3、`domain-entities.md`「設計判断」節。
       `auth`パッケージから`userregistration`パッケージへ配置訂正——ユーザレビュー）。
-- [ ] 2-15. `backend/src/main/java/cherry/mastermeister/config/GlobalExceptionHandler.java`
+- [x] 2-15. `backend/src/main/java/cherry/mastermeister/config/GlobalExceptionHandler.java`
       （既存、ブラウンフィールド修正）に`@ExceptionHandler`を5件追記:
       `AuthenticationFailedException`→401, `InvalidTokenException`→401,
       `TokenExpiredException`→400, `TokenNotFoundException`→404,
@@ -283,15 +283,17 @@ U1の`common.dialect`（P9〜P12）と同様、本Code Generation計画で新た
       記載。
 
 ### Step 8: リポジトリレイヤ生成
-- [ ] 8-1. `backend/src/main/java/cherry/mastermeister/userregistration/UserRepository.java`
+（実装順の都合上、3リポジトリインタフェースはStep 2のサービス実装がコンパイル可能である
+必要があったため、Step 2と同時に前倒しで生成済み。内容はいずれも本ステップの記載どおり。）
+- [x] 8-1. `backend/src/main/java/cherry/mastermeister/userregistration/UserRepository.java`
       （`JpaRepository<User, Long>`。`Optional<User> findByEmail(String email)`,
       `boolean existsByRoleEqualsAdmin()`相当のクエリメソッドまたは`countByRole(Role)`,
       `List<User> findByStatusOrderByCreatedAtAsc(UserStatus)`を定義）を生成。
-- [ ] 8-2. `backend/src/main/java/cherry/mastermeister/userregistration/RegistrationTokenRepository.java`
+- [x] 8-2. `backend/src/main/java/cherry/mastermeister/userregistration/RegistrationTokenRepository.java`
       （`JpaRepository<RegistrationToken, Long>`。`Optional<RegistrationToken>
       findByTokenHash(String)`, `Optional<RegistrationToken> findByEmailAndConsumedAtIsNullAndInvalidatedAtIsNull(String)`
       （再送信時の旧トークン検索用）を定義）を生成。
-- [ ] 8-3. `backend/src/main/java/cherry/mastermeister/auth/RefreshTokenRepository.java`
+- [x] 8-3. `backend/src/main/java/cherry/mastermeister/auth/RefreshTokenRepository.java`
       （`JpaRepository<RefreshToken, Long>`。`Optional<RefreshToken> findByTokenHash(String)`,
       `List<RefreshToken> findByFamilyId(String)`（reuse detection時の一括更新用）を定義）を
       生成。
@@ -379,7 +381,12 @@ U1の`common.dialect`（P9〜P12）と同様、本Code Generation計画で新た
       `mm.app.user-registration.token-expiry`（既定`3h`）,
       `mm.app.jwt.refresh-token-expiry`（既定`24h`）,
       `mm.app.admin.bootstrap.email`/`mm.app.admin.bootstrap.password`（既定未設定、
-      環境変数プレースホルダ）。
+      環境変数プレースホルダ）,
+      `mm.app.frontend.base-url`（既定`http://localhost:5173`、Step 2実装時にAI追加判断——
+      メールテンプレート`registration-confirmation.html`/`registration-approved.html`が
+      `linkUrl`変数を要求するため、確認/ログインリンク生成用のフロントエンドベースURLとして
+      `UserRegistrationService`に追加した設定キー。当初のNFR Design/Code Generation計画には
+      記載がなかった実装時の必要事項）。
 
 ---
 

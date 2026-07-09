@@ -16,10 +16,15 @@
 
 package cherry.mastermeister.config;
 
+import cherry.mastermeister.auth.AuthenticationFailedException;
+import cherry.mastermeister.auth.InvalidTokenException;
 import cherry.mastermeister.common.ErrorResponse;
 import cherry.mastermeister.common.exception.EntityNotFoundException;
 import cherry.mastermeister.common.exception.PermissionDeniedException;
 import cherry.mastermeister.common.exception.ValidationException;
+import cherry.mastermeister.userregistration.InvalidUserStateException;
+import cherry.mastermeister.userregistration.TokenExpiredException;
+import cherry.mastermeister.userregistration.TokenNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -48,6 +53,36 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleValidation(ValidationException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse("VALIDATION_ERROR", e.getMessage()));
+    }
+
+    @ExceptionHandler(AuthenticationFailedException.class)
+    public ResponseEntity<ErrorResponse> handleAuthenticationFailed(AuthenticationFailedException e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new ErrorResponse("AUTHENTICATION_FAILED", e.getMessage()));
+    }
+
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidToken(InvalidTokenException e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new ErrorResponse("INVALID_TOKEN", e.getMessage()));
+    }
+
+    @ExceptionHandler(TokenExpiredException.class)
+    public ResponseEntity<ErrorResponse> handleTokenExpired(TokenExpiredException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse("TOKEN_EXPIRED", e.getMessage()));
+    }
+
+    @ExceptionHandler(TokenNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleTokenNotFound(TokenNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponse("TOKEN_NOT_FOUND", e.getMessage()));
+    }
+
+    @ExceptionHandler(InvalidUserStateException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidUserState(InvalidUserStateException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ErrorResponse("INVALID_USER_STATE", e.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)
