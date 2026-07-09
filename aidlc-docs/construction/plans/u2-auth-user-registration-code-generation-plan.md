@@ -309,25 +309,25 @@ U1の`common.dialect`（P9〜P12）と同様、本Code Generation計画で新た
       （`tokenHash`/`email`のunique制約のみ、`nfr-design-patterns.md` 2.1）を記載。
 
 ### Step 11: フロントエンドコンポーネント生成
-- [ ] 11-1. `frontend/src/store/authStore.ts`（既存、ブラウンフィールド修正）:
+- [x] 11-1. `frontend/src/store/authStore.ts`（既存、ブラウンフィールド修正）:
       `refreshToken: string | null`を追加、`login`アクションを`setTokens(currentUser,
       accessToken, refreshToken)`に拡張（既存`login`呼び出し元がない——U1では未使用のため
       安全にリネーム可能）、`logout`を`clearTokens`に統合。`zustand/middleware`の`persist`
       （`storage: createJSONStorage(() => sessionStorage)`）を適用し、状態変更を自動的に
       `sessionStorage`と同期する（`nfr-design-patterns.md` 1.4）。
-- [ ] 11-2. `frontend/src/api/apiClient.ts`（既存、ブラウンフィールド修正）: 401受信時、
+- [x] 11-2. `frontend/src/api/apiClient.ts`（既存、ブラウンフィールド修正）: 401受信時、
       即座にログアウトする前に`features/auth/api/authApi.ts`の`refresh(refreshToken)`を
       1回試行し、成功すれば元のリクエストを新しいアクセストークンで再試行する。リフレッシュ
       自体が失敗（401等）した場合にのみ、既存の`authStore`クリア＋`/login`リダイレクト処理を
       実行する（無限リトライ防止のため、リフレッシュ呼び出し自体は本ロジックを経由しない
       素の`fetch`または再試行フラグで制御する）（`business-logic-model.md`フロー5、
       `frontend-components.md`）。
-- [ ] 11-3. `frontend/src/features/auth/` に
+- [x] 11-3. `frontend/src/features/auth/` に
       `LoginPage.tsx`（`data-testid="login-page-email-input"` / `-password-input"` /
       `-submit-button"` / `-error-message"`）、
       `api/authApi.ts`（`login`, `refresh`, `logout`）、`types.ts`を生成
       （`frontend-components.md`）。
-- [ ] 11-4. `frontend/src/features/userRegistration/` に
+- [x] 11-4. `frontend/src/features/userRegistration/` に
       `RegistrationRequestPage.tsx`（`data-testid="registration-request-page-email-input"` /
       `-submit-button"` / `-success-message"`）、
       `PasswordSetupPage.tsx`（`data-testid="password-setup-page-password-input"` /
@@ -339,7 +339,7 @@ U1の`common.dialect`（P9〜P12）と同様、本Code Generation計画で新た
       `api/userRegistrationApi.ts`（`requestRegistration`, `completeRegistration`,
       `listPendingUsers`, `approveUser`, `rejectUser`）、`types.ts`を生成
       （`frontend-components.md`）。
-- [ ] 11-5. `frontend/src/routes/AppRouter.tsx`（既存、ブラウンフィールド修正）:
+- [x] 11-5. `frontend/src/routes/AppRouter.tsx`（既存、ブラウンフィールド修正）:
       `/login`, `/register`, `/register/complete`をパブリックルート（`AppLayout`なし）として
       `Routes`の先頭に追加し、既存の`AppLayout`配下ルート（`/audit-logs`）はネストした
       `Routes`（ワイルドカードパス配下）として維持する。`/admin/pending-users`
@@ -347,7 +347,7 @@ U1の`common.dialect`（P9〜P12）と同様、本Code Generation計画で新た
       （`frontend-components.md`のルーティング表）。
 
 ### Step 12: フロントエンドコンポーネント単体テスト
-- [ ] 12-1. Vitest + React Testing Library で以下のexample-basedテストを生成:
+- [x] 12-1. Vitest + React Testing Library で以下のexample-basedテストを生成:
       `authStore`（`setTokens`/`clearTokens`状態遷移、`sessionStorage`同期）,
       `apiClient`（401→リフレッシュ成功時の再試行、リフレッシュ失敗時のログアウト遷移）,
       `authApi`（`login`/`refresh`/`logout`のリクエスト形状）,
@@ -361,7 +361,7 @@ U1の`common.dialect`（P9〜P12）と同様、本Code Generation計画で新た
       未認証リダイレクト）。
 
 ### Step 13: フロントエンドコンポーネントサマリ
-- [ ] 13-1. `aidlc-docs/construction/u2-auth-user-registration/code/frontend-summary.md`
+- [x] 13-1. `aidlc-docs/construction/u2-auth-user-registration/code/frontend-summary.md`
       を生成し、`features/auth/`・`features/userRegistration/`のコンポーネント一覧・
       `data-testid`一覧を記載。
 

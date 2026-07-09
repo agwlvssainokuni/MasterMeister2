@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { createJSONStorage, persist } from 'zustand/middleware'
 
 export type Role = 'ADMIN' | 'USER'
 
@@ -11,13 +12,24 @@ export interface CurrentUser {
 interface AuthState {
   currentUser: CurrentUser | null
   token: string | null
-  login: (currentUser: CurrentUser, token: string) => void
-  logout: () => void
+  refreshToken: string | null
+  setTokens: (currentUser: CurrentUser, accessToken: string, refreshToken: string) => void
+  clearTokens: () => void
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
-  currentUser: null,
-  token: null,
-  login: (currentUser, token) => set({ currentUser, token }),
-  logout: () => set({ currentUser: null, token: null }),
-}))
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set) => ({
+      currentUser: null,
+      token: null,
+      refreshToken: null,
+      setTokens: (currentUser, accessToken, refreshToken) =>
+        set({ currentUser, token: accessToken, refreshToken }),
+      clearTokens: () => set({ currentUser: null, token: null, refreshToken: null }),
+    }),
+    {
+      name: 'auth-storage',
+      storage: createJSONStorage(() => sessionStorage),
+    },
+  ),
+)

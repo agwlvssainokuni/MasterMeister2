@@ -16,11 +16,11 @@ interface ApiFetchOptions extends Omit<RequestInit, 'body'> {
   body?: unknown
 }
 
-export async function apiFetch<T>(path: string, options: ApiFetchOptions = {}): Promise<T> {
+function buildRequestInit(options: ApiFetchOptions): RequestInit {
   const { body, headers, ...rest } = options
   const token = useAuthStore.getState().token
 
-  const response = await fetch(path, {
+  return {
     ...rest,
     headers: {
       'Content-Type': 'application/json',
@@ -28,10 +28,34 @@ export async function apiFetch<T>(path: string, options: ApiFetchOptions = {}): 
       ...headers,
     },
     body: body === undefined ? undefined : JSON.stringify(body),
-  })
+  }
+}
 
+// リフレッシュ自体は本関数（apiFetch）を経由しない素のfetchで行い、無限リトライを防止する
+// （nfr-design-patterns.md 1.4、u2-auth-user-registration-code-generation-plan.md 11-2）。
+async function refreshAccessToken(): Promise<boolean> {
+  const { refreshToken, currentUser } = useAuthStore.getState()
+  if (!refreshToken || !currentUser) {
+    return false
+  }
+
+  const response = await fetch('/api/auth/refresh', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ refreshToken }),
+  })
+  if (!response.ok) {
+    return false
+  }
+
+  const refreshed = (await response.json()) as { accessToken: string; refreshToken: string }
+  useAuthStore.getState().setTokens(currentUser, refreshed.accessToken, refreshed.refreshToken)
+  return true
+}
+
+async function handleResponse<T>(response: Response): Promise<T> {
   if (response.status === 401) {
-    useAuthStore.getState().logout()
+    useAuthStore.getState().clearTokens()
     window.location.href = '/login'
     throw new ApiError(401, 'UNAUTHENTICATED', 'Authentication required')
   }
@@ -49,4 +73,18 @@ export async function apiFetch<T>(path: string, options: ApiFetchOptions = {}): 
   }
 
   return (await response.json()) as T
+}
+
+export async function apiFetch<T>(path: string, options: ApiFetchOptions = {}): Promise<T> {
+  const response = await fetch(path, buildRequestInit(options))
+
+  if (response.status === 401) {
+    const refreshed = await refreshAccessToken()
+    if (refreshed) {
+      const retryResponse = await fetch(path, buildRequestInit(options))
+      return handleResponse<T>(retryResponse)
+    }
+  }
+
+  return handleResponse<T>(response)
 }
