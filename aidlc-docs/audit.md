@@ -823,3 +823,11 @@
 
 ---
 
+## CONSTRUCTION - U3 NFR Requirements - Step 6 Artifact Generation
+**Timestamp**: 2026-07-10T03:15:00Z
+**User Input**: "続行してください。" (after a /compact context-compaction cycle, resuming per the prior checkpoint-and-ask instruction, in response to the AI's question of whether to proceed to Step 6)
+**AI Response**: Generated the two Step 6 artifacts under aidlc-docs/construction/u3-rdbms-connection-schema-import/nfr-requirements/, following the U2 nfr-requirements.md/tech-stack-decisions.md format as precedent: nfr-requirements.md (Security: AES-256/GCM key format from Q1, error-message exposure from Q6; Tech Stack: HikariCP dynamic pool sizing from Q2, JDBC driver selection/dependencyManagement from Q3; Performance/Reliability: connection timeout from Q4, synchronous schema-import from Q5; PBT compliance section noting jqwik carried over from U1 unchanged) and tech-stack-decisions.md (7-row decision table mirroring all 6 answers plus the carried-over PBT framework row, a new config-key table listing the 4 new mm.app.rdbms-connection.* keys distinguishing the single fail-fast key (encryption-key) from the 3 ordinary-default pool keys, and a note on the JDBC driver BOM-gap rationale for Question 3). Marked both checklist items complete in the plan file's Step 6 section.
+**Context**: Per-Unit Loop, U3 NFR Requirements Step 6 (construction/nfr-requirements.md) complete. Next: Step 7 (present standardized 2-option completion message), Step 8 (wait for explicit approval).
+
+---
+
