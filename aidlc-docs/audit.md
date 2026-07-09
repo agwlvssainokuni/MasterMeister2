@@ -831,3 +831,19 @@
 
 ---
 
+## CONSTRUCTION - U3 NFR Requirements - Interim Commit
+**Timestamp**: 2026-07-10T03:20:00Z
+**User Input**: "一旦コミット。" (issued after Step 7's completion message was presented, before answering A/B)
+**AI Response**: Staged exactly the affected paths (aidlc-docs/aidlc-state.md, aidlc-docs/audit.md, aidlc-docs/construction/plans/u3-rdbms-connection-schema-import-nfr-requirements-plan.md, and the new aidlc-docs/construction/u3-rdbms-connection-schema-import/nfr-requirements/ directory) and created an interim checkpoint commit `dc5496b` ("U3 NFR RequirementsのStep 6成果物を生成"), prior to the Step 8 approval decision.
+**Context**: Per-Unit Loop, U3 NFR Requirements — interim checkpoint commit per user's standing instruction to commit at reasonable checkpoints. Step 8 approval still pending at this point.
+
+---
+
+## CONSTRUCTION - U3 NFR Requirements - Step 7/8/9 Approval
+**Timestamp**: 2026-07-10T03:25:00Z
+**AI Response (Step 7)**: Re-presented/held open the standardized 2-option completion message for the U3 NFR Requirements artifacts (nfr-requirements.md, tech-stack-decisions.md) — "A. Request Changes" or "B. Continue to Next Stage" — per construction/nfr-requirements.md's mandated format (no emergent 3-option behavior).
+**User Input**: "B"
+**Context**: Per-Unit Loop, U3 NFR Requirements Step 8 (wait for explicit approval) — user selected option B (Continue to Next Stage). Proceeding to Step 9: record approval, update aidlc-state.md Stage Progress table for U3 NFR Requirements, then continue the per-unit loop to U3 NFR Design.
+
+---
+
