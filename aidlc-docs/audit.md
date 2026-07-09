@@ -743,3 +743,11 @@
 
 ---
 
+## CONSTRUCTION - U2 Code Generation - Post-Completion Review Fix 5 (Audit Log Page Infinite API Call Loop)
+**Timestamp**: 2026-07-09T22:11:00Z
+**User Input**: "監査ログのページへ遷移すると、/api/audit-logs の呼び出しの無限ループが発生します。原因はわかりますか？"
+**AI Response**: "Traced the loop to hooks/usePagination.ts:34 — `pageRequest` was built as a fresh object literal (`{ page, pageSize }`) on every render, never memoized. AuditLogPage.tsx's `runSearch` (useCallback) lists `pageRequest` in its dependency array, so a new `pageRequest` identity each render produced a new `runSearch` identity each render, which re-triggered the `useEffect(() => { runSearch() }, [runSearch])` on every render; each fetch then called `setTotalCount`, forcing a re-render that produced yet another new `pageRequest`/`runSearch` pair, repeating indefinitely. Fixed by wrapping `pageRequest` in `useMemo(() => ({ page, pageSize }), [page, pageSize])` so its identity is stable unless page/pageSize actually change. Confirmed only AuditLogPage.tsx consumes usePagination (grepped all .tsx files), so no other screen was affected. Added regression coverage to AuditLogPage.test.tsx (call-count assertions after a short delay on both the initial-load and filter-resubmit tests) and verified the test actually catches the bug by temporarily stashing the usePagination.ts fix alone and re-running: without the fix, 3 calls and 8 calls were observed in the two tests (vs. the expected 1 and 2) within 50ms, confirming the loop reproduces in the test harness; restored the fix via git stash pop and reran clean. Full suite verified: npm run build / npm run lint / npx vitest run all clean, 20 files / 71 tests (same test count, only assertions added to 2 existing tests, no new test cases)."
+**Context**: Fifth review-driven bug fix, discovered by the user while manually exercising the app in-browser during the same post-Code-Generation-Complete review window as Fixes 1-4. Not part of any numbered step in either unit's Code Generation plan. A real production bug (not a doc/convention issue like Fixes 3-4) — every visit to /admin/audit-logs was hammering the backend with unbounded concurrent requests.
+
+---
+
