@@ -28,7 +28,7 @@ describe('AppRouter', () => {
   })
 
   it('redirects to /login when accessing a protected route while unauthenticated', () => {
-    renderAt('/audit-logs')
+    renderAt('/admin/audit-logs')
 
     expect(screen.getByTestId('login-page')).toBeInTheDocument()
   })

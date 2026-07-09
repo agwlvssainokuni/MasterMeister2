@@ -13,7 +13,7 @@ API・store・ルーティングの一覧。設計は`functional-design/frontend
 | `src/hooks/useAuth.ts` | `setTokens`を公開。既存コンポーネント（`AppLayout.tsx`等）への影響を避けるため、公開プロパティ名は`logout`のまま内部で`clearTokens`に委譲 |
 | `src/api/apiClient.ts` | 401応答時に`refreshAccessToken()`（内部で`fetch`を直接使用し`apiFetch`の再帰呼び出しを回避）でアクセストークンを更新し、元のリクエストを1回だけ再試行する処理を追加。再試行後も失敗した場合は既存のトークンクリア＋`/login`リダイレクト処理にフォールバック |
 | `src/routes/AppRouter.tsx` | トップレベル`<Routes>`に公開ルート（`/login`, `/register`, `/register/complete`）を追加し、`/*`ワイルドカードで`AuthenticatedRoutes`（`AppLayout`＋ネストした保護ルート用`<Routes>`）に委譲する構成に変更。保護ルートに`/admin/pending-users`を追加 |
-| `src/components/AppLayout.tsx` | レビュー指摘（Code Generation完了メッセージ提示後、ユーザレビュー時に発見）により、`/admin/pending-users`への管理者限定ナビリンク「承認待ちユーザー」を追加。既存の「監査ログ」リンクと同一条件（`isAuthenticated && currentUser?.role === 'ADMIN'`）。専用テスト`AppLayout.test.tsx`を新規作成（本Stepまで未作成だった） |
+| `src/components/AppLayout.tsx` | レビュー指摘（Code Generation完了メッセージ提示後、ユーザレビュー時に発見）により、`/admin/pending-users`への管理者限定ナビリンク「承認待ちユーザー」を追加。既存の「監査ログ」リンクと同一条件（`isAuthenticated && currentUser?.role === 'ADMIN'`）。専用テスト`AppLayout.test.tsx`を新規作成（本Stepまで未作成だった）。さらに別件のレビュー指摘で、U1由来の監査ログリンク先を`/audit-logs`から`/admin/audit-logs`へ修正（U1自身の`functional-design/frontend-components.md`が定める「管理者専用画面は`/admin`プレフィクス必須」規約との齟齬を解消、詳細は下記ルーティング一覧参照） |
 
 ## 新規: `features/auth/`
 
@@ -41,7 +41,7 @@ API・store・ルーティングの一覧。設計は`functional-design/frontend
 | `/login` | 公開 | `LoginPage` |
 | `/register` | 公開 | `RegistrationRequestPage` |
 | `/register/complete` | 公開 | `PasswordSetupPage` |
-| `/` 以下（`/audit-logs`等） | 保護（`AppLayout`配下） | 既存＋`/admin/pending-users` → `PendingUsersPage` |
+| `/` 以下（`/admin/audit-logs`等） | 保護（`AppLayout`配下） | 既存（レビュー指摘で`/audit-logs`から`/admin/audit-logs`へ修正）＋`/admin/pending-users` → `PendingUsersPage` |
 
 未認証で保護ルートにアクセスした場合は`ProtectedRoute`（既存、変更なし）により`/login`へリダイレクトする。
 

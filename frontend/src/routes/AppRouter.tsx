@@ -12,7 +12,7 @@ function AuthenticatedRoutes() {
     <AppLayout>
       <Routes>
         <Route
-          path="/audit-logs"
+          path="/admin/audit-logs"
           element={
             <ProtectedRoute requiredRole="ADMIN">
               <AuditLogPage />

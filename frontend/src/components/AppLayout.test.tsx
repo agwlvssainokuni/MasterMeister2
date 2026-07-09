@@ -21,7 +21,10 @@ describe('AppLayout', () => {
       'href',
       '/admin/pending-users',
     )
-    expect(screen.getByTestId('app-layout-nav-audit-logs')).toHaveAttribute('href', '/audit-logs')
+    expect(screen.getByTestId('app-layout-nav-audit-logs')).toHaveAttribute(
+      'href',
+      '/admin/audit-logs',
+    )
   })
 
   it('hides the admin-only links for an authenticated non-admin user', () => {

@@ -21,7 +21,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             </a>
           )}
           {isAuthenticated && currentUser?.role === 'ADMIN' && (
-            <a href="/audit-logs" data-testid="app-layout-nav-audit-logs">
+            <a href="/admin/audit-logs" data-testid="app-layout-nav-audit-logs">
               監査ログ
             </a>
           )}

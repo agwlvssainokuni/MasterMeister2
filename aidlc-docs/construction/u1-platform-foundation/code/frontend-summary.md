@@ -13,7 +13,7 @@ Step 11（フロントエンドコンポーネント生成）・Step 12（フロ
 | `src/hooks/useAuth.ts` | `authStore`から`currentUser`/`token`/`isAuthenticated`（`currentUser !== null && token !== null`）/`login`/`logout`を返すラッパーフック。 |
 | `src/hooks/usePagination.ts` | ページング状態管理フック。`page`/`pageSize`/`totalCount`/`pageRequest`/`setTotalCount`/`goToPage`/`changePageSize`（ページサイズ変更時は`page`を`0`にリセット）。 |
 | `src/routes/ProtectedRoute.tsx` | `requiredRole`prop対応の認可ガード。未認証時は`/login`へ、`requiredRole`指定かつロール不一致時は`/`へリダイレクト。 |
-| `src/routes/AppRouter.tsx` | `BrowserRouter` + `AppLayout` + `Routes`。現時点では`/audit-logs`（`ProtectedRoute requiredRole="ADMIN"` → `AuditLogPage`）のみ登録。 |
+| `src/routes/AppRouter.tsx` | `BrowserRouter` + `AppLayout` + `Routes`。現時点では`/admin/audit-logs`（`ProtectedRoute requiredRole="ADMIN"` → `AuditLogPage`）のみ登録（初出時は`/admin`プレフィクスなしの`/audit-logs`として実装されていたが、自ユニットの`functional-design/frontend-components.md`が定めるルーティング規約（管理者専用画面は`/admin`プレフィクス必須）との齟齬をU2レビュー時に発見・修正、詳細はU2の`code/frontend-summary.md`参照）。 |
 | `src/components/AppLayout.tsx` | 全画面共通のナビゲーションレイアウト。ADMIN以外には監査ログリンクを表示しない。 |
 | `src/components/DataTable.tsx` | 汎用テーブル`DataTable<T>`。列定義（`key`/`header`/`sortable?`/`render?`）に基づきヘッダ・行を描画、ソート可能列はボタン化。 |
 | `src/components/Pagination.tsx` | ページ送りUI。前/次ボタン（境界で`disabled`）とページサイズ選択。 |
