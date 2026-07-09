@@ -775,3 +775,11 @@
 
 ---
 
+## CONSTRUCTION - U3 Functional Design - Plan Created (Awaiting Answers)
+**Timestamp**: 2026-07-10T00:37:00Z
+**User Input**: "続行してください。" (confirming to proceed with U3, following the earlier question "U3のFunctional Designに進みます。進めてよろしいですか？")
+**AI Response**: "Proceeded to U3 (RDBMS Connection & Schema Import) Functional Design per construction/functional-design.md Steps 1-4. Analyzed unit context from unit-of-work.md, unit-of-work-story-map.md, stories.md (MVP-7, MVP-8, ADM-3), components.md, and component-methods.md (existing RdbmsConnectionService/ConnectionPoolRegistry/SchemaImportService/SchemaQueryService signatures). Researched (via Explore subagent) existing precedent for credential encryption (none exists — User.passwordHash is a one-way bcrypt hash, not reusable for reversible RDBMS connection passwords), U1's DialectStrategy/DialectStrategyFactory/RdbmsType (established, covers dialect/schema-resolution differences but not connection pooling), and current build.gradle.kts dependencies (only H2 driver present, no MySQL/MariaDB/PostgreSQL drivers or explicit HikariCP dependency yet). Created aidlc-docs/construction/plans/u3-rdbms-connection-schema-import-functional-design-plan.md with 8 clarifying questions covering: Q1 password encryption strategy (new AttributeConverter, no existing precedent), Q2 RdbmsConnection entity fields, Q3 connection pool lifecycle (lazy init/invalidate), Q4 testConnection usage patterns (unsaved config vs existing connection retest), Q5 schema import scope (all schemas/tables/views, no schema-selection UI), Q6 re-import behavior (upsert by physical name, preserve IDs for U4 Permission Management's future FK references, stale-flag instead of delete), Q7 import failure handling (single transaction, full rollback), Q8 frontend component structure for features/rdbmsConnection/ and features/schema/. Each question pre-filled with a recommended answer (A) per repository convention; awaiting user review/adjustment."
+**Context**: Per-Unit Loop, U3 Functional Design Step 2-4 (construction/functional-design.md). Plan not yet approved — waiting for user to confirm or adjust the [Answer]: tags before Step 5 (answer analysis) and Step 6 (artifact generation) proceed.
+
+---
+
