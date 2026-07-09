@@ -3,7 +3,7 @@
 ## Project Information
 - **Project Type**: Brownfield
 - **Start Date**: 2026-07-06T10:38:36Z
-- **Current Stage**: CONSTRUCTION - Per-Unit Loop - U2: Auth & User Registration - Code Generation Part 2 (Generation) in progress per u2-auth-user-registration-code-generation-plan.md. Step 2 (business logic, 2-1〜2-15) complete, including Step 8's repository interfaces (8-1〜8-3) pulled forward for compilation. Step 3-4 (jqwik property tests P1〜P13 + business-logic-summary.md) complete. Next: Step 5-7 (API layer generation).
+- **Current Stage**: CONSTRUCTION - Per-Unit Loop - U2: Auth & User Registration - Code Generation Part 2 (Generation) in progress per u2-auth-user-registration-code-generation-plan.md. Step 2 (business logic, 2-1〜2-15) complete, including Step 8's repository interfaces (8-1〜8-3) pulled forward for compilation. Step 3-4 (jqwik property tests P1〜P13 + business-logic-summary.md) complete. Step 5-7 (API layer: AuthController/RegistrationController + example-based controller tests + api-layer-summary.md) complete. Next: Step 8-10 (repository layer — interfaces already pulled forward in Step 2/8-1〜8-3, remaining scope is Step 9 repository unit tests + Step 10 repository-layer-summary.md).
 
 ## Execution Plan Summary
 - **Plan Document**: aidlc-docs/inception/plans/execution-plan.md

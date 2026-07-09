@@ -246,19 +246,19 @@ U1の`common.dialect`（P9〜P12）と同様、本Code Generation計画で新た
       を生成し、Step 2・Step 3で生成したクラス一覧とP1〜P13の対応関係を表形式で記載する。
 
 ### Step 5: APIレイヤ生成
-- [ ] 5-1. `backend/src/main/java/cherry/mastermeister/auth/` に
+- [x] 5-1. `backend/src/main/java/cherry/mastermeister/auth/` に
       `LoginRequest`（record: `String email, String password`）,
       `RefreshRequest`（record: `String refreshToken`）,
       `LogoutRequest`（record: `String refreshToken`）を生成。
-- [ ] 5-2. `backend/src/main/java/cherry/mastermeister/auth/AuthController.java`
+- [x] 5-2. `backend/src/main/java/cherry/mastermeister/auth/AuthController.java`
       （`@RestController @RequestMapping("/api/auth")`）:
       `POST /login`（`LoginRequest`→`AuthenticationService.login`→`AuthToken`）,
       `POST /refresh`（`RefreshRequest`→`AuthenticationService.refresh`→`AuthToken`）,
       `POST /logout`（`LogoutRequest`→`AuthenticationService.logout`→204）を生成。
-- [ ] 5-3. `backend/src/main/java/cherry/mastermeister/userregistration/` に
+- [x] 5-3. `backend/src/main/java/cherry/mastermeister/userregistration/` に
       `RequestRegistrationRequest`（record: `String email`）,
       `CompleteRegistrationRequest`（record: `String token, String password`）を生成。
-- [ ] 5-4. `backend/src/main/java/cherry/mastermeister/userregistration/RegistrationController.java`
+- [x] 5-4. `backend/src/main/java/cherry/mastermeister/userregistration/RegistrationController.java`
       （`@RestController @RequestMapping("/api/registrations")`）:
       `POST ""`（`requestRegistration`→204）, `POST "/complete"`（`completeRegistration`→204）,
       `GET "/pending"`（`listPendingUsers`→`List<PendingUserSummary>`。管理者ロールチェックは
@@ -270,15 +270,15 @@ U1の`common.dialect`（P9〜P12）と同様、本Code Generation計画で新た
       パターンに準拠）。
 
 ### Step 6: APIレイヤ単体テスト
-- [ ] 6-1. `AuthControllerTest`（`@WebMvcTest` + `spring-security-test`）: ログイン成功/
+- [x] 6-1. `AuthControllerTest`（`@WebMvcTest` + `spring-security-test`）: ログイン成功/
       失敗、リフレッシュ成功/失敗（無効・reuse detection）、ログアウトをexample-basedテストで
       検証。
-- [ ] 6-2. `RegistrationControllerTest`（`@WebMvcTest` + `spring-security-test`の
+- [x] 6-2. `RegistrationControllerTest`（`@WebMvcTest` + `spring-security-test`の
       `@WithMockUser`）: 登録申請・登録完了（`permitAll`、未認証で200系）、承認待ち一覧・
       承認・却下（管理者以外403、未認証401）をexample-basedテストで検証。
 
 ### Step 7: APIレイヤサマリ
-- [ ] 7-1. `aidlc-docs/construction/u2-auth-user-registration/code/api-layer-summary.md`
+- [x] 7-1. `aidlc-docs/construction/u2-auth-user-registration/code/api-layer-summary.md`
       を生成し、エンドポイント一覧（パス・メソッド・認可要件・リクエスト/レスポンス形状）を
       記載。
 
