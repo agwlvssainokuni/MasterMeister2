@@ -72,11 +72,20 @@
 `RdbmsConnection`エンティティが保持する接続パスワードを内部DB（H2）にどう保存するか。
 `User.passwordHash`と異なり、対象RDBMSへの再接続に平文が必要なため、一方向ハッシュは使えない。
 
-- **A（推奨）**: 新規のJPA `AttributeConverter`（例: `EncryptedStringConverter`）を追加し、
-  AES/GCMなどの対称鍵暗号でパスワードを暗号化して保存する。鍵は環境変数
+- **A（推奨）**: 新規のJPA `AttributeConverter<String, String>`（例: `EncryptedStringConverter`）を
+  追加し、AES/GCMなどの対称鍵暗号でパスワードを暗号化して保存する。鍵は環境変数
   （例: `mm.app.rdbms-connection.encryption-key`）から供給し、未設定/不正な長さの場合は
   起動時にfail-fastする（`mm.app.jwt.secret`と同様のパターン）。復号は`ConnectionPoolRegistry`が
   `DataSource`構築時にのみ行う。
+  **実装方針**: `EncryptedStringConverter`は`@Component` + `@Converter`を付与しSpring Bean化する
+  （JPA/HibernateはデフォルトではAttributeConverterをリフレクションで直接生成しSpringのDIが
+  効かないが、Spring Bootは Hibernateの`BeanContainer`をSpringの`ApplicationContext`に紐づける
+  自動設定を持つため、`@Component`登録すればコンストラクタインジェクションが有効になる）。
+  `RdbmsConnection.password`フィールドには`@Convert(converter = EncryptedStringConverter.class)`を
+  付与する。コンストラクタで`@Value("${mm.app.rdbms-connection.encryption-key}")`を受け取り、
+  鍵の生成・検証（不正な長さなら例外）をそこで行いfail-fastする——`JwtTokenProvider`
+  （`security/JwtTokenProvider.java`、`@Component`のコンストラクタで`@Value("${mm.app.jwt.secret}")`を
+  受け取り`Keys.hmacShaKeyFor(...)`で検証する既存パターン）と一貫させる。
 - **B**: 平文のままDBに保存する（実装は簡素になるが、内部DB漏洩時に対象RDBMSの認証情報が
   そのまま漏洩するリスクを負う）。
 - **C**: その他（自由記述）
@@ -91,9 +100,15 @@
 
 - **A（推奨）**: `id`, `name`（管理用表示名、ADM-3の一覧表示に使用）, `rdbmsType`（`RdbmsType` enum、
   U1で確立済みのものを再利用）, `host`, `port`, `databaseName`, `username`, `password`（Q1で暗号化）,
-  `createdAt`/`updatedAt`（`java.time.Instant`）。JDBC URLは保存せず、`rdbmsType`+`host`+`port`+
-  `databaseName`から`DialectStrategy`側のロジックで組み立てる（生URL直接入力を許すと
-  DB種別との不整合や意図しないJDBCオプション注入のリスクがあるため）。
+  `additionalParams`（任意、`useSSL=false&serverTimezone=Asia%2FTokyo`のようなJDBC URLクエリ
+  パラメータ形式の生文字列。nullable、未指定なら付加しない）, `createdAt`/`updatedAt`
+  （`java.time.Instant`）。JDBC URL全体は保存せず、`rdbmsType`+`host`+`port`+`databaseName`から
+  `DialectStrategy`側のロジックでベースURLを組み立てたうえで、`additionalParams`があれば
+  末尾に付加する（ベース部分の構造化により、DB種別との不整合や意図しないスキーム変更を防ぎつつ、
+  DB種別ごとに異なるチューニング用オプション—MySQLの`useSSL`/`serverTimezone`、PostgreSQLの
+  `sslmode`等—を管理者が個別接続ごとに指定できるようにする）。管理者専用機能であり値の
+  出所は信頼できるため、`additionalParams`の中身自体はバリデーションしない（形式不正なら
+  `testConnection`の接続テストで顕在化する）。
 - **B**: 上記に加え、接続ごとのプール詳細設定（最大プールサイズ等）もエンティティに含め、
   管理者が接続単位でチューニング可能にする。
 - **C**: その他（自由記述）
@@ -207,9 +222,14 @@ U1/U2の`frontend-components.md`と同様の粒度で、本ユニットのフロ
     再入力必須）、`connectionApi.ts`。
   - `features/schema/`: `SchemaImportPanel`（`ConnectionListPage`または詳細画面から起動する
     取り込み実行ボタン+結果表示、成功/失敗と取り込みテーブル数を表示）、
-    `SchemaBrowserPage`（取り込み済みスキーマ/テーブル/カラム一覧の参照専用ビュー、
-    権限フィルタなしの生データ、U4完成までは管理者が現状確認するための暫定閲覧画面）、
-    `schemaApi.ts`。
+    `SchemaBrowserPage`（取り込み済みスキーマ/テーブル/カラムの**メタデータ**
+    （物理名・コメント・型・主キー構成）のみを表示する参照専用ビュー、権限フィルタなしの
+    生データ、U4完成までは管理者が取り込み結果を確認するための暫定閲覧画面。**レコード
+    データ（実際の行データ）は表示しない**——`SchemaQueryService`のAPI
+    （`listSchemas`/`listTables`/`getTableDetail`、`component-methods.md`で確定済み）は
+    メタデータのみを返し、レコードデータを返すAPIを持たない。レコードデータの閲覧は
+    権限フィルタ（`EffectivePermissionResolver`、U4）を経由する必要があるため、U5
+    （Master Data Maintenance）の責務として明確に分離する）、`schemaApi.ts`。
   - `AppRouter.tsx`に`/admin/rdbms-connections`、`/admin/rdbms-connections/:id`、
     `/admin/schema`等の管理者専用ルートを追加する。
 - **B**: 別の粒度・構成を希望する（自由記述）。
@@ -220,7 +240,34 @@ U1/U2の`frontend-components.md`と同様の粒度で、本ユニットのフロ
 
 ## Step 5: 回答分析
 
-（ユーザ回答後にここへ記入）
+全8問について回答を受領（Q1〜Q8=A、Q1に実装方針を追記、Q2に`additionalParams`を追加、
+Q8の`SchemaBrowserPage`をメタデータ専用と明記）。整合性確認:
+
+- Q1（「復号は`ConnectionPoolRegistry`が`DataSource`構築時にのみ行う」）とQ4（既存接続の
+  再テストは`getConnection`で「復号済み設定」を取得して`testConnection`に渡す）は、文言上は
+  ズレて見えるが矛盾ではない。`AttributeConverter`（`@Convert`）はJPAエンティティを
+  リポジトリ経由でロードするたびに自動的に復号を行う透過的な仕組みであり、
+  「`ConnectionPoolRegistry`のみが復号ロジックを持つ」という実装上の制約ではなく、
+  「復号済みパスワードを実際に使うのは対象RDBMSへの接続を試みる箇所
+  （`ConnectionPoolRegistry`の`DataSource`構築、および`testConnection`の使い捨て接続）
+  だけである」という利用箇所の話として理解する。手動復号ロジックを2箇所に重複実装する
+  必要はない（Step 6の`business-rules.md`でこの理解を明記する）。
+- Q2（`additionalParams`をJDBC URL末尾に付加）とQ1（パスワードは暗号化、他フィールドは
+  平文）は独立しており矛盾なし。
+- Q3（プールは遅延初期化、`invalidate`で破棄）とQ4（`testConnection`はプールを使わず
+  使い捨て接続で検証）は整合——`testConnection`が呼ばれてもプールは作成されない設計で
+  一貫している。
+- Q5（全スキーマ・全テーブル/ビューを一括取り込み）とQ6（再取り込み時は物理名マッチで
+  upsert）は整合——Q6の差分更新は毎回Q5と同じ「全件取得」を行った上で既存データと
+  比較する前提であり、矛盾しない。
+- Q6（削除されたテーブル/カラムはstaleフラグを立てて残す）は、Q8の`SchemaBrowserPage`が
+  stale状態をどう表示するかという追加論点を生むが、これは矛盾ではなく
+  `business-rules.md`側で扱う実装詳細（stale項目は既定で除外表示、または別枠表示）として
+  処理する。
+- Q7（取り込み処理全体を単一トランザクション）はQ6のupsert処理（複数テーブル/カラムへの
+  一括更新）を包含する前提と矛盾しない。
+
+曖昧・矛盾点なし（Q1/Q4の文言差異は用語整理で解消）。Step 6（成果物生成）に進む。
 
 ## Step 6: 成果物生成チェックリスト
 
