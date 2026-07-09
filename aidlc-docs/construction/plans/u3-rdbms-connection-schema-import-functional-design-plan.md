@@ -271,8 +271,10 @@ Q8の`SchemaBrowserPage`をメタデータ専用と明記）。整合性確認:
 
 ## Step 6: 成果物生成チェックリスト
 
-- [ ] `aidlc-docs/construction/u3-rdbms-connection-schema-import/functional-design/domain-entities.md`
-- [ ] `aidlc-docs/construction/u3-rdbms-connection-schema-import/functional-design/business-rules.md`
-- [ ] `aidlc-docs/construction/u3-rdbms-connection-schema-import/functional-design/business-logic-model.md`
-  （PBT-01: テスト可能な性質セクションを含む）
-- [ ] `aidlc-docs/construction/u3-rdbms-connection-schema-import/functional-design/frontend-components.md`
+- [x] `aidlc-docs/construction/u3-rdbms-connection-schema-import/functional-design/domain-entities.md`
+- [x] `aidlc-docs/construction/u3-rdbms-connection-schema-import/functional-design/business-rules.md`
+- [x] `aidlc-docs/construction/u3-rdbms-connection-schema-import/functional-design/business-logic-model.md`
+  （PBT-01: テスト可能な性質セクションを含む、P1〜P11）
+- [x] `aidlc-docs/construction/u3-rdbms-connection-schema-import/functional-design/frontend-components.md`
+
+生成完了 2026-07-10。Step 7（完了メッセージ提示）へ進む。
