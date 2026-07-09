@@ -42,11 +42,15 @@
   道具であるため、`cherry.mastermeister.security`パッケージに配置する（U1の
   `JwtTokenValidator`＝検証専用、と対になる発行専用コンポーネント）。
 
-### 1.3 初期管理者ブートストラップの実装パターン（Question 3、domain-entities.mdとの整合修正あり）
+### 1.3 初期管理者ブートストラップの実装パターン（Question 3、domain-entities.mdとの整合修正あり、パッケージ配置はユーザレビューにより訂正）
 
-- `ApplicationRunner`実装（`cherry.mastermeister.auth`パッケージ、例: `AdminBootstrapRunner`）とし、
-  起動時に`mm.app.admin.bootstrap.email`/`mm.app.admin.bootstrap.password`が両方設定されている
-  場合のみ処理を行う（いずれか未設定なら何もしない）。
+- `ApplicationRunner`実装（`cherry.mastermeister.userregistration`パッケージ、例:
+  `AdminBootstrapRunner`）とし、起動時に`mm.app.admin.bootstrap.email`/
+  `mm.app.admin.bootstrap.password`が両方設定されている場合のみ処理を行う
+  （いずれか未設定なら何もしない）。`User`を直接作成するエンティティ作成処理であり、
+  `User`のライフサイクルを所有する`userregistration`パッケージに置く（`auth`はこの
+  `User`/`UserRepository`を参照するのみで作成は行わない、という責務分担と整合させる。
+  当初`auth`パッケージとしていたが、ユーザレビューで`userregistration`へ訂正）。
 - **冪等性判定**: `UserRepository`で`role = ADMIN`の`User`が1件も存在しないことを確認する
   （**Question 3の選択肢文言は「ブートストラップメールアドレスに一致するUserの存在有無」と
   記載していたが、これは`domain-entities.md`「設計判断」節で既に承認済みの確定内容——判定条件は

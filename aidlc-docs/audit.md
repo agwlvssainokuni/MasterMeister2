@@ -639,3 +639,19 @@
 
 ---
 
+## CONSTRUCTION - U2 Code Generation - Part 1 Plan Summary Presented, Commit
+**Timestamp**: 2026-07-09T11:05:00Z
+**User Input**: "一旦コミット。"
+**AI Response**: "Presented the Code Generation Part 1 plan summary to the user (approach, story coverage MVP-1〜MVP-6, 16 steps, the three AI design decisions) with the standard 2-option REVIEW REQUIRED/WHAT'S NEXT block. User requested a commit of the plan-creation artifacts before responding to the approval prompt. Committed aidlc-state.md, audit.md, and u2-auth-user-registration-code-generation-plan.md as commit 70d0e32."
+**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U2 Code Generation Part 1 (Planning), plan summary presented, awaiting Step 7 explicit approval. Interim commit only, not an approval.
+
+---
+
+## CONSTRUCTION - U2 Code Generation - Change Request: AdminBootstrapRunner Package Placement
+**Timestamp**: 2026-07-09T11:10:00Z
+**User Input**: "AdminBootstrapRunnerはuserregistrationパッケージの方が良いかも。" ... "はい、修正してください。"
+**AI Response**: "While Step 7 approval on the Code Generation plan was pending, user raised that AdminBootstrapRunner (planned for the auth package per nfr-design-patterns.md 1.3 and logical-components.md Section 2) might fit better in userregistration. Analyzed: AdminBootstrapRunner directly creates a User row (role=ADMIN, status=APPROVED) at startup, which is a User creation/lifecycle operation — a responsibility already assigned to userregistration (User's lifecycle owner, per this plan's earlier User/Role/UserStatus/UserRepository package decision, where auth only references User rather than creating it). Leaving AdminBootstrapRunner in auth would have auth directly instantiate/persist User rows, contradicting that division of responsibility. Proposed moving AdminBootstrapRunner to userregistration; user approved with 'はい、修正してください。'. Updated nfr-design-patterns.md 1.3 (package reference + rationale for the correction), logical-components.md (moved the AdminBootstrapRunner row from Section 2 'Auth' to Section 3 'User Registration', added a corrective note to Section 6 'U1/U2責務境界の再確認'), and u2-auth-user-registration-code-generation-plan.md (updated the パッケージ設計判断 section to add a dedicated AdminBootstrapRunner bullet, moved it in the サービス境界・責務 section from auth to userregistration, and updated Step 2-14's target file path from cherry.mastermeister.auth to cherry.mastermeister.userregistration)."
+**Context**: CONSTRUCTION PHASE - Per-Unit Loop, U2 Code Generation Part 1 (Planning), in-review design change applied to both the already-approved NFR Design artifacts and the pending Code Generation plan, prior to Step 7 approval of the latter. Package-only correction (no behavior change), confirmed by the user before editing, consistent with this session's established correction pattern (cf. the OpaqueTokenGenerator package-placement precedent).
+
+---
+

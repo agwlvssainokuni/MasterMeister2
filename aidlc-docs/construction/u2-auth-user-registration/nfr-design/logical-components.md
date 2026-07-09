@@ -21,7 +21,6 @@
 
 | コンポーネント | 種別 | 責務 |
 |---|---|---|
-| `AdminBootstrapRunner` | `ApplicationRunner` | 起動時、`mm.app.admin.bootstrap.email`/`password`が設定済みかつ`role = ADMIN`の`User`が0件の場合のみ、bcryptハッシュ化した1件のADMIN Userを作成する（冪等） |
 | `RefreshToken` | JPA Entity | `userId`, `familyId`, `tokenHash`（`@Column(unique = true)`）, `expiresAt`, `rotatedAt`, `revokedAt`, `createdAt` |
 | `RefreshTokenService` | Service | リフレッシュトークンの発行・検証・ローテーション・reuse detection時の一括失効（`domain-entities.md`参照）。`OpaqueTokenGenerator`（`security`パッケージ）を利用 |
 | `AuthenticationService` | Service | ログイン（`login`）、ログアウト（`logout`）。認証成功時は`JwtTokenProvider`（`security`パッケージ、U2責務）でアクセストークンを発行し、`RefreshTokenService`でリフレッシュトークンを発行する |
@@ -35,6 +34,7 @@
 | `RegistrationToken` | JPA Entity | `email`, `tokenHash`（`@Column(unique = true)`）, `expiresAt`, `invalidatedAt`, `consumedAt`, `createdAt` |
 | `RegistrationTokenService` | Service | `validate(token)`（`VALID`/`EXPIRED`/`NOT_FOUND`判定）、トークン発行・無効化。`OpaqueTokenGenerator`（`security`パッケージ）を利用 |
 | `UserRegistrationService` | Service | `requestRegistration`/`completeRegistration`/`approveUser`/`rejectUser`/`listPendingUsers`（`business-rules.md` 1節） |
+| `AdminBootstrapRunner`（`auth`から移設、訂正） | `ApplicationRunner` | 起動時、`mm.app.admin.bootstrap.email`/`password`が設定済みかつ`role = ADMIN`の`User`が0件の場合のみ、bcryptハッシュ化した1件のADMIN Userを作成する（冪等）。`User`を直接作成するため、`User`のライフサイクルを所有する本パッケージに配置する（当初`auth`としていたが、ユーザレビューで訂正） |
 
 ---
 
@@ -64,3 +64,7 @@
   `RefreshToken`という非JWTトークンの生成）はいずれもU2の責務であり、両者とも`security`
   パッケージに配置するが、役割が明確に異なるコンポーネントとして共存する（U1は
   `JwtTokenValidator`＝検証専用のみを担当し、発行は行わない）。
+- `AdminBootstrapRunner`は当初`auth`パッケージとしていたが、`User`を直接作成する
+  エンティティ作成処理であるため、`User`のライフサイクルを所有する`userregistration`
+  パッケージへユーザレビューにより訂正した。`auth`は`User`/`UserRepository`を参照する
+  のみで作成は行わない、という責務分担と整合させるための訂正である。

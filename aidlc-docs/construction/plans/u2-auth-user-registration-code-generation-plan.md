@@ -55,10 +55,15 @@ U1（Platform Foundation）のみに依存（`unit-of-work-dependency.md`）:
   位置付けている実体）。`completeRegistration`（登録完了）でユーザ行を新規作成するのが
   `userregistration`の責務であり、パッケージ名からもエンティティのライフサイクル起点が
   ここにあることが明確なため。`auth`パッケージ（`AuthenticationService`、
-  `RefreshTokenService`、`AdminBootstrapRunner`）はこの`User`/`UserRepository`を参照する
+  `RefreshTokenService`）はこの`User`/`UserRepository`を参照する
   （同一ユニット内のパッケージ間依存であり、`unit-of-work-dependency.md`のユニット間依存
   マトリクスの対象外——`OpaqueTokenGenerator`のケースとは異なり、双方から対称に参照される
   ものではなく片方向の依存で足りるため、`security`のような別置きは行わない）。
+- **`AdminBootstrapRunner`は`userregistration`パッケージに配置する**（当初`auth`と
+  していたがユーザレビューで訂正、`nfr-design-patterns.md` 1.3）。起動時に`User`行を
+  直接作成するエンティティ作成処理であり、`User`のライフサイクルを所有する
+  `userregistration`パッケージに置くのが上記方針と整合する（`auth`は`User`/
+  `UserRepository`を参照するのみで作成は行わない）。
 - **`AuthenticationService`に`refresh(String rawRefreshToken): AuthToken`を追加する**
   （`component-methods.md`のスナップショットは`login`/`logout`のみを列挙しているが、これは
   リフレッシュトークン機構がU1 NFR Requirements 4.2で後から確定した経緯によるものであり、
@@ -79,10 +84,10 @@ U1（Platform Foundation）のみに依存（`unit-of-work-dependency.md`）:
 - `security`（U1既存、拡張）: `PasswordEncoder` Bean、`OpaqueTokenGenerator`（不透明トークン
   生成・ハッシュ化）、`JwtTokenProvider`（アクセストークン発行・検証）。
 - `auth`: `AuthenticationService`（ログイン/リフレッシュ/ログアウト）、`RefreshTokenService`
-  （リフレッシュトークンの発行・ローテーション・reuse detection一括失効）、
-  `AdminBootstrapRunner`（初期管理者アカウント作成）。
+  （リフレッシュトークンの発行・ローテーション・reuse detection一括失効）。
 - `userregistration`: `UserRegistrationService`（登録申請〜承認/却下）、
-  `RegistrationTokenService`（登録確認トークンの発行・検証）。
+  `RegistrationTokenService`（登録確認トークンの発行・検証）、`AdminBootstrapRunner`
+  （初期管理者アカウント作成。`auth`から移設、訂正）。
 - フロントエンド: `features/auth/`（ログイン画面）、`features/userRegistration/`
   （登録申請・パスワード設定・承認待ち一覧画面）。U1の`authStore`/`apiClient`/`AppRouter`/
   `ProtectedRoute`/`AppLayout`/`DataTable`/`ConfirmDialog`/`ToastNotification`を
@@ -180,11 +185,12 @@ U1（Platform Foundation）のみに依存（`unit-of-work-dependency.md`）:
       `AuditLogService.record(AUTHENTICATION, LOGOUT, ...)`）を実装
       （`business-rules.md` 2節、`component-methods.md`の拡張——本計画「パッケージ設計判断」
       参照）。
-- [ ] 2-14. `backend/src/main/java/cherry/mastermeister/auth/AdminBootstrapRunner.java`
+- [ ] 2-14. `backend/src/main/java/cherry/mastermeister/userregistration/AdminBootstrapRunner.java`
       （`ApplicationRunner`）: `mm.app.admin.bootstrap.email`/`mm.app.admin.bootstrap.password`
       が両方設定済み、かつ`UserRepository`で`role = ADMIN`の`User`が0件の場合のみ、
       `PasswordEncoder`でハッシュ化したパスワードで`role = ADMIN`, `status = APPROVED`の
-      `User`を1件作成する（`nfr-design-patterns.md` 1.3、`domain-entities.md`「設計判断」節）。
+      `User`を1件作成する（`nfr-design-patterns.md` 1.3、`domain-entities.md`「設計判断」節。
+      `auth`パッケージから`userregistration`パッケージへ配置訂正——ユーザレビュー）。
 - [ ] 2-15. `backend/src/main/java/cherry/mastermeister/config/GlobalExceptionHandler.java`
       （既存、ブラウンフィールド修正）に`@ExceptionHandler`を5件追記:
       `AuthenticationFailedException`→401, `InvalidTokenException`→401,
