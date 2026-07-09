@@ -299,12 +299,12 @@ U1の`common.dialect`（P9〜P12）と同様、本Code Generation計画で新た
       生成。
 
 ### Step 9: リポジトリレイヤ単体テスト
-- [ ] 9-1. `UserRepositoryTest`/`RegistrationTokenRepositoryTest`/`RefreshTokenRepositoryTest`
+- [x] 9-1. `UserRepositoryTest`/`RegistrationTokenRepositoryTest`/`RefreshTokenRepositoryTest`
       （いずれも`@DataJpaTest`、組み込みH2）: 基本CRUD・上記クエリメソッドのexample-basedテスト
       を生成。unique制約（`email`, `tokenHash`）違反時の例外発生も検証する。
 
 ### Step 10: リポジトリレイヤサマリ
-- [ ] 10-1. `aidlc-docs/construction/u2-auth-user-registration/code/repository-layer-summary.md`
+- [x] 10-1. `aidlc-docs/construction/u2-auth-user-registration/code/repository-layer-summary.md`
       を生成し、3リポジトリのクエリメソッド一覧とインデックス設計
       （`tokenHash`/`email`のunique制約のみ、`nfr-design-patterns.md` 2.1）を記載。
 
