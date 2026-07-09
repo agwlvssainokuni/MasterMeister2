@@ -73,6 +73,7 @@ P1〜P13全13性質にjqwik `@Property`テストが対応済み。U1と異なり
 | テストファイル | 件数 | 備考 |
 |---|---|---|
 | `src/store/authStore.test.ts` | 5 | U1の3件から拡張（`refreshToken`/`setTokens`/`clearTokens`対応） |
+| `src/components/AppLayout.test.tsx` | 3 | レビュー指摘で追加した`/admin/pending-users`ナビリンクの表示/非表示（新規ファイル） |
 | `src/hooks/useAuth.test.ts` | 3 | U1と同数（`setTokens`/`logout`委譲に対応） |
 | `src/api/apiClient.test.ts` | 6 | U1の4件から拡張（401自動リフレッシュ&リトライの成功/失敗2件を追加） |
 | `src/features/auth/api/authApi.test.ts` | 4 | 新規 |
@@ -83,21 +84,25 @@ P1〜P13全13性質にjqwik `@Property`テストが対応済み。U1と異なり
 | `src/features/userRegistration/PendingUsersPage.test.tsx` | 4 | 新規 |
 | `src/routes/AppRouter.test.tsx` | 4 | 新規 |
 
-本ユニットでの新規/拡張分: 39件（新規ファイル7件・25テスト＋既存3ファイルの拡張分14テスト）。
-U1既存分（`usePagination`, `ProtectedRoute`, `DataTable`, `Pagination`, `ToastNotification`,
-`ConfirmDialog`, `features/auditLog/*`の9ファイル）と合わせ、フロントエンド全体は
-19ファイル・68テストとなる。
+本ユニットでの新規/拡張分: 42件（新規ファイル8件・28テスト＋既存3ファイルの拡張分14テスト）。
+`AppLayout.test.tsx`（3件）は、Code Generation完了メッセージ提示後のユーザレビューで
+`/admin/pending-users`へのナビリンク欠落が指摘され、`AppLayout.tsx`への修正と合わせて追加した
+新規ファイルである。U1既存分（`usePagination`, `ProtectedRoute`, `DataTable`, `Pagination`,
+`ToastNotification`, `ConfirmDialog`, `features/auditLog/*`の9ファイル・29テスト）と合わせ、
+フロントエンド全体は20ファイル・71テストとなる。
 
 ## 実行確認状況
 
 本サマリ作成時点で実際にテストを実行し、グリーンであることを確認済み（Build and Testステージの
 再確認対象ではあるが、Step 11-13完了時点で以下を確認している）:
 
-- **フロントエンド**: `npm test -- --run`（Vitest）19ファイル・68/68件成功、`npm run build`
+- **フロントエンド**: `npm test -- --run`（Vitest）20ファイル・71/71件成功、`npm run build`
   （`tsc -b && vite build`）・`npm run lint`（oxlint）共にエラーなし。初回実行時、
   `RegistrationRequestPage.tsx`の`try/finally`が失敗時にPromiseを再送出し未処理rejectionと
   なる不具合を検出・修正済み（`catch`ブロックで意図的に握りつぶす実装に修正、詳細は
-  `frontend-summary.md`参照）。
+  `frontend-summary.md`参照）。Code Generation完了メッセージ提示後のユーザレビューで
+  `/admin/pending-users`へのナビリンク欠落が指摘され、`AppLayout.tsx`の修正と
+  `AppLayout.test.tsx`（3件）の新規追加により対応済み（`frontend-summary.md`参照）。
 - **バックエンド**: `./gradlew build`（コンパイル・全テスト実行・check・assemble）成功、
   18テストクラス・68/68件成功、0失敗・0エラー。`business-logic-summary.md`のStep 3時点で
   記録されていた`MasterMeisterApplicationTests.contextLoads()`のHibernate方言解決失敗

@@ -16,6 +16,11 @@ export function AppLayout({ children }: AppLayoutProps) {
             MasterMeister
           </a>
           {isAuthenticated && currentUser?.role === 'ADMIN' && (
+            <a href="/admin/pending-users" data-testid="app-layout-nav-pending-users">
+              承認待ちユーザー
+            </a>
+          )}
+          {isAuthenticated && currentUser?.role === 'ADMIN' && (
             <a href="/audit-logs" data-testid="app-layout-nav-audit-logs">
               監査ログ
             </a>

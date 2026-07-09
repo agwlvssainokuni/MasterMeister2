@@ -10,9 +10,10 @@ API・store・ルーティングの一覧。設計は`functional-design/frontend
 | ファイル | 変更内容 |
 |---|---|
 | `src/store/authStore.ts` | `refreshToken`フィールド、`setTokens`/`clearTokens`アクションを追加。`persist`ミドルウェアで`sessionStorage`（`nfr-design-patterns.md` 1.4）に同期 |
-| `src/hooks/useAuth.ts` | `setTokens`を公開。既存コンポーネント（`AppLayout.tsx`等、本Step対象外）への影響を避けるため、公開プロパティ名は`logout`のまま内部で`clearTokens`に委譲 |
+| `src/hooks/useAuth.ts` | `setTokens`を公開。既存コンポーネント（`AppLayout.tsx`等）への影響を避けるため、公開プロパティ名は`logout`のまま内部で`clearTokens`に委譲 |
 | `src/api/apiClient.ts` | 401応答時に`refreshAccessToken()`（内部で`fetch`を直接使用し`apiFetch`の再帰呼び出しを回避）でアクセストークンを更新し、元のリクエストを1回だけ再試行する処理を追加。再試行後も失敗した場合は既存のトークンクリア＋`/login`リダイレクト処理にフォールバック |
 | `src/routes/AppRouter.tsx` | トップレベル`<Routes>`に公開ルート（`/login`, `/register`, `/register/complete`）を追加し、`/*`ワイルドカードで`AuthenticatedRoutes`（`AppLayout`＋ネストした保護ルート用`<Routes>`）に委譲する構成に変更。保護ルートに`/admin/pending-users`を追加 |
+| `src/components/AppLayout.tsx` | レビュー指摘（Code Generation完了メッセージ提示後、ユーザレビュー時に発見）により、`/admin/pending-users`への管理者限定ナビリンク「承認待ちユーザー」を追加。既存の「監査ログ」リンクと同一条件（`isAuthenticated && currentUser?.role === 'ADMIN'`）。専用テスト`AppLayout.test.tsx`を新規作成（本Stepまで未作成だった） |
 
 ## 新規: `features/auth/`
 
@@ -65,14 +66,16 @@ API・store・ルーティングの一覧。設計は`functional-design/frontend
 - **ログイン後の遷移先**: `ADMIN`ロールは`/admin/pending-users`、`USER`ロールは`/`へ遷移する
   仕様とした。汎用的な認証後ホーム画面は他ユニットで未定義のため、当面の実装時判断である。
 - **`useAuth().logout`の名称維持**: store側では`logout`を`clearTokens`に統合したが、
-  `AppLayout.tsx`（本Step対象外）への影響を避けるため、`useAuth()`フックが公開する
-  プロパティ名は`logout`のまま維持し、内部で`clearTokens`に委譲している。
+  `AppLayout.tsx`への影響を避けるため、`useAuth()`フックが公開する
+  プロパティ名は`logout`のまま維持し、内部で`clearTokens`に委譲している（この判断の後、
+  レビュー指摘により`AppLayout.tsx`自体には別件でナビリンクを追加したが、`logout`委譲部分は
+  変更していない）。
 
 ## テストカバレッジ（Step 12）
 
 | テストファイル | 件数 | 検証内容 |
 |---|---|---|
-| `store/authStore.test.ts` | 6 | トークン/ユーザ情報の設定・クリア、`sessionStorage`への永続化 |
+| `store/authStore.test.ts` | 5 | トークン/ユーザ情報の設定・クリア、`sessionStorage`への永続化 |
 | `hooks/useAuth.test.ts` | 3 | `setTokens`／`logout`（`clearTokens`委譲）の動作 |
 | `api/apiClient.test.ts` | 6 | 既存4件＋401時の自動リフレッシュ＆再試行の成功/失敗パターン2件 |
 | `features/auth/api/authApi.test.ts` | 4 | `login`/`refresh`/`logout`のリクエスト、`decodeAccessToken`のJWTペイロード抽出 |
@@ -82,6 +85,11 @@ API・store・ルーティングの一覧。設計は`functional-design/frontend
 | `features/userRegistration/PendingUsersTable.test.tsx` | 4 | 一覧表示、承認即時実行、却下の確認ダイアログ（キャンセル/確定） |
 | `features/userRegistration/PendingUsersPage.test.tsx` | 4 | 初期読込、承認成功時の再取得、却下成功時の再取得、承認失敗時のエラートースト |
 | `routes/AppRouter.test.tsx` | 4 | 公開ルートで`AppLayout`ナビが非表示、保護ルート未認証時に`/login`へリダイレクト、認証済みで`AppLayout`ナビ表示 |
+| `components/AppLayout.test.tsx` | 3 | レビュー指摘で追加した`/admin/pending-users`ナビリンクの表示（管理者）／非表示（非管理者・未認証）、既存の監査ログリンクの表示確認 |
 
-**合計 68件、全テスト成功**（`npm test -- --run`）。`npm run build`（`tsc -b && vite build`）・
-`npm run lint`（oxlint）もエラーなしで完了している。
+上表（本ユニットでの新規/拡張分、`AppLayout.test.tsx`を含む）の合計は**42件**。U1既存分
+（`usePagination`, `ProtectedRoute`, `DataTable`, `Pagination`, `ToastNotification`,
+`ConfirmDialog`, `features/auditLog/*`の9ファイル・29テスト）と合わせ、フロントエンド全体は
+**20ファイル・71件、全テスト成功**（`npm test -- --run`）。`npm run build`
+（`tsc -b && vite build`）・`npm run lint`（oxlint）もエラーなしで完了している
+（詳細は`testing-summary.md`参照）。
