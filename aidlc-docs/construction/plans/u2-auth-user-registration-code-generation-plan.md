@@ -202,47 +202,47 @@ U1（Platform Foundation）のみに依存（`unit-of-work-dependency.md`）:
 `business-logic-model.md`のP1〜P11に加え、`security`パッケージに新設する
 `OpaqueTokenGenerator`/`JwtTokenProvider`はFunctional Design時点でスコープ外だったため、
 U1の`common.dialect`（P9〜P12）と同様、本Code Generation計画で新たにP12〜P13として識別する。
-- [ ] 3-1. **P1**（`requestRegistration`の列挙攻撃対策Invariant）: `UserRepository`/
+- [x] 3-1. **P1**（`requestRegistration`の列挙攻撃対策Invariant）: `UserRepository`/
       `RegistrationTokenRepository`をモック化し、新規/`PENDING_APPROVAL`/`APPROVED`/
       `REJECTED`/有効トークン再送信の5状態をjqwik Arbitraryで生成し、常に同一の
       成功結果（例外なし）となることを検証する`@Property`テストを
       `UserRegistrationServiceTest`に生成。
-- [ ] 3-2. **P2**（`RegistrationTokenService`のRound-trip）: 発行直後`validate`=`VALID`、
+- [x] 3-2. **P2**（`RegistrationTokenService`のRound-trip）: 発行直後`validate`=`VALID`、
       `consumedAt`/`invalidatedAt`設定後`validate`=`EXPIRED`となることを検証する`@Property`
       テストを`RegistrationTokenServiceTest`に生成。
-- [ ] 3-3. **P3**（再送信時の新旧トークンInvariant）、**P6**（`REJECTED`ユーザへの
+- [x] 3-3. **P3**（再送信時の新旧トークンInvariant）、**P6**（`REJECTED`ユーザへの
       再発行なしInvariant）: `RegistrationTokenServiceTest`/`UserRegistrationServiceTest`に
       `@Property`テストを生成。
-- [ ] 3-4. **P4**（`completeRegistration`のInvariant）: `VALID`/`EXPIRED`/`NOT_FOUND`の
+- [x] 3-4. **P4**（`completeRegistration`のInvariant）: `VALID`/`EXPIRED`/`NOT_FOUND`の
       3ケースをjqwik Arbitraryで生成し、`VALID`時のみ`User`が1件作成されることを検証する
       `@Property`テストを`UserRegistrationServiceTest`に生成。
-- [ ] 3-5. **P5**（承認/却下のState machine性質）: `UserStatus`の全状態×`approveUser`/
+- [x] 3-5. **P5**（承認/却下のState machine性質）: `UserStatus`の全状態×`approveUser`/
       `rejectUser`の組み合わせをjqwik Arbitraryで網羅し、`PENDING_APPROVAL`からのみ遷移可能で
       終端状態への再実行は必ず`InvalidUserStateException`となることを検証する`@Property`
       テストを`UserRegistrationServiceTest`に生成。
-- [ ] 3-6. **P7**（ログイン成否のOracle）: `status`×パスワード一致有無の全組み合わせを
+- [x] 3-6. **P7**（ログイン成否のOracle）: `status`×パスワード一致有無の全組み合わせを
       jqwik Arbitraryで網羅し、期待される成否と一致することを検証する`@Property`テストを
       `AuthenticationServiceTest`に生成。
-- [ ] 3-7. **P8**（ログイン失敗時の監査記録Invariant）: `AuditLogService`をモック化し、
+- [x] 3-7. **P8**（ログイン失敗時の監査記録Invariant）: `AuditLogService`をモック化し、
       存在しないメール（`userId = null`）/パスワード不一致（`userId`設定）の両ケースで
       `record(LOGIN_FAILURE, ...)`が必ず呼ばれることを検証する`@Property`テストを
       `AuthenticationServiceTest`に生成。
-- [ ] 3-8. **P9**（reuse detectionのInvariant）、**P10**（ローテーションのRound-trip）、
+- [x] 3-8. **P9**（reuse detectionのInvariant）、**P10**（ローテーションのRound-trip）、
       **P11**（ログアウトの影響範囲限定Invariant）: `RefreshTokenRepository`をモック化し、
       `rotatedAt`済みトークンの再利用・正常ローテーション・ログアウトの3シナリオを
       jqwik Arbitraryで検証する`@Property`テストを`RefreshTokenServiceTest`に生成。
-- [ ] 3-9. **P12**（`OpaqueTokenGenerator`の性質: `hash`は同一入力に対し常に同一出力
+- [x] 3-9. **P12**（`OpaqueTokenGenerator`の性質: `hash`は同一入力に対し常に同一出力
       （決定的）、`generate()`はデコード可能な32バイトのURL-safe base64文字列を常に返す）:
       jqwikでランダムな文字列入力を生成する`@Property`テストを`OpaqueTokenGeneratorTest`に
       生成。
-- [ ] 3-10. **P13**（`JwtTokenProvider`のRound-trip: `parseAndValidate(generateToken(userId,
+- [x] 3-10. **P13**（`JwtTokenProvider`のRound-trip: `parseAndValidate(generateToken(userId,
       role, expiry))`は元の`userId`・`role`と一致する`JwtClaims`を返す。期限切れ`expiry`
       （負のDuration）で生成したトークンは`parseAndValidate`で必ず`InvalidTokenException`と
       なる）: jqwikでランダムな`userId`・`Role`・`Duration`を生成する`@Property`テストを
       `JwtTokenProviderTest`に生成。
 
 ### Step 4: ビジネスロジックサマリ
-- [ ] 4-1. `aidlc-docs/construction/u2-auth-user-registration/code/business-logic-summary.md`
+- [x] 4-1. `aidlc-docs/construction/u2-auth-user-registration/code/business-logic-summary.md`
       を生成し、Step 2・Step 3で生成したクラス一覧とP1〜P13の対応関係を表形式で記載する。
 
 ### Step 5: APIレイヤ生成
