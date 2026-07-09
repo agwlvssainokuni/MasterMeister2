@@ -759,3 +759,19 @@
 
 ---
 
+## CONSTRUCTION - U2 Code Generation - Frontend Styling Timing Discussion (No Code Change)
+**Timestamp**: 2026-07-09T22:40:00Z
+**User Input**: "frontend のスタイルはまだ変数を定義しただけでしたっけ？" 続けて "スタイル適用のタイミングとしてベストなのはいつでしょうか？" 続けて "もう少しユニットを進めてからとします。"
+**AI Response**: "Confirmed via inspection: frontend/src/styles/design-tokens.css defines CSS custom properties (colors/font-sizes/spacing/radius) and is imported globally in main.tsx, but is actually consumed in only one place (features/auditLog/auditLogTable.css, badge colors). All other components render unstyled, relying on the unmodified Vite-template frontend/src/index.css (a separate, unrelated variable set: --text/--bg/--accent etc.), so design-tokens.css is effectively defined-but-not-yet-applied. Advised (exploratory question, 2-3 sentence recommendation per house style) that the lowest-risk timing is after common UI patterns (forms/tables/buttons) repeat across a couple more units (around U3-U4), rather than now (patterns not yet settled, rework risk) or after all 7 units (large retrofit, unstyled UI during intermediate reviews). User chose to defer styling until after a few more units are implemented."
+**Context**: Exploratory/advisory discussion triggered by the user opening design-tokens.css in the IDE; no code was changed. Decision recorded for future reference: styling work is intentionally deferred, not forgotten — revisit once U3/U4 establish repeated component shapes.
+
+---
+
+## CONSTRUCTION - U2 Code Generation Complete — APPROVED (Continue to Next Stage)
+**Timestamp**: 2026-07-09T22:42:00Z
+**User Input**: "では、U2の「Code Generation Complete」を宣言します。" 続けて（監査ログ追記のツール実行が拒否された後） "U2 の完了を記録＆コミットしたら、U3 へ進める前に判断を求めてください。"
+**AI Response**: "Recorded user's explicit approval of U2 (Auth & User Registration) Code Generation as complete, resolving the Request-Changes/Continue-to-Next-Stage decision that had been pending since the Step 14-16 completion message and deferred across six post-completion review fixes (Fix 1: Vite dev proxy, Fix 2: pending-users nav link + doc corrections, Fix 3: /admin/audit-logs route rename, Fix 4: license headers on frontend/config files, Fix 5: audit-log infinite-loop fix, Fix 6: mail template license-leak fix). Per the user's explicit instruction, this approval is being recorded and committed as its own step; advancing to U3's Functional Design will NOT happen automatically — the user will be asked for confirmation first."
+**Context**: Formal stage-gate approval per the mandatory 2-option completion protocol (construction/code-generation.md). This closes out U2's entire Code Generation stage. User explicitly requested a pause for confirmation before the Per-Unit Loop advances to U3, overriding the workflow's default auto-proceed behavior for this transition.
+
+---
+
