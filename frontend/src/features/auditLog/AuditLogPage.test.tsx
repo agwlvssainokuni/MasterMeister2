@@ -44,11 +44,16 @@ describe('AuditLogPage', () => {
     searchAuditLogsMock.mockResolvedValue({ content: [row], totalCount: 1, page: 0, pageSize: 20 })
   })
 
-  it('loads and displays audit logs on initial render', async () => {
+  it('loads and displays audit logs on initial render, calling the API exactly once', async () => {
     render(<AuditLogPage />)
 
     await waitFor(() => expect(searchAuditLogsMock).toHaveBeenCalledWith({}, { page: 0, pageSize: 20 }))
     expect(await screen.findByText('user@example.com')).toBeInTheDocument()
+
+    // pageRequest から作られる runSearch のIDが再レンダー毎に変わると
+    // useEffect が無限に再実行されるため、呼び出し回数が1回のままであることを保証する
+    await new Promise((resolve) => setTimeout(resolve, 50))
+    expect(searchAuditLogsMock).toHaveBeenCalledTimes(1)
   })
 
   it('re-runs the search with updated filters when the filter panel submits', async () => {
@@ -66,5 +71,8 @@ describe('AuditLogPage', () => {
         { page: 0, pageSize: 20 },
       ),
     )
+
+    await new Promise((resolve) => setTimeout(resolve, 50))
+    expect(searchAuditLogsMock).toHaveBeenCalledTimes(2)
   })
 })

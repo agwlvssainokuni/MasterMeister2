@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import type { PageRequest } from '../types/api'
 
 export function usePagination(defaultPageSize: number) {
@@ -31,7 +31,7 @@ export function usePagination(defaultPageSize: number) {
     setPage(0)
   }, [])
 
-  const pageRequest: PageRequest = { page, pageSize }
+  const pageRequest: PageRequest = useMemo(() => ({ page, pageSize }), [page, pageSize])
 
   return { page, pageSize, totalCount, pageRequest, setTotalCount, goToPage, changePageSize }
 }
