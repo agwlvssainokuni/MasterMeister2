@@ -630,12 +630,19 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
       から投げられた場合の防御的フォールバックとして機能する（現状のインポートAPI経路では
       到達しない）。`./gradlew compileJava compileTestJava`成功を確認
       （単体テストはStep 6で作成）。
-- [ ] 5-4. `backend/src/main/java/cherry/mastermeister/security/SecurityConfig.java`
+- [x] 5-4. `backend/src/main/java/cherry/mastermeister/security/SecurityConfig.java`
       （既存、ブラウンフィールド修正）を確認する。`/api/groups/**`の`hasRole("ADMIN")`
       エントリを`anyRequest().authenticated()`より前に追記する。
       `/api/rdbms-connections/{connectionId}/permissions/**`は既存の
       `/api/rdbms-connections/**`エントリ（U3）が前方一致で包含するため追加不要であることを
       確認するのみとする（「サービス境界・責務」参照）。
+      【実装メモ】`.requestMatchers("/api/rdbms-connections/**").hasRole("ADMIN")`の直後、
+      `anyRequest().authenticated()`より前に`.requestMatchers("/api/groups/**")
+      .hasRole("ADMIN")`を追記した。`/api/rdbms-connections/**`エントリが既に
+      `/api/rdbms-connections/{connectionId}/permissions/**`を前方一致で包含していることを
+      確認し、`PermissionController`用の追加エントリは不要と判断した。
+      `./gradlew compileJava compileTestJava`成功を確認（単体テストはStep 6で作成）。
+      これでStep 5（APIレイヤ生成）の全4項目が完了。
 
 ### Step 6: APIレイヤ単体テスト
 - [ ] 6-1. `GroupControllerTest`（`@WebMvcTest` + `spring-security-test`）: 7エンドポイント

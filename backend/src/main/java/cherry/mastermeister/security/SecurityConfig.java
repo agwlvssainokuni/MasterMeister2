@@ -52,6 +52,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/registrations/*/reject").hasRole("ADMIN")
                         .requestMatchers("/api/audit-logs/**").hasRole("ADMIN")
                         .requestMatchers("/api/rdbms-connections/**").hasRole("ADMIN")
+                        .requestMatchers("/api/groups/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(restAuthenticationEntryPoint)
