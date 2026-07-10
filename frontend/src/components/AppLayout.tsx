@@ -41,6 +41,11 @@ export function AppLayout({ children }: AppLayoutProps) {
               監査ログ
             </a>
           )}
+          {isAuthenticated && currentUser?.role === 'ADMIN' && (
+            <a href="/admin/rdbms-connections" data-testid="app-layout-nav-rdbms-connections">
+              RDBMS接続管理
+            </a>
+          )}
           {isAuthenticated && (
             <button type="button" data-testid="app-layout-nav-logout" onClick={logout}>
               ログアウト

@@ -1317,3 +1317,11 @@
 
 ---
 
+## CONSTRUCTION - U3 Code Generation - Part 2 Item 11-4
+**Timestamp**: 2026-07-10T19:35:00Z
+**User Input**: "続行する"（項目11-3コミット後、item 11-4へ進むかの確認に対する回答）
+**AI Response**: `frontend/src/components/AppLayout.tsx`を修正し、既存の「監査ログ」リンクと同一の`isAuthenticated && currentUser?.role === 'ADMIN'`条件分岐パターンで「RDBMS接続管理」（`/admin/rdbms-connections`、`data-testid="app-layout-nav-rdbms-connections"`）へのナビゲーションリンクを追加した。`cd frontend && npx oxlint`・`npx tsc -b`をいずれも実行しエラーなしを確認。これによりStep 11（フロントエンド生成、4項目）が全て完了。
+**Context**: Per-Unit Loop, U3 Code Generation Part 2, Step 11 item 11-4完了（Step 11全体完了）。コミット後、Step 12 item 12-1（フロントエンドコンポーネント単体テスト生成）へ進むか確認予定。
+
+---
+
