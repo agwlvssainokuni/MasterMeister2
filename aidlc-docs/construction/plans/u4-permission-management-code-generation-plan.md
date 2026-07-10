@@ -806,9 +806,19 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
       `<Routes>`に3件追加した。`tsc -b --noEmit`・`npm run lint`（oxlint）ともにエラーなし。
       既存の`AppRouter.test.tsx`（9件）を`vitest run`で再実行し、退行がないことを確認した
       （item 11-3自体の新規ルートに対するテストはStep 12 item 12-2で追加する）。
-- [ ] 11-4. `frontend/src/components/AppLayout.tsx`（既存、ブラウンフィールド修正）に
+- [x] 11-4. `frontend/src/components/AppLayout.tsx`（既存、ブラウンフィールド修正）に
       「グループ管理」「権限設定」へのナビゲーションリンクを追加する（管理者ロールのみ
       表示）。
+      実装メモ: 既存の「RDBMS接続管理」等のナビゲーションリンクと同一パターン
+      （`isAuthenticated && currentUser?.role === 'ADMIN'`条件、`<a>`要素、`data-testid`付与）
+      をそのまま踏襲し、「RDBMS接続管理」リンクの直後・ログアウトボタンの直前に
+      「グループ管理」（`/admin/groups`、`data-testid="app-layout-nav-groups"`）、
+      「権限設定」（`/admin/permissions`、`data-testid="app-layout-nav-permissions"`）の
+      2件を追加した。`tsc -b --noEmit`・`npm run lint`（oxlint）ともにエラーなし。
+      既存の`AppRouter.test.tsx`・`AppLayout.test.tsx`（計9件）を`vitest run`で再実行し、
+      退行がないことを確認した（新規ナビゲーションリンクに対するテストはStep 12
+      item 12-2で追加する）。これによりStep 11（フロントエンドコンポーネント生成）は
+      全4項目完了。
 
 ### Step 12: フロントエンドコンポーネント単体テスト
 - [ ] 12-1. Vitest + React Testing Libraryで`features/group/`（一覧・詳細・所属管理・
