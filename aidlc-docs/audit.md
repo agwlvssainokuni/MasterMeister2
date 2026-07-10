@@ -1301,3 +1301,11 @@
 
 ---
 
+## CONSTRUCTION - U3 Code Generation - Part 2 Item 11-2
+**Timestamp**: 2026-07-10T19:25:00Z
+**User Input**: "続行してください。"（`/compact`によるコンテキスト圧縮を挟んだ後の再開指示）
+**AI Response**: `frontend/src/features/schema/`に7ファイルを生成。`types.ts`（`TableType`/`SchemaImportResult`/`TableMetadata`/`ColumnDetail`/`TableDetail`、バックエンドDTOと1:1対応）、`api/schemaApi.ts`（`importSchema`/`listSchemas`/`listTables`/`getTableDetail`、`SchemaController`の4エンドポイントに対応、スキーマ名/テーブル名は`encodeURIComponent`でエスケープ）、`SchemaImportPanel.tsx`（`connectionId`/`onClose` props、指定の2 data-testid＋`-close-button`）、`SchemaSelector.tsx`（`data-testid="schema-selector-select"`のプルダウン）、`TableList.tsx`（`DataTable`利用、`data-testid="table-list-row"`の行選択ボタン）、`TableDetailPanel.tsx`（カラム一覧＋主キー構成、ビュー/主キーなし時は「なし」表示）、`SchemaBrowserPage.tsx`（`useParams`で`connectionId`取得、マウント時`listSchemas`、選択変更で`listTables`/`getTableDetail`を呼ぶ一方向データフロー）。あわせて`ConnectionListPage.tsx`のプレースホルダーだった`handleImportSchema`を実結線し、`importPanelConnectionId`状態で`SchemaImportPanel`を条件表示するモーダル起動に変更。`AppRouter.tsx`/`AppLayout.tsx`修正は11-3/11-4のスコープのため本項目では未変更。`cd frontend && npx oxlint`・`npx tsc -b`をいずれも実行しエラーなしを確認。
+**Context**: Per-Unit Loop, U3 Code Generation Part 2, Step 11 item 11-2完了。コミット後、item 11-3（AppRouter修正）へ進むか確認予定。
+
+---
+

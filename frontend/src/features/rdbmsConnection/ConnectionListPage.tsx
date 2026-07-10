@@ -18,6 +18,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ToastNotification } from '../../components/ToastNotification'
 import type { ToastSeverity } from '../../components/ToastNotification'
+import { SchemaImportPanel } from '../schema/SchemaImportPanel'
 import { listConnections, testConnection } from './api/connectionApi'
 import { ConnectionTable } from './ConnectionTable'
 import type { ConnectionSummary } from './types'
@@ -31,6 +32,7 @@ export function ConnectionListPage() {
   const [connections, setConnections] = useState<ConnectionSummary[]>([])
   const [loading, setLoading] = useState(false)
   const [toast, setToast] = useState<Toast | null>(null)
+  const [importPanelConnectionId, setImportPanelConnectionId] = useState<number | null>(null)
 
   const refresh = useCallback(async () => {
     setLoading(true)
@@ -57,10 +59,8 @@ export function ConnectionListPage() {
     }
   }
 
-  // SchemaImportPanel（features/schema）の起動はStep 11 item 11-2で結線する
-  // （frontend-components.mdの通り、独立ルートを持たずここから起動するモーダル/パネルとする）。
   const handleImportSchema = (connectionId: number) => {
-    void connectionId
+    setImportPanelConnectionId(connectionId)
   }
 
   return (
@@ -74,6 +74,12 @@ export function ConnectionListPage() {
         <p>読み込み中...</p>
       ) : (
         <ConnectionTable connections={connections} onTest={handleTest} onImportSchema={handleImportSchema} />
+      )}
+      {importPanelConnectionId !== null && (
+        <SchemaImportPanel
+          connectionId={importPanelConnectionId}
+          onClose={() => setImportPanelConnectionId(null)}
+        />
       )}
     </div>
   )
