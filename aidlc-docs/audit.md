@@ -1229,3 +1229,11 @@
 
 ---
 
+## CONSTRUCTION - U3 Code Generation - Part 2 Item 8-2
+**Timestamp**: 2026-07-10T18:28:00Z
+**User Input**: "続行する" (continuation confirmation after item 8-1)
+**AI Response**: Replaced the previously-untracked stub `backend/src/main/java/cherry/mastermeister/schema/SchemaTableRepository.java` with the official, committed version, adding the Apache License 2.0 header. Reconciled the plan's original speculative method list against what the already-committed `SchemaImportService`/`SchemaQueryService` (Step 2, items 2-11/2-12) actually call: kept `findByConnectionIdAndSchemaNameAndTableName` and `findByConnectionId` as specified, but generated `findByConnectionIdAndStaleFalse` + `findByConnectionIdAndSchemaNameAndStaleFalse` + `findByConnectionIdAndSchemaNameAndTableNameAndStaleFalse` instead of the plan's originally-envisioned `findDistinctSchemaNameByConnectionIdAndStaleFalse` projection query, since `SchemaQueryService.listSchemas` was actually implemented to derive distinct schema names in-memory via a stream over `findByConnectionIdAndStaleFalse`'s entity list rather than a dedicated projection query. Documented this deviation directly in the plan item's implementation note (no separate doc needed since Step 10's `repository-layer-summary.md` will describe the final method set). `./gradlew compileJava`: `BUILD SUCCESSFUL`. Marked plan item 8-2 `[x]`.
+**Context**: Per-Unit Loop, U3 Code Generation Part 2, Step 8 item 8-2 complete. Committing, then asking user whether to continue to item 8-3 (`SchemaColumnRepository` generation) or pause.
+
+---
+
