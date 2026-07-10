@@ -30,6 +30,7 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
@@ -55,6 +56,7 @@ public class SchemaImportService {
     private final ConnectionPoolRegistry connectionPoolRegistry;
     private final DialectStrategyFactory dialectStrategyFactory;
     private final AuditLogService auditLogService;
+    private final ApplicationEventPublisher eventPublisher;
 
     public SchemaImportService(
             RdbmsConnectionRepository rdbmsConnectionRepository,
@@ -62,7 +64,8 @@ public class SchemaImportService {
             SchemaColumnRepository schemaColumnRepository,
             ConnectionPoolRegistry connectionPoolRegistry,
             DialectStrategyFactory dialectStrategyFactory,
-            AuditLogService auditLogService
+            AuditLogService auditLogService,
+            ApplicationEventPublisher eventPublisher
     ) {
         this.rdbmsConnectionRepository = rdbmsConnectionRepository;
         this.schemaTableRepository = schemaTableRepository;
@@ -70,6 +73,7 @@ public class SchemaImportService {
         this.connectionPoolRegistry = connectionPoolRegistry;
         this.dialectStrategyFactory = dialectStrategyFactory;
         this.auditLogService = auditLogService;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional
@@ -112,6 +116,7 @@ public class SchemaImportService {
                     EventCategory.ADMIN_OPERATION, EventType.SCHEMA_IMPORTED, adminUserId, connectionId,
                     Result.SUCCESS, connection.getName(),
                     "Schema import succeeded: tableCount=" + tableCount);
+            eventPublisher.publishEvent(new SchemaReimportedEvent(connectionId));
             return new SchemaImportResult(true, tableCount, "Schema import succeeded.");
         } catch (SQLException e) {
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();

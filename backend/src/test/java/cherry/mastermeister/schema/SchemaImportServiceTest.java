@@ -48,6 +48,7 @@ import org.h2.tools.Server;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -316,7 +317,7 @@ class SchemaImportServiceTest {
                         });
                 return new SchemaImportService(
                         rdbmsConnectionRepository, schemaTableRepository, failingColumnRepository,
-                        registry, factory, mock(AuditLogService.class));
+                        registry, factory, mock(AuditLogService.class), mock(ApplicationEventPublisher.class));
             }
         }
 
@@ -371,7 +372,7 @@ class SchemaImportServiceTest {
                 connectionRepository, dialectStrategyFactory, 1, 0, Duration.ofSeconds(5));
         return new SchemaImportService(
                 connectionRepository, repos.tableRepository(), repos.columnRepository(),
-                registry, dialectStrategyFactory, mock(AuditLogService.class));
+                registry, dialectStrategyFactory, mock(AuditLogService.class), mock(ApplicationEventPublisher.class));
     }
 
     private Connection openConnection(String dbName) throws SQLException {

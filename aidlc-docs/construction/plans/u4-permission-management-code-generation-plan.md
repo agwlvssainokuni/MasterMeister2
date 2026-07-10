@@ -151,12 +151,18 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
       （`tech-stack-decisions.md`依存関係追加、CLAUDE.md「Gradleバージョン管理」規約）。
 
 ### Step 2: ビジネスロジック生成
-- [ ] 2-1. `backend/src/main/java/cherry/mastermeister/schema/SchemaReimportedEvent.java`
+- [x] 2-1. `backend/src/main/java/cherry/mastermeister/schema/SchemaReimportedEvent.java`
       （新規、record: `Long connectionId`）を生成し、`SchemaImportService.importSchema`
       （既存、ブラウンフィールド修正）にトランザクション成功時（`SchemaImportResult.success
       == true`のreturn直前）の`ApplicationEventPublisher.publishEvent(new
       SchemaReimportedEvent(connectionId))`呼び出しを追記する（「ブラウンフィールド発見事項」
       参照、`nfr-design-patterns.md` 2.2）。
+      実装メモ: `SchemaImportService`のコンストラクタに`ApplicationEventPublisher`を追加
+      注入し、監査ログ記録直後・`return`直前で発行するよう変更した。既存の
+      `SchemaImportServiceTest`内の2箇所の`new SchemaImportService(...)`呼び出しに
+      `mock(ApplicationEventPublisher.class)`引数を追加して追随させた（イベント発行自体の
+      検証はテスト対象外のまま）。`./gradlew compileJava compileTestJava`成功、
+      `SchemaImportServiceTest`全件成功を確認。
 - [x] 2-2. `backend/src/main/java/cherry/mastermeister/group/` に`Group`（JPAエンティティ:
       `id`, `name`〈unique, not null〉, `createdAt`。`domain-entities.md`）、`GroupMember`
       （JPAエンティティ: `id`, `groupId`〈not null〉, `userId`〈not null〉, `joinedAt`。一意
