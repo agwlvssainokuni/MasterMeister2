@@ -51,8 +51,8 @@ U4は **実行（EXECUTE）** と判定。
 
 ## 成果物生成タスク（`construction/nfr-design.md` Step 6）
 
-- [ ] `aidlc-docs/construction/u4-permission-management/nfr-design/nfr-design-patterns.md`
-- [ ] `aidlc-docs/construction/u4-permission-management/nfr-design/logical-components.md`
+- [x] `aidlc-docs/construction/u4-permission-management/nfr-design/nfr-design-patterns.md`
+- [x] `aidlc-docs/construction/u4-permission-management/nfr-design/logical-components.md`
 
 ---
 
