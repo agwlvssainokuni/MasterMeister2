@@ -246,7 +246,7 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
       成功可否・違反概要返却用）、`PermissionUpdateRequest`は既存設計書に未出（プラン
       注記どおりブラウンフィールド発見事項）だがプラン記載フィールド構成をそのまま採用。
       `./gradlew compileJava`成功を確認。
-- [ ] 2-8. `backend/src/main/java/cherry/mastermeister/permission/` にYAMLバインド用POJO
+- [x] 2-8. `backend/src/main/java/cherry/mastermeister/permission/` にYAMLバインド用POJO
       `PermissionYamlDocument`（`List<PrincipalYaml> principals`）、`PrincipalYaml`（`String
       type, String email, String name, List<PermissionEntryYaml> permissions,
       List<AuxPermissionEntryYaml> auxPermissions`）、`PermissionEntryYaml`（`String schema,
@@ -255,6 +255,12 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
       2.3のYAML構造、Jackson YAMLでバインドするための素朴なPOJO、フィールドは全て文字列/
       boolean型でバインド後にenum変換・必須チェックを行う——`nfr-design-patterns.md` 5.1
       「バインド後チェック」方針）。
+      実装メモ: `nfr-design-patterns.md` 5.1で明示されたとおりJakarta Bean Validationは
+      導入せず、Jacksonバインド用に全フィールドgetter/setter付きの可変POJO（`record`では
+      なく通常クラス）として生成した。フィールドは全て`String`/`Boolean`のプラン記載通りで、
+      enum変換・必須チェック・参照整合性・重複検証はitem 2-9の`importPermissionsFromYaml`
+      内で命令的に行う想定（本itemではバインド用の型定義のみ）。`./gradlew compileJava`
+      成功を確認。
 - [ ] 2-9. `backend/src/main/java/cherry/mastermeister/permission/
       PermissionAssignmentService.java`（`@Service`、書き込み系メソッド全体に
       `@Transactional`＋自メソッドに`@CacheEvict(cacheNames = {6キャッシュ名}, allEntries =
