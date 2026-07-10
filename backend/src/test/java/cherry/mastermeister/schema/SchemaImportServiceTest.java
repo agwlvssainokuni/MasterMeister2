@@ -224,6 +224,47 @@ class SchemaImportServiceTest {
         return Arbitraries.of(ChangePattern.values());
     }
 
+    // P11: ビュー取り込み時、SchemaColumn.primaryKeySequenceは常にnullである。
+    // importColumns()はtableType == TABLEの場合のみDatabaseMetaData.getPrimaryKeysを問い合わせ、
+    // VIEWの場合はprimaryKeySequencesが常に空のMapのまま（=lookupは常にnullを返す）実装のため、
+    // 基底テーブル側でPRIMARY KEYとして定義されている列をビューがそのまま射影していても、
+    // ビュー側のSchemaColumnとしてはprimaryKeySequenceがnullになることを検証する。
+    @Property(tries = 15)
+    void importSchemaSetsNullPrimaryKeySequenceForViewColumns(@ForAll("viewColumnCounts") int columnCount) throws Exception {
+        String dbName = "SCHEMAIMPORT" + DB_COUNTER.incrementAndGet();
+        try (Connection setup = openConnection(dbName)) {
+            createSchema(setup, TEST_SCHEMA);
+            try (Statement st = setup.createStatement()) {
+                StringBuilder extraCols = new StringBuilder();
+                for (int i = 0; i < columnCount; i++) {
+                    extraCols.append(", C").append(i).append(" INT");
+                }
+                st.execute("CREATE TABLE " + TEST_SCHEMA + ".BASE (ID INT PRIMARY KEY" + extraCols + ")");
+                st.execute("CREATE VIEW " + TEST_SCHEMA + ".V1 AS SELECT * FROM " + TEST_SCHEMA + ".BASE");
+            }
+        }
+
+        FakeRepositories repos = new FakeRepositories();
+        SchemaImportService service = newService(dbName, repos);
+
+        assertThat(service.importSchema(1L, 1L).success()).isTrue();
+
+        SchemaTable view = testSchemaTable(repos, "V1");
+        assertThat(view).isNotNull();
+        assertThat(view.getTableType()).isEqualTo(TableType.VIEW);
+
+        Map<String, Long> viewColumnIds = testTableColumnIds(repos, "V1");
+        assertThat(viewColumnIds).hasSize(columnCount + 1).containsKey("ID");
+        for (Long columnId : viewColumnIds.values()) {
+            assertThat(testColumn(repos, columnId).getPrimaryKeySequence()).isNull();
+        }
+    }
+
+    @Provide
+    Arbitrary<Integer> viewColumnCounts() {
+        return Arbitraries.integers().between(0, 3);
+    }
+
     // P10（importSchema失敗時のロールバックRound-trip）は、実JPAリポジトリ・実トランザクション境界
     // でのみ検証可能なため、@DataJpaTest（内部DB用の埋め込みH2）＋@JqwikSpringSupportで
     // Spring TestContextをjqwikのプロパティテストに適用するグループとして分離する。

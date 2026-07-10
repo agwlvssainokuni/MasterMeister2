@@ -1117,3 +1117,11 @@
 
 ---
 
+## CONSTRUCTION - U3 Code Generation - Part 2 Item 3-7
+**Timestamp**: 2026-07-10T17:42:00Z
+**User Input**: "続行する" (continuation choice after item 3-6, via AskUserQuestion)
+**AI Response**: Confirmed by reading `SchemaImportService.importColumns()` that `primaryKeySequences` is populated via `DatabaseMetaData.getPrimaryKeys` only when `tableType == TableType.TABLE`; for `VIEW` it stays an empty `Map`, so every view column's `primaryKeySequence` lookup always returns `null` by construction. Added a new `@Property` test `importSchemaSetsNullPrimaryKeySequenceForViewColumns` to `SchemaImportServiceTest`, reusing the existing Mockito-based `FakeRepositories`/`newService` helpers (no Spring context needed, unlike item 3-6's `RollbackRoundTrip` group). The test creates a base table `BASE` with `ID INT PRIMARY KEY` plus 0-3 jqwik-generated extra columns, then a view `V1` via `CREATE VIEW V1 AS SELECT * FROM BASE` that projects the primary-key column itself — deliberately setting up a case where the underlying column genuinely is a primary key in the source schema, to confirm the null-ness comes from the `tableType == VIEW` code branch rather than merely reflecting an absence of primary keys in the test fixture. After import, asserted `SchemaTable.tableType == VIEW` and that every column (including `ID`) has `primaryKeySequence == null`. Ran `./gradlew test --tests "cherry.mastermeister.schema.SchemaImportServiceTest"`: `BUILD SUCCESSFUL`; confirmed via the XML report (`tests="3" failures="0" errors="0" skipped="0"`) that all 3 tests in the class, including the new one, genuinely executed and passed. Marked plan item 3-7 `[x]` with an implementation note.
+**Context**: Per-Unit Loop, U3 Code Generation Part 2, Step 3 item 3-7 complete. Committing, then asking user whether to continue to item 3-8 (P12 stale-exclusion property test, `SchemaQueryServiceTest`) or pause.
+
+---
+
