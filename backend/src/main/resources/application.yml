@@ -55,3 +55,9 @@ mm:
         password: ${MM_APP_ADMIN_BOOTSTRAP_PASSWORD:}
     frontend:
       base-url: ${MM_APP_FRONTEND_BASE_URL:http://localhost:5173}
+    rdbms-connection:
+      encryption-key: ${MM_APP_RDBMS_CONNECTION_ENCRYPTION_KEY}
+      pool:
+        maximum-pool-size: ${MM_APP_RDBMS_CONNECTION_POOL_MAXIMUM_POOL_SIZE:5}
+        minimum-idle: ${MM_APP_RDBMS_CONNECTION_POOL_MINIMUM_IDLE:0}
+        connection-timeout: ${MM_APP_RDBMS_CONNECTION_POOL_CONNECTION_TIMEOUT:5000ms}

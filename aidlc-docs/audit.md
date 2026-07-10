@@ -1381,3 +1381,11 @@
 
 ---
 
+## CONSTRUCTION - U3 Code Generation - Part 2 Item 16-1
+**Timestamp**: 2026-07-10T20:08:00Z
+**User Input**: AskUserQuestion回答「続行する（推奨）」（項目15-1コミット後、Step 16 item 16-1へ進むかの確認に対する回答）
+**AI Response**: Step 16 item 16-1を実施。`backend/src/main/resources/application.yml`の`mm.app.frontend.base-url`ブロック直後に`mm.app.rdbms-connection`ブロックを追記: `encryption-key: ${MM_APP_RDBMS_CONNECTION_ENCRYPTION_KEY}`（デフォルト値なし、`tech-stack-decisions.md`の「既定未設定・fail-fast」要件通り、`EncryptedStringConverter`の`@Value`側にもデフォルトが無いことをソース確認済み）、`pool.maximum-pool-size: ${MM_APP_RDBMS_CONNECTION_POOL_MAXIMUM_POOL_SIZE:5}`、`pool.minimum-idle: ${MM_APP_RDBMS_CONNECTION_POOL_MINIMUM_IDLE:0}`、`pool.connection-timeout: ${MM_APP_RDBMS_CONNECTION_POOL_CONNECTION_TIMEOUT:5000ms}`（`ConnectionPoolRegistry`の`@Value`デフォルト`5s`と同値）。追記後`./gradlew build`（バックエンド全体、コンパイル・全テスト実行・check・assemble・bootWar）を実行し成功を確認（29テストクラス全件成功、テストは`spring.profiles.active=test`で`application-test.yml`の`encryption-key`を使用するため本変更の影響を受けないことを確認済み）。計画書item 16-1のチェックボックスを`[x]`化し実装メモを追記。これでU3 Code Generation Part 2の全16 Step・42項目が完了。
+**Context**: Per-Unit Loop, U3 Code Generation Part 2, Step 16 item 16-1（最終項目）完了。コミット後、完了基準の確認とCode Generationステージ完了メッセージの提示へ進む。
+
+---
+
