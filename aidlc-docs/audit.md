@@ -1221,3 +1221,11 @@
 
 ---
 
+## CONSTRUCTION - U3 Code Generation - Part 2 Item 8-1
+**Timestamp**: 2026-07-10T18:24:00Z
+**User Input**: "続行してください。" (resume signal after the pause following item 7-1)
+**AI Response**: Replaced the previously-untracked stub `backend/src/main/java/cherry/mastermeister/rdbmsconnection/RdbmsConnectionRepository.java` with the official, committed version: same `JpaRepository<RdbmsConnection, Long>` interface, now with the standard Apache License 2.0 header (matching `UserRepository`/`RefreshTokenRepository`/etc.). `./gradlew test --tests "cherry.mastermeister.rdbmsconnection.*"`: `BUILD SUCCESSFUL`. Marked plan item 8-1 `[x]` with an implementation note. This file is now staged/committed for the first time; the remaining 2 stub files (`SchemaTableRepository`, `SchemaColumnRepository`) stay untracked pending items 8-2/8-3.
+**Context**: Per-Unit Loop, U3 Code Generation Part 2, Step 8 item 8-1 complete. Committing, then asking user whether to continue to item 8-2 (`SchemaTableRepository` generation) or pause.
+
+---
+
