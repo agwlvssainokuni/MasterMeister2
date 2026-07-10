@@ -909,3 +909,11 @@
 
 ---
 
+## CONSTRUCTION - U3 Code Generation - Part 2 Paused After Item 1-1
+**Timestamp**: 2026-07-10T13:32:00Z
+**User Input**: "ここで中断する" (in response to the post-commit continuation prompt for item 1-1)
+**AI Response**: Stopping per-item generation here as requested. No further code changes made beyond commit `2e01aa4`. Next item to resume from: Step 2 item 2-1 (add `buildJdbcUrl(host, port, databaseName)` to `DialectStrategy`).
+**Context**: Per-Unit Loop, U3 Code Generation Part 2 (Generation) paused mid-Step-2 (before item 2-1) at explicit user request. 41 of 42 plan items remain (task list #31-#71 all still pending).
+
+---
+
