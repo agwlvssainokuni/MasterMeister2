@@ -973,3 +973,19 @@
 
 ---
 
+## CONSTRUCTION - U3 Code Generation - Part 2 Item 2-7 (Sequencing Question)
+**Timestamp**: 2026-07-10T13:56:00Z
+**User Input**: "続行する" (via AskUserQuestion, in response to the post-commit continuation prompt for item 2-6)
+**AI Response**: Flagged that item 2-7 (`ConnectionPoolRegistry`) depends on `RdbmsConnectionRepository`, which per the plan's Step ordering is not generated until Step 8 (item 8-1) — a much longer gap than the earlier 2-4/2-5 adjacent-item pairing. Asked the user via AskUserQuestion whether to (a) proceed per the approved plan order, accepting an extended non-compiling window through item 8-1, or (b) pre-create a minimal `RdbmsConnectionRepository` now to keep compilation green.
+**Context**: Per-Unit Loop, U3 Code Generation Part 2, Step 2 item 2-7 — sequencing ambiguity surfaced before implementation, per-item workflow paused for explicit user decision (not a code-generation item itself).
+
+---
+
+## CONSTRUCTION - U3 Code Generation - Part 2 Item 2-7
+**Timestamp**: 2026-07-10T13:57:00Z
+**User Input**: "計画どおり進行（推奨）" (via AskUserQuestion, choosing to keep the plan's Step order as approved rather than pre-creating the repository)
+**AI Response**: Generated `backend/src/main/java/cherry/mastermeister/rdbmsconnection/ConnectionPoolRegistry.java` (`@Component`, default singleton scope) per `nfr-design-patterns.md` 1.1/`business-rules.md` 1.5: `ConcurrentHashMap<Long, HikariDataSource>` cache, `getDataSource(connectionId)` via `computeIfAbsent` for lazy creation, `getJdbcTemplate(connectionId)` wrapping it in `NamedParameterJdbcTemplate`, `invalidate(connectionId)` via `remove`+`close()`. `createDataSource` loads the connection via `RdbmsConnectionRepository.findById` (throwing `EntityNotFoundException` if absent — password already decrypted transparently via `EncryptedStringConverter`'s `@Convert`), builds the JDBC URL via `DialectStrategyFactory.resolve(rdbmsType).buildJdbcUrl(...)` with `additionalParams` appended once via `?` if non-blank (`business-rules.md` 1.3), and configures HikariCP with `mm.app.rdbms-connection.pool.maximum-pool-size`/`minimum-idle`/`connection-timeout` (`@Value` with defaults 5/0/5s, ordinary-default pattern per `nfr-requirements.md` 2.1/3.1, matching the existing `Duration` `@Value` precedent in `RefreshTokenService`/`UserRegistrationService`). Verified via `./gradlew compileJava` that the only error is the expected unresolved `RdbmsConnectionRepository` symbol (2 error lines, both pointing to that one missing type) — confirms no other mistakes were introduced. Marked plan item 2-7 `[x]`.
+**Context**: Per-Unit Loop, U3 Code Generation Part 2, Step 2 item 2-7 complete. Committing, then asking user whether to continue to item 2-8 (`RdbmsConnectionService`). Compilation will remain broken (single known unresolved reference) until item 8-1.
+
+---
+

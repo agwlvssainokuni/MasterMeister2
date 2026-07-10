@@ -168,7 +168,7 @@ U1（Platform Foundation）のみに依存（`unit-of-work-dependency.md`）:
       `boolean success, String message`）を生成。`userregistration.PendingUserSummary`と
       同型のスタイル（1ファイル1レコード、バリデーションアノテーションなし）で実装。
       `./gradlew compileJava`でコンパイル成功を確認した。
-- [ ] 2-7. `backend/src/main/java/cherry/mastermeister/rdbmsconnection/
+- [x] 2-7. `backend/src/main/java/cherry/mastermeister/rdbmsconnection/
       ConnectionPoolRegistry.java`（`@Component`、シングルトンスコープ既定）:
       `ConcurrentHashMap<Long, HikariDataSource>`でキャッシュ。
       `DataSource getDataSource(Long connectionId)`は`computeIfAbsent`で遅延生成
@@ -179,7 +179,11 @@ U1（Platform Foundation）のみに依存（`unit-of-work-dependency.md`）:
       `DialectStrategyFactory.resolve(rdbmsType)`の`buildJdbcUrl`+`additionalParams`
       （非空なら`?`区切りで1回だけ付加、`business-rules.md` 1.3）でJDBC URLを組み立て、
       `mm.app.rdbms-connection.pool.*`設定値（`maximumPoolSize`/`minimumIdle`/
-      `connectionTimeout`）でHikariCPプールを生成。
+      `connectionTimeout`）でHikariCPプールを生成。**ユーザ判断により計画どおりStep順序を維持**:
+      `RdbmsConnectionRepository`はStep 8（8-1）まで生成されないため、本項目時点で
+      `./gradlew compileJava`は「シンボルを見つけられません: RdbmsConnectionRepository」の
+      未解決参照エラーのみで失敗する（想定どおり、他のエラーは無いことを確認済み）。
+      8-1完了までコンパイル不可状態が継続する。
 - [ ] 2-8. `backend/src/main/java/cherry/mastermeister/rdbmsconnection/
       RdbmsConnectionService.java`（`@Service`）: `Long createConnection(ConnectionConfig
       config)`（保存後`AuditLogService.record(ADMIN_OPERATION, RDBMS_CONNECTION_CHANGED,
