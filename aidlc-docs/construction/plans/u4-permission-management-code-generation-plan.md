@@ -126,6 +126,22 @@ P1〜P11（`business-logic-model.md`「テスト可能な性質」表）。Step 
 
 ## ステップ一覧
 
+**実行順序の変更（ユーザ判断、2026-07-11）**: U3ではStep 2（ビジネスロジック生成）を
+Step 8（リポジトリレイヤ生成）に先行させたため、Step 2〜7の間`./gradlew compileJava`が
+Repository未定義エラーで失敗し続ける状態を許容していた。U4ではこれを避けるため、
+実行順序を以下のとおり入れ替える（Step番号・item番号は計画書の元の採番を維持し、
+実施順序のみ変更する）:
+1. item 2-2（`Group`/`GroupMember`エンティティ）
+2. item 8-1（`GroupRepository`/`GroupMemberRepository`）— Step 8内で先行実施する分を「暫定実装」と呼ぶ
+3. item 2-6（`PermissionAssignment`/`AuxPermissionAssignment`/enum/`PrincipalRef`）
+4. item 8-2 暫定実装（`PermissionAssignmentRepository`/`AuxPermissionAssignmentRepository`を
+   `JpaRepository<Entity, Long>`のみの最小形で生成。カスタムクエリメソッドはStep 2の
+   残り項目〈2-9, 2-11等〉で実際に必要になった時点で追記する）
+5. item 2-1, 2-3, 2-4, 2-5, 2-7, 2-8, 2-9, 2-10, 2-11, 2-12（元の番号順）— このうち2-5/2-9/2-11で
+   リポジトリに追加メソッドが必要になった場合は都度8-1/8-2のファイルに追記する
+6. Step 9（リポジトリ単体テスト）・Step 10（リポジトリレイヤサマリ）は、Step 2の残り項目が
+   完了しリポジトリのメソッド一式が確定してから実施する（今回は未実施のまま据え置き）。
+
 ### Step 1: プロジェクト構造セットアップ
 - [x] 1-1. `backend/build.gradle.kts`（既存、ブラウンフィールド修正）の`dependencies`ブロックに
       `implementation("org.springframework.boot:spring-boot-starter-cache")`、
