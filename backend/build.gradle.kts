@@ -41,6 +41,9 @@ dependencyManagement {
         dependency("io.jsonwebtoken:jjwt-jackson:0.12.6")
         dependency("net.jqwik:jqwik:1.9.1")
         dependency("net.jqwik:jqwik-spring:0.12.0")
+        dependency("com.mysql:mysql-connector-j:9.3.0")
+        dependency("org.mariadb.jdbc:mariadb-java-client:3.5.3")
+        dependency("org.postgresql:postgresql:42.7.7")
     }
 }
 
@@ -54,6 +57,9 @@ dependencies {
     runtimeOnly("io.jsonwebtoken:jjwt-impl")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson")
     runtimeOnly("com.h2database:h2")
+    runtimeOnly("com.mysql:mysql-connector-j")
+    runtimeOnly("org.mariadb.jdbc:mariadb-java-client")
+    runtimeOnly("org.postgresql:postgresql")
     runtimeOnly("org.springframework.boot:spring-boot-starter-tomcat")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")

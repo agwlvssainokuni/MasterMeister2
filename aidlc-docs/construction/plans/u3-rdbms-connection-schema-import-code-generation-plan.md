@@ -107,17 +107,16 @@ U1（Platform Foundation）のみに依存（`unit-of-work-dependency.md`）:
 ## ステップ一覧
 
 ### Step 1: プロジェクト構造セットアップ
-- [ ] 1-1. `backend/build.gradle.kts`（既存、ブラウンフィールド修正）の
+- [x] 1-1. `backend/build.gradle.kts`（既存、ブラウンフィールド修正）の
       `dependencyManagement.dependencies`ブロックに以下を追記（CLAUDE.md「Gradleバージョン
       管理」規約、`tech-stack-decisions.md` #3）:
-      `dependency("com.mysql:mysql-connector-j:<最新安定版>")`,
-      `dependency("org.mariadb.jdbc:mariadb-java-client:<最新安定版>")`,
-      `dependency("org.postgresql:postgresql:<最新安定版>")`。
-      `dependencies`ブロックに`runtimeOnly("com.mysql:mysql-connector-j")`,
+      `dependency("com.mysql:mysql-connector-j:9.3.0")`,
+      `dependency("org.mariadb.jdbc:mariadb-java-client:3.5.3")`,
+      `dependency("org.postgresql:postgresql:42.7.7")`（2026-07-10時点のMaven Central最新
+      安定版）。`dependencies`ブロックに`runtimeOnly("com.mysql:mysql-connector-j")`,
       `runtimeOnly("org.mariadb.jdbc:mariadb-java-client")`,
-      `runtimeOnly("org.postgresql:postgresql")`を追記する（H2は既存の
-      `runtimeOnly("com.h2database:h2")`を再利用、追記不要）。バージョン番号は実装時に
-      Maven Central最新安定版を確認して確定する。
+      `runtimeOnly("org.postgresql:postgresql")`を追記した（H2は既存の
+      `runtimeOnly("com.h2database:h2")`を再利用、追記不要）。
 
 ### Step 2: ビジネスロジック生成
 - [ ] 2-1. `backend/src/main/java/cherry/mastermeister/common/dialect/DialectStrategy.java`
