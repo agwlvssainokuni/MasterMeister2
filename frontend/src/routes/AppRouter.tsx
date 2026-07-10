@@ -18,6 +18,9 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { AppLayout } from '../components/AppLayout'
 import { AuditLogPage } from '../features/auditLog/AuditLogPage'
 import { LoginPage } from '../features/auth/LoginPage'
+import { GroupDetailPage } from '../features/group/GroupDetailPage'
+import { GroupListPage } from '../features/group/GroupListPage'
+import { PermissionAssignmentPage } from '../features/permission/PermissionAssignmentPage'
 import { ConnectionFormPage } from '../features/rdbmsConnection/ConnectionFormPage'
 import { ConnectionListPage } from '../features/rdbmsConnection/ConnectionListPage'
 import { SchemaBrowserPage } from '../features/schema/SchemaBrowserPage'
@@ -75,6 +78,30 @@ function AuthenticatedRoutes() {
           element={
             <ProtectedRoute requiredRole="ADMIN">
               <SchemaBrowserPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/groups"
+          element={
+            <ProtectedRoute requiredRole="ADMIN">
+              <GroupListPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/groups/:id"
+          element={
+            <ProtectedRoute requiredRole="ADMIN">
+              <GroupDetailPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/permissions"
+          element={
+            <ProtectedRoute requiredRole="ADMIN">
+              <PermissionAssignmentPage />
             </ProtectedRoute>
           }
         />

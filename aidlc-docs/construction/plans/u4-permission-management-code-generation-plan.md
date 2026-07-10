@@ -798,9 +798,14 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
       200で返す設計、`PermissionControllerTest`の400テストはサービスをモックした場合のみの
       挙動）に合わせ、非200レスポンスも極力`ImportResult`形へ正規化して表示する。
       `tsc -b --noEmit`・`npm run lint`（oxlint）ともにエラーなし。
-- [ ] 11-3. `frontend/src/routes/AppRouter.tsx`（既存、ブラウンフィールド修正）:
+- [x] 11-3. `frontend/src/routes/AppRouter.tsx`（既存、ブラウンフィールド修正）:
       `/admin/groups`, `/admin/groups/:id`, `/admin/permissions`を`ProtectedRoute
       requiredRole="ADMIN"`配下に追加する。
+      実装メモ: 既存の`/admin/schema/:connectionId`等のルート定義パターン（`ProtectedRoute
+      requiredRole="ADMIN"`でラップ）をそのまま踏襲し、`AuthenticatedRoutes`内の
+      `<Routes>`に3件追加した。`tsc -b --noEmit`・`npm run lint`（oxlint）ともにエラーなし。
+      既存の`AppRouter.test.tsx`（9件）を`vitest run`で再実行し、退行がないことを確認した
+      （item 11-3自体の新規ルートに対するテストはStep 12 item 12-2で追加する）。
 - [ ] 11-4. `frontend/src/components/AppLayout.tsx`（既存、ブラウンフィールド修正）に
       「グループ管理」「権限設定」へのナビゲーションリンクを追加する（管理者ロールのみ
       表示）。
