@@ -22,6 +22,7 @@ import cherry.mastermeister.common.ErrorResponse;
 import cherry.mastermeister.common.exception.EntityNotFoundException;
 import cherry.mastermeister.common.exception.PermissionDeniedException;
 import cherry.mastermeister.common.exception.ValidationException;
+import cherry.mastermeister.permission.PermissionYamlFormatException;
 import cherry.mastermeister.userregistration.InvalidUserStateException;
 import cherry.mastermeister.userregistration.TokenExpiredException;
 import cherry.mastermeister.userregistration.TokenNotFoundException;
@@ -83,6 +84,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleInvalidUserState(InvalidUserStateException e) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(new ErrorResponse("INVALID_USER_STATE", e.getMessage()));
+    }
+
+    @ExceptionHandler(PermissionYamlFormatException.class)
+    public ResponseEntity<ErrorResponse> handlePermissionYamlFormat(PermissionYamlFormatException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse("PERMISSION_YAML_FORMAT_ERROR", e.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)

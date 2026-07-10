@@ -618,10 +618,18 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
       （`ImportResult`を直接返す、例外を投げない設計）を呼ぶ、リポジトリ初のmultipartアップロード
       エンドポイントとした。`./gradlew compileJava compileTestJava`成功を確認
       （単体テストはStep 6で作成）。
-- [ ] 5-3. `backend/src/main/java/cherry/mastermeister/config/GlobalExceptionHandler.java`
+- [x] 5-3. `backend/src/main/java/cherry/mastermeister/config/GlobalExceptionHandler.java`
       （既存、ブラウンフィールド修正）に`@ExceptionHandler(PermissionYamlFormatException
       .class)`（400 `PERMISSION_YAML_FORMAT_ERROR`）を追記する（「ブラウンフィールド発見
       事項」）。
+      【実装メモ】既存の各`@ExceptionHandler`（`InvalidUserStateException`等）と同型で
+      `PermissionYamlFormatException`ハンドラを追加し、400 `PERMISSION_YAML_FORMAT_ERROR`を
+      返すようにした。【既知の課題】`PermissionAssignmentService.importPermissionsFromYaml`
+      は現状`PermissionYamlFormatException`を内部でcatchし`ImportResult(false, message)`として
+      200系で返す設計（Step 2/3で確定済み）のため、このハンドラは同例外がインポート経路以外
+      から投げられた場合の防御的フォールバックとして機能する（現状のインポートAPI経路では
+      到達しない）。`./gradlew compileJava compileTestJava`成功を確認
+      （単体テストはStep 6で作成）。
 - [ ] 5-4. `backend/src/main/java/cherry/mastermeister/security/SecurityConfig.java`
       （既存、ブラウンフィールド修正）を確認する。`/api/groups/**`の`hasRole("ADMIN")`
       エントリを`anyRequest().authenticated()`より前に追記する。
