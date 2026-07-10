@@ -933,3 +933,11 @@
 
 ---
 
+## CONSTRUCTION - U3 Code Generation - Part 2 Paused After Item 2-2
+**Timestamp**: 2026-07-10T13:42:00Z
+**User Input**: "ここで中断する" (in response to the post-commit continuation prompt for item 2-2)
+**AI Response**: Stopping per-item generation here as requested. No further code changes made beyond commit `073b147`. Next item to resume from: Step 2 item 2-3 (confirmation-only: document that `SchemaResolutionMode` requires no changes, already implemented in U1).
+**Context**: Per-Unit Loop, U3 Code Generation Part 2 (Generation) paused before item 2-3 at explicit user request. 39 of 42 plan items remain (tasks #33-#71 still pending).
+
+---
+
