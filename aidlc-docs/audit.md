@@ -1989,3 +1989,18 @@ compileTestJava`・`./gradlew test`（フルスイート）とも成功を確認
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U4: Permission Management - Code Generation item 9-1完了
+**Timestamp**: 2026-07-11T19:10:00Z
+**User Input**: [AskUserQuestion回答] "続行"（質問: "Step 8（未使用メソッド削除を含め完了、コミット49f0bcb）が完了しました。次はStep 9（リポジトリレイヤ単体テスト、item 9-1：GroupRepositoryTest/GroupMemberRepositoryTest/PermissionAssignmentRepositoryTest/AuxPermissionAssignmentRepositoryTestを@DataJpaTestで生成）に進んでよいですか？"）
+**AI Response**: item 9-1を実施。U3の`SchemaTableRepositoryTest`と同様の構成
+（`@DataJpaTest` + `@Autowired Repository`/`TestEntityManager`、`saveAndFlush`/`delete`/
+カスタムfindメソッド/unique制約違反の`DataIntegrityViolationException`検証）で4クラスを
+新規生成した。`GroupRepositoryTest`（5件）、`GroupMemberRepositoryTest`（8件）、
+`PermissionAssignmentRepositoryTest`（8件）、`AuxPermissionAssignmentRepositoryTest`（8件）。
+unique制約テストでは、`columnName`/`tableName`がNULL許容カラムでありSQLのunique制約は
+NULL同士を別値扱いする点に注意し、いずれも非NULL値の組み合わせで重複を発生させて検証した。
+計画書item 9-1を`[x]`に更新。全29件成功、`./gradlew test`フルスイートも回帰なし成功。
+**Context**: Per-Unit Loop、U4 Code Generation item 9-1完了（Step 9完了）。次はStep 10（repository-layer-summary.md生成）。
+
+---
+

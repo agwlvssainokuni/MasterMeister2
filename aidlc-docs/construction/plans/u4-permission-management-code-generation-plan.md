@@ -720,10 +720,26 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
       どこからも呼び出されていない未使用メソッドと判明した。両リポジトリから削除した。
 
 ### Step 9: リポジトリレイヤ単体テスト
-- [ ] 9-1. `GroupRepositoryTest`/`GroupMemberRepositoryTest`/
+- [x] 9-1. `GroupRepositoryTest`/`GroupMemberRepositoryTest`/
       `PermissionAssignmentRepositoryTest`/`AuxPermissionAssignmentRepositoryTest`
       （いずれも`@DataJpaTest`、組み込みH2）: 基本CRUD・カスタムクエリメソッド・一意制約
       違反時の例外発生をexample-basedテストで検証する。
+      実装メモ: `SchemaTableRepositoryTest`（U3）と同様の構成（`@Autowired Repository` +
+      `@Autowired TestEntityManager`、`saveAndFlush`/`delete`/カスタムfindメソッド/
+      unique制約違反の`DataIntegrityViolationException`を検証）で4クラスを生成した。
+      `GroupRepositoryTest`（5件）: 基本CRUD、`findByName`、`name`のunique制約。
+      `GroupMemberRepositoryTest`（8件）: 基本CRUD、`findByGroupIdAndUserId`/
+      `findByGroupId`/`findByUserId`/`deleteByGroupId`、`(groupId, userId)`のunique制約。
+      `PermissionAssignmentRepositoryTest`（8件）: 基本CRUD、
+      `findByPrincipalTypeAndPrincipalIdAndConnectionIdAndSchemaNameAndTableNameAndColumnName`
+      （NULL列と非NULL列の判別含む）、`findByConnectionId`、`deleteByConnectionId`、
+      `deleteByPrincipalTypeAndPrincipalId`、unique制約（`columnName`がNULL許容のため
+      NULL同士は制約対象外となる点に注意し、非NULL値の組み合わせで検証）。
+      `AuxPermissionAssignmentRepositoryTest`（8件）: 基本CRUD、
+      `findByPrincipalTypeAndPrincipalIdAndConnectionIdAndSchemaNameAndTableNameAndAuxType`
+      （NULLテーブルと非NULLテーブルの判別含む）、`findByConnectionId`、
+      `deleteByConnectionId`、`deleteByPrincipalTypeAndPrincipalId`、unique制約
+      （`tableName`がNULL許容のため同様に非NULL値で検証）。全29件成功、フルスイートも回帰なし成功。
 
 ### Step 10: リポジトリレイヤサマリ
 - [ ] 10-1. `aidlc-docs/construction/u4-permission-management/code/
