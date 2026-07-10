@@ -1902,3 +1902,20 @@ permissions/**`を前方一致で包含していることを確認し、`Permiss
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U4: Permission Management - Code Generation item 6-1完了
+**Timestamp**: 2026-07-11T18:45:00Z
+**User Input**: [AskUserQuestion回答] "続行"（質問: "item 5-4（SecurityConfig修正、コミットa9c5179）をもってStep 5（APIレイヤ生成）が全て完了しました。次はStep 6（APIレイヤ単体テスト：6-1 GroupControllerTest, 6-2 PermissionControllerTest）に進んでよいですか？"）
+**AI Response**: item 6-1を実施。`backend/src/test/java/cherry/mastermeister/group/GroupControllerTest.java`
+を新規生成した。`RdbmsConnectionControllerTest`と同型で`@WebMvcTest(GroupController.class)` +
+`@Import({SecurityConfig.class, RestAuthenticationEntryPoint.class, RestAccessDeniedHandler.class})`
+の構成とし、`GroupService`を`@MockitoBean`化。7エンドポイント（createGroup/renameGroup/deleteGroup/
+listGroups/listGroupMembers/addUserToGroup/removeUserFromGroup）それぞれについて管理者成功系
+（`authentication()`で`principal=1L`を注入し`adminUserId`引数解決を検証）・非管理者403
+（`@WithMockUser(roles = "USER")`）・未認証401（`@WithAnonymousUser`）の21テストメソッドを実装した。
+`./gradlew test --tests "cherry.mastermeister.group.GroupControllerTest"`で21件全て成功を確認。
+計画書item 6-1を`[x]`に更新。
+**Context**: Per-Unit Loop、U4 Code Generation Step 6（item 6-1完了）。次はitem 6-2
+（`PermissionControllerTest`）。
+
+---
+

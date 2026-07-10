@@ -645,9 +645,18 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
       これでStep 5（APIレイヤ生成）の全4項目が完了。
 
 ### Step 6: APIレイヤ単体テスト
-- [ ] 6-1. `GroupControllerTest`（`@WebMvcTest` + `spring-security-test`）: 7エンドポイント
+- [x] 6-1. `GroupControllerTest`（`@WebMvcTest` + `spring-security-test`）: 7エンドポイント
       それぞれについて管理者成功系・非管理者403・未認証401をexample-basedテストで検証する
       （U2/U3のControllerTestパターンを踏襲）。
+      【実装メモ】`RdbmsConnectionControllerTest`と同型で`@WebMvcTest(GroupController.class)`
+      + `@Import({SecurityConfig.class, RestAuthenticationEntryPoint.class,
+      RestAccessDeniedHandler.class})`の構成とし、`GroupService`を`@MockitoBean`化した。
+      7エンドポイント×3ケース（管理者成功・非管理者403・未認証401）の21テストメソッドを実装。
+      管理者系は`authentication()`リクエストポストプロセッサで`principal=1L`の
+      `UsernamePasswordAuthenticationToken`を注入し`adminUserId`引数解決を検証、
+      非管理者系は`@WithMockUser(roles = "USER")`、未認証系は`@WithAnonymousUser`を使用した。
+      `./gradlew test --tests "cherry.mastermeister.group.GroupControllerTest"`成功
+      （21件全て成功）。
 - [ ] 6-2. `PermissionControllerTest`（`@WebMvcTest` + `spring-security-test`）: 3エンドポイント
       （権限更新・エクスポート・インポート）それぞれについて管理者成功系・非管理者403・
       未認証401、およびインポート形式不正時の400をexample-basedテストで検証する。
