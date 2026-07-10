@@ -1269,3 +1269,11 @@
 
 ---
 
+## CONSTRUCTION - U3 Code Generation - Part 2 Item 10-1
+**Timestamp**: 2026-07-10T18:59:00Z
+**User Input**: "進める"（項目9-1フォローアップクリーンアップのコミット後、項目10-1へ進むかの確認に対する回答）
+**AI Response**: 生成`aidlc-docs/construction/u3-rdbms-connection-schema-import/code/repository-layer-summary.md`（U2の同名ドキュメントの構成を踏襲）。`RdbmsConnectionRepository`（カスタムクエリなし）、`SchemaTableRepository`（5メソッド）、`SchemaColumnRepository`（3メソッド）のクエリメソッド一覧表、`nfr-design-patterns.md` 5.1に基づくインデックス設計節（`SchemaTable`の`(connectionId, schemaName, tableName)`、`SchemaColumn`の`(tableId, columnName)`、いずれも複合unique制約のみで非unique列への明示的インデックスは追加しない旨、両エンティティの`@Table(uniqueConstraints = {...})`実装を確認の上記載）、Step 9のテストカバレッジ表、および項目9-1で発見・解決した`@DataJpaTest`全体スキャン回帰と`application-test.yml`修正・重複`@TestPropertySource`削除の経緯を要約として記載。**Step 10（リポジトリレイヤサマリ）は完了。**
+**Context**: Per-Unit Loop, U3 Code Generation Part 2, Step 10 item 10-1完了。コミット後、Step 11 item 11-1（rdbmsConnectionフロントエンド生成）へ進むか確認予定。
+
+---
+
