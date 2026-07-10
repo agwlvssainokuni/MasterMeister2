@@ -1,0 +1,399 @@
+# u4-permission-management-code-generation-plan.md
+
+U4（Permission Management）の Code Generation 計画。本ドキュメントが Code Generation の
+単一の真実源（single source of truth）であり、Part 2（Generation）はこの計画のステップを
+順に実行する。ワークスペースルート: `~/Documents/project/git/MasterMeister2`
+（`aidlc-state.md` Workspace Root）。アプリケーションコードはワークスペースルート配下
+（`backend/`, `frontend/`）にのみ生成し、`aidlc-docs/` にはドキュメント成果物のみ生成する。
+
+---
+
+## ユニットコンテキスト（code-generation.md Step 3）
+
+### 対応ストーリー
+MVP-9, ADM-1, ADM-2, ADM-4, ADM-5（`unit-of-work-story-map.md`）:
+| ID | タイトル |
+|---|---|
+| MVP-9 | テーブル/カラム単位のアクセス権限設定（個別ユーザ） |
+| ADM-1 | ユーザグループの作成 |
+| ADM-2 | グループ単位のアクセス権限設定 |
+| ADM-4 | アクセス権限設定のYAMLエクスポート |
+| ADM-5 | アクセス権限設定のYAMLインポート |
+
+### 他ユニットへの依存
+U1・U2・U3に依存（`unit-of-work-dependency.md`: `permission→common,audit,userregistration,schema`）:
+- `common`（`ErrorResponse`/`common.exception`配下の`EntityNotFoundException`/
+  `ValidationException`。新規例外`PermissionYamlFormatException`は`permission`パッケージに
+  定義し、`config.GlobalExceptionHandler`へのマッピング追記が必要——後述「ブラウンフィールド
+  発見事項」参照）
+- `audit`（`AuditLogService.record(EventCategory, EventType, Long userId, Long connectionId,
+  Result, String targetDescription, String summaryMessage)`。`EventType.GROUP_CHANGED`/
+  `PERMISSION_CHANGED`/`PERMISSION_YAML_EXPORTED`/`PERMISSION_YAML_IMPORTED`はいずれもU1の
+  Code Generationで既に定義済み——確認済み、新規追加不要）
+- `userregistration`（U2）: `User`/`UserRepository`（principal実在チェック、
+  `business-rules.md` 2.1 (3)、および`GroupMember`所属ユーザの実在確認・メール表示用。
+  `unit-of-work-dependency.md`は`permission→userregistration`のみを明記しているが、後述の
+  「ブラウンフィールド発見事項」のとおり`group`パッケージも同依存が必要と判断する）
+- `schema`（U3）: `SchemaTableRepository`/`SchemaColumnRepository`（参照整合性チェック、
+  `business-rules.md` 2.1 (2)）、および新規`SchemaReimportedEvent`（後述）
+
+### ブラウンフィールド発見事項（Code Generation Planning時に判明、NFR Design/NFR Requirementsからの訂正・補完）
+
+- **`SchemaReimportedEvent`は未実装**であることが判明した。`nfr-design-patterns.md` 2.2・
+  `nfr-requirements.md` 1.2は「U3の`SchemaImportService.importSchema`はインポート完了時に
+  `SchemaReimportedEvent(connectionId)`を発行する」と記述していたが、実際のU3実装
+  （`backend/src/main/java/cherry/mastermeister/schema/SchemaImportService.java`）は
+  `ApplicationEventPublisher`を一切参照せずイベントを発行していない。本計画のStep 2で
+  `schema`パッケージに`SchemaReimportedEvent`（record: `Long connectionId`）を新規追加し、
+  `SchemaImportService.importSchema`にブラウンフィールド修正を加えてトランザクション成功時に
+  イベントを発行する（`schema`パッケージの語彙のみで定義し、キャッシュ/権限の概念は含まない、
+  `nfr-design-patterns.md` 2.2の方針どおり）。
+- **`group`パッケージの`userregistration`依存が`unit-of-work-dependency.md`に未記載**である
+  ことが判明した。同ドキュメントは`GroupService`が旧`permission`パッケージ案（NFR Design以前、
+  `component-methods.md`の「## permission」見出し配下に`GroupService`が同居していた時点）を
+  前提に集約されており、NFR Design Q3で`group`/`permission`へ分割した後の依存関係を反映して
+  いない。`GroupMember.userId`は`User`（U2所有）への参照であり、`GroupService.
+  addUserToGroup`のユーザ実在確認、および`listGroupMembers`が返す`UserSummary`（メール
+  アドレス表示、`frontend-components.md`）の組み立てにはいずれも`userregistration.
+  UserRepository`の参照が必要となる。本計画では`group→userregistration`の一方向依存を
+  追加する（`group`パッケージが`User`エンティティを書き換えることはない、読み取り専用参照）。
+  `docs/PROJECT_STRUCTURE.md`の依存関係表もStep 15のドキュメント生成時に合わせて補記する。
+- **`PUT /api/rdbms-connections/{connectionId}/permissions`の単一エンドポイント設計**
+  （`business-rules.md` 3節「principal・階層・値を含むリクエストボディで1件ずつ...詳細は
+  Code Generationで確定」）を本計画で確定する。単一の`PermissionUpdateRequest`レコード
+  （`principal: PrincipalRef, schema: String, table: Optional<String>, column:
+  Optional<String>, permission: Optional<Permission>, auxType: Optional<AuxPermissionType>,
+  granted: Optional<Boolean>`）を受け、コントローラで`permission`が存在すれば
+  `setPermission`、`auxType`+`granted`が存在すれば`setAuxPermission`に委譲する
+  （両方または両方欠落は`ValidationException`、`business-rules.md` 2.1の入力検証に準ずる
+  コントローラ層の形式チェックとして追加）。
+
+### 提供インタフェース・契約（他ユニットが依存する公開API）
+- U5（Master Data Maintenance）・U6（Query Builder）が`permission`パッケージの
+  `EffectivePermissionResolver`をサービス層で直接呼び出す（`unit-of-work-dependency.md`:
+  `masterdata→...,permission`、`querybuilder→...,permission`）。`EffectivePermissionResolver`
+  は`public`で生成し、コントローラは持たない。
+
+### 本ユニットが所有するデータエンティティ（内部DB/JPA）
+- `group`パッケージ: `Group`, `GroupMember`
+- `permission`パッケージ: `PermissionAssignment`, `AuxPermissionAssignment`
+
+### パッケージ設計判断（`nfr-design-patterns.md`/`logical-components.md`からの継承）
+- `Group`/`GroupMember`/`GroupService`/`GroupChangedEvent`は`cherry.mastermeister.group`
+  パッケージに配置する（`nfr-design-patterns.md` 3.1）。
+- `PermissionAssignment`/`AuxPermissionAssignment`/`PrincipalType`/`Permission`/
+  `AuxPermissionType`/`PrincipalRef`/`PermissionAssignmentService`/
+  `EffectivePermissionResolver`/`PermissionCacheInvalidationListener`は
+  `cherry.mastermeister.permission`パッケージに配置する（`nfr-design-patterns.md` 3.1）。
+- **DTO配置**（本計画でのAI決定）: `GroupSummary`/`UserSummary`は`group`パッケージ、
+  `PermissionUpdateRequest`/`ImportResult`/YAMLバインド用POJO
+  （`PermissionYamlDocument`/`PrincipalYaml`/`PermissionEntryYaml`/
+  `AuxPermissionEntryYaml`）は`permission`パッケージに配置する（対応するServiceと同一
+  パッケージ、U2の`PendingUserSummary`配置方針を踏襲）。
+- **コントローラ分割**（本計画でのAI決定）: `GroupController`（`group`パッケージ、
+  `/api/groups`配下）と`PermissionController`（`permission`パッケージ、
+  `/api/rdbms-connections/{connectionId}/permissions`配下）に分離する。パッケージ境界と
+  コントローラ境界を一致させる（U3の`RdbmsConnectionController`/`SchemaController`分割と
+  同じ方針）。
+
+### サービス境界・責務
+- `group`: `Group`/`GroupMember`エンティティ、`GroupChangedEvent`（`ApplicationEventPublisher`
+  経由で発行）、`GroupService`（グループCRUD・所属管理、`business-rules.md` 1節）。
+- `permission`: `PermissionAssignment`/`AuxPermissionAssignment`エンティティ、
+  `PermissionAssignmentService`（権限設定CRUD・YAML入出力、`business-rules.md` 2節）、
+  `EffectivePermissionResolver`（実効権限解決Facade、`@Cacheable`、
+  `component-methods.md`判定ロジック）、`PermissionCacheInvalidationListener`
+  （`@TransactionalEventListener(AFTER_COMMIT)`、`nfr-design-patterns.md` 2.1）。
+- `schema`（U3、ブラウンフィールド拡張）: `SchemaReimportedEvent`追加、
+  `SchemaImportService.importSchema`にイベント発行を追記。
+- `config`（U1、ブラウンフィールド拡張）: `GlobalExceptionHandler`に
+  `PermissionYamlFormatException`ハンドラを追記。
+- `security`（U1、ブラウンフィールド拡張）: `SecurityConfig`に`/api/groups/**`・
+  `/api/rdbms-connections/{connectionId}/permissions/**`の`hasRole("ADMIN")`を追記
+  （`/api/rdbms-connections/**`は既にU3で全体を管理者専用にしているため、
+  `/api/rdbms-connections/{connectionId}/permissions/**`は実質的に追加不要——後述Step 5で
+  確認のみ行う）。
+- フロントエンド: `features/group/`（グループ一覧・詳細・所属管理）、
+  `features/permission/`（権限設定ツリー・フォーム・YAML入出力パネル）。U1の`apiClient`/
+  `AppRouter`/`AppLayout`/`DataTable`/`ConfirmDialog`/`ToastNotification`/`ProtectedRoute`、
+  U3の`rdbmsConnectionApi`/`schemaApi`をブラウンフィールド拡張・再利用する。
+
+### テスト可能な性質（PBT-01、`business-logic-model.md`で識別済み）
+P1〜P11（`business-logic-model.md`「テスト可能な性質」表）。Step 3で対応する`@Property`
+テストを生成する。
+
+---
+
+## ステップ一覧
+
+### Step 1: プロジェクト構造セットアップ
+- [ ] 1-1. `backend/build.gradle.kts`（既存、ブラウンフィールド修正）の`dependencies`ブロックに
+      `implementation("org.springframework.boot:spring-boot-starter-cache")`、
+      `implementation("com.github.ben-manes.caffeine:caffeine")`、
+      `implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")`を追記する。
+      いずれもSpring Boot BOM管理下のため`dependencyManagement`への明示バージョン指定は不要
+      （`tech-stack-decisions.md`依存関係追加、CLAUDE.md「Gradleバージョン管理」規約）。
+
+### Step 2: ビジネスロジック生成
+- [ ] 2-1. `backend/src/main/java/cherry/mastermeister/schema/SchemaReimportedEvent.java`
+      （新規、record: `Long connectionId`）を生成し、`SchemaImportService.importSchema`
+      （既存、ブラウンフィールド修正）にトランザクション成功時（`SchemaImportResult.success
+      == true`のreturn直前）の`ApplicationEventPublisher.publishEvent(new
+      SchemaReimportedEvent(connectionId))`呼び出しを追記する（「ブラウンフィールド発見事項」
+      参照、`nfr-design-patterns.md` 2.2）。
+- [ ] 2-2. `backend/src/main/java/cherry/mastermeister/group/` に`Group`（JPAエンティティ:
+      `id`, `name`〈unique, not null〉, `createdAt`。`domain-entities.md`）、`GroupMember`
+      （JPAエンティティ: `id`, `groupId`〈not null〉, `userId`〈not null〉, `joinedAt`。一意
+      制約`(groupId, userId)`＋`@Table(indexes = {...})`で`(userId, groupId)`への追加
+      インデックス、`nfr-design-patterns.md` 4.1）を生成する。既存`RdbmsConnection`等と同型の
+      スタイル（protected引数なしコンストラクタ＋全項目コンストラクタ＋`update`/`rename`
+      ミューテータ＋getterのみ）で実装する。
+- [ ] 2-3. `backend/src/main/java/cherry/mastermeister/group/GroupChangedEvent.java`
+      （新規、record: `Long groupId`）を生成する（`nfr-requirements.md` 1.2、`group`
+      パッケージの語彙のみで定義）。
+- [ ] 2-4. `backend/src/main/java/cherry/mastermeister/group/` に`GroupSummary`（record:
+      `Long id, String name, Instant createdAt`）、`UserSummary`（record: `Long id, String
+      email`）を生成する（`component-methods.md`シグネチャ、「ブラウンフィールド発見事項」
+      のDTO配置方針）。
+- [ ] 2-5. `backend/src/main/java/cherry/mastermeister/group/GroupService.java`
+      （`@Service`、書き込み系メソッド全体に`@Transactional`）: `Long createGroup(String
+      name)`（`business-rules.md` 1.1一意性チェック）、`void renameGroup(Long groupId,
+      String newName)`（1.1）、`void deleteGroup(Long groupId)`（1.3カスケード削除:
+      `GroupMember`全行＋`principalType=GROUP AND principalId=groupId`の
+      `PermissionAssignment`/`AuxPermissionAssignment`全行を同一トランザクションで削除。
+      `PermissionAssignment`/`AuxPermissionAssignment`のリポジトリは`permission`パッケージ
+      所属のため、`GroupService`が両リポジトリを直接参照する形とする——`permission`
+      パッケージのエンティティを`group`パッケージのServiceから参照する一方向のみで、
+      `permission→group`の依存方向〈`nfr-design-patterns.md` 3.1〉とは逆方向のため矛盾しない
+      ことを確認済み）、`void addUserToGroup(Long groupId, Long userId)`（1.2重複チェック＋
+      `UserRepository`によるユーザ実在確認、「ブラウンフィールド発見事項」）、`void
+      removeUserFromGroup(Long groupId, Long userId)`（1.2、対象`GroupMember`不在は例外）、
+      `List<GroupSummary> listGroups()`、`List<UserSummary> listGroupMembers(Long groupId)`
+      を実装する。書き込み系5メソッドはいずれも成功・失敗を問わず
+      `AuditLogService.record(ADMIN_OPERATION, GROUP_CHANGED, adminUserId, ...)`を呼び出し
+      （1.4）、成功時のみ`ApplicationEventPublisher.publishEvent(new
+      GroupChangedEvent(groupId))`を発行する（`deleteGroup`後の`groupId`は削除済みだが
+      イベントのpayloadとしては引き続き有効な識別子として使う）。メソッドシグネチャに
+      `adminUserId`が明示されていないため、U3の`RdbmsConnectionService`と同型で
+      `createGroup(Long adminUserId, String name)`のように補完する。
+- [ ] 2-6. `backend/src/main/java/cherry/mastermeister/permission/` に`PermissionAssignment`
+      （JPAエンティティ: `id`, `principalType`, `principalId`, `connectionId`, `schemaName`,
+      `tableName`〈nullable〉, `columnName`〈nullable〉, `permission`, `updatedAt`。一意制約
+      `(principalType, principalId, connectionId, schemaName, tableName, columnName)`）、
+      `AuxPermissionAssignment`（JPAエンティティ: `id`, `principalType`, `principalId`,
+      `connectionId`, `schemaName`, `tableName`〈nullable〉, `auxType`, `granted`,
+      `updatedAt`。一意制約`(principalType, principalId, connectionId, schemaName,
+      tableName, auxType)`）、`PrincipalType`（enum: `USER`, `GROUP`）、`Permission`
+      （enum: `NONE`, `READ`, `UPDATE`。強さ順序比較のため`Comparable`実装または
+      `ordinal()`比較用ヘルパーを追加）、`AuxPermissionType`（enum: `CREATE`, `DELETE`）、
+      `PrincipalRef`（record: `PrincipalType principalType, Long principalId`）を生成する。
+      いずれも明示的な`@Table(indexes = {...})`は追加しない（一意制約のみで賄う、
+      `nfr-design-patterns.md` 4.1）。
+- [ ] 2-7. `backend/src/main/java/cherry/mastermeister/permission/` に`ImportResult`
+      （record: `boolean success, String message`）、`PermissionUpdateRequest`（record:
+      `PrincipalRef principal, String schema, Optional<String> table, Optional<String>
+      column, Optional<Permission> permission, Optional<AuxPermissionType> auxType,
+      Optional<Boolean> granted`、「ブラウンフィールド発見事項」）を生成する。
+- [ ] 2-8. `backend/src/main/java/cherry/mastermeister/permission/` にYAMLバインド用POJO
+      `PermissionYamlDocument`（`List<PrincipalYaml> principals`）、`PrincipalYaml`（`String
+      type, String email, String name, List<PermissionEntryYaml> permissions,
+      List<AuxPermissionEntryYaml> auxPermissions`）、`PermissionEntryYaml`（`String schema,
+      String table, String column, String permission`）、`AuxPermissionEntryYaml`（`String
+      schema, String table, String type, Boolean granted`）を生成する（`business-rules.md`
+      2.3のYAML構造、Jackson YAMLでバインドするための素朴なPOJO、フィールドは全て文字列/
+      boolean型でバインド後にenum変換・必須チェックを行う——`nfr-design-patterns.md` 5.1
+      「バインド後チェック」方針）。
+- [ ] 2-9. `backend/src/main/java/cherry/mastermeister/permission/
+      PermissionAssignmentService.java`（`@Service`、書き込み系メソッド全体に
+      `@Transactional`＋自メソッドに`@CacheEvict(cacheNames = {6キャッシュ名}, allEntries =
+      true)`、`nfr-design-patterns.md` 1.2/2.1）: `void setPermission(Long adminUserId,
+      PrincipalRef principal, Long connectionId, String schema, Optional<String> table,
+      Optional<String> column, Permission permission)`（`business-rules.md` 2.1検証1〜3:
+      階層整合性・参照整合性〈`SchemaTableRepository`/`SchemaColumnRepository`参照〉・
+      principal実在チェック〈`UserRepository`/`GroupRepository`参照〉）、`void
+      setAuxPermission(Long adminUserId, PrincipalRef principal, Long connectionId, String
+      schema, Optional<String> table, AuxPermissionType auxType, boolean granted)`
+      （同様の検証、`column`パラメータなし）、`byte[] exportPermissionsAsYaml(Long
+      connectionId)`（2.3のYAML構造組み立て、principalは`User.email`/`Group.name`で解決、
+      Jackson `YAMLMapper`でシリアライズ）、`ImportResult importPermissionsFromYaml(Long
+      adminUserId, Long connectionId, byte[] yamlContent)`（2.4検証項目1〜5を順に命令的に
+      チェック、違反時は`PermissionYamlFormatException`、全通過後は対象接続の既存
+      `PermissionAssignment`/`AuxPermissionAssignment`を全削除し再構築する全置換方式）を
+      実装する。全ての書き込みメソッドは成功・失敗を問わず`AuditLogService.record`を呼び出す
+      （2.2, 2.4）。
+- [ ] 2-10. `backend/src/main/java/cherry/mastermeister/permission/
+      PermissionYamlFormatException.java`（新規、`RuntimeException`拡張、
+      `EntityNotFoundException`等既存パターンと同型）を生成する。
+- [ ] 2-11. `backend/src/main/java/cherry/mastermeister/permission/
+      EffectivePermissionResolver.java`（`@Component`、内部Facade、コントローラなし）:
+      `Permission resolveEffectiveTablePermission(Long userId, Long connectionId, String
+      schema, String table)`、`Map<String, Permission>
+      resolveEffectiveColumnPermissions(Long userId, Long connectionId, String schema,
+      String table)`、`boolean canCreate(Long userId, Long connectionId, String schema,
+      String table)`、`boolean canDelete(...)`、`List<String>
+      listAccessibleSchemas(Long userId, Long connectionId)`、`List<String>
+      listAccessibleTables(Long userId, Long connectionId, String schema)`の6メソッドに
+      それぞれ専用`@Cacheable(cacheNames = "effectivePermissions.*")`を付与する
+      （`nfr-design-patterns.md` 1.1）。`component-methods.md`判定ロジック要旨1〜6
+      （階層継承→グループ合成〈最も緩い権限〉→個別上書き→`canCreate`/`canDelete`の主キー
+      条件）を実装する。`GroupMember`（`group`パッケージ、`permission→group`一方向参照）・
+      `PermissionAssignment`/`AuxPermissionAssignment`・`SchemaTableRepository`/
+      `SchemaColumnRepository`（U3、主キー構成参照）を利用する。
+- [ ] 2-12. `backend/src/main/java/cherry/mastermeister/permission/
+      PermissionCacheInvalidationListener.java`（`@Component`）: `SchemaReimportedEvent`
+      （U3 `schema`）・`GroupChangedEvent`（`group`）を`@TransactionalEventListener(phase =
+      AFTER_COMMIT)`で購読し、`EffectivePermissionResolver`の6キャッシュを
+      `@CacheEvict(cacheNames = {...}, allEntries = true)`を付与した空実装メソッドで一括
+      削除する（`nfr-design-patterns.md` 2.1、Spring Cacheの`@CacheEvict`はメソッド呼び出し
+      自体が無効化トリガーのため、リスナーメソッド本体は空でよい）。
+
+### Step 3: ビジネスロジック単体テスト（PBT-01〜PBT-08, PBT-10）
+`business-logic-model.md`のP1〜P11に対応する`@Property`テストをjqwikで生成する。
+- [ ] 3-1. **P1**（`deleteGroup`後の関連行ゼロInvariant）、**P2**（`addUserToGroup`の重複拒否
+      Idempotence）: `GroupServiceTest`に`@Property`テストを生成する。
+- [ ] 3-2. **P3**（`setPermission`/`setAuxPermission`のIdempotence）:
+      `PermissionAssignmentServiceTest`に`@Property`テストを生成する。
+- [ ] 3-3. **P4**（export→importのRound-trip）、**P5**（重複検出Invariant）、**P6**
+      （全置換Invariant）: `PermissionAssignmentServiceTest`に`@Property`テストを追加生成
+      する（P4は組み込みH2または`@DataJpaTest`での実データ往復、P5/P6はMockito/フェイク
+      リポジトリでの検証を状況に応じて選択する）。
+- [ ] 3-4. **P7**（グループ合成のCommutativity）、**P8**（階層継承・個別上書きInvariant）、
+      **P9**（`canCreate`/`canDelete`の主キーなしテーブルInvariant）:
+      `EffectivePermissionResolverTest`に`@Property`テストを生成する。
+- [ ] 3-5. **P10**（書き込み直後の強整合性Invariant）: `PermissionCacheInvalidationListener`
+      を含む統合的な検証（`@SpringBootTest`または`@DataJpaTest`＋実キャッシュBeanでの
+      検証）を`EffectivePermissionResolverTest`または専用テストクラスに生成する。
+- [ ] 3-6. **P11**（U3スキーマ再取り込みとの一貫性Invariant）: `SchemaReimportedEvent`発行
+      〜`PermissionCacheInvalidationListener`〜`EffectivePermissionResolver`再判定の連携を
+      検証する`@Property`テストを生成する。
+
+### Step 4: ビジネスロジックサマリ
+- [ ] 4-1. `aidlc-docs/construction/u4-permission-management/code/business-logic-summary.md`
+      を生成し、Step 2・Step 3で生成したクラス一覧とP1〜P11の対応関係を表形式で記載する
+      （U1/U2/U3の`business-logic-summary.md`と同一構成）。
+
+### Step 5: APIレイヤ生成
+- [ ] 5-1. `backend/src/main/java/cherry/mastermeister/group/GroupController.java`
+      （`@RestController @RequestMapping("/api/groups")`）: `POST ""`（`createGroup`→201）,
+      `PUT "/{id}"`（`renameGroup`→204）, `DELETE "/{id}"`（`deleteGroup`→204）, `GET ""`
+      （`listGroups`→`List<GroupSummary>`）, `GET "/{id}/members"`（`listGroupMembers`→
+      `List<UserSummary>`）, `POST "/{id}/members"`（`addUserToGroup`→201）, `DELETE
+      "/{id}/members/{userId}"`（`removeUserFromGroup`→204）を生成する
+      （`business-rules.md` 3節のパスパターン）。`adminUserId`は`Authentication#
+      getPrincipal()`キャスト取得（U2/U3のコントローラと同一パターン）。
+- [ ] 5-2. `backend/src/main/java/cherry/mastermeister/permission/
+      PermissionController.java`（`@RestController @RequestMapping("/api/rdbms-connections/
+      {connectionId}/permissions")`）: `PUT ""`（`PermissionUpdateRequest`を受け、`permission`
+      有無で`setPermission`/`setAuxPermission`へ分岐、204。「ブラウンフィールド発見事項」）,
+      `GET "/export"`（`exportPermissionsAsYaml`→`byte[]`、`Content-Type: application/
+      x-yaml`、`Content-Disposition: attachment; filename=...`）, `POST "/import"`
+      （`multipart/form-data`のYAMLファイルを受け`importPermissionsFromYaml`→
+      `ImportResult`）を生成する（`business-rules.md` 3節）。
+- [ ] 5-3. `backend/src/main/java/cherry/mastermeister/config/GlobalExceptionHandler.java`
+      （既存、ブラウンフィールド修正）に`@ExceptionHandler(PermissionYamlFormatException
+      .class)`（400 `PERMISSION_YAML_FORMAT_ERROR`）を追記する（「ブラウンフィールド発見
+      事項」）。
+- [ ] 5-4. `backend/src/main/java/cherry/mastermeister/security/SecurityConfig.java`
+      （既存、ブラウンフィールド修正）を確認する。`/api/groups/**`の`hasRole("ADMIN")`
+      エントリを`anyRequest().authenticated()`より前に追記する。
+      `/api/rdbms-connections/{connectionId}/permissions/**`は既存の
+      `/api/rdbms-connections/**`エントリ（U3）が前方一致で包含するため追加不要であることを
+      確認するのみとする（「サービス境界・責務」参照）。
+
+### Step 6: APIレイヤ単体テスト
+- [ ] 6-1. `GroupControllerTest`（`@WebMvcTest` + `spring-security-test`）: 7エンドポイント
+      それぞれについて管理者成功系・非管理者403・未認証401をexample-basedテストで検証する
+      （U2/U3のControllerTestパターンを踏襲）。
+- [ ] 6-2. `PermissionControllerTest`（`@WebMvcTest` + `spring-security-test`）: 3エンドポイント
+      （権限更新・エクスポート・インポート）それぞれについて管理者成功系・非管理者403・
+      未認証401、およびインポート形式不正時の400をexample-basedテストで検証する。
+
+### Step 7: APIレイヤサマリ
+- [ ] 7-1. `aidlc-docs/construction/u4-permission-management/code/api-layer-summary.md`を
+      生成し、エンドポイント一覧（パス・メソッド・認可要件・リクエスト/レスポンス形状）と
+      エラーレスポンス表（`PERMISSION_YAML_FORMAT_ERROR`含む）を記載する。
+
+### Step 8: リポジトリレイヤ生成
+- [ ] 8-1. `backend/src/main/java/cherry/mastermeister/group/GroupRepository.java`
+      （`JpaRepository<Group, Long>`。`Optional<Group> findByName(String)`）、
+      `GroupMemberRepository.java`（`JpaRepository<GroupMember, Long>`。
+      `Optional<GroupMember> findByGroupIdAndUserId(Long, Long)`,
+      `List<GroupMember> findByGroupId(Long)`, `List<GroupMember> findByUserId(Long)`
+      〈`EffectivePermissionResolver`のグループ合成、`(userId, groupId)`インデックスを利用〉,
+      `void deleteByGroupId(Long)`〈カスケード削除〉）を生成する。
+- [ ] 8-2. `backend/src/main/java/cherry/mastermeister/permission/
+      PermissionAssignmentRepository.java`（`JpaRepository<PermissionAssignment, Long>`。
+      `principalId`起点・`connectionId`起点の検索メソッド一式）、
+      `AuxPermissionAssignmentRepository.java`（同様）を生成する。実際に必要なメソッド
+      シグネチャはStep 2実装時の呼び出し箇所（`EffectivePermissionResolver`の解決クエリ、
+      `PermissionAssignmentService`の全置換・カスケード削除）に合わせて確定する
+      （U3 Step 8と同様、Step 2先行実装との整合を優先）。
+
+### Step 9: リポジトリレイヤ単体テスト
+- [ ] 9-1. `GroupRepositoryTest`/`GroupMemberRepositoryTest`/
+      `PermissionAssignmentRepositoryTest`/`AuxPermissionAssignmentRepositoryTest`
+      （いずれも`@DataJpaTest`、組み込みH2）: 基本CRUD・カスタムクエリメソッド・一意制約
+      違反時の例外発生をexample-basedテストで検証する。
+
+### Step 10: リポジトリレイヤサマリ
+- [ ] 10-1. `aidlc-docs/construction/u4-permission-management/code/
+      repository-layer-summary.md`を生成し、4リポジトリのクエリメソッド一覧とインデックス
+      設計（`GroupMember`の追加インデックス含む、`nfr-design-patterns.md` 4.1）を記載する。
+
+### Step 11: フロントエンドコンポーネント生成
+- [ ] 11-1. `frontend/src/features/group/` に`GroupListPage.tsx`、`GroupTable.tsx`、
+      `GroupDetailPage.tsx`、`GroupMemberTable.tsx`、`api.ts`、`types.ts`を生成する
+      （`frontend-components.md`のコンポーネント階層・data-testid規約に準拠）。
+- [ ] 11-2. `frontend/src/features/permission/` に`PermissionAssignmentPage.tsx`、
+      `ConnectionSelector.tsx`、`PrincipalSelector.tsx`、`PermissionTree.tsx`、
+      `PermissionForm.tsx`、`PermissionYamlPanel.tsx`、`api.ts`（YAMLエクスポートは
+      `blob`ダウンロード、インポートは`FormData`アップロード。トークン取得は`apiClient`の
+      `useAuthStore`を直接参照する形でJSON専用の`apiFetch`をバイパスする——「ブラウン
+      フィールド発見事項」相当のAI決定、Step 2完了後に確定）、`types.ts`を生成する
+      （`frontend-components.md`）。`features/permission/`は`features/group/`の
+      `groupApi.listGroups()`のみを参照する（一方向依存）。
+- [ ] 11-3. `frontend/src/routes/AppRouter.tsx`（既存、ブラウンフィールド修正）:
+      `/admin/groups`, `/admin/groups/:id`, `/admin/permissions`を`ProtectedRoute
+      requiredRole="ADMIN"`配下に追加する。
+- [ ] 11-4. `frontend/src/components/AppLayout.tsx`（既存、ブラウンフィールド修正）に
+      「グループ管理」「権限設定」へのナビゲーションリンクを追加する（管理者ロールのみ
+      表示）。
+
+### Step 12: フロントエンドコンポーネント単体テスト
+- [ ] 12-1. Vitest + React Testing Libraryで`features/group/`（一覧・詳細・所属管理・
+      `groupApi`）のexample-basedテストを生成する。
+- [ ] 12-2. Vitest + React Testing Libraryで`features/permission/`（ツリー選択・フォーム
+      保存・YAMLエクスポート/インポート・`permissionApi`）のexample-basedテストと、
+      `AppRouter`/`AppLayout`への追加ルート・ナビゲーションのテストを生成する。
+
+### Step 13: フロントエンドコンポーネントサマリ
+- [ ] 13-1. `aidlc-docs/construction/u4-permission-management/code/frontend-summary.md`を
+      生成し、`features/group/`・`features/permission/`のコンポーネント一覧・data-testid
+      一覧・追加ルーティングを記載する。
+
+### Step 14: データベースマイグレーションスクリプト
+- [ ] 14-1. **該当なし（N/A）**: U1/U2/U3と同様、内部DB(H2)のスキーマ管理はJPAの自動DDL
+      生成に委ね、Flyway/Liquibase等は導入しない（U1 NFR Design Question 5 = Aを踏襲）。
+
+### Step 15: ドキュメント生成
+- [ ] 15-1. Step 4/7/10/13のサマリに加え、`aidlc-docs/construction/
+      u4-permission-management/code/testing-summary.md`（P1〜P11とテストクラスの対応表、
+      example-basedテスト一覧）を生成する。`docs/PROJECT_STRUCTURE.md`の依存関係表に
+      `group→userregistration`の一方向依存を補記する（「ブラウンフィールド発見事項」）。
+
+### Step 16: デプロイ成果物生成
+- [ ] 16-1. `backend/src/main/resources/application.yml`（既存、ブラウンフィールド修正）に
+      `spring.cache.type: caffeine`、`spring.cache.caffeine.spec`（6キャッシュ共通の
+      `maximumSize`/`expireAfterWrite`既定値、`nfr-design-patterns.md` 1.1）を追記する。
+      本ユニット固有の`mm.app.*`設定キーは既存の`spring.servlet.multipart.max-file-size`
+      既定値をそのまま使うため追加なし（`nfr-requirements.md` 2.2）。
+
+---
+
+## 完了基準
+- 上記全ステップの生成物がワークスペースルート配下に作成され、対応する単体テストが
+  生成されていること（実行・グリーン確認はBuild and Testステージで行う）。
+- P1〜P11全ての性質にjqwik `@Property`テストが対応していること（PBT-02〜PBT-08準拠）。
+- `aidlc-docs/construction/u4-permission-management/code/`配下に5つのサマリドキュメント
+  （business-logic-summary.md, api-layer-summary.md, repository-layer-summary.md,
+  frontend-summary.md, testing-summary.md）が生成されていること。

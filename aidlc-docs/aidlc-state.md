@@ -3,7 +3,7 @@
 ## Project Information
 - **Project Type**: Brownfield
 - **Start Date**: 2026-07-06T10:38:36Z
-- **Current Stage**: CONSTRUCTION - Per-Unit Loop - U4: Permission Management - NFR Design Step 6 artifacts generated (nfr-design-patterns.md, logical-components.md), awaiting user review/approval.
+- **Current Stage**: CONSTRUCTION - Per-Unit Loop - U4: Permission Management - NFR Design approved, starting Code Generation Step 1 (planning).
 
 ## Execution Plan Summary
 - **Plan Document**: aidlc-docs/inception/plans/execution-plan.md
@@ -56,7 +56,7 @@ Infrastructure Design is SKIP for all units (execution-plan.md: no new infra bey
 | U1: Platform Foundation | [x] approved 2026-07-07T22:27:00Z | [x] approved 2026-07-08T08:10:00Z | [x] approved 2026-07-08T08:30:00Z | SKIP | [x] approved 2026-07-08T23:45:00Z |
 | U2: Auth & User Registration | [x] approved 2026-07-09T09:30:00Z | [x] approved 2026-07-09T10:10:00Z | [x] approved 2026-07-09T10:45:00Z | SKIP | [x] approved 2026-07-09T22:42:00Z |
 | U3: RDBMS Connection & Schema Import | [x] approved 2026-07-10T02:00:00Z | [x] approved 2026-07-10T03:25:00Z | [x] approved 2026-07-10T12:45:00Z | SKIP | [x] approved 2026-07-10T21:00:00Z |
-| U4: Permission Management | [x] approved 2026-07-11T09:30:00Z | [x] approved 2026-07-11T11:00:00Z | [ ] | SKIP | [ ] |
+| U4: Permission Management | [x] approved 2026-07-11T09:30:00Z | [x] approved 2026-07-11T11:00:00Z | [x] approved 2026-07-11T09:25:00Z | SKIP | [ ] |
 | U5: Master Data Maintenance | [ ] | [ ] | [ ] | SKIP | [ ] |
 | U6: Query Builder | [ ] | [ ] | [ ] | SKIP | [ ] |
 | U7: Saved Query / Execution / History | [ ] | [ ] | [ ] | SKIP | [ ] |
