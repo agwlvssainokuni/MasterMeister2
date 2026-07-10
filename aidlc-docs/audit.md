@@ -1133,3 +1133,11 @@
 
 ---
 
+## CONSTRUCTION - U3 Code Generation - Part 2 Item 4-1
+**Timestamp**: 2026-07-10T17:48:00Z
+**User Input**: "続行する" (continuation choice after item 3-8, via AskUserQuestion)
+**AI Response**: Generated `aidlc-docs/construction/u3-rdbms-connection-schema-import/code/business-logic-summary.md`, following U2's precedent structure (generated-class table, generated-test-class table, P1-N mapping table, supplementary notes, known issues). Compiled the class list from all 13 Step 2 items (2-1 through 2-12, including 2-3's no-op confirmation) across `common.dialect` (brownfield `buildJdbcUrl` extension), `rdbmsconnection`, and `schema` packages, and the 5 Step 3 test classes with their verification approach (`EncryptedStringConverterTest`/`RdbmsConnectionServiceTest`/`ConnectionPoolRegistryTest` as plain-Mockito-or-POJO, `SchemaImportServiceTest`/`SchemaQueryServiceTest` as mixed Mockito-fake-plus-real-H2 and `@DataJpaTest`). Built the P1-P12 mapping table referencing each property's exact wording from `business-logic-model.md` plus P12 (newly identified in this Code Generation plan, not present in Functional Design). Added a supplementary note explaining why P10/P12 specifically required upgrading the temporary untracked repository stubs to real `JpaRepository` extensions with `@DataJpaTest`-backed queries (Spring Data JPA derived-query and transactional-rollback correctness can't be verified by hand-written Java-side fakes). Documented the known, expected `compileJava`-alone failure state (3 repository types still pending Step 8) as unit-specific rather than reusing U2's unrelated `contextLoads()` known-issue text. Marked plan item 4-1 `[x]` with an implementation note — this completes Step 4 (business logic summary) in full.
+**Context**: Per-Unit Loop, U3 Code Generation Part 2, Step 4 item 4-1 complete — Step 4 fully done. Committing, then asking user whether to continue to Step 5 item 5-1 (`RdbmsConnectionController` generation) or pause.
+
+---
+
