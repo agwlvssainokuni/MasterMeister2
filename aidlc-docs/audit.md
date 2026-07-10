@@ -1285,3 +1285,11 @@
 
 ---
 
+## CONSTRUCTION - U3 Code Generation - Part 2 Item 11-1
+**Timestamp**: 2026-07-10T19:15:00Z
+**User Input**: "続行してください。"（中断後の再開指示。`/compact`によるコンテキスト圧縮を挟んだ後の最初のメッセージ）
+**AI Response**: `frontend/src/features/rdbmsConnection/`に5ファイルを生成。`types.ts`（`RdbmsType`/`ConnectionSummary`/`ConnectionDetail`/`ConnectionConfig`/`ConnectionTestResult`）、`api/connectionApi.ts`（`createConnection`/`updateConnection`/`listConnections`/`getConnection`/`testConnection`〈TS関数オーバーロードで設定値版・接続ID版を単一エクスポート名に束ねる〉）、`ConnectionFormPage.tsx`（新規登録/編集共用、`mode` prop、編集時`getConnection`で初期値取得もパスワード欄は常に空欄——`RdbmsConnectionService.updateConnection`実装を確認し空欄保存で変更なしとなることを裏付けた上での設計、指定11個の`data-testid`全配置）、`ConnectionTable.tsx`（`DataTable`利用、編集は`Link`遷移、接続テスト/スキーマ取り込みはコールバックpropに委譲）、`ConnectionListPage.tsx`（マウント時`listConnections`、接続テスト結果を`ToastNotification`で通知、新規登録は`Link`遷移、`handleImportSchema`はStep 11-2で`SchemaImportPanel`と実結線するまでのプレースホルダとしてコメント付きで実装）。`AppRouter.tsx`/`AppLayout.tsx`修正は11-3/11-4のスコープのため本項目では未変更。`cd frontend && npx oxlint`・`npx tsc -b`をいずれも実行しエラーなしを確認。
+**Context**: Per-Unit Loop, U3 Code Generation Part 2, Step 11 item 11-1完了。コミット後、item 11-2（schemaフロントエンド生成）へ進むか確認予定。
+
+---
+
