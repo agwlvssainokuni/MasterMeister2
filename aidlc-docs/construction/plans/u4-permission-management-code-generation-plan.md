@@ -756,9 +756,23 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
       `findByPrincipalTypeAndPrincipalIdAndConnectionId`の経緯も記載した。
 
 ### Step 11: フロントエンドコンポーネント生成
-- [ ] 11-1. `frontend/src/features/group/` に`GroupListPage.tsx`、`GroupTable.tsx`、
+- [x] 11-1. `frontend/src/features/group/` に`GroupListPage.tsx`、`GroupTable.tsx`、
       `GroupDetailPage.tsx`、`GroupMemberTable.tsx`、`api.ts`、`types.ts`を生成する
       （`frontend-components.md`のコンポーネント階層・data-testid規約に準拠）。
+      実装メモ: U3の`rdbmsConnection`（一覧+編集ページ分離）・U2の`userRegistration`
+      （`PendingUsersPage`/`PendingUsersTable`のトースト通知＋`ConfirmDialog`パターン）を
+      テンプレートに、`DataTable`・`ConfirmDialog`・`ToastNotification`（いずれもU1）を
+      再利用して実装した。`GroupTable`は行内インライン編集（`useState`で`renamingGroupId`
+      管理）で名称変更、`ConfirmDialog`で削除確認（カスケード削除の影響を確認文言に含める、
+      frontend-components.md 37-38行）。`GroupDetailPage`は`GroupSummary`単体取得APIが
+      存在しない（`GroupController`は`listGroups`のみ）ため、`groupApi.listGroups()`を
+      呼び出しURLパラメータの`id`でクライアント側フィルタする方式とした（バックエンド変更
+      なしでの対応、ブラウンフィールド発見事項相当のAI決定）。「所属ユーザ追加」は
+      `frontend-components.md`が「詳細はCode Generationで確定する」としていたメール
+      アドレス検索の代替として、既存バックエンドにユーザ検索API（`RegistrationController`は
+      `/pending`のみで承認済みユーザの一覧・検索エンドポイントを持たない）が存在しないため
+      数値のユーザID直接入力とした（`GroupMemberAddRequest(Long userId)`に整合）。
+      `tsc -b --noEmit`・`npm run lint`（oxlint）ともにエラーなし。
 - [ ] 11-2. `frontend/src/features/permission/` に`PermissionAssignmentPage.tsx`、
       `ConnectionSelector.tsx`、`PrincipalSelector.tsx`、`PermissionTree.tsx`、
       `PermissionForm.tsx`、`PermissionYamlPanel.tsx`、`api.ts`（YAMLエクスポートは

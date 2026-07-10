@@ -2022,3 +2022,29 @@ repository-layer-summary.md`を新規生成した。U3の`repository-layer-summa
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U4: Permission Management - Code Generation Step 10完了確認
+**Timestamp**: 2026-07-11T19:20:00Z
+**User Input**: [AskUserQuestion回答] "中断"（質問: "Step 10（repository-layer-summary.md生成、コミット9039bfe）が完了しました。次はStep 11（フロントエンドコンポーネント生成、item 11-1：features/group/のページ/テーブルコンポーネント）に進んでよいですか？以降11-2（features/permission/）、11-3（AppRouter修正）、11-4（AppLayout修正）とitem単位で進めます。"）
+**AI Response**: ユーザが明示的に中断を選択したため、Step 11の着手を保留し、次の「続行してください」等の再開指示を待機する状態で応答を終了した。
+**Context**: Per-Unit Loop、U4 Code Generation Step 10完了・Step 11未着手のまま待機。
+
+---
+
+## CONSTRUCTION - Per-Unit Loop - U4: Permission Management - Code Generation Step 11 item 11-1
+**Timestamp**: 2026-07-11T20:05:00Z
+**User Input**: "続行してください。"
+**AI Response**: `frontend-components.md`（U4）を再読し、U3の`rdbmsConnection`（一覧+編集ページ分離）・
+U2の`userRegistration`（`PendingUsersPage`/`PendingUsersTable`のトースト通知＋`ConfirmDialog`
+パターン）をテンプレートとして`frontend/src/features/group/`に`types.ts`・`api.ts`・
+`GroupListPage.tsx`・`GroupTable.tsx`・`GroupDetailPage.tsx`・`GroupMemberTable.tsx`を生成した。
+`DataTable`・`ConfirmDialog`・`ToastNotification`（いずれもU1）を再利用。`GroupTable`は行内
+インライン編集で名称変更、削除は`ConfirmDialog`確認（カスケード削除の影響を文言に含める）。
+`GroupDetailPage`は単一グループ取得APIが存在しないため`listGroups()`をクライアント側で
+`id`フィルタする方式とし、「所属ユーザ追加」はメールアドレス検索APIが存在しないため
+ユーザID直接入力とした（いずれもブラウンフィールド発見事項相当のAI決定として計画書item
+11-1の実装メモに記載）。`tsc -b --noEmit`・`npm run lint`（oxlint）を実行しいずれもエラー
+なしを確認。計画書item 11-1を`[x]`に更新。
+**Context**: Per-Unit Loop、U4 Code Generation Step 11 item 11-1（features/group/生成）完了。
+
+---
+
