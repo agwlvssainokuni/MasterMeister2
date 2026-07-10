@@ -1245,3 +1245,11 @@
 
 ---
 
+## CONSTRUCTION - U3 Code Generation - Part 2 Item 8-3
+**Timestamp**: 2026-07-10T18:33:00Z
+**User Input**: "続行してください。" (resume signal after `/compact`)
+**AI Response**: Replaced the previously-untracked stub `backend/src/main/java/cherry/mastermeister/schema/SchemaColumnRepository.java` with the official, committed version, adding the Apache License 2.0 header. Verified via `grep` that the plan's originally-envisioned `findByTableIdAndStaleFalseOrderByOrdinalPositionAsc` is not actually used anywhere: `SchemaQueryService.getTableDetail` calls `findByTableIdAndStaleFalse` and sorts the result in-memory via `Comparator.comparing(SchemaColumn::getPrimaryKeySequence, Comparator.nullsLast(...))`; `SchemaImportService` calls `findByTableIdAndColumnName` and `findByTableId`. The existing untracked stub's method set (`findByTableIdAndStaleFalse`, `findByTableIdAndColumnName`, `findByTableId`) already matched actual usage exactly, so only the license header was added, no method changes. `./gradlew compileJava`: `BUILD SUCCESSFUL`. Marked plan item 8-3 `[x]`. This completes Step 8 — all 3 repository interfaces (`RdbmsConnectionRepository`, `SchemaTableRepository`, `SchemaColumnRepository`) are now officially generated and committed; no untracked stub files remain.
+**Context**: Per-Unit Loop, U3 Code Generation Part 2, Step 8 item 8-3 complete (Step 8 fully done). Committing, then asking user whether to continue to Step 9 item 9-1 (repository layer unit tests) or pause.
+
+---
+
