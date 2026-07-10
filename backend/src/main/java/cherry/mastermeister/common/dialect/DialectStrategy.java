@@ -31,4 +31,6 @@ public interface DialectStrategy {
 
     SchemaResolutionMode getSchemaResolutionMode();
 
+    String buildJdbcUrl(String host, int port, String databaseName);
+
 }

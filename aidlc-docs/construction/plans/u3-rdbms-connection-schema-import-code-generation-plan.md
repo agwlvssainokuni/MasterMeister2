@@ -119,9 +119,10 @@ U1（Platform Foundation）のみに依存（`unit-of-work-dependency.md`）:
       `runtimeOnly("com.h2database:h2")`を再利用、追記不要）。
 
 ### Step 2: ビジネスロジック生成
-- [ ] 2-1. `backend/src/main/java/cherry/mastermeister/common/dialect/DialectStrategy.java`
+- [x] 2-1. `backend/src/main/java/cherry/mastermeister/common/dialect/DialectStrategy.java`
       （既存、ブラウンフィールド修正）に`String buildJdbcUrl(String host, int port, String
       databaseName)`を追加（「ブラウンフィールド発見事項」参照、`business-rules.md` 1.3）。
+      インターフェースにメソッドシグネチャを追加した（実装は2-2で対応）。
 - [ ] 2-2. `MySqlDialectStrategy`/`MariaDbDialectStrategy`/`PostgreSqlDialectStrategy`/
       `H2DialectStrategy`（既存、ブラウンフィールド修正）に`buildJdbcUrl`を実装:
       `jdbc:mysql://{host}:{port}/{databaseName}`,

@@ -917,3 +917,11 @@
 
 ---
 
+## CONSTRUCTION - U3 Code Generation - Part 2 Resumed, Item 2-1
+**Timestamp**: 2026-07-10T13:35:00Z
+**User Input**: "続行してください。"
+**AI Response**: Resumed per-item workflow. Added `String buildJdbcUrl(String host, int port, String databaseName)` to the `DialectStrategy` interface (`backend/src/main/java/cherry/mastermeister/common/dialect/DialectStrategy.java`, existing file, brownfield modification — signature only; implementations deferred to item 2-2). Marked plan item 2-1 `[x]`.
+**Context**: Per-Unit Loop, U3 Code Generation Part 2, Step 2 item 2-1 complete. Committing, then asking user whether to continue to item 2-2 (implement `buildJdbcUrl` in the 4 dialect strategy classes).
+
+---
+
