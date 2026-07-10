@@ -61,6 +61,24 @@ describe('AppRouter', () => {
     expect(screen.getByTestId('login-page')).toBeInTheDocument()
   })
 
+  it('redirects to /login when accessing /admin/groups while unauthenticated', () => {
+    renderAt('/admin/groups')
+
+    expect(screen.getByTestId('login-page')).toBeInTheDocument()
+  })
+
+  it('redirects to /login when accessing /admin/groups/:id while unauthenticated', () => {
+    renderAt('/admin/groups/1')
+
+    expect(screen.getByTestId('login-page')).toBeInTheDocument()
+  })
+
+  it('redirects to /login when accessing /admin/permissions while unauthenticated', () => {
+    renderAt('/admin/permissions')
+
+    expect(screen.getByTestId('login-page')).toBeInTheDocument()
+  })
+
   it('renders the AppLayout navigation for authenticated routes', () => {
     useAuthStore.setState({
       currentUser: { id: 1, email: 'user@example.com', role: 'USER' },

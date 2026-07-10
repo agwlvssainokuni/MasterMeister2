@@ -45,6 +45,11 @@ describe('AppLayout', () => {
       'href',
       '/admin/rdbms-connections',
     )
+    expect(screen.getByTestId('app-layout-nav-groups')).toHaveAttribute('href', '/admin/groups')
+    expect(screen.getByTestId('app-layout-nav-permissions')).toHaveAttribute(
+      'href',
+      '/admin/permissions',
+    )
   })
 
   it('hides the admin-only links for an authenticated non-admin user', () => {
@@ -59,6 +64,8 @@ describe('AppLayout', () => {
     expect(screen.queryByTestId('app-layout-nav-pending-users')).not.toBeInTheDocument()
     expect(screen.queryByTestId('app-layout-nav-audit-logs')).not.toBeInTheDocument()
     expect(screen.queryByTestId('app-layout-nav-rdbms-connections')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('app-layout-nav-groups')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('app-layout-nav-permissions')).not.toBeInTheDocument()
   })
 
   it('hides the admin-only links when unauthenticated', () => {
@@ -67,5 +74,7 @@ describe('AppLayout', () => {
     expect(screen.queryByTestId('app-layout-nav-pending-users')).not.toBeInTheDocument()
     expect(screen.queryByTestId('app-layout-nav-audit-logs')).not.toBeInTheDocument()
     expect(screen.queryByTestId('app-layout-nav-rdbms-connections')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('app-layout-nav-groups')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('app-layout-nav-permissions')).not.toBeInTheDocument()
   })
 })

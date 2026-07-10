@@ -836,9 +836,32 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
       グループ名表示・所属ユーザ一覧、ユーザID追加の成功/失敗トースト、削除、計4件）。
       計18件すべて成功。`tsc -b --noEmit`・`npm run lint`（oxlint）ともにエラーなし。
       全体`vitest run`（34ファイル・132件）で退行がないことを確認した。
-- [ ] 12-2. Vitest + React Testing Libraryで`features/permission/`（ツリー選択・フォーム
+- [x] 12-2. Vitest + React Testing Libraryで`features/permission/`（ツリー選択・フォーム
       保存・YAMLエクスポート/インポート・`permissionApi`）のexample-basedテストと、
       `AppRouter`/`AppLayout`への追加ルート・ナビゲーションのテストを生成する。
+      実装メモ: `features/permission/`配下に6件のテストファイルを生成した：
+      `ConnectionSelector.test.tsx`（一覧表示・選択、計2件）、
+      `PrincipalSelector.test.tsx`（USERタブ既定・ID送信、GROUPタブ切替・一覧・選択、
+      USERタブ中は`listGroups`未呼び出し、計3件）、
+      `PermissionTree.test.tsx`（スキーマ即時ロード、スキーマ選択コールバック、
+      テーブル遅延ロード、カラム遅延ロード、カラム選択コールバック、計5件）、
+      `PermissionForm.test.tsx`（`currentPermission=null`時のNONE/未チェック初期化、
+      テーブルレベルでの補助権限フィールド表示・カラムレベルでの非表示、
+      テーブルレベル送信時の`setPermission`+`setAuxPermission`×2呼び出し、
+      カラムレベル送信時は`setAuxPermission`が呼ばれないこと、保存失敗時のエラー表示、
+      計5件）、`PermissionYamlPanel.test.tsx`（`URL.createObjectURL`/
+      `HTMLAnchorElement.prototype.click`を`vi.stubGlobal`/`vi.spyOn`でスタブ化した
+      エクスポート、インポート成功、インポート失敗、計3件）、
+      `PermissionAssignmentPage.test.tsx`（接続選択後のツリー/YAMLパネル表示と
+      フォーム非表示、principal+ノード選択後のフォーム表示、接続切替によるフォーム再非表示、
+      計3件）。あわせて`AppRouter.test.tsx`に`/admin/groups`・`/admin/groups/:id`・
+      `/admin/permissions`の未認証時ログインリダイレクトテスト3件を追加し、
+      `AppLayout.test.tsx`の既存3テストに「グループ管理」「権限設定」リンクの
+      表示/非表示アサーションを追加した（新規テストファイルの追加ではなく既存ファイルの
+      拡張）。計21件の新規テストと8件の拡張アサーションすべて成功。`tsc -b --noEmit`・
+      `npm run lint`（oxlint）ともにエラーなし。全体`vitest run`（40ファイル・156件）で
+      退行がないことを確認した。これによりStep 12（フロントエンドコンポーネント単体テスト）
+      は全2項目完了。
 
 ### Step 13: フロントエンドコンポーネントサマリ
 - [ ] 13-1. `aidlc-docs/construction/u4-permission-management/code/frontend-summary.md`を
