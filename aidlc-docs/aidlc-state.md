@@ -3,7 +3,7 @@
 ## Project Information
 - **Project Type**: Brownfield
 - **Start Date**: 2026-07-06T10:38:36Z
-- **Current Stage**: CONSTRUCTION - Per-Unit Loop - U4: Permission Management - Functional Design - Step 6 artifacts generated and revised per Step 8 review feedback (`aidlc-docs/construction/u4-permission-management/functional-design/`: domain-entities.md, business-rules.md updated 2.6 to add U3 schema re-import as a cache-invalidation trigger, business-logic-model.md with PBT-01 P1-P11, frontend-components.md), awaiting user review/approval (Step 8).
+- **Current Stage**: CONSTRUCTION - Per-Unit Loop - U4: Permission Management - Functional Design APPROVED 2026-07-11T09:30:00Z. NFR Requirements started: plan created at `aidlc-docs/construction/plans/u4-permission-management-nfr-requirements-plan.md` (5 questions: EffectivePermissionResolver caching tech, U3→U4 cache-invalidation notification mechanism, YAML import parsing library/size limit, concurrent write locking, YAML validation error detail level), awaiting user answers.
 
 ## Execution Plan Summary
 - **Plan Document**: aidlc-docs/inception/plans/execution-plan.md
@@ -56,7 +56,7 @@ Infrastructure Design is SKIP for all units (execution-plan.md: no new infra bey
 | U1: Platform Foundation | [x] approved 2026-07-07T22:27:00Z | [x] approved 2026-07-08T08:10:00Z | [x] approved 2026-07-08T08:30:00Z | SKIP | [x] approved 2026-07-08T23:45:00Z |
 | U2: Auth & User Registration | [x] approved 2026-07-09T09:30:00Z | [x] approved 2026-07-09T10:10:00Z | [x] approved 2026-07-09T10:45:00Z | SKIP | [x] approved 2026-07-09T22:42:00Z |
 | U3: RDBMS Connection & Schema Import | [x] approved 2026-07-10T02:00:00Z | [x] approved 2026-07-10T03:25:00Z | [x] approved 2026-07-10T12:45:00Z | SKIP | [x] approved 2026-07-10T21:00:00Z |
-| U4: Permission Management | [ ] | [ ] | [ ] | SKIP | [ ] |
+| U4: Permission Management | [x] approved 2026-07-11T09:30:00Z | [ ] | [ ] | SKIP | [ ] |
 | U5: Master Data Maintenance | [ ] | [ ] | [ ] | SKIP | [ ] |
 | U6: Query Builder | [ ] | [ ] | [ ] | SKIP | [ ] |
 | U7: Saved Query / Execution / History | [ ] | [ ] | [ ] | SKIP | [ ] |

@@ -1470,3 +1470,26 @@
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U4: Permission Management - Functional Design (Step 8/9 承認)
+**Timestamp**: 2026-07-11T09:30:00Z
+**User Input**: "承認します。次はNFR Requirementsへ進んでください。"
+**AI Response**: U4 Functional Design（修正版、`business-rules.md` 2.6のU3連携追記・PBT P11含む）を承認として記録。`aidlc-docs/aidlc-state.md`のStage Progress表でU4 Functional Designセルを`[x] approved 2026-07-11T09:30:00Z`に更新。続けてNFR Requirementsステージを開始する。
+**Context**: Per-Unit Loop、U4 Functional Design完了（Step 9）。次はU4 NFR Requirements。
+
+---
+
+## CONSTRUCTION - Per-Unit Loop - U4: Permission Management - NFR Requirements (Step 1-4 プラン作成)
+**Timestamp**: 2026-07-11T09:35:00Z
+**User Input**: （前エントリと同一の"次はNFR Requirementsへ進んでください。"を受けて実行）
+**AI Response**: `construction/nfr-requirements.md`のStep 1-4に従い、U4 Functional Design成果物（`domain-entities.md`/`business-rules.md`/`business-logic-model.md`/`frontend-components.md`）とU1/U3のNFR Requirements先例を分析し、`aidlc-docs/construction/plans/u4-permission-management-nfr-requirements-plan.md`を作成した。5問構成:
+- Q1: `EffectivePermissionResolver`のキャッシュ実装方式（Tech Stack/Performance）
+- Q2: U3`SchemaImportService.importSchema`からのキャッシュ無効化通知方式（Tech Stack、パッケージ依存方向を保つ実装方式）
+- Q3: YAMLインポートのパースライブラリ・アップロードサイズ方針（Security/Tech Stack）
+- Q4: 権限データ書き込みの同時実行制御（Reliability）
+- Q5: YAMLインポート検証失敗時のエラーメッセージ詳細度（Security、U3 Question 6と同種の論点）
+
+Scalability/Availability/Usability/Maintainablityは本ユニット固有の新規論点なしと判断しU1のNFR Requirementsを再利用（個別質問なし）。
+**Context**: Per-Unit Loop、U4 NFR Requirements Step 1-4完了。ユーザの回答待ち（Step 5）。
+
+---
+
