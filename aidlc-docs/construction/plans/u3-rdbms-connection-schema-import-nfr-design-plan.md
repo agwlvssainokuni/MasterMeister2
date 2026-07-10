@@ -46,11 +46,16 @@ U3は **実行（EXECUTE）** と判定。
 バックグラウンド処理から並行アクセスされうるため、キャッシュのデータ構造・排他制御方式が
 未確定。
 
-A. `ConcurrentHashMap<Long, HikariDataSource>`を用い、`computeIfAbsent`で遅延生成する
-   （生成処理自体は`ConcurrentHashMap`が同一キーに対して排他的に実行することを保証するため、
-   同一`connectionId`に対して二重にプールが生成される競合を防げる）。`invalidate(connectionId)`は
-   `remove`＋取得済み`HikariDataSource`の`close()`を行う（推奨。追加の同期プリミティブを
-   自前実装する必要がなく、JDK標準APIの保証のみで正しさを担保できる）
+A. `ConnectionPoolRegistry`をSpringのシングルトンスコープ（`@Component`のデフォルトスコープ）の
+   Beanとし、アプリケーション全体で単一インスタンスがキャッシュを保持する（キャッシュ機構が
+   有効に機能するための前提条件。prototype等の他スコープでは注入のたびに空のマップを持つ別
+   インスタンスが生成され、同一`connectionId`に対して複数のプールが並行生成されてしまう）。
+   キャッシュ本体は`ConcurrentHashMap<Long, HikariDataSource>`を用い、`computeIfAbsent`で
+   遅延生成する（生成処理自体は`ConcurrentHashMap`が同一キーに対して排他的に実行することを
+   保証するため、同一`connectionId`に対して二重にプールが生成される競合を防げる）。
+   `invalidate(connectionId)`は`remove`＋取得済み`HikariDataSource`の`close()`を行う
+   （推奨。追加の同期プリミティブを自前実装する必要がなく、JDK標準APIの保証のみで正しさを
+   担保できる）
 B. `HashMap`＋明示的な`synchronized`ブロックで排他制御する
 C. その他（具体的な実装方式を指定）
 
@@ -61,21 +66,34 @@ C. その他（具体的な実装方式を指定）
 ## Question 2: Logical Components — 主要コンポーネントのパッケージ配置
 
 `EncryptedStringConverter`・`ConnectionPoolRegistry`・`SchemaImportService`の配置パッケージを
-確認したい。`ConnectionPoolRegistry`は将来的にU5（Master Data Maintenance）・U6（Query Builder）
+確認したい。`docs/PROJECT_STRUCTURE.md`（Application Designで確定済み）は`rdbmsconnection/`
+（5.2 対象RDBMS接続情報管理）と`schema/`（5.2 スキーマ取込）を別パッケージとして明示しており、
+`domain-entities.md`も「rdbmsconnectionドメイン」「schemaドメイン」の2ドメインに分けて記述して
+いる。`ConnectionPoolRegistry`は将来的にU5（Master Data Maintenance）・U6（Query Builder）
 からも対象RDBMSへの`DataSource`/`NamedParameterJdbcTemplate`取得のために参照される見込み
 （`business-logic-model.md`フロー3、4項）だが、U1の`DialectStrategy`が`common.dialect`に
 置かれている（複数ユニットが対等に実装を追加する拡張ポイントであるため）のとは事情が異なる。
 
-A. `EncryptedStringConverter`・`ConnectionPoolRegistry`・`SchemaImportService`はいずれも
-   `cherry.mastermeister.rdbmsconnection`パッケージに配置する（`RdbmsConnection`エンティティの
-   ライフサイクルを所有するパッケージに、それに付随する暗号化・プール管理・スキーマ取り込みの
-   道具も集約する）。U5/U6は`ConnectionPoolRegistry`を単一実装のサービスとしてこのパッケージから
-   参照する。`DialectStrategy`のように複数ユニットが実装を追加する拡張ポイントではなく、U3が
-   所有する単一のサービスをU5/U6が利用する関係であるため、`common`への配置は行わない（推奨。
-   U2の`AdminBootstrapRunner`が「エンティティのライフサイクルを所有するパッケージに置く」と
-   判断した基準と一貫する）
-B. `common`パッケージに配置する（複数ユニットから参照されるため）
-C. その他（具体的な配置方針を指定）
+A. `EncryptedStringConverter`・`ConnectionPoolRegistry`（および`RdbmsConnectionService`）は
+   `cherry.mastermeister.rdbmsconnection`パッケージに、`SchemaImportService`・
+   `SchemaQueryService`は`cherry.mastermeister.schema`パッケージに配置する
+   （`docs/PROJECT_STRUCTURE.md`・`domain-entities.md`の2ドメイン分割と一致させる）。
+   依存方向は`schema → rdbmsconnection`の一方向のみ（`SchemaImportService`が
+   `ConnectionPoolRegistry`を参照して対象RDBMSへの接続を取得する）。`rdbmsconnection`
+   パッケージ側は`schema`パッケージの何も参照しない（`SchemaTable.connectionId`は単なる
+   `Long`型FKであり`RdbmsConnection`エンティティへの`@ManyToOne`参照ではないため、
+   エンティティレベルでも依存が発生しない）。したがって循環参照は生じない。U5/U6は
+   `ConnectionPoolRegistry`を単一実装のサービスとして`rdbmsconnection`パッケージから直接
+   参照する（`DialectStrategy`のように複数ユニットが実装を追加する拡張ポイントではなく、
+   U3が所有する単一のサービスをU5/U6が利用する関係であるため、`common`への配置は行わない）
+   （推奨）
+B. `EncryptedStringConverter`・`ConnectionPoolRegistry`・`SchemaImportService`をいずれも
+   `cherry.mastermeister.rdbmsconnection`パッケージに統合配置する（`schema`パッケージには
+   `SchemaTable`/`SchemaColumn`等のエンティティのみを置く）。単一パッケージ内で完結するため
+   循環参照の懸念自体は生じないが、`docs/PROJECT_STRUCTURE.md`の`schema/`パッケージ定義
+   （5.2 スキーマ取込）と役割が食い違う
+C. `common`パッケージに配置する（複数ユニットから参照されるため）
+D. その他（具体的な配置方針を指定）
 
 [Answer]: A
 
@@ -102,23 +120,43 @@ C. その他（具体的な実装方式を指定）
 
 ---
 
-## Question 4: Reliability — importSchemaの`@Transactional`適用範囲
+## Question 4: Reliability — importSchemaのメタデータ読み取り方式と`@Transactional`適用範囲
 
 `nfr-requirements.md` 3.2・`business-rules.md` 2.3で`importSchema`全体を単一トランザクション・
 全ロールバックとすると決定済み。対象RDBMSからのメタデータ読み取り（JDBC、内部DBのJPA
 トランザクションとは無関係）と内部DBへのupsert（JPA、トランザクショナル）が1つのメソッド内に
-混在するため、`@Transactional`の適用範囲を確認したい。
+混在するため、`@Transactional`の適用範囲を確認したい。また、メタデータ読み取り自体の実現方式
+（`business-rules.md` 2.1で`DialectStrategy.getSchemaResolutionMode()`の解釈に従うとのみ
+決定済みで、具体的な取得APIや`SchemaResolutionMode`の列挙値はU1のどの成果物にも未文書化）を
+この機会に確定したい。
 
-A. `SchemaImportService.importSchema(connectionId)`メソッド全体に`@Transactional`を付与する。
-   対象RDBMSからのメタデータ読み取り（JDBC経由、内部DBのトランザクションとは独立した接続）は
-   実行してもロールバック対象にはならないが、副作用のない読み取り専用操作であるため問題ない。
-   内部DBへの全upsert操作（`SchemaTable`/`SchemaColumn`の作成・更新・stale化）が単一トランザクション
-   内で行われることが本質的な要件であり、メソッド全体に付与することで読み取り中に発生した例外も
-   そのままロールバックのトリガーとして機能する（推奨。分割するとトランザクション境界の管理が
+A. **読み取り方式**: 標準JDBC APIの`java.sql.DatabaseMetaData`（`Connection.getMetaData()`で
+   取得、全JDBCドライバが実装する標準インタフェース）の`getTables`/`getColumns`/
+   `getPrimaryKeys`を用いる。DBMS固有のドライバクラスは扱わない。`catalog`/`schema`
+   パラメータの意味づけがDBMSにより異なる（MySQL/MariaDBは真のスキーマ概念を持たず
+   `catalog`＝データベース名、PostgreSQL/H2は`catalog`固定＋複数の`schema`が存在しうる）ため、
+   `DialectStrategy.getSchemaResolutionMode()`は次の2値を持つ`SchemaResolutionMode`
+   （`common.dialect`パッケージ）を返すと定義する:
+   - `CATALOG_AS_SCHEMA`（MySQL/MariaDB）: `getTables(catalog =
+     RdbmsConnection.databaseName, schema = null, ...)`で取得し、
+     `SchemaTable.schemaName`には`RdbmsConnection.databaseName`をそのまま設定する
+     （スキーマの列挙は行わない、常に1件）。
+   - `NATIVE_SCHEMA`（PostgreSQL/H2）: まず`getSchemas(catalog, schemaPattern = null)`で
+     接続先データベース内の全スキーマ名を列挙し、各スキーマごとに`getTables(catalog, schema
+     = 対象スキーマ名, ...)`を呼び出す。
+   **`@Transactional`適用範囲**: `SchemaImportService.importSchema(connectionId)`メソッド
+   全体に`@Transactional`を付与する。対象RDBMSからのメタデータ読み取り（上記、内部DBの
+   トランザクションとは独立した接続）は実行してもロールバック対象にはならないが、副作用の
+   ない読み取り専用操作であるため問題ない。内部DBへの全upsert操作
+   （`SchemaTable`/`SchemaColumn`の作成・更新・stale化）が単一トランザクション内で行われる
+   ことが本質的な要件であり、メソッド全体に付与することで読み取り中に発生した例外もそのまま
+   ロールバックのトリガーとして機能する（推奨。分割するとトランザクション境界の管理が
    複雑になるだけでメリットがない）
 B. 内部DB更新部分のみを別メソッドに切り出し、そこにのみ`@Transactional`を付与する
-   （メタデータ読み取りはトランザクション外で行う）
-C. その他（具体的な適用範囲を指定）
+   （メタデータ読み取りはトランザクション外で行う）。読み取り方式自体はAと同じ
+   （`DatabaseMetaData` + `SchemaResolutionMode`の2値）とする
+C. その他（読み取り方式・トランザクション適用範囲のいずれか、または両方について
+   具体的な方式を指定）
 
 [Answer]: A
 
