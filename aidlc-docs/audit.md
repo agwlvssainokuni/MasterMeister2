@@ -1157,3 +1157,11 @@
 
 ---
 
+## CONSTRUCTION - U3 Code Generation - Part 2 Item 5-2
+**Timestamp**: 2026-07-10T18:03:00Z
+**User Input**: "続行する" (continuation choice after item 5-1, via AskUserQuestion)
+**AI Response**: Generated `backend/src/main/java/cherry/mastermeister/schema/SchemaController.java` (`@RestController @RequestMapping("/api/rdbms-connections/{connectionId}")`), with `connectionId` shared as a class-level path variable across all 4 endpoints: `POST "/schema-import"` (`importSchema`→`SchemaImportResult`, `adminUserId` via `Authentication#getPrincipal()` same as item 5-1), `GET "/schemas"` (`listSchemas`→`List<String>`), `GET "/schemas/{schema}/tables"` (`listTables`→`List<TableMetadata>`), `GET "/schemas/{schema}/tables/{table}"` (`getTableDetail`→`TableDetail`). All 4 delegate to `SchemaImportService`/`SchemaQueryService` with no controller-side logic. Ran `./gradlew compileJava`: `BUILD SUCCESSFUL`. Marked plan item 5-2 `[x]` with an implementation note.
+**Context**: Per-Unit Loop, U3 Code Generation Part 2, Step 5 item 5-2 complete. Committing, then asking user whether to continue to item 5-3 (`SecurityConfig` modification) or pause.
+
+---
+
