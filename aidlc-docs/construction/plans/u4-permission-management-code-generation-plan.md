@@ -418,10 +418,40 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
       `./gradlew compileJava compileTestJava`成功、
       `./gradlew test --tests PermissionAssignmentServiceTest`で2件とも成功
       （failures=0, errors=0）を確認。
-- [ ] 3-3. **P4**（export→importのRound-trip）、**P5**（重複検出Invariant）、**P6**
+- [x] 3-3. **P4**（export→importのRound-trip）、**P5**（重複検出Invariant）、**P6**
       （全置換Invariant）: `PermissionAssignmentServiceTest`に`@Property`テストを追加生成
       する（P4は組み込みH2または`@DataJpaTest`での実データ往復、P5/P6はMockito/フェイク
       リポジトリでの検証を状況に応じて選択する）。
+      実装メモ: 計画時点の想定を変更し、P4/P5/P6ともMockito/フェイクリポジトリで実装した
+      （`@DataJpaTest`は不要と判断）。候補ターゲット（`table`/`column`または`table`/
+      `auxType`の組。値は固定）を`PERM_CANDIDATES`/`AUX_CANDIDATES`として定義し、jqwikの
+      `Arbitraries.of(list).list().uniqueElements()`で部分集合を生成することで、重複のない
+      target組み合わせのバリエーションを網羅した。`exportImportRoundTrip`（P4）はUSER/GROUP
+      各1principalにこれらの部分集合を`PermissionAssignment`/`AuxPermissionAssignment`として
+      直接投入し、`exportPermissionsAsYaml`→`importPermissionsFromYaml`の前後で
+      `(principalType, principalId, schema, table, column, permission)`
+      （auxは`auxType, granted`）のタプル集合が完全一致することを検証した（他connectionIdの
+      行が対象外であることも確認）。`registerUser`/`registerGroup`ヘルパーを`FakeRepositories`
+      に追加し、`UserRepository.findById/findByEmail`・`GroupRepository.findById/findByName`
+      をエクスポート時の`requireUser/requireGroup`とインポート時の`findByEmail/findByName`の
+      両方に対応させた。`importRejectsDuplicatePermissionEntries`/
+      `importRejectsDuplicateAuxPermissionEntries`（P5）は`PermissionEntryYaml`/
+      `AuxPermissionEntryYaml`を手組みし、同一`(schema, table[, column|auxType])`の2エントリ
+      （値はjqwikで振る）を含むYAMLが常に`ImportResult.success()==false`となることを検証した。
+      この経路は`importPermissionsFromYaml`の`catch`節が
+      `TransactionAspectSupport.currentTransactionStatus().setRollbackOnly()`を呼ぶため、
+      素の`newService()`呼び出しでは`NoTransactionException`となることが判明した。対策として
+      `AnnotationTransactionAttributeSource`＋`TransactionInterceptor`＋
+      `AbstractPlatformTransactionManager`のno-op実装（`NoopTransactionManager`）を用いた
+      `ProxyFactory`ベースの`transactionalProxy()`ヘルパーを追加し、実際の`@Transactional`
+      AOPプロキシ経由でサービスを呼び出すようにした（`TransactionInterceptor`のPlatformTx
+      Manager版コンストラクタは非推奨のため`TransactionManager`型変数経由で非推奨でない
+      オーバーロードを選択）。`importReplacesAllExistingRowsForConnection`（P6、成功経路の
+      ため上記プロキシは不要）は、対象`connectionId`にYAML未含有の既存行（`OLD_TABLE`）と
+      他`connectionId`の行を事前投入した上でインポートし、成功後に前者が消え・後者が変化せず・
+      最終集合が新YAML内容と完全一致することを検証した。`./gradlew compileJava
+      compileTestJava`成功、`./gradlew test --tests PermissionAssignmentServiceTest`で
+      6件全て成功（failures=0, errors=0）を確認。
 - [ ] 3-4. **P7**（グループ合成のCommutativity）、**P8**（階層継承・個別上書きInvariant）、
       **P9**（`canCreate`/`canDelete`の主キーなしテーブルInvariant）:
       `EffectivePermissionResolverTest`に`@Property`テストを生成する。
