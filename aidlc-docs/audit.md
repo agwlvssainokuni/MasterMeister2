@@ -1373,3 +1373,11 @@
 
 ---
 
+## CONSTRUCTION - U3 Code Generation - Part 2 Item 15-1
+**Timestamp**: 2026-07-10T20:05:00Z
+**User Input**: "続行してください。"（中断後の再開指示）
+**AI Response**: Step 15 item 15-1を実施。`aidlc-docs/construction/u3-rdbms-connection-schema-import/code/testing-summary.md`を生成。U2の`testing-summary.md`と同じ構成（PBT-10補完的テスト戦略の遵守状況／P1〜P12対応表（最終版）／example-basedテスト一覧（バックエンド・フロントエンド）／実行確認状況／既知の課題）で作成。作成にあたり`./gradlew test`（29テストクラス・133/133件成功、0失敗・0エラー、テスト結果XMLを個別集計）と`npx vitest run`（30ファイル・114/114件成功）を実際に実行し、正確な件数を採取した。この過程で、既存の`api-layer-summary.md`（Step 7）・`repository-layer-summary.md`（Step 10）に記載されていたexample-basedテスト件数の一部に誤差（`RdbmsConnectionControllerTest`: 記載15件→実際18件、`SchemaControllerTest`: 記載10件→実際12件、`SchemaTableRepositoryTest`: 記載8件→実際9件）を発見し、`testing-summary.md`内に正確な件数とその旨の注記を記載した（設計方針・実装自体に誤りはなく、ドキュメント作成時点の件数記載のみの誤差と判断、既存2ファイルの遡及修正は本item外としStep完了基準に影響しないことを確認）。計画書item 15-1のチェックボックスを`[x]`化し実装メモを追記。
+**Context**: Per-Unit Loop, U3 Code Generation Part 2, Step 15 item 15-1完了。コミット後、item 16-1（application.yml設定追記）へ進むか確認予定。
+
+---
+
