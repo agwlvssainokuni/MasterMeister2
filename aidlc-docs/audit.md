@@ -1205,3 +1205,11 @@
 
 ---
 
+## CONSTRUCTION - U3 Code Generation - Part 2 Item 7-1
+**Timestamp**: 2026-07-10T18:20:00Z
+**User Input**: "続行する" (continuation confirmation after item 6-2)
+**AI Response**: Generated `aidlc-docs/construction/u3-rdbms-connection-schema-import/code/api-layer-summary.md`, following U2's `api-layer-summary.md` structure precedent (endpoint table → per-controller detail → error-response table → test-coverage table). Documented all 10 endpoints (6 on `RdbmsConnectionController`, 4 on `SchemaController`) with path/method/authorization/request-response JSON shapes, noted that this unit introduces no new exception classes (reuses the existing `EntityNotFoundException` → 404 `ENTITY_NOT_FOUND`), and summarized Step 6's two test classes (`RdbmsConnectionControllerTest` 15 cases, `SchemaControllerTest` 10 cases). **Step 7 (API layer summary) is now fully complete.**
+**Context**: Per-Unit Loop, U3 Code Generation Part 2, Step 7 item 7-1 complete. Committing, then asking user whether to continue to item 8-1 (`RdbmsConnectionRepository` generation) or pause.
+
+---
+
