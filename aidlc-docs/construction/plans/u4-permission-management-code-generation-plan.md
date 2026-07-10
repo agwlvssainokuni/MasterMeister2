@@ -742,9 +742,18 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
       （`tableName`がNULL許容のため同様に非NULL値で検証）。全29件成功、フルスイートも回帰なし成功。
 
 ### Step 10: リポジトリレイヤサマリ
-- [ ] 10-1. `aidlc-docs/construction/u4-permission-management/code/
+- [x] 10-1. `aidlc-docs/construction/u4-permission-management/code/
       repository-layer-summary.md`を生成し、4リポジトリのクエリメソッド一覧とインデックス
       設計（`GroupMember`の追加インデックス含む、`nfr-design-patterns.md` 4.1）を記載する。
+      実装メモ: U3の`repository-layer-summary.md`と同構成（リポジトリごとのメソッド表、
+      インデックス設計節、テストカバレッジ表）で生成した。`GroupMember`の
+      `(userId, groupId)`追加インデックスは`EffectivePermissionResolver.groupIdsOf`が
+      権限解決のたびに呼ぶ高頻度クエリのためと説明。`PermissionAssignment`/
+      `AuxPermissionAssignment`はunique制約の非先頭列（`connectionId`）が条件の
+      `findByConnectionId`/`deleteByConnectionId`について、エクスポート・全置換
+      インポート・グループ削除はいずれも低頻度操作であるため追加インデックスを
+      見送った旨を明記。Step 8確認時に削除した未使用メソッド
+      `findByPrincipalTypeAndPrincipalIdAndConnectionId`の経緯も記載した。
 
 ### Step 11: フロントエンドコンポーネント生成
 - [ ] 11-1. `frontend/src/features/group/` に`GroupListPage.tsx`、`GroupTable.tsx`、

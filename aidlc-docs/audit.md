@@ -2004,3 +2004,21 @@ NULL同士を別値扱いする点に注意し、いずれも非NULL値の組み
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U4: Permission Management - Code Generation Step 10完了
+**Timestamp**: 2026-07-11T19:15:00Z
+**User Input**: [AskUserQuestion回答] "続行"（質問: "item 9-1（29件全て成功、コミットc10e715）をもってStep 9（リポジトリレイヤ単体テスト）が完了しました。次はStep 10（repository-layer-summary.md生成）に進んでよいですか？"）
+**AI Response**: item 10-1を実施。`aidlc-docs/construction/u4-permission-management/code/
+repository-layer-summary.md`を新規生成した。U3の`repository-layer-summary.md`と同構成
+（リポジトリごとのメソッド表、インデックス設計節、テストカバレッジ表）とし、
+`GroupRepository`/`GroupMemberRepository`/`PermissionAssignmentRepository`/
+`AuxPermissionAssignmentRepository`の全メソッドの使用箇所を記載した。インデックス設計節では
+`GroupMember`の`(userId, groupId)`追加インデックス（`nfr-design-patterns.md` 4.1、
+`EffectivePermissionResolver.groupIdsOf`の高頻度呼び出しに対応）と、
+`PermissionAssignment`/`AuxPermissionAssignment`が`findByConnectionId`等の非先頭列条件クエリに
+追加インデックスを持たない理由（エクスポート・全置換インポート・グループ削除はいずれも
+低頻度操作）を説明した。Step 8で削除した未使用メソッド
+`findByPrincipalTypeAndPrincipalIdAndConnectionId`の経緯も記載。計画書item 10-1を`[x]`に更新。
+**Context**: Per-Unit Loop、U4 Code Generation Step 10完了。次はStep 11（フロントエンドコンポーネント生成）。
+
+---
+
