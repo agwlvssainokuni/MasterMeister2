@@ -1149,3 +1149,11 @@
 
 ---
 
+## CONSTRUCTION - U3 Code Generation - Part 2 Item 5-1
+**Timestamp**: 2026-07-10T18:00:00Z
+**User Input**: "続行してください。" (resume after pause)
+**AI Response**: Generated `backend/src/main/java/cherry/mastermeister/rdbmsconnection/RdbmsConnectionController.java` (`@RestController @RequestMapping("/api/rdbms-connections")`), following U2's `RegistrationController` as the reference pattern. 6 endpoints, all delegating to `RdbmsConnectionService` with no controller-side business logic: `POST ""` (`createConnection`, `@ResponseStatus(HttpStatus.CREATED)`), `PUT "/{id}"` (`updateConnection`, `ResponseEntity.noContent().build()`), `GET ""` (`listConnections`→`List<ConnectionSummary>`), `GET "/{id}"` (`getConnection`→`ConnectionDetail`), `POST "/test"` (`testConnection(ConnectionConfig)`→`ConnectionTestResult`), `POST "/{id}/test"` (`testConnection(Long)`→`ConnectionTestResult`, overload distinguished by path). `adminUserId` obtained via `(Long) authentication.getPrincipal()` on the `createConnection`/`updateConnection` methods' `Authentication` parameter, matching `RegistrationController`'s existing convention exactly. Ran `./gradlew compileJava`: `BUILD SUCCESSFUL` (the 3 untracked stub repositories present locally satisfy `RdbmsConnectionService`'s and the controller's dependencies). Marked plan item 5-1 `[x]` with an implementation note.
+**Context**: Per-Unit Loop, U3 Code Generation Part 2, Step 5 item 5-1 complete. Committing, then asking user whether to continue to item 5-2 (`SchemaController`) or pause.
+
+---
+
