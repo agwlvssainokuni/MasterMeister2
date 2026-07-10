@@ -127,7 +127,7 @@ P1〜P11（`business-logic-model.md`「テスト可能な性質」表）。Step 
 ## ステップ一覧
 
 ### Step 1: プロジェクト構造セットアップ
-- [ ] 1-1. `backend/build.gradle.kts`（既存、ブラウンフィールド修正）の`dependencies`ブロックに
+- [x] 1-1. `backend/build.gradle.kts`（既存、ブラウンフィールド修正）の`dependencies`ブロックに
       `implementation("org.springframework.boot:spring-boot-starter-cache")`、
       `implementation("com.github.ben-manes.caffeine:caffeine")`、
       `implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")`を追記する。
