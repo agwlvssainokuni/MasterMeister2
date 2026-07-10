@@ -263,13 +263,24 @@ U1（Platform Foundation）のみに依存（`unit-of-work-dependency.md`）:
       `RdbmsConnectionRepository`未解決参照に加え、上記2つの未生成リポジトリ参照
       （新規、item 8-2/8-3待ちの既定路線内）のみで失敗することを確認、それ以外の
       新規エラーが無いことを検証した。
-- [ ] 2-12. `backend/src/main/java/cherry/mastermeister/schema/SchemaQueryService.java`
+- [x] 2-12. `backend/src/main/java/cherry/mastermeister/schema/SchemaQueryService.java`
       （`@Service`）: `List<String> listSchemas(Long connectionId)`（`stale = false`の
       `SchemaTable`から`schemaName`をdistinct取得）、`List<TableMetadata>
       listTables(Long connectionId, String schema)`（`stale = false`のみ、
       `business-rules.md` 2.4）、`TableDetail getTableDetail(Long connectionId, String
       schema, String table)`（`stale = false`のカラムのみ、`primaryKeySequence`昇順で
       整列、`EntityNotFoundException`）を実装（`business-logic-model.md`フロー5）。
+      `SchemaTableRepository`/`SchemaColumnRepository`（未生成、item 8-2/8-3で生成予定）に
+      対し、本項目で新たに次のメソッドシグネチャを確定した:
+      `findByConnectionIdAndStaleFalse(Long): List<SchemaTable>`,
+      `findByConnectionIdAndSchemaNameAndStaleFalse(Long, String): List<SchemaTable>`,
+      `findByConnectionIdAndSchemaNameAndTableNameAndStaleFalse(Long, String, String):
+      Optional<SchemaTable>`, `findByTableIdAndStaleFalse(Long): List<SchemaColumn>`。
+      `primaryKeySequence`昇順整列は`Comparator.nullsLast`でnull（ビュー由来カラム）を
+      末尾に回す。`./gradlew compileJava`は既知の3型（`RdbmsConnectionRepository`,
+      `SchemaTableRepository`, `SchemaColumnRepository`）未解決参照のみで15個のエラーで
+      失敗することを確認、新規の未知シンボルが無いことを検証した。これでStep 2
+      （ビジネスロジック生成）は完了。
 
 ### Step 3: ビジネスロジック単体テスト（PBT-01〜PBT-08, PBT-10）
 `business-logic-model.md`のP1〜P11に加え、`SchemaQueryService`のstale除外挙動は

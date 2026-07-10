@@ -1037,3 +1037,11 @@
 
 ---
 
+## CONSTRUCTION - U3 Code Generation - Part 2 Item 2-12
+**Timestamp**: 2026-07-10T14:15:00Z
+**User Input**: "続行してください。" (after a `/compact` local-command marker, not itself a user instruction)
+**AI Response**: Generated `backend/src/main/java/cherry/mastermeister/schema/SchemaQueryService.java` (`@Service`) implementing `listSchemas(Long connectionId)` (distinct `schemaName` from `stale = false` `SchemaTable` rows), `listTables(Long connectionId, String schema)` (`stale = false` tables only, mapped to `TableMetadata`, per `business-rules.md` 2.4), and `getTableDetail(Long connectionId, String schema, String table)` (looks up the `stale = false` table, throws `EntityNotFoundException` if absent, then loads its `stale = false` columns sorted by `primaryKeySequence` ascending via `Comparator.nullsLast` — so view-derived columns with a `null` sequence sort last — mapped to `ColumnDetail`/`TableDetail`, per `business-logic-model.md` flow 5). Newly fixed 4 method signatures on the not-yet-generated `SchemaTableRepository`/`SchemaColumnRepository` (deferred to items 8-2/8-3, same known-gap pattern as prior items): `findByConnectionIdAndStaleFalse(Long): List<SchemaTable>`, `findByConnectionIdAndSchemaNameAndStaleFalse(Long, String): List<SchemaTable>`, `findByConnectionIdAndSchemaNameAndTableNameAndStaleFalse(Long, String, String): Optional<SchemaTable>`, `findByTableIdAndStaleFalse(Long): List<SchemaColumn>`. Verified via `./gradlew compileJava` that failures are limited to exactly the 3 known, intentionally-deferred repository types (`RdbmsConnectionRepository`, `SchemaTableRepository`, `SchemaColumnRepository` — 15 error lines total) — no new/unexpected symbol introduced. Marked plan item 2-12 `[x]`; Step 2 (ビジネスロジック生成) of the plan is now fully complete (items 2-1 through 2-12).
+**Context**: Per-Unit Loop, U3 Code Generation Part 2, Step 2 item 2-12 complete — Step 2 finished. Committing, then asking user whether to continue to Step 3 item 3-1 (P1/P2 property tests for `EncryptedStringConverter`).
+
+---
+
