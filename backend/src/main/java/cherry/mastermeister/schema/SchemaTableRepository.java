@@ -35,4 +35,6 @@ public interface SchemaTableRepository extends JpaRepository<SchemaTable, Long> 
 
     List<SchemaTable> findByConnectionIdAndSchemaNameAndStaleFalse(Long connectionId, String schemaName);
 
+    boolean existsByConnectionIdAndSchemaName(Long connectionId, String schemaName);
+
 }

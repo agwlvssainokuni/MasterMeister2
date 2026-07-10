@@ -261,7 +261,7 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
       enum変換・必須チェック・参照整合性・重複検証はitem 2-9の`importPermissionsFromYaml`
       内で命令的に行う想定（本itemではバインド用の型定義のみ）。`./gradlew compileJava`
       成功を確認。
-- [ ] 2-9. `backend/src/main/java/cherry/mastermeister/permission/
+- [x] 2-9. `backend/src/main/java/cherry/mastermeister/permission/
       PermissionAssignmentService.java`（`@Service`、書き込み系メソッド全体に
       `@Transactional`＋自メソッドに`@CacheEvict(cacheNames = {6キャッシュ名}, allEntries =
       true)`、`nfr-design-patterns.md` 1.2/2.1）: `void setPermission(Long adminUserId,
@@ -279,9 +279,42 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
       `PermissionAssignment`/`AuxPermissionAssignment`を全削除し再構築する全置換方式）を
       実装する。全ての書き込みメソッドは成功・失敗を問わず`AuditLogService.record`を呼び出す
       （2.2, 2.4）。
-- [ ] 2-10. `backend/src/main/java/cherry/mastermeister/permission/
+      実装メモ: item 2-10（`PermissionYamlFormatException`）はコンパイル依存のため本item
+      より先に生成した（既存の「必要な依存を先行実施」方針を踏襲）。
+      - `exportPermissionsAsYaml`は`component-methods.md`/プラン記載シグネチャに`adminUserId`
+        引数がないが、`business-rules.md` 2.3が成功時の`AuditLogService.record`呼び出しに
+        `adminUserId`を要求するため、`setPermission`等の他メソッドと同様に`adminUserId`を
+        第一引数として追加した（ブラウンフィールド発見事項、`GroupService`が既に同種の理由で
+        `component-methods.md`に`adminUserId`を追加している前例を踏襲）。
+      - `importPermissionsFromYaml`は`SchemaImportService.importSchema`（U3）と同型の
+        「メソッド内で例外をcatchし`Result`型に変換して返す」パターンを採用した。
+        `business-rules.md` 2.4は「違反があれば`PermissionYamlFormatException`とし一切反映
+        しない」と規定する一方、`business-logic-model.md`フロー4手順5は「`ImportResult`
+        （成功可否、失敗時は違反概要）をフロントエンドへ返す」としており、両者は
+        「`PermissionYamlFormatException`はメソッド内部の検証失敗シグナルとして使い、
+        呼び出し元へは`ImportResult(false, message)`として返す」と解釈することで整合する
+        （`SchemaImportResult`の前例と同じ設計）。検証失敗時は
+        `TransactionAspectSupport.currentTransactionStatus().setRollbackOnly()`でロール
+        バックを強制した上で`ImportResult(false, e.getMessage())`を返す。
+      - スキーマレベル（`table`省略）の参照整合性チェック用に`SchemaTableRepository`へ
+        `existsByConnectionIdAndSchemaName(Long, String)`を追加した（`SchemaTable`に
+        スキーマ単体を表すエンティティがないため、当該スキーマのテーブルが1件以上存在する
+        ことをもって「スキーマが実在する」とみなす）。
+      - YAML直列化には`com.fasterxml.jackson.dataformat.yaml.YAMLMapper`
+        （Jackson 2系、`jackson-dataformat-yaml`依存が引き込む）をサービス内の
+        `private final`フィールドとして直接インスタンス化した（アプリ全体のREST用
+        `ObjectMapper`はSpring Boot 4.1のJackson 3系`tools.jackson.databind.ObjectMapper`
+        であり別系統のため、Beanとして共有せず本サービス専用とした）。
+      - principal実在チェック（2.1検証3）は`UserRepository.existsById`/
+        `GroupRepository.existsById`、YAMLインポート時のprincipal解決は
+        `UserRepository.findByEmail`/`GroupRepository.findByName`を用いた。
+      `./gradlew compileJava compileTestJava`成功を確認（単体テストはStep 3で作成）。
+- [x] 2-10. `backend/src/main/java/cherry/mastermeister/permission/
       PermissionYamlFormatException.java`（新規、`RuntimeException`拡張、
       `EntityNotFoundException`等既存パターンと同型）を生成する。
+      実装メモ: item 2-9のコンパイル依存のため先行生成した。`EntityNotFoundException`/
+      `ValidationException`と同型（`(String message)`・`(String message, Throwable cause)`
+      の2コンストラクタ）で生成。`./gradlew compileJava`成功を確認。
 - [ ] 2-11. `backend/src/main/java/cherry/mastermeister/permission/
       EffectivePermissionResolver.java`（`@Component`、内部Facade、コントローラなし）:
       `Permission resolveEffectiveTablePermission(Long userId, Long connectionId, String
