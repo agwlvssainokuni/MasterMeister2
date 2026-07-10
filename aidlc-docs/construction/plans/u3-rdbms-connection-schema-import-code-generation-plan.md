@@ -132,9 +132,9 @@ U1（Platform Foundation）のみに依存（`unit-of-work-dependency.md`）:
       接続を前提とする——`domain-entities.md`が`RdbmsConnection.host`/`port`を`H2`含む
       全`RdbmsType`で必須としているため）。4クラスすべてに実装し、`./gradlew compileJava`で
       コンパイル成功を確認した。
-- [ ] 2-3. **該当なし（変更なし）**: `SchemaResolutionMode`（enum: `CATALOG_BASED`,
+- [x] 2-3. **該当なし（変更なし）**: `SchemaResolutionMode`（enum: `CATALOG_BASED`,
       `SCHEMA_BASED`）はU1で実装済み。「ブラウンフィールド発見事項」のとおり、本計画では
-      新規定義・変更を行わない。
+      新規定義・変更を行わない。実装済みファイルを確認し、変更不要であることを確認した。
 - [ ] 2-4. `backend/src/main/java/cherry/mastermeister/rdbmsconnection/` に
       `RdbmsConnection`（JPAエンティティ。`domain-entities.md`のフィールド定義: `id`,
       `name`（not null）, `rdbmsType`（`RdbmsType`, not null）, `host`（not null）,

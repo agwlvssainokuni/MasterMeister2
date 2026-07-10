@@ -941,3 +941,11 @@
 
 ---
 
+## CONSTRUCTION - U3 Code Generation - Part 2 Item 2-3
+**Timestamp**: 2026-07-10T13:45:00Z
+**User Input**: "続行してください。"
+**AI Response**: Confirmed item 2-3 is a confirmation-only step requiring no code change: `SchemaResolutionMode`（enum: `CATALOG_BASED`, `SCHEMA_BASED`）was already implemented during U1 Code Generation, and per the plan's「ブラウンフィールド発見事項」section, U3 does not redefine or modify it. Verified the existing enum file requires no change. Marked plan item 2-3 `[x]`.
+**Context**: Per-Unit Loop, U3 Code Generation Part 2, Step 2 item 2-3 complete (no source files touched). Committing tracking-file changes only, then asking user whether to continue to item 2-4 (`RdbmsConnection` JPA entity).
+
+---
+
