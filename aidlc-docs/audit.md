@@ -1237,3 +1237,11 @@
 
 ---
 
+## CONSTRUCTION - U3 Code Generation - Part 2 Paused After Item 8-2
+**Timestamp**: 2026-07-10T18:29:00Z
+**User Input**: "ここで中断する" (in response to the post-commit continuation prompt for item 8-2)
+**AI Response**: Stopping per-item generation here as requested. No further code changes made beyond commit `0439f67`. The 1 remaining temporary stub repository interface (`SchemaColumnRepository`) stays in place under `src/main/java` (untracked, `git status` shows `??`), unchanged from prior pauses. Next item to resume from: Step 8 item 8-3 (`SchemaColumnRepository` official generation — this is where the last untracked stub gets superseded by a real, committed `JpaRepository<SchemaColumn, Long>` interface).
+**Context**: Per-Unit Loop, U3 Code Generation Part 2 (Generation) paused before item 8-3 at explicit user request. 12 of 42 plan items remain.
+
+---
+
