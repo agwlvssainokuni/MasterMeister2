@@ -3,7 +3,7 @@
 ## Project Information
 - **Project Type**: Brownfield
 - **Start Date**: 2026-07-06T10:38:36Z
-- **Current Stage**: CONSTRUCTION - Per-Unit Loop - U4: Permission Management - Functional Design - Step 6 artifacts generated (`aidlc-docs/construction/u4-permission-management/functional-design/`: domain-entities.md, business-rules.md, business-logic-model.md with PBT-01 P1-P10, frontend-components.md), awaiting user review/approval (Step 8).
+- **Current Stage**: CONSTRUCTION - Per-Unit Loop - U4: Permission Management - Functional Design - Step 6 artifacts generated and revised per Step 8 review feedback (`aidlc-docs/construction/u4-permission-management/functional-design/`: domain-entities.md, business-rules.md updated 2.6 to add U3 schema re-import as a cache-invalidation trigger, business-logic-model.md with PBT-01 P1-P11, frontend-components.md), awaiting user review/approval (Step 8).
 
 ## Execution Plan Summary
 - **Plan Document**: aidlc-docs/inception/plans/execution-plan.md

@@ -100,7 +100,10 @@
 2. 呼び出しごとに常に最新の権限設定を反映する（`business-rules.md` 2.6のstrong
    consistency要件）。フロー1（グループ書き込み系）・フロー2（`setPermission`/
    `setAuxPermission`）・フロー4（`importPermissionsFromYaml`）のいずれかが実行された
-   直後の呼び出しは、必ず変更後の値を返す。
+   直後の呼び出しは、必ず変更後の値を返す。加えて、U3の`SchemaImportService.importSchema`
+   （再取り込み）が主キー構成（`primaryKeySequence`）や`stale`フラグを変更した場合も、
+   直後の呼び出しは変更後の値（`canCreate`/`canDelete`の再判定結果、アクセス可否）を
+   返す（`business-rules.md` 2.6）。
 3. U5（Master Data Maintenance）・U6（Query Builder）・U7（Saved Query / Execution /
    History）は、この判定結果に基づいてアクセス可能なスキーマ/テーブル/カラムのフィルタ、
    作成/削除操作の可否を決定する（`unit-of-work.md`）。
@@ -125,3 +128,4 @@ Generation計画時に確定する。
 | P8 | `EffectivePermissionResolver`の階層継承・個別上書き（フロー5、`business-rules.md` 2.5手順1・4） | Invariant | ある階層（スキーマ/テーブル/カラム）に明示的な個別設定が存在する場合、`resolveEffectiveTablePermission`/`resolveEffectiveColumnPermissions`の結果は常にその明示設定の値と一致する（継承・グループ合成の結果によらず上書きされる） | Q3, 2.5手順4 |
 | P9 | `EffectivePermissionResolver.canCreate`/`canDelete`（フロー5、`business-rules.md` 2.5手順5・6） | Invariant | 主キーを持たないテーブルに対し`canDelete`は常に`false`を返す（補助権限D・主権限の値によらない） | 2.5手順6の例外規定 |
 | P10 | `EffectivePermissionResolver`の一貫性（フロー5、`business-rules.md` 2.6） | Invariant（状態遷移） | フロー1/2/4のいずれかの書き込み操作が成功した直後に`EffectivePermissionResolver`を呼び出すと、必ず書き込み後の権限設定を反映した結果が返る（呼び出し順序に関わらず古い値が返ることはない） | Q8、strong consistency |
+| P11 | `EffectivePermissionResolver`とU3`SchemaImportService.importSchema`の一貫性（フロー5、`business-rules.md` 2.6） | Invariant（状態遷移） | `importSchema`の再取り込みが対象カラムの`primaryKeySequence`または`SchemaTable`/`SchemaColumn`の`stale`フラグを変更した場合、その直後に`canCreate`/`canDelete`/`resolveEffectiveColumnPermissions`を呼び出すと、`PermissionAssignment`/`AuxPermissionAssignment`側の行に変更がなくても、必ず変更後のスキーマ構造を反映した結果が返る | U3との連携、実装方式（通知手段）はNFR Designで決定 |

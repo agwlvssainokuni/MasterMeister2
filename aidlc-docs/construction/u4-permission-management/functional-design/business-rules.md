@@ -138,6 +138,17 @@ consistency）。権限変更の直後に本Facadeを呼び出した場合、必
 グループ合成結果（2.5 手順3.）に影響し、権限設定自体に変更がなくても実効権限が変わり得る
 ため。
 
+さらに、U3の`SchemaImportService.importSchema(connectionId)`（初回・再取り込み共通の
+単一メソッド、`u3-rdbms-connection-schema-import/functional-design/business-rules.md`
+2.2）も対象に含める。再取り込みは既存`SchemaColumn`の`primaryKeySequence`（主キー構成）を
+更新しうる（同business-rules.md「再取り込み時のupsert・staleフラグ」）ため、`canCreate`/
+`canDelete`（2.5 手順5・6、いずれも主キー構成に基づく判定）の結果が`PermissionAssignment`/
+`AuxPermissionAssignment`側に変更がなくても変わりうる。また`SchemaTable`/`SchemaColumn`の
+`stale`フラグの設定・解除（テーブル/カラムの追加・消失に対応）も、対象スキーマ/テーブル/
+カラムがアクセス可能かどうかの実効判定に影響する。`importSchema`はU4のPermissionAssignment
+行を直接更新しないため、この無効化契機はU4単独では検知できず、U3側からの通知（実装方式は
+NFR Designで決定、例: ドメインイベント発行）が必要になる。
+
 ---
 
 ## 3. API認可（`SecurityConfig`、U1 NFR Design 1.3の規約に基づく）

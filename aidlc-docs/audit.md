@@ -1459,3 +1459,14 @@
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U4: Permission Management - Functional Design (Step 8レビュー中の指摘・修正)
+**Timestamp**: 2026-07-11T09:15:00Z
+**User Input**: "実効権限のキャッシュ無効化の契機として、スキーマインポートの再実行も入るかも。"
+**AI Response**: Step 8レビューでの指摘（Request Changes相当）として対応。U3の`SchemaImportService.importSchema(connectionId)`（初回・再取り込み共通の単一メソッド）が既存`SchemaColumn`の`primaryKeySequence`（主キー構成）や`SchemaTable`/`SchemaColumn`の`stale`フラグを変更しうることを確認（U3 `business-rules.md` 2.2、Explore調査で確認）。これらは`EffectivePermissionResolver.canCreate`/`canDelete`（主キー構成に基づく判定）やアクセス可否判定に影響するため、`PermissionAssignment`/`AuxPermissionAssignment`側に変更がなくてもキャッシュ無効化が必要な契機であると判断し、以下を更新した。
+- `business-rules.md` 2.6: `importSchema`（再取り込み）をキャッシュ無効化契機に追加。U4単独では検知できず、U3側からの通知（実装方式はNFR Designで決定）が必要である旨を明記。
+- `business-logic-model.md` フロー5手順2: 上記契機を反映した記述に更新。
+- `business-logic-model.md` テスト可能な性質: `importSchema`とキャッシュ一貫性の不変条件をP11として追加（PBT-01）。
+**Context**: Per-Unit Loop、U4 Functional Design Step 8レビュー中の指摘対応完了。Step 7完了メッセージを再提示し、改めてStep 8承認を待つ。
+
+---
+
