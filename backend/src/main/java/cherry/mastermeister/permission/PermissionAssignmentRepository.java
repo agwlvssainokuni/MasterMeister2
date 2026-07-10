@@ -27,9 +27,6 @@ public interface PermissionAssignmentRepository extends JpaRepository<Permission
             PrincipalType principalType, Long principalId, Long connectionId,
             String schemaName, String tableName, String columnName);
 
-    List<PermissionAssignment> findByPrincipalTypeAndPrincipalIdAndConnectionId(
-            PrincipalType principalType, Long principalId, Long connectionId);
-
     List<PermissionAssignment> findByConnectionId(Long connectionId);
 
     void deleteByConnectionId(Long connectionId);

@@ -27,9 +27,6 @@ public interface AuxPermissionAssignmentRepository extends JpaRepository<AuxPerm
             PrincipalType principalType, Long principalId, Long connectionId,
             String schemaName, String tableName, AuxPermissionType auxType);
 
-    List<AuxPermissionAssignment> findByPrincipalTypeAndPrincipalIdAndConnectionId(
-            PrincipalType principalType, Long principalId, Long connectionId);
-
     List<AuxPermissionAssignment> findByConnectionId(Long connectionId);
 
     void deleteByConnectionId(Long connectionId);

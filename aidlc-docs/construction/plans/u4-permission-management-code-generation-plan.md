@@ -713,6 +713,11 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
       `./gradlew compileJava`成功を確認。
       追記（item 2-5実装時）: `deleteByPrincipalTypeAndPrincipalId(PrincipalType, Long)`を
       両リポジトリに追加した（`GroupService.deleteGroup`のカスケード削除用）。
+      訂正（Step 8確認時）: `EffectivePermissionResolver`の実際の階層解決ロジック
+      （`findMostSpecificPermission`/`findMostSpecificAuxPermission`）はcolumn→table→schemaの
+      各段で`find...ColumnName`/`find...AuxType`を個別に呼び出す方式であり、上記の
+      `findByPrincipalTypeAndPrincipalIdAndConnectionId`（複数件取得版）は実際には
+      どこからも呼び出されていない未使用メソッドと判明した。両リポジトリから削除した。
 
 ### Step 9: リポジトリレイヤ単体テスト
 - [ ] 9-1. `GroupRepositoryTest`/`GroupMemberRepositoryTest`/
