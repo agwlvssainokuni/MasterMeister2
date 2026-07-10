@@ -389,8 +389,19 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
 
 ### Step 3: ビジネスロジック単体テスト（PBT-01〜PBT-08, PBT-10）
 `business-logic-model.md`のP1〜P11に対応する`@Property`テストをjqwikで生成する。
-- [ ] 3-1. **P1**（`deleteGroup`後の関連行ゼロInvariant）、**P2**（`addUserToGroup`の重複拒否
+- [x] 3-1. **P1**（`deleteGroup`後の関連行ゼロInvariant）、**P2**（`addUserToGroup`の重複拒否
       Idempotence）: `GroupServiceTest`に`@Property`テストを生成する。
+      実装メモ: `SchemaImportServiceTest`の`FakeRepositories`パターン（Mockito
+      `mock()`＋`thenAnswer`/`doAnswer`でリポジトリをインメモリリストにバックする）を踏襲した。
+      P1（`deleteGroupRemovesAllReferencingRows`）は`GroupMember`/`PermissionAssignment`/
+      `AuxPermissionAssignment`の付随件数を`0〜5`でjqwik生成し、削除後に対象`groupId`を参照する
+      行がゼロであることに加え、無関係の他`groupId`（`groupId + 100_000`）の行が誤って削除
+      されないことも合わせて検証した（Invariantの範囲を「対象行のみ削除」まで厳密化）。P2
+      （`addUserToGroupRejectsDuplicateMembership`）は同一`(groupId, userId)`への1回目成功→
+      2回目`ValidationException`を検証し、2回目呼び出し前後で`GroupMember`件数が不変であることを
+      確認した。エンティティへの`id`付与は`SchemaImportServiceTest`と同じリフレクション
+      ヘルパー（`assignId`）を再利用した。`./gradlew compileJava compileTestJava`成功、
+      `./gradlew test --tests GroupServiceTest`で2件とも成功（failures=0, errors=0）を確認。
 - [ ] 3-2. **P3**（`setPermission`/`setAuxPermission`のIdempotence）:
       `PermissionAssignmentServiceTest`に`@Property`テストを生成する。
 - [ ] 3-3. **P4**（export→importのRound-trip）、**P5**（重複検出Invariant）、**P6**
