@@ -452,9 +452,30 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
       最終集合が新YAML内容と完全一致することを検証した。`./gradlew compileJava
       compileTestJava`成功、`./gradlew test --tests PermissionAssignmentServiceTest`で
       6件全て成功（failures=0, errors=0）を確認。
-- [ ] 3-4. **P7**（グループ合成のCommutativity）、**P8**（階層継承・個別上書きInvariant）、
+- [x] 3-4. **P7**（グループ合成のCommutativity）、**P8**（階層継承・個別上書きInvariant）、
       **P9**（`canCreate`/`canDelete`の主キーなしテーブルInvariant）:
       `EffectivePermissionResolverTest`に`@Property`テストを生成する。
+      実装メモ: `PermissionAssignmentServiceTest`と同様のMockito/フェイクリポジトリ方式
+      （`@DataJpaTest`は不使用）で`FakeRepositories`（`PermissionAssignmentRepository`/
+      `AuxPermissionAssignmentRepository`/`GroupMemberRepository`/`SchemaTableRepository`/
+      `SchemaColumnRepository`のMock＋インメモリリスト）を新規に構築した。P7（前半、主権限の
+      グループ合成Commutativity）は固定4グループ（`GROUP_IDS`）にjqwikで振った`Permission`を
+      割り当て、`Arbitraries.shuffle(GROUP_IDS)`で生成した2種の評価順序それぞれで
+      `GroupMember`投入順を変えて`resolveEffectiveTablePermission`を呼び出し、結果が互いに
+      一致し、かつ`Permission::max`によるreduce期待値とも一致することを検証した。P7（後半、
+      補助権限のOR合成Commutativity）は、`canCreate`が主キーなしテーブルでは補助権限Cのみで
+      判定される（P9と同じ性質）ことを利用し、主権限を一切介在させずに`canCreate`の戻り値が
+      評価順序に依存せず`anyMatch`のOR結果と一致することを確認する形で検証した（`resolveAux
+      Permission`は`private`のため直接呼べないことへの対応）。P8は、テーブル階層とカラム階層
+      それぞれについて、ユーザの明示的個別設定がグループ合成結果や上位階層のユーザ設定に
+      よらず常にその値で解決されることを検証（テーブル階層は`resolveEffectiveTablePermission`、
+      カラム階層は`resolveEffectiveColumnPermissions`を使用、後者は`SchemaTable`/`SchemaColumn`
+      のフェイクデータ投入が必要）。P9は、主キー未登録（`primaryKeySequence=null`のみの
+      `SchemaColumn`）のテーブルに対し、`canDelete`が補助権限D・主権限の値によらず常に`false`
+      となること、`canCreate`が補助権限Cの値と完全一致し主権限の値によらないことをそれぞれ
+      検証した。`./gradlew compileJava compileTestJava`成功、`./gradlew test --tests
+      EffectivePermissionResolverTest`で6件全て成功（tests=6, failures=0, errors=0）、
+      `./gradlew test`（全体）でも回帰なしを確認。
 - [ ] 3-5. **P10**（書き込み直後の強整合性Invariant）: `PermissionCacheInvalidationListener`
       を含む統合的な検証（`@SpringBootTest`または`@DataJpaTest`＋実キャッシュBeanでの
       検証）を`EffectivePermissionResolverTest`または専用テストクラスに生成する。
