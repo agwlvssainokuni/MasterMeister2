@@ -181,10 +181,12 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
       実装メモ: `SchemaReimportedEvent`と同型の単純recordとして実装。発行元
       （`GroupService`、item 2-5）はまだ未実装のためこの時点では未使用。
       `./gradlew compileJava`成功を確認。
-- [ ] 2-4. `backend/src/main/java/cherry/mastermeister/group/` に`GroupSummary`（record:
+- [x] 2-4. `backend/src/main/java/cherry/mastermeister/group/` に`GroupSummary`（record:
       `Long id, String name, Instant createdAt`）、`UserSummary`（record: `Long id, String
       email`）を生成する（`component-methods.md`シグネチャ、「ブラウンフィールド発見事項」
       のDTO配置方針）。
+      実装メモ: 既存`UserSummary`（他パッケージ）は無く、命名衝突なし。`ConnectionSummary`
+      と同型の単純recordとして実装。`./gradlew compileJava`成功を確認。
 - [ ] 2-5. `backend/src/main/java/cherry/mastermeister/group/GroupService.java`
       （`@Service`、書き込み系メソッド全体に`@Transactional`）: `Long createGroup(String
       name)`（`business-rules.md` 1.1一意性チェック）、`void renameGroup(Long groupId,
