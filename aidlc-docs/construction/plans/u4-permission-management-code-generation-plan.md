@@ -821,8 +821,21 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
       全4項目完了。
 
 ### Step 12: フロントエンドコンポーネント単体テスト
-- [ ] 12-1. Vitest + React Testing Libraryで`features/group/`（一覧・詳細・所属管理・
+- [x] 12-1. Vitest + React Testing Libraryで`features/group/`（一覧・詳細・所属管理・
       `groupApi`）のexample-basedテストを生成する。
+      実装メモ: 既存の`ConnectionListPage.test.tsx`/`ConnectionTable.test.tsx`/
+      `PendingUsersTable.test.tsx`/`ConnectionFormPage.test.tsx`のパターン（`vi.mock('./api')`
+      でAPIをモック化、`MemoryRouter`/`Routes`+`initialEntries`で`useParams`をシミュレート、
+      `ConfirmDialog`は`role="dialog"`+`confirm-dialog-confirm-button`/`confirm-dialog-cancel-button`
+      で操作）を踏襲し、4件のテストファイルを生成した：
+      `GroupTable.test.tsx`（行表示、詳細ボタン、インライン名称変更のコミット/キャンセル、
+      削除確認ダイアログのキャンセル/確定、計6件）、
+      `GroupListPage.test.tsx`（初期表示、新規作成成功/失敗トースト、名称変更、削除、計5件）、
+      `GroupMemberTable.test.tsx`（行表示、削除確認ダイアログのキャンセル/確定、計3件）、
+      `GroupDetailPage.test.tsx`（`listGroups()`結果からのクライアントサイドfilterによる
+      グループ名表示・所属ユーザ一覧、ユーザID追加の成功/失敗トースト、削除、計4件）。
+      計18件すべて成功。`tsc -b --noEmit`・`npm run lint`（oxlint）ともにエラーなし。
+      全体`vitest run`（34ファイル・132件）で退行がないことを確認した。
 - [ ] 12-2. Vitest + React Testing Libraryで`features/permission/`（ツリー選択・フォーム
       保存・YAMLエクスポート/インポート・`permissionApi`）のexample-basedテストと、
       `AppRouter`/`AppLayout`への追加ルート・ナビゲーションのテストを生成する。
