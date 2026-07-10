@@ -1197,3 +1197,11 @@
 
 ---
 
+## CONSTRUCTION - U3 Code Generation - Part 2 Item 6-2
+**Timestamp**: 2026-07-10T18:16:00Z
+**User Input**: "続行してください。" (resume signal after the pause following item 6-1)
+**AI Response**: Created `backend/src/test/java/cherry/mastermeister/schema/SchemaControllerTest.java`, following item 6-1's `RdbmsConnectionControllerTest` as the pattern: `@WebMvcTest(SchemaController.class)` + `@Import({SecurityConfig.class, RestAuthenticationEntryPoint.class, RestAccessDeniedHandler.class})`, `SchemaImportService`/`SchemaQueryService`/`JwtTokenValidator` stubbed via `@MockitoBean`. Covered all 4 endpoints (schema-import, schemas list, tables list, table detail) with example-based tests: admin success path, non-admin 403, unauthenticated 401. `importSchema` additionally injects an explicit `Authentication` to verify `adminUserId` is correctly derived from the principal and passed through to the service (via a `Mockito.when(...eq(1L))` stub-argument match). `./gradlew test --tests "cherry.mastermeister.schema.SchemaControllerTest"`: `BUILD SUCCESSFUL`. Marked plan item 6-2 `[x]` with an implementation note. **Step 6 (controller tests) is now fully complete.**
+**Context**: Per-Unit Loop, U3 Code Generation Part 2, Step 6 item 6-2 complete. Committing, then asking user whether to continue to item 7-1 (`api-layer-summary.md`) or pause.
+
+---
+
