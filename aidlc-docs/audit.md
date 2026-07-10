@@ -894,3 +894,11 @@
 
 ---
 
+## CONSTRUCTION - U3 Code Generation - Part 1 Approved, Per-Item Commit Workflow Requested
+**Timestamp**: 2026-07-10T13:20:00Z
+**User Input**: "続行してください。ただし、Stepの中の項目ごとにコミットしてください。コミット後、続行の判断を求めてください。"
+**AI Response**: Treated this as explicit approval of U3 Code Generation Part 1 (Planning) — the 16-step plan in `u3-rdbms-connection-schema-import-code-generation-plan.md` — satisfying code-generation.md Step 7. Recording Step 8 (approval response) and Step 9 (mark Part 1 complete) here and in aidlc-state.md. Adopting the user's requested Part 2 execution workflow for this unit (and by precedent, future units unless overridden): after completing each individual checklist item within a Step (e.g. 2-1, 2-2, ... not just each top-level Step), commit that item's change with explicit file staging, then stop and ask the user whether to continue before starting the next item. This is more granular than prior units' per-Step-or-per-layer commit cadence.
+**Context**: Per-Unit Loop, U3 Code Generation Part 1 (Steps 6-9) complete. Proceeding to Part 2 (Generation) under the new per-item commit-and-confirm workflow, starting with Step 1 item 1-1.
+
+---
+
