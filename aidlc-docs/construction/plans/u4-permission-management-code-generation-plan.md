@@ -157,13 +157,18 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
       == true`のreturn直前）の`ApplicationEventPublisher.publishEvent(new
       SchemaReimportedEvent(connectionId))`呼び出しを追記する（「ブラウンフィールド発見事項」
       参照、`nfr-design-patterns.md` 2.2）。
-- [ ] 2-2. `backend/src/main/java/cherry/mastermeister/group/` に`Group`（JPAエンティティ:
+- [x] 2-2. `backend/src/main/java/cherry/mastermeister/group/` に`Group`（JPAエンティティ:
       `id`, `name`〈unique, not null〉, `createdAt`。`domain-entities.md`）、`GroupMember`
       （JPAエンティティ: `id`, `groupId`〈not null〉, `userId`〈not null〉, `joinedAt`。一意
       制約`(groupId, userId)`＋`@Table(indexes = {...})`で`(userId, groupId)`への追加
       インデックス、`nfr-design-patterns.md` 4.1）を生成する。既存`RdbmsConnection`等と同型の
       スタイル（protected引数なしコンストラクタ＋全項目コンストラクタ＋`update`/`rename`
       ミューテータ＋getterのみ）で実装する。
+      **実装メモ**: `Group`の`@Table(name = ...)`は`group`がSQL予約語のため
+      `app_group`とした（`User`エンティティの`app_user`と同じ命名方針）。`GroupMember`は
+      `Group`のような更新対象フィールドを持たないため`rename`/`update`ミューテータは実装せず
+      getterのみとした（追加・削除はレコード自体の作成/削除で表現、`GroupService`側の責務）。
+      `compileJava`成功を確認済み。
 - [ ] 2-3. `backend/src/main/java/cherry/mastermeister/group/GroupChangedEvent.java`
       （新規、record: `Long groupId`）を生成する（`nfr-requirements.md` 1.2、`group`
       パッケージの語彙のみで定義）。
