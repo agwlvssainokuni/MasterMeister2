@@ -579,7 +579,7 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
       既知の状態）を明記した。
 
 ### Step 5: APIレイヤ生成
-- [ ] 5-1. `backend/src/main/java/cherry/mastermeister/group/GroupController.java`
+- [x] 5-1. `backend/src/main/java/cherry/mastermeister/group/GroupController.java`
       （`@RestController @RequestMapping("/api/groups")`）: `POST ""`（`createGroup`→201）,
       `PUT "/{id}"`（`renameGroup`→204）, `DELETE "/{id}"`（`deleteGroup`→204）, `GET ""`
       （`listGroups`→`List<GroupSummary>`）, `GET "/{id}/members"`（`listGroupMembers`→
@@ -587,6 +587,17 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
       "/{id}/members/{userId}"`（`removeUserFromGroup`→204）を生成する
       （`business-rules.md` 3節のパスパターン）。`adminUserId`は`Authentication#
       getPrincipal()`キャスト取得（U2/U3のコントローラと同一パターン）。
+      実装メモ: `RdbmsConnectionController`/`RegistrationController`と同型のスタイル
+      （コンストラクタ注入、`Authentication#getPrincipal()`キャストで`adminUserId`取得、
+      更新系は`ResponseEntity<Void>` + `noContent()`、作成系は`@ResponseStatus(CREATED)`）で
+      実装した。`GroupService.createGroup`/`renameGroup`/`addUserToGroup`はリクエストボディに
+      `String name`/`Long userId`のようなプリミティブ引数を要求するため、
+      `RegistrationController`の`RequestRegistrationRequest`/`CompleteRegistrationRequest`
+      と同型の単純requestレコード（`GroupCreateRequest`, `GroupRenameRequest`,
+      `GroupMemberAddRequest`、いずれも`group`パッケージに新規生成）を導入した。
+      `addUserToGroup`は成功時に戻り値がないため`@ResponseStatus(CREATED)`のvoidメソッドとした
+      （`GroupMember`自体を返すエンドポイントではないため、レスポンスボディなしの201）。
+      `./gradlew compileJava compileTestJava`成功を確認（単体テストはStep 6で作成）。
 - [ ] 5-2. `backend/src/main/java/cherry/mastermeister/permission/
       PermissionController.java`（`@RestController @RequestMapping("/api/rdbms-connections/
       {connectionId}/permissions")`）: `PUT ""`（`PermissionUpdateRequest`を受け、`permission`
