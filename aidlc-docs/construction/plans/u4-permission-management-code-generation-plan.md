@@ -197,7 +197,7 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
       イベントのpayloadとしては引き続き有効な識別子として使う）。メソッドシグネチャに
       `adminUserId`が明示されていないため、U3の`RdbmsConnectionService`と同型で
       `createGroup(Long adminUserId, String name)`のように補完する。
-- [ ] 2-6. `backend/src/main/java/cherry/mastermeister/permission/` に`PermissionAssignment`
+- [x] 2-6. `backend/src/main/java/cherry/mastermeister/permission/` に`PermissionAssignment`
       （JPAエンティティ: `id`, `principalType`, `principalId`, `connectionId`, `schemaName`,
       `tableName`〈nullable〉, `columnName`〈nullable〉, `permission`, `updatedAt`。一意制約
       `(principalType, principalId, connectionId, schemaName, tableName, columnName)`）、
@@ -210,6 +210,12 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
       `PrincipalRef`（record: `PrincipalType principalType, Long principalId`）を生成する。
       いずれも明示的な`@Table(indexes = {...})`は追加しない（一意制約のみで賄う、
       `nfr-design-patterns.md` 4.1）。
+      実装メモ: `Permission`は宣言順（NONE, READ, UPDATE）が強さ順序と一致するため、
+      `Comparable`実装（enumが自動的に持つ`compareTo`）に加えて`max(Permission,
+      Permission)`静的ヘルパーを追加し、グループ合成時の「最も緩い権限」判定で
+      使用する想定とした。両エンティティとも既存パターン（`RdbmsConnection`/
+      `SchemaTable`）に倣い`update(...)`メソッドで更新可能フィールド（`permission`/
+      `granted`と`updatedAt`）のみ変更可能にした。`./gradlew compileJava`成功を確認。
 - [ ] 2-7. `backend/src/main/java/cherry/mastermeister/permission/` に`ImportResult`
       （record: `boolean success, String message`）、`PermissionUpdateRequest`（record:
       `PrincipalRef principal, String schema, Optional<String> table, Optional<String>
