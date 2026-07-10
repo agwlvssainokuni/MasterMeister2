@@ -525,9 +525,40 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
       いずれも4件全て成功（tests=4, failures=0, errors=0）することを確認（実行間の
       一意性キー設計の検証を兼ねる）、`./gradlew test`（全体）でも151件全て成功
       （failures=0, errors=0）で回帰なしを確認。
-- [ ] 3-6. **P11**（U3スキーマ再取り込みとの一貫性Invariant）: `SchemaReimportedEvent`発行
+- [x] 3-6. **P11**（U3スキーマ再取り込みとの一貫性Invariant）: `SchemaReimportedEvent`発行
       〜`PermissionCacheInvalidationListener`〜`EffectivePermissionResolver`再判定の連携を
       検証する`@Property`テストを生成する。
+      - 実装メモ: `backend/src/test/java/cherry/mastermeister/permission/
+        SchemaReimportCacheConsistencyTest.java`（新規）を生成した。`SchemaImportService
+        .importSchema`は実際の対象RDBMS接続（`ConnectionPoolRegistry`経由のHikari実プール）
+        を必要とするため、`SchemaImportServiceTest`と同じ手法（`org.h2.tools.Server`による
+        H2 TCPサーバをテスト対象RDBMS役として`@BeforeContainer`/`@AfterContainer`で起動・
+        停止し、試行ごとに専用DBを新規作成）を踏襲しつつ、`@SpringBootTest`
+        `@JqwikSpringSupport`で内部DB・キャッシュ（item 3-5で追加した`CacheConfig`の
+        `@EnableCaching`込み）・`PermissionCacheInvalidationListener`を含む実アプリケー
+        ションコンテキストを使う（`PermissionCacheConsistencyTest`と同一方針）。
+        `RdbmsConnection`は`RdbmsConnectionRepository.save`で内部DBに実登録し、
+        `ConnectionPoolRegistry`が実際にHikari経由でH2 TCPサーバへ接続する。2件の
+        `@Property`を生成した。(1)
+        `primaryKeyRestructuringChangesCanCreateWithoutPermissionAssignmentChange`:
+        主キーなし⇔ありの物理テーブル再作成（`@ForAll boolean startsWithPrimaryKey`で
+        両方向を生成）によって`importSchema`が`SchemaColumn.primaryKeySequence`を書き換える
+        ことを利用し、`PermissionAssignment`/`AuxPermissionAssignment`を一切変更せずに
+        （補助権限Cのみ最初に1回付与）、`canCreate`が2.5手順5（主キーなしは補助権限Cのみで
+        可、主キーありは主キー全カラムUPDATE以上必要だが本テストでは主キー列に主権限を
+        一切付与しない）どおり直後に反転することを検証する。(2)
+        `columnRemovalExcludesStaleColumnFromEffectiveColumnPermissionsImmediately`:
+        2カラムテーブルの一方を物理`ALTER TABLE DROP COLUMN`後に再取り込みすると、
+        `EffectivePermissionResolver#resolveEffectiveColumnPermissions`が
+        `findByTableIdAndStaleFalse`でstale列を除外する実装（行自体は削除されない、
+        U3のP8と整合）により、`PermissionAssignment`を一切変更せずに削除カラムが
+        直後に結果セットから消えることを検証する（`@ForAll boolean dropFirstColumn`で
+        どちらの列を削除するかを両方向生成）。テストデータの一意性はitem 3-5と同じ
+        `RUN_SEED`（`System.nanoTime()`）＋`SEQ`方式（DB名・接続名・ユーザemailに使用）。
+        `./gradlew compileJava compileTestJava`成功、
+        `./gradlew test --tests SchemaReimportCacheConsistencyTest`を2回連続実行して
+        いずれも2件全て成功（tests=2, failures=0, errors=0）、`./gradlew test`（全体）でも
+        153件全て成功（failures=0, errors=0）で回帰なしを確認。
 
 ### Step 4: ビジネスロジックサマリ
 - [ ] 4-1. `aidlc-docs/construction/u4-permission-management/code/business-logic-summary.md`
