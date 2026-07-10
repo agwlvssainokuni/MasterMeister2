@@ -286,9 +286,18 @@ U1（Platform Foundation）のみに依存（`unit-of-work-dependency.md`）:
 `business-logic-model.md`のP1〜P11に加え、`SchemaQueryService`のstale除外挙動は
 Functional Design時点のP1〜P11に含まれていなかったため、U1/U2の`common.dialect`（P9〜P12）・
 `OpaqueTokenGenerator`（P12）と同様、本Code Generation計画で新たにP12として識別する。
-- [ ] 3-1. **P1**（`EncryptedStringConverter`のRound-trip）、**P2**（暗号化後の値が平文と
+- [x] 3-1. **P1**（`EncryptedStringConverter`のRound-trip）、**P2**（暗号化後の値が平文と
       不一致であるInvariant）: jqwikでランダムな文字列を生成する`@Property`テストを
       `EncryptedStringConverterTest`に生成。
+      `backend/src/test/java/cherry/mastermeister/rdbmsconnection/EncryptedStringConverterTest.java`
+      を新規生成。`plainTexts`（0〜200文字のランダム文字列）を`@Provide`で供給し、
+      `encryptThenDecryptRoundTripsToOriginal`（P1）と`encryptedValueDiffersFromPlainText`
+      （P2）の2つの`@Property`テストを実装。コンバータの鍵はテスト内で`SecureRandom`により
+      毎回ランダムな32バイトAES鍵を生成しBase64化して渡す。`./gradlew test --tests
+      EncryptedStringConverterTest`は、既知の3型（`RdbmsConnectionRepository`,
+      `SchemaTableRepository`, `SchemaColumnRepository`）未解決参照のみで15個のエラーで
+      失敗することを確認（item 2-12から変化なし、新規シンボルなし）。Step 8完了後に
+      テスト自体が実行可能になる。
 - [ ] 3-2. **P3**（JDBC URL組み立てのInvariant: `additionalParams`の有無によらず構造化
       ベースURLで始まり、非空時のみ1回だけ末尾付加）: `DialectStrategy`各実装の
       `buildJdbcUrl`＋`RdbmsConnectionService`のURL組み立てロジックをjqwikでランダムな
