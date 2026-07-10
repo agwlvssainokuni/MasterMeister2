@@ -1165,3 +1165,11 @@
 
 ---
 
+## CONSTRUCTION - U3 Code Generation - Part 2 Item 5-3
+**Timestamp**: 2026-07-10T18:05:00Z
+**User Input**: "続行する" (continuation choice after item 5-2, via AskUserQuestion)
+**AI Response**: Modified `backend/src/main/java/cherry/mastermeister/security/SecurityConfig.java` (brownfield), adding `.requestMatchers("/api/rdbms-connections/**").hasRole("ADMIN")` immediately after the existing `/api/audit-logs/**` line and before `.anyRequest().authenticated()`. This single prefix match covers both `RdbmsConnectionController`'s (`/api/rdbms-connections/**`) and `SchemaController`'s (`/api/rdbms-connections/{connectionId}/schemas/**`, `/schema-import`) endpoints, matching `business-rules.md`'s "all functionality admin-only" rule. Ran `./gradlew compileJava`: `BUILD SUCCESSFUL`. Marked plan item 5-3 `[x]` with an implementation note — this completes Step 5 (API layer generation) in full.
+**Context**: Per-Unit Loop, U3 Code Generation Part 2, Step 5 item 5-3 complete — Step 5 fully done. Committing, then asking user whether to continue to Step 6 item 6-1 (`RdbmsConnectionControllerTest`) or pause.
+
+---
+
