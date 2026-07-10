@@ -17,7 +17,7 @@
 import { type FormEvent, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { ApiError } from '../../api/apiClient'
-import { completeRegistration } from './api/userRegistrationApi'
+import { completeRegistration } from './api'
 
 export function PasswordSetupPage() {
   const [searchParams] = useSearchParams()

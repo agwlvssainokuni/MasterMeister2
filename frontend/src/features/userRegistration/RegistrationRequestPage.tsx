@@ -15,7 +15,7 @@
  */
 
 import { type FormEvent, useState } from 'react'
-import { requestRegistration } from './api/userRegistrationApi'
+import { requestRegistration } from './api'
 
 export function RegistrationRequestPage() {
   const [email, setEmail] = useState('')

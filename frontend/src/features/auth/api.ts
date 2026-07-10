@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import { apiFetch } from '../../../api/apiClient'
-import type { Role } from '../../../store/authStore'
-import type { AuthToken } from '../types'
+import { apiFetch } from '../../api/apiClient'
+import type { Role } from '../../store/authStore'
+import type { AuthToken } from './types'
 
 export function login(email: string, password: string): Promise<AuthToken> {
   return apiFetch<AuthToken>('/api/auth/login', { method: 'POST', body: { email, password } })

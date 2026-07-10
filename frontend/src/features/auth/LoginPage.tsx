@@ -18,7 +18,7 @@ import { type FormEvent, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ApiError } from '../../api/apiClient'
 import { useAuth } from '../../hooks/useAuth'
-import { decodeAccessToken, login } from './api/authApi'
+import { decodeAccessToken, login } from './api'
 
 export function LoginPage() {
   const [email, setEmail] = useState('')

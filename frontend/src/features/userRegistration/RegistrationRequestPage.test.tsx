@@ -16,10 +16,10 @@
 
 import { fireEvent, render, screen } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { requestRegistration } from './api/userRegistrationApi'
+import { requestRegistration } from './api'
 import { RegistrationRequestPage } from './RegistrationRequestPage'
 
-vi.mock('./api/userRegistrationApi', () => ({
+vi.mock('./api', () => ({
   requestRegistration: vi.fn(),
 }))
 

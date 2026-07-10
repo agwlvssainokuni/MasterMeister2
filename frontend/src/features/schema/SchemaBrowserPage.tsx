@@ -16,7 +16,7 @@
 
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { getTableDetail, listSchemas, listTables } from './api/schemaApi'
+import { getTableDetail, listSchemas, listTables } from './api'
 import { SchemaSelector } from './SchemaSelector'
 import { TableDetailPanel } from './TableDetailPanel'
 import { TableList } from './TableList'

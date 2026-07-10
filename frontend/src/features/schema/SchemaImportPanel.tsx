@@ -15,7 +15,7 @@
  */
 
 import { useState } from 'react'
-import { importSchema } from './api/schemaApi'
+import { importSchema } from './api'
 import type { SchemaImportResult } from './types'
 
 interface SchemaImportPanelProps {

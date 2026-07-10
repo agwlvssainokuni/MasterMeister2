@@ -16,11 +16,11 @@
 
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { approveUser, listPendingUsers, rejectUser } from './api/userRegistrationApi'
+import { approveUser, listPendingUsers, rejectUser } from './api'
 import { PendingUsersPage } from './PendingUsersPage'
 import type { PendingUserSummary } from './types'
 
-vi.mock('./api/userRegistrationApi', () => ({
+vi.mock('./api', () => ({
   listPendingUsers: vi.fn(),
   approveUser: vi.fn(),
   rejectUser: vi.fn(),

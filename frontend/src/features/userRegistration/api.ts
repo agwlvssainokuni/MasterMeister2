@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { apiFetch } from '../../../api/apiClient'
-import type { PendingUserSummary } from '../types'
+import { apiFetch } from '../../api/apiClient'
+import type { PendingUserSummary } from './types'
 
 export function requestRegistration(email: string): Promise<void> {
   return apiFetch<void>('/api/registrations', { method: 'POST', body: { email } })

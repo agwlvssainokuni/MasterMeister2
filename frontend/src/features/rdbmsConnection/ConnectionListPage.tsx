@@ -19,7 +19,7 @@ import { Link } from 'react-router-dom'
 import { ToastNotification } from '../../components/ToastNotification'
 import type { ToastSeverity } from '../../components/ToastNotification'
 import { SchemaImportPanel } from '../schema/SchemaImportPanel'
-import { listConnections, testConnection } from './api/connectionApi'
+import { listConnections, testConnection } from './api'
 import { ConnectionTable } from './ConnectionTable'
 import type { ConnectionSummary } from './types'
 

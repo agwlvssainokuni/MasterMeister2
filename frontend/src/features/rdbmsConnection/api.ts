@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { apiFetch } from '../../../api/apiClient'
-import type { ConnectionConfig, ConnectionDetail, ConnectionSummary, ConnectionTestResult } from '../types'
+import { apiFetch } from '../../api/apiClient'
+import type { ConnectionConfig, ConnectionDetail, ConnectionSummary, ConnectionTestResult } from './types'
 
 export function createConnection(config: ConnectionConfig): Promise<number> {
   return apiFetch<number>('/api/rdbms-connections', { method: 'POST', body: config })

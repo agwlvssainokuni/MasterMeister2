@@ -15,8 +15,8 @@
  */
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { createConnection, getConnection, listConnections, testConnection, updateConnection } from './connectionApi'
-import type { ConnectionConfig } from '../types'
+import { createConnection, getConnection, listConnections, testConnection, updateConnection } from './api'
+import type { ConnectionConfig } from './types'
 
 const config: ConnectionConfig = {
   name: 'test-connection',

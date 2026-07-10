@@ -17,11 +17,11 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { createConnection, getConnection, testConnection, updateConnection } from './api/connectionApi'
+import { createConnection, getConnection, testConnection, updateConnection } from './api'
 import { ConnectionFormPage } from './ConnectionFormPage'
 import type { ConnectionDetail } from './types'
 
-vi.mock('./api/connectionApi', () => ({
+vi.mock('./api', () => ({
   createConnection: vi.fn(),
   updateConnection: vi.fn(),
   getConnection: vi.fn(),

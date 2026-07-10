@@ -16,7 +16,7 @@
 
 import { type FormEvent, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { createConnection, getConnection, testConnection, updateConnection } from './api/connectionApi'
+import { createConnection, getConnection, testConnection, updateConnection } from './api'
 import type { ConnectionConfig, ConnectionTestResult, RdbmsType } from './types'
 
 interface ConnectionFormPageProps {

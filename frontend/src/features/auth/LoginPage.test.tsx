@@ -18,11 +18,11 @@ import { fireEvent, render, screen } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { useAuthStore } from '../../store/authStore'
-import { login } from './api/authApi'
+import { login } from './api'
 import { LoginPage } from './LoginPage'
 
-vi.mock('./api/authApi', async () => {
-  const actual = await vi.importActual<typeof import('./api/authApi')>('./api/authApi')
+vi.mock('./api', async () => {
+  const actual = await vi.importActual<typeof import('./api')>('./api')
   return { ...actual, login: vi.fn() }
 })
 

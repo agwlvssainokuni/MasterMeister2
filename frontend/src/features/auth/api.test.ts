@@ -15,7 +15,7 @@
  */
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { decodeAccessToken, login, logout, refresh } from './authApi'
+import { decodeAccessToken, login, logout, refresh } from './api'
 
 describe('authApi', () => {
   afterEach(() => {

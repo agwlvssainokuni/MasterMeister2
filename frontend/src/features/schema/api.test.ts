@@ -15,7 +15,7 @@
  */
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { getTableDetail, importSchema, listSchemas, listTables } from './schemaApi'
+import { getTableDetail, importSchema, listSchemas, listTables } from './api'
 
 describe('schemaApi', () => {
   afterEach(() => {

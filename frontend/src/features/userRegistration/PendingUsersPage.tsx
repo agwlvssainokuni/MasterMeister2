@@ -16,7 +16,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { ToastNotification } from '../../components/ToastNotification'
-import { approveUser, listPendingUsers, rejectUser } from './api/userRegistrationApi'
+import { approveUser, listPendingUsers, rejectUser } from './api'
 import { PendingUsersTable } from './PendingUsersTable'
 import type { PendingUserSummary } from './types'
 

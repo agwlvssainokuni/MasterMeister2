@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { apiFetch } from '../../../api/apiClient'
-import type { SchemaImportResult, TableDetail, TableMetadata } from '../types'
+import { apiFetch } from '../../api/apiClient'
+import type { SchemaImportResult, TableDetail, TableMetadata } from './types'
 
 export function importSchema(connectionId: number): Promise<SchemaImportResult> {
   return apiFetch<SchemaImportResult>(`/api/rdbms-connections/${connectionId}/schema-import`, { method: 'POST' })

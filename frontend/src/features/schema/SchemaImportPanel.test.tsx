@@ -16,10 +16,10 @@
 
 import { fireEvent, render, screen } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { importSchema } from './api/schemaApi'
+import { importSchema } from './api'
 import { SchemaImportPanel } from './SchemaImportPanel'
 
-vi.mock('./api/schemaApi', () => ({
+vi.mock('./api', () => ({
   importSchema: vi.fn(),
 }))
 

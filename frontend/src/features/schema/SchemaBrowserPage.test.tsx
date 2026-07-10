@@ -17,11 +17,11 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { getTableDetail, listSchemas, listTables } from './api/schemaApi'
+import { getTableDetail, listSchemas, listTables } from './api'
 import { SchemaBrowserPage } from './SchemaBrowserPage'
 import type { TableDetail, TableMetadata } from './types'
 
-vi.mock('./api/schemaApi', () => ({
+vi.mock('./api', () => ({
   listSchemas: vi.fn(),
   listTables: vi.fn(),
   getTableDetail: vi.fn(),
