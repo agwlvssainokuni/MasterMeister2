@@ -864,9 +864,18 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
       は全2項目完了。
 
 ### Step 13: フロントエンドコンポーネントサマリ
-- [ ] 13-1. `aidlc-docs/construction/u4-permission-management/code/frontend-summary.md`を
+- [x] 13-1. `aidlc-docs/construction/u4-permission-management/code/frontend-summary.md`を
       生成し、`features/group/`・`features/permission/`のコンポーネント一覧・data-testid
       一覧・追加ルーティングを記載する。
+      実装メモ: U3の`frontend-summary.md`の章立て（コンポーネント一覧テーブル、ルーティング
+      一覧、data-testid一覧、実装時判断事項、テストカバレッジ）をそのまま踏襲して生成した。
+      `features/group/`（6ファイル）・`features/permission/`（7ファイル）のコンポーネント表、
+      追加ルーティング3件、data-testid一覧（動的生成の`permission-form-aux-*-checkbox`2件を
+      含む）、Step 11で発見した3件の実装時判断事項（グループ単体取得API不在、ユーザ検索API
+      不在、権限現在値取得API不在、`Optional<T>`のJSONワイヤ形式、YAML
+      エクスポート/インポートの`apiFetch`バイパス、`importPermissionsFromYaml`のレスポンス
+      正規化）、Step 12のテストカバレッジ表（新規10ファイル・39件+既存拡張2ファイル・3件=
+      合計42件、フロントエンド全体40ファイル・156件）を記載した。
 
 ### Step 14: データベースマイグレーションスクリプト
 - [ ] 14-1. **該当なし（N/A）**: U1/U2/U3と同様、内部DB(H2)のスキーマ管理はJPAの自動DDL
