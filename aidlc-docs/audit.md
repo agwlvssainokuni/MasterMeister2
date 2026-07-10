@@ -1181,3 +1181,11 @@
 
 ---
 
+## CONSTRUCTION - U3 Code Generation - Part 2 Item 6-1
+**Timestamp**: 2026-07-10T18:10:00Z
+**User Input**: "続行してください。" (resume signal after the pause following item 5-3)
+**AI Response**: Created `backend/src/test/java/cherry/mastermeister/rdbmsconnection/RdbmsConnectionControllerTest.java`, following U2's `RegistrationControllerTest` as the pattern: `@WebMvcTest(RdbmsConnectionController.class)` + `@Import({SecurityConfig.class, RestAuthenticationEntryPoint.class, RestAccessDeniedHandler.class})`, `RdbmsConnectionService`/`JwtTokenValidator` stubbed via `@MockitoBean`. Covered all 6 endpoints (create/update/list/get/test-by-config/test-by-id) with example-based tests: admin success path, non-admin 403, unauthenticated 401. `createConnection`/`updateConnection` additionally inject an explicit `Authentication` to verify `adminUserId` is correctly derived from the principal and passed through to the service. `./gradlew test --tests "cherry.mastermeister.rdbmsconnection.RdbmsConnectionControllerTest"`: `BUILD SUCCESSFUL`. Marked plan item 6-1 `[x]` with an implementation note.
+**Context**: Per-Unit Loop, U3 Code Generation Part 2, Step 6 item 6-1 complete. Committing, then asking user whether to continue to item 6-2 (`SchemaControllerTest`) or pause.
+
+---
+
