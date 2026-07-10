@@ -402,8 +402,22 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
       確認した。エンティティへの`id`付与は`SchemaImportServiceTest`と同じリフレクション
       ヘルパー（`assignId`）を再利用した。`./gradlew compileJava compileTestJava`成功、
       `./gradlew test --tests GroupServiceTest`で2件とも成功（failures=0, errors=0）を確認。
-- [ ] 3-2. **P3**（`setPermission`/`setAuxPermission`のIdempotence）:
+- [x] 3-2. **P3**（`setPermission`/`setAuxPermission`のIdempotence）:
       `PermissionAssignmentServiceTest`に`@Property`テストを生成する。
+      実装メモ: `GroupServiceTest`と同型の`FakeRepositories`パターンで
+      `PermissionAssignmentRepository`/`AuxPermissionAssignmentRepository`をインメモリリストに
+      バックした。`SchemaTableRepository`/`SchemaColumnRepository`/`UserRepository`/
+      `GroupRepository`は参照整合性・principal実在チェックを常に通過させるためのスタブ
+      （`existsBy*`→`true`、`findBy*`→常に存在するモックエンティティを返す）とし、P3の関心事
+      （Idempotence）から独立させた。`setPermissionIsIdempotent`は`(principal, connectionId,
+      schema, table, column)`の組をjqwikで生成し（`column`は`table`が存在する場合のみ生成する
+      `flatMap`ベースの`targets()`ジェネレータ、`setPermission`のcolumn単体指定拒否ルールと
+      整合)、同一`permission`値で3回連続呼び出し後も行数が常に1件・値が不変であることを検証。
+      `setAuxPermissionIsIdempotent`も同型で`granted`の3回連続呼び出しを検証。エンティティへの
+      `id`付与は`GroupServiceTest`と同じリフレクションヘルパー（`assignId`）を再利用した。
+      `./gradlew compileJava compileTestJava`成功、
+      `./gradlew test --tests PermissionAssignmentServiceTest`で2件とも成功
+      （failures=0, errors=0）を確認。
 - [ ] 3-3. **P4**（export→importのRound-trip）、**P5**（重複検出Invariant）、**P6**
       （全置換Invariant）: `PermissionAssignmentServiceTest`に`@Property`テストを追加生成
       する（P4は組み込みH2または`@DataJpaTest`での実データ往復、P5/P6はMockito/フェイク
