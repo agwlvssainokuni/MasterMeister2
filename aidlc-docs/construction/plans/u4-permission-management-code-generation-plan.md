@@ -236,11 +236,16 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
       使用する想定とした。両エンティティとも既存パターン（`RdbmsConnection`/
       `SchemaTable`）に倣い`update(...)`メソッドで更新可能フィールド（`permission`/
       `granted`と`updatedAt`）のみ変更可能にした。`./gradlew compileJava`成功を確認。
-- [ ] 2-7. `backend/src/main/java/cherry/mastermeister/permission/` に`ImportResult`
+- [x] 2-7. `backend/src/main/java/cherry/mastermeister/permission/` に`ImportResult`
       （record: `boolean success, String message`）、`PermissionUpdateRequest`（record:
       `PrincipalRef principal, String schema, Optional<String> table, Optional<String>
       column, Optional<Permission> permission, Optional<AuxPermissionType> auxType,
       Optional<Boolean> granted`、「ブラウンフィールド発見事項」）を生成する。
+      実装メモ: プラン記載シグネチャのまま素朴な`record`として生成。`ImportResult`は
+      `component-methods.md`/`business-logic-model.md`双方に既出（フロントエンドへの
+      成功可否・違反概要返却用）、`PermissionUpdateRequest`は既存設計書に未出（プラン
+      注記どおりブラウンフィールド発見事項）だがプラン記載フィールド構成をそのまま採用。
+      `./gradlew compileJava`成功を確認。
 - [ ] 2-8. `backend/src/main/java/cherry/mastermeister/permission/` にYAMLバインド用POJO
       `PermissionYamlDocument`（`List<PrincipalYaml> principals`）、`PrincipalYaml`（`String
       type, String email, String name, List<PermissionEntryYaml> permissions,
