@@ -598,7 +598,7 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
       `addUserToGroup`は成功時に戻り値がないため`@ResponseStatus(CREATED)`のvoidメソッドとした
       （`GroupMember`自体を返すエンドポイントではないため、レスポンスボディなしの201）。
       `./gradlew compileJava compileTestJava`成功を確認（単体テストはStep 6で作成）。
-- [ ] 5-2. `backend/src/main/java/cherry/mastermeister/permission/
+- [x] 5-2. `backend/src/main/java/cherry/mastermeister/permission/
       PermissionController.java`（`@RestController @RequestMapping("/api/rdbms-connections/
       {connectionId}/permissions")`）: `PUT ""`（`PermissionUpdateRequest`を受け、`permission`
       有無で`setPermission`/`setAuxPermission`へ分岐、204。「ブラウンフィールド発見事項」）,
@@ -606,6 +606,18 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
       x-yaml`、`Content-Disposition: attachment; filename=...`）, `POST "/import"`
       （`multipart/form-data`のYAMLファイルを受け`importPermissionsFromYaml`→
       `ImportResult`）を生成する（`business-rules.md` 3節）。
+      【実装メモ】`updatePermission`は`request.permission()`が存在すれば`setPermission`、
+      存在しなければ`request.auxType()`/`request.granted()`を`Optional.get()`で取り出し
+      `setAuxPermission`へ分岐する204 voidエンドポイントとした（他の分岐判定用フィールドの
+      整合性チェックは呼び出し元入力を信頼し追加しない）。`exportPermissions`は
+      `ResponseEntity<byte[]>`に`Content-Type: application/x-yaml`と
+      `Content-Disposition: attachment; filename=permissions-{connectionId}.yaml`ヘッダを
+      設定して返す、リポジトリ初のbyte[]レスポンスエンドポイントとした。`importPermissions`は
+      `consumes = MULTIPART_FORM_DATA_VALUE`の`@RequestParam("file") MultipartFile`を受け、
+      `file.getBytes()`のIOExceptionは`UncheckedIOException`にラップして`importPermissionsFromYaml`
+      （`ImportResult`を直接返す、例外を投げない設計）を呼ぶ、リポジトリ初のmultipartアップロード
+      エンドポイントとした。`./gradlew compileJava compileTestJava`成功を確認
+      （単体テストはStep 6で作成）。
 - [ ] 5-3. `backend/src/main/java/cherry/mastermeister/config/GlobalExceptionHandler.java`
       （既存、ブラウンフィールド修正）に`@ExceptionHandler(PermissionYamlFormatException
       .class)`（400 `PERMISSION_YAML_FORMAT_ERROR`）を追記する（「ブラウンフィールド発見
