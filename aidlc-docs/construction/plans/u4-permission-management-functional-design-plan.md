@@ -326,3 +326,11 @@ Functional Designで確定すべき業務要件）。
 [Answer]: A（キャッシュ無効化対象操作の洗い出しを含む）
 
 ---
+
+## Step 6: 成果物生成チェックリスト
+
+- [x] `aidlc-docs/construction/u4-permission-management/functional-design/domain-entities.md`
+- [x] `aidlc-docs/construction/u4-permission-management/functional-design/business-rules.md`
+- [x] `aidlc-docs/construction/u4-permission-management/functional-design/business-logic-model.md`
+  （PBT-01: テスト可能な性質セクションを含む、P1〜P10）
+- [x] `aidlc-docs/construction/u4-permission-management/functional-design/frontend-components.md`

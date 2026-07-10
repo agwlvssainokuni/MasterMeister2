@@ -1446,3 +1446,16 @@
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U4: Permission Management - Functional Design (Step 6 成果物生成)
+**Timestamp**: 2026-07-11T00:05:00Z
+**User Input**: "承認します。"（Step 6進行の承認、前セッションの完了確認メッセージへの応答）
+**AI Response**: `aidlc-docs/construction/u4-permission-management/functional-design/`配下に4成果物を生成した。
+- `domain-entities.md`: `group`ドメイン（`Group`/`GroupMember`、Q1）と`permission`ドメイン（`PermissionAssignment`/`AuxPermissionAssignment`/`PrincipalType`/`Permission`/`AuxPermissionType`、Q2）を定義。`principalId`のポリモーフィックFK不在という設計判断をQ2/Q3の確定内容の要約として明記。
+- `business-rules.md`: グループ管理（一意性・重複防止・カスケード削除・監査記録、Q1/Q4）、権限設定（入力検証Q3・監査記録・YAMLエクスポート形式Q5・YAMLインポート検証と全置換方式Q6・実効権限解決ロジック（Application Design確定分の再掲）・一貫性要件Q8）、API認可（全エンドポイント`hasRole("ADMIN")`、想定パス一覧）の3セクション構成。
+- `business-logic-model.md`: 5フロー（グループ作成・所属管理／権限設定／YAMLエクスポート／YAMLインポート／実効権限解決）と、PBT-01準拠の「テスト可能な性質」セクション（P1〜P10、`deleteGroup`のカスケード不変条件、`setPermission`冪等性、エクスポート→インポートのRound-trip、重複検出不変条件、全置換の状態遷移不変条件、グループ合成の可換性、個別上書きの不変条件、主キーなしテーブルの`canDelete`不変条件、Q8の一貫性状態遷移を含む）。
+- `frontend-components.md`: Q7で確定した`features/group/`（`GroupListPage`/`GroupTable`/`GroupDetailPage`/`GroupMemberTable`）・`features/permission/`（`PermissionAssignmentPage`/`ConnectionSelector`/`PrincipalSelector`/`PermissionTree`/`PermissionForm`/`PermissionYamlPanel`）のコンポーネント階層・Props/状態・API一覧・`AppRouter.tsx`ルート追加を設計。`features/permission/`から`features/group/`への一方向依存（`groupApi.listGroups()`参照）を明記。
+`u4-permission-management-functional-design-plan.md`にStep 6成果物チェックリスト（4件、`[x]`）を追記した。
+**Context**: Per-Unit Loop、U4 Functional Design Step 6完了。次はStep 7（標準完了メッセージ提示）→ Step 8（ユーザの明示承認待ち）。
+
+---
+

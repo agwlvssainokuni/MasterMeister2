@@ -3,7 +3,7 @@
 ## Project Information
 - **Project Type**: Brownfield
 - **Start Date**: 2026-07-06T10:38:36Z
-- **Current Stage**: CONSTRUCTION - Per-Unit Loop - U4: Permission Management - Functional Design - Q1-Q8 answered (`aidlc-docs/construction/plans/u4-permission-management-functional-design-plan.md`), backend/frontend split into `group`+`permission` packages (unit-of-work.md, PROJECT_STRUCTURE.md updated), next: Step 6 artifact generation.
+- **Current Stage**: CONSTRUCTION - Per-Unit Loop - U4: Permission Management - Functional Design - Step 6 artifacts generated (`aidlc-docs/construction/u4-permission-management/functional-design/`: domain-entities.md, business-rules.md, business-logic-model.md with PBT-01 P1-P10, frontend-components.md), awaiting user review/approval (Step 8).
 
 ## Execution Plan Summary
 - **Plan Document**: aidlc-docs/inception/plans/execution-plan.md
