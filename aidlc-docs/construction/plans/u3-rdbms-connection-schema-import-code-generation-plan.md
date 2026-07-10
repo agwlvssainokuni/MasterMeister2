@@ -1,0 +1,421 @@
+# u3-rdbms-connection-schema-import-code-generation-plan.md
+
+U3（RDBMS Connection & Schema Import）の Code Generation 計画。本ドキュメントが Code
+Generation の単一の真実源（single source of truth）であり、Part 2（Generation）はこの計画の
+ステップを順に実行する。ワークスペースルート: `~/Documents/project/git/MasterMeister2`
+（`aidlc-state.md` Workspace Root）。アプリケーションコードはワークスペースルート配下
+（`backend/`, `frontend/`）にのみ生成し、`aidlc-docs/` にはドキュメント成果物のみ生成する。
+
+---
+
+## ユニットコンテキスト（code-generation.md Step 3）
+
+### 対応ストーリー
+MVP-7, MVP-8, ADM-3（`unit-of-work-story-map.md`）:
+| ID | タイトル |
+|---|---|
+| MVP-7 | 対象RDBMS接続情報の登録 |
+| MVP-8 | スキーマ取り込み |
+| ADM-3 | 複数の対象RDBMS接続の管理 |
+
+### 他ユニットへの依存
+U1（Platform Foundation）のみに依存（`unit-of-work-dependency.md`）:
+- `common`（`PageRequest`/`PageResult`/`ErrorResponse`/`common.exception`配下の
+  `EntityNotFoundException`/`ValidationException`/`GlobalExceptionHandler`。本ユニットは
+  `GlobalExceptionHandler`への新規例外マッピング追記は不要——`EntityNotFoundException`
+  （既存、404）をそのまま「接続が見つからない」ケースに再利用する）
+- `common.dialect`（`RdbmsType`/`DialectStrategy`/`DialectStrategyFactory`/
+  `SchemaResolutionMode`はU1既存。本ユニットは`DialectStrategy`に`buildJdbcUrl(String host,
+  int port, String databaseName)`を追加するブラウンフィールド拡張を行う——後述「ブラウン
+  フィールド発見事項」参照）
+- `audit`（`AuditLogService.record(EventCategory, EventType, Long userId, Long connectionId,
+  Result, String targetDescription, String summaryMessage)`——U1が既に`connectionId`引数を
+  持つシグネチャで実装済みであり、`EventType.RDBMS_CONNECTION_CHANGED`/`SCHEMA_IMPORTED`も
+  U1で定義済み。新規追加は不要）
+
+### ブラウンフィールド発見事項（Code Generation Planning時に判明、NFR Designからの訂正）
+
+- **`SchemaResolutionMode`はU1のCode Generationで既に実装済み**であることが判明した。
+  `nfr-design-patterns.md` 4.1は「本ステージで新たに確定する」「新規定義」と記述していたが、
+  実際には`backend/src/main/java/cherry/mastermeister/common/dialect/`に
+  `SchemaResolutionMode`（enum: `CATALOG_BASED`, `SCHEMA_BASED`）と、`DialectStrategy`
+  インタフェースの`getSchemaResolutionMode()`、および4つの`DialectStrategy`実装
+  （`MySqlDialectStrategy`/`MariaDbDialectStrategy`→`CATALOG_BASED`、
+  `PostgreSqlDialectStrategy`/`H2DialectStrategy`→`SCHEMA_BASED`）が既に生成されている。
+  列挙値の名称は`nfr-design-patterns.md`が想定した`CATALOG_AS_SCHEMA`/`NATIVE_SCHEMA`とは
+  異なるが、意味論（MySQL/MariaDBはカタログ＝DB名でスキーマ概念を持たない／
+  PostgreSQL/H2は複数スキーマを持つ）は完全に一致する。**本計画では新規enum定義を行わず、
+  既存の`SchemaResolutionMode`をそのまま再利用する**（Step 2で変更なしを明記）。
+- 一方、`DialectStrategy`には対象RDBMSへのJDBC URL組み立てメソッドが存在しない
+  （`business-rules.md` 1.3が要求する「`rdbmsType`に対応する`DialectStrategy`を用いて
+  host+port+databaseNameからベースURLを構造化して組み立てる」機能は未実装）。Step 2で
+  `buildJdbcUrl(String host, int port, String databaseName): String`を`DialectStrategy`に
+  追加し、4実装クラスにブラウンフィールド修正を行う。
+
+### 提供インタフェース・契約（他ユニットが依存する公開API）
+- U4（Permission Management）・U5（Master Data Maintenance）・U6（Query Builder）・
+  U7（Saved Query/Execution/History）が`rdbmsconnection`（`ConnectionPoolRegistry`）・
+  `schema`（`SchemaTable`/`SchemaColumn`メタデータ参照）に依存する
+  （`unit-of-work-dependency.md`）。`ConnectionPoolRegistry`・`SchemaTable`/`SchemaColumn`・
+  `SchemaTableRepository`/`SchemaColumnRepository`は将来他ユニットから参照される想定のため
+  `public`で生成する。
+
+### 本ユニットが所有するデータエンティティ（内部DB/JPA）
+- `rdbmsconnection`パッケージ: `RdbmsConnection`
+- `schema`パッケージ: `SchemaTable`, `SchemaColumn`
+- （`RdbmsType`はU1所有、`TableType`は`schema`パッケージに新規追加）
+
+### パッケージ設計判断（`nfr-design-patterns.md`/`logical-components.md`からの継承、AI決定事項を含む）
+- `EncryptedStringConverter`・`ConnectionPoolRegistry`・`RdbmsConnectionService`は
+  `cherry.mastermeister.rdbmsconnection`パッケージに配置する（`nfr-design-patterns.md` 2.1）。
+- `SchemaImportService`・`SchemaQueryService`は`cherry.mastermeister.schema`パッケージに
+  配置する（`nfr-design-patterns.md` 2.1）。
+- **DTO配置**（本計画でのAI決定、Q&Aの対象外）: `ConnectionConfig`/`ConnectionSummary`/
+  `ConnectionDetail`/`ConnectionTestResult`は`rdbmsconnection`パッケージ、
+  `SchemaImportResult`/`TableMetadata`/`TableDetail`/`ColumnDetail`は`schema`パッケージに
+  配置する（対応するServiceと同一パッケージ、U2の`PendingUserSummary`配置方針を踏襲）。
+- **コントローラ分割**（本計画でのAI決定）: `RdbmsConnectionController`
+  （`rdbmsconnection`パッケージ、`/api/rdbms-connections`配下の接続CRUD・接続テスト）と
+  `SchemaController`（`schema`パッケージ、`/api/rdbms-connections/{connectionId}/schema-import`
+  等のスキーマ取り込み・参照）を分離する。`business-rules.md` 4節のパスは全て
+  `/api/rdbms-connections`配下に統一されているが、責務は`nfr-design-patterns.md` 2.1が
+  確定した`rdbmsconnection`/`schema`パッケージ分割に従う（コントローラもサービス層の
+  パッケージ境界と一致させる）。
+- **`ConnectionPoolRegistry`のリポジトリ直接参照**（本計画でのAI決定）:
+  `ConnectionPoolRegistry.getDataSource(connectionId)`が遅延生成時に接続設定
+  （復号済みパスワード含む）を必要とするため、`RdbmsConnectionRepository`を直接参照する
+  （`RdbmsConnectionService`経由にはしない——`nfr-design-patterns.md` 2.1の
+  「`schema→rdbmsconnection`一方向」原則は他ユニットからの参照方向の話であり、
+  同一`rdbmsconnection`パッケージ内の`ConnectionPoolRegistry`↔`RdbmsConnectionRepository`
+  参照はパッケージ内完結のため対象外）。
+
+### サービス境界・責務
+- `common.dialect`（U1既存、ブラウンフィールド拡張）: `DialectStrategy`に
+  `buildJdbcUrl(host, port, databaseName)`を追加、4実装クラスに実装を追記。
+- `rdbmsconnection`: `EncryptedStringConverter`（AES/GCM暗号化コンバータ）、
+  `ConnectionPoolRegistry`（`connectionId`ごとのHikariCPプールのキャッシュ・遅延生成・破棄）、
+  `RdbmsConnectionService`（接続情報のCRUD・接続テスト）。
+- `schema`: `SchemaImportService`（対象RDBMSからのメタデータ取り込み・upsert）、
+  `SchemaQueryService`（取り込み済みメタデータの参照、stale除外）。
+- フロントエンド: `features/rdbmsConnection/`（接続一覧・登録/編集フォーム）、
+  `features/schema/`（スキーマ取り込みパネル・暫定閲覧画面）。U1の`apiClient`/`AppRouter`/
+  `AppLayout`/`DataTable`/`ConfirmDialog`/`ToastNotification`/`ProtectedRoute`を
+  ブラウンフィールド拡張・再利用する。
+
+---
+
+## ステップ一覧
+
+### Step 1: プロジェクト構造セットアップ
+- [ ] 1-1. `backend/build.gradle.kts`（既存、ブラウンフィールド修正）の
+      `dependencyManagement.dependencies`ブロックに以下を追記（CLAUDE.md「Gradleバージョン
+      管理」規約、`tech-stack-decisions.md` #3）:
+      `dependency("com.mysql:mysql-connector-j:<最新安定版>")`,
+      `dependency("org.mariadb.jdbc:mariadb-java-client:<最新安定版>")`,
+      `dependency("org.postgresql:postgresql:<最新安定版>")`。
+      `dependencies`ブロックに`runtimeOnly("com.mysql:mysql-connector-j")`,
+      `runtimeOnly("org.mariadb.jdbc:mariadb-java-client")`,
+      `runtimeOnly("org.postgresql:postgresql")`を追記する（H2は既存の
+      `runtimeOnly("com.h2database:h2")`を再利用、追記不要）。バージョン番号は実装時に
+      Maven Central最新安定版を確認して確定する。
+
+### Step 2: ビジネスロジック生成
+- [ ] 2-1. `backend/src/main/java/cherry/mastermeister/common/dialect/DialectStrategy.java`
+      （既存、ブラウンフィールド修正）に`String buildJdbcUrl(String host, int port, String
+      databaseName)`を追加（「ブラウンフィールド発見事項」参照、`business-rules.md` 1.3）。
+- [ ] 2-2. `MySqlDialectStrategy`/`MariaDbDialectStrategy`/`PostgreSqlDialectStrategy`/
+      `H2DialectStrategy`（既存、ブラウンフィールド修正）に`buildJdbcUrl`を実装:
+      `jdbc:mysql://{host}:{port}/{databaseName}`,
+      `jdbc:mariadb://{host}:{port}/{databaseName}`,
+      `jdbc:postgresql://{host}:{port}/{databaseName}`,
+      `jdbc:h2:tcp://{host}:{port}/{databaseName}`（対象RDBMSとしてのH2はTCPサーバモード
+      接続を前提とする——`domain-entities.md`が`RdbmsConnection.host`/`port`を`H2`含む
+      全`RdbmsType`で必須としているため）。
+- [ ] 2-3. **該当なし（変更なし）**: `SchemaResolutionMode`（enum: `CATALOG_BASED`,
+      `SCHEMA_BASED`）はU1で実装済み。「ブラウンフィールド発見事項」のとおり、本計画では
+      新規定義・変更を行わない。
+- [ ] 2-4. `backend/src/main/java/cherry/mastermeister/rdbmsconnection/` に
+      `RdbmsConnection`（JPAエンティティ。`domain-entities.md`のフィールド定義: `id`,
+      `name`（not null）, `rdbmsType`（`RdbmsType`, not null）, `host`（not null）,
+      `port`（Integer, not null）, `databaseName`（not null）, `username`（not null）,
+      `password`（not null、`@Convert(converter = EncryptedStringConverter.class)`）,
+      `additionalParams`（nullable）, `createdAt`, `updatedAt`）を生成。
+- [ ] 2-5. `backend/src/main/java/cherry/mastermeister/rdbmsconnection/
+      EncryptedStringConverter.java`（`@Component` + `@Converter`、
+      `AttributeConverter<String, String>`）: コンストラクタで
+      `@Value("${mm.app.rdbms-connection.encryption-key}")`（Base64エンコード32バイト鍵）を
+      受け取り鍵長を検証してfail-fast（`JwtTokenProvider`と同型パターン、
+      `domain-entities.md`「実装方針」）。AES/GCM暗号化、IVはGCM推奨12バイトを暗号化ごとに
+      `SecureRandom`で生成し暗号文の先頭に付加して1つの文字列として保存
+      （`nfr-requirements.md` 1.1）。`convertToDatabaseColumn`/`convertToEntityAttribute`を
+      実装。
+- [ ] 2-6. `backend/src/main/java/cherry/mastermeister/rdbmsconnection/` に
+      `ConnectionConfig`（record: `String name, RdbmsType rdbmsType, String host, int port,
+      String databaseName, String username, String password, String additionalParams`
+      〈nullable〉）、`ConnectionSummary`（record: `Long id, String name, RdbmsType
+      rdbmsType, String host, String databaseName`）、`ConnectionDetail`（record: `Long id,
+      String name, RdbmsType rdbmsType, String host, int port, String databaseName, String
+      username, String additionalParams`——**パスワードは含めない**、
+      `frontend-components.md`「パスワード入力の扱い」）、`ConnectionTestResult`（record:
+      `boolean success, String message`）を生成。
+- [ ] 2-7. `backend/src/main/java/cherry/mastermeister/rdbmsconnection/
+      ConnectionPoolRegistry.java`（`@Component`、シングルトンスコープ既定）:
+      `ConcurrentHashMap<Long, HikariDataSource>`でキャッシュ。
+      `DataSource getDataSource(Long connectionId)`は`computeIfAbsent`で遅延生成
+      （`nfr-design-patterns.md` 1.1）、`NamedParameterJdbcTemplate getJdbcTemplate(Long
+      connectionId)`、`void invalidate(Long connectionId)`（`remove`+`close()`、
+      `business-rules.md` 1.5）を実装。生成時は`RdbmsConnectionRepository`
+      （`EntityNotFoundException`をスロー）から復号済み設定を取得し、
+      `DialectStrategyFactory.resolve(rdbmsType)`の`buildJdbcUrl`+`additionalParams`
+      （非空なら`?`区切りで1回だけ付加、`business-rules.md` 1.3）でJDBC URLを組み立て、
+      `mm.app.rdbms-connection.pool.*`設定値（`maximumPoolSize`/`minimumIdle`/
+      `connectionTimeout`）でHikariCPプールを生成。
+- [ ] 2-8. `backend/src/main/java/cherry/mastermeister/rdbmsconnection/
+      RdbmsConnectionService.java`（`@Service`）: `Long createConnection(ConnectionConfig
+      config)`（保存後`AuditLogService.record(ADMIN_OPERATION, RDBMS_CONNECTION_CHANGED,
+      adminUserId, connectionId, SUCCESS, name, ...)`、`business-rules.md` 1.2）、
+      `void updateConnection(Long connectionId, ConnectionConfig config)`（`password`が
+      空文字列の場合は既存の暗号化済みパスワードを変更せず他フィールドのみ更新
+      ——`frontend-components.md`「パスワード入力の扱い」がCode Generationでの確定を
+      要求していた事項、非空なら`EncryptedStringConverter`経由で再暗号化。成功時
+      `ConnectionPoolRegistry.invalidate(connectionId)`+監査記録、`business-rules.md`
+      1.2/1.5）、`ConnectionTestResult testConnection(ConnectionConfig config)`（保存前、
+      使い捨て`HikariDataSource`〈`maximumPoolSize=1`、`nfr-design-patterns.md` 3.1〉で
+      検証、`ConnectionPoolRegistry`には登録しない）、`ConnectionTestResult
+      testConnection(Long connectionId)`（`getConnection`相当で復号済み設定取得後、上記に
+      委譲、`business-rules.md` 1.4パターン2）、`List<ConnectionSummary>
+      listConnections()`、`ConnectionDetail getConnection(Long connectionId)`
+      （`EntityNotFoundException`）を実装（`business-logic-model.md`フロー1・2）。
+- [ ] 2-9. `backend/src/main/java/cherry/mastermeister/schema/` に
+      `SchemaTable`（JPAエンティティ。`domain-entities.md`のフィールド定義: `id`,
+      `connectionId`（not null）, `schemaName`（not null）, `tableName`（not null）,
+      `tableType`（`TableType`, not null）, `comment`（nullable）, `stale`（not null、
+      既定`false`）, `importedAt`, `updatedAt`。一意制約
+      `(connectionId, schemaName, tableName)`）、`SchemaColumn`（JPAエンティティ。`id`,
+      `tableId`（not null）, `columnName`（not null）, `dataType`（not null）, `nullable`
+      （not null）, `comment`（nullable）, `ordinalPosition`（not null）,
+      `primaryKeySequence`（nullable）, `stale`（not null、既定`false`）, `importedAt`,
+      `updatedAt`。一意制約`(tableId, columnName)`）、`TableType`（enum: `TABLE`, `VIEW`）を
+      生成。いずれも明示的な`@Table(indexes = {...})`は追加しない（一意制約のみで賄う、
+      `nfr-design-patterns.md` 5.1）。
+- [ ] 2-10. `backend/src/main/java/cherry/mastermeister/schema/` に
+      `SchemaImportResult`（record: `boolean success, int tableCount, String message`）、
+      `TableMetadata`（record: `String schemaName, String tableName, TableType tableType,
+      String comment`）、`ColumnDetail`（record: `String columnName, String dataType,
+      boolean nullable, String comment, int ordinalPosition, Integer primaryKeySequence`）、
+      `TableDetail`（record: `String schemaName, String tableName, TableType tableType,
+      String comment, List<ColumnDetail> columns`）を生成。
+- [ ] 2-11. `backend/src/main/java/cherry/mastermeister/schema/SchemaImportService.java`
+      （`@Service`、メソッド全体に`@Transactional`、`nfr-design-patterns.md` 4.2）:
+      `SchemaImportResult importSchema(Long connectionId, Long adminUserId)`。
+      `ConnectionPoolRegistry`経由で対象RDBMSへの`DataSource`を取得し、
+      `Connection.getMetaData()`（標準`java.sql.DatabaseMetaData`）で
+      `DialectStrategy.getSchemaResolutionMode()`に応じて`CATALOG_BASED`なら
+      `getTables(catalog = RdbmsConnection.databaseName, schema = null, ...)`、
+      `SCHEMA_BASED`なら`getSchemas(catalog, null)`列挙後スキーマごとに`getTables`を呼び出し
+      （`nfr-design-patterns.md` 4.1）、`getColumns`/`getPrimaryKeys`でカラム・主キー構成を
+      取得する。読み取った各テーブル/カラムを`(connectionId, schemaName, tableName)`/
+      `(tableId, columnName)`の物理名で既存行とマッチングしupsert、対象RDBMS側で
+      見つからなくなった既存行は`stale = true`に設定（削除しない、`business-rules.md`
+      2.2）。ビュー（`tableType = VIEW`）のカラムは`primaryKeySequence`を常に`null`とする
+      （`business-rules.md` 2.1）。処理途中の例外は`@Transactional`により内部DB変更を
+      全ロールバック（`business-rules.md` 2.3）。成功/失敗いずれも
+      `AuditLogService.record(ADMIN_OPERATION, SCHEMA_IMPORTED, adminUserId, connectionId,
+      SUCCESS|FAILURE, connectionName, ...)`を呼び出す。
+- [ ] 2-12. `backend/src/main/java/cherry/mastermeister/schema/SchemaQueryService.java`
+      （`@Service`）: `List<String> listSchemas(Long connectionId)`（`stale = false`の
+      `SchemaTable`から`schemaName`をdistinct取得）、`List<TableMetadata>
+      listTables(Long connectionId, String schema)`（`stale = false`のみ、
+      `business-rules.md` 2.4）、`TableDetail getTableDetail(Long connectionId, String
+      schema, String table)`（`stale = false`のカラムのみ、`primaryKeySequence`昇順で
+      整列、`EntityNotFoundException`）を実装（`business-logic-model.md`フロー5）。
+
+### Step 3: ビジネスロジック単体テスト（PBT-01〜PBT-08, PBT-10）
+`business-logic-model.md`のP1〜P11に加え、`SchemaQueryService`のstale除外挙動は
+Functional Design時点のP1〜P11に含まれていなかったため、U1/U2の`common.dialect`（P9〜P12）・
+`OpaqueTokenGenerator`（P12）と同様、本Code Generation計画で新たにP12として識別する。
+- [ ] 3-1. **P1**（`EncryptedStringConverter`のRound-trip）、**P2**（暗号化後の値が平文と
+      不一致であるInvariant）: jqwikでランダムな文字列を生成する`@Property`テストを
+      `EncryptedStringConverterTest`に生成。
+- [ ] 3-2. **P3**（JDBC URL組み立てのInvariant: `additionalParams`の有無によらず構造化
+      ベースURLで始まり、非空時のみ1回だけ末尾付加）: `DialectStrategy`各実装の
+      `buildJdbcUrl`＋`RdbmsConnectionService`のURL組み立てロジックをjqwikでランダムな
+      `additionalParams`（空/非空）を生成し検証する`@Property`テストを
+      `RdbmsConnectionServiceTest`に生成。
+- [ ] 3-3. **P4**（`ConnectionPoolRegistry.getDataSource`のIdempotence）、**P5**
+      （`invalidate`後の新規インスタンス生成Invariant）: `RdbmsConnectionRepository`を
+      モック化し、複数回呼び出し・`invalidate`前後の同一性/非同一性を検証する`@Property`
+      テストを`ConnectionPoolRegistryTest`に生成。
+- [ ] 3-4. **P6**（`testConnection`呼び出し前後で`ConnectionPoolRegistry`のキャッシュ状態が
+      変化しないInvariant）: jqwikで2パターン（未保存設定/既存接続ID）をランダムに生成し
+      検証する`@Property`テストを`RdbmsConnectionServiceTest`に生成。
+- [ ] 3-5. **P7**（`importSchema`の物理名マッチングInvariant: idの不変性）、**P8**
+      （削除された物理名が`stale = true`となり行削除されないInvariant）、**P9**
+      （`importSchema`の連続実行に対するIdempotence）: `SchemaTableRepository`/
+      `SchemaColumnRepository`をモック化し、対象RDBMS側のメタデータ変化パターン
+      （不変/追加/削除）をjqwik Arbitraryで生成する`@Property`テストを
+      `SchemaImportServiceTest`に生成。
+- [ ] 3-6. **P10**（`importSchema`失敗時のロールバックRound-trip）: 取り込み処理途中で
+      例外を発生させた場合に内部DB状態が処理開始前と一致することを、`@DataJpaTest`＋
+      実際のトランザクション境界で検証する`@Property`テストを`SchemaImportServiceTest`に
+      生成。
+- [ ] 3-7. **P11**（ビュー取り込み時、`SchemaColumn.primaryKeySequence`が常に`null`である
+      Invariant）: `tableType = VIEW`のケースをjqwikで生成する`@Property`テストを
+      `SchemaImportServiceTest`に生成。
+- [ ] 3-8. **P12**（`SchemaQueryService`のstale除外Invariant: `listTables`/
+      `getTableDetail`が返す結果に`stale = true`の`SchemaTable`/`SchemaColumn`が
+      含まれない）: `stale`値の組み合わせをjqwik Arbitraryで生成する`@Property`テストを
+      `SchemaQueryServiceTest`に生成。
+
+### Step 4: ビジネスロジックサマリ
+- [ ] 4-1. `aidlc-docs/construction/u3-rdbms-connection-schema-import/code/
+      business-logic-summary.md`を生成し、Step 2・Step 3で生成したクラス一覧とP1〜P12の
+      対応関係を表形式で記載する。
+
+### Step 5: APIレイヤ生成
+- [ ] 5-1. `backend/src/main/java/cherry/mastermeister/rdbmsconnection/
+      RdbmsConnectionController.java`（`@RestController
+      @RequestMapping("/api/rdbms-connections")`）: `POST ""`（`createConnection`→201）,
+      `PUT "/{id}"`（`updateConnection`→204）, `GET ""`（`listConnections`→
+      `List<ConnectionSummary>`）, `GET "/{id}"`（`getConnection`→`ConnectionDetail`）,
+      `POST "/test"`（`testConnection(config)`→`ConnectionTestResult`）,
+      `POST "/{id}/test"`（`testConnection(id)`→`ConnectionTestResult`）を生成
+      （`business-rules.md` 4節のパスパターンに準拠。`adminUserId`は
+      `SecurityContextHolder`から取得——U2の`RegistrationController`と同じ取得方法）。
+- [ ] 5-2. `backend/src/main/java/cherry/mastermeister/schema/SchemaController.java`
+      （`@RestController @RequestMapping("/api/rdbms-connections/{connectionId}")`）:
+      `POST "/schema-import"`（`importSchema`→`SchemaImportResult`）,
+      `GET "/schemas"`（`listSchemas`→`List<String>`）,
+      `GET "/schemas/{schema}/tables"`（`listTables`→`List<TableMetadata>`）,
+      `GET "/schemas/{schema}/tables/{table}"`（`getTableDetail`→`TableDetail`）を生成
+      （`business-rules.md` 4節のパスパターンに準拠）。
+- [ ] 5-3. `backend/src/main/java/cherry/mastermeister/security/SecurityConfig.java`
+      （既存、ブラウンフィールド修正）に`authorizeHttpRequests`の
+      `anyRequest().authenticated()`より前の行として
+      `requestMatchers("/api/rdbms-connections/**").hasRole("ADMIN")`を追記
+      （`business-rules.md` 4節「全機能が管理者専用」、U1 NFR Design 1.3の規約に従う）。
+
+### Step 6: APIレイヤ単体テスト
+- [ ] 6-1. `RdbmsConnectionControllerTest`（`@WebMvcTest` + `spring-security-test`）:
+      接続CRUD・接続テスト（保存前/既存接続）を`@WithMockUser(roles = "ADMIN")`と
+      管理者以外403・未認証401のexample-basedテストで検証。
+- [ ] 6-2. `SchemaControllerTest`（`@WebMvcTest` + `spring-security-test`）: スキーマ取り込み・
+      スキーマ/テーブル/カラム参照を同様のexample-basedテストで検証。
+
+### Step 7: APIレイヤサマリ
+- [ ] 7-1. `aidlc-docs/construction/u3-rdbms-connection-schema-import/code/
+      api-layer-summary.md`を生成し、エンドポイント一覧（パス・メソッド・認可要件・
+      リクエスト/レスポンス形状）を記載。
+
+### Step 8: リポジトリレイヤ生成
+- [ ] 8-1. `backend/src/main/java/cherry/mastermeister/rdbmsconnection/
+      RdbmsConnectionRepository.java`（`JpaRepository<RdbmsConnection, Long>`）を生成。
+- [ ] 8-2. `backend/src/main/java/cherry/mastermeister/schema/SchemaTableRepository.java`
+      （`JpaRepository<SchemaTable, Long>`。`Optional<SchemaTable>
+      findByConnectionIdAndSchemaNameAndTableName(Long, String, String)`（upsertマッチング
+      用）, `List<String> findDistinctSchemaNameByConnectionIdAndStaleFalse(Long)`,
+      `List<SchemaTable> findByConnectionIdAndSchemaNameAndStaleFalse(Long, String)`,
+      `List<SchemaTable> findByConnectionId(Long)`（再取り込み時のstale判定対象取得用）を
+      定義）を生成。
+- [ ] 8-3. `backend/src/main/java/cherry/mastermeister/schema/SchemaColumnRepository.java`
+      （`JpaRepository<SchemaColumn, Long>`。`Optional<SchemaColumn>
+      findByTableIdAndColumnName(Long, String)`,
+      `List<SchemaColumn> findByTableIdAndStaleFalseOrderByOrdinalPositionAsc(Long)`,
+      `List<SchemaColumn> findByTableId(Long)`を定義）を生成。
+
+### Step 9: リポジトリレイヤ単体テスト
+- [ ] 9-1. `RdbmsConnectionRepositoryTest`/`SchemaTableRepositoryTest`/
+      `SchemaColumnRepositoryTest`（いずれも`@DataJpaTest`、組み込みH2）: 基本CRUD・上記
+      クエリメソッドのexample-basedテストを生成。一意制約
+      （`(connectionId, schemaName, tableName)`, `(tableId, columnName)`）違反時の例外発生も
+      検証する。
+
+### Step 10: リポジトリレイヤサマリ
+- [ ] 10-1. `aidlc-docs/construction/u3-rdbms-connection-schema-import/code/
+      repository-layer-summary.md`を生成し、3リポジトリのクエリメソッド一覧とインデックス
+      設計（一意制約のみ、`nfr-design-patterns.md` 5.1）を記載。
+
+### Step 11: フロントエンドコンポーネント生成
+- [ ] 11-1. `frontend/src/features/rdbmsConnection/` に
+      `ConnectionListPage.tsx`（マウント時`connectionApi.listConnections()`、
+      `data-testid="connection-list-page-new-button"`）、
+      `ConnectionTable.tsx`（`DataTable`〈U1〉利用、
+      `data-testid="connection-table-edit-button"` / `-test-button"` /
+      `-import-schema-button"`、`ToastNotification`〈U1〉で接続テスト結果通知）、
+      `ConnectionFormPage.tsx`（新規登録/編集共用、`data-testid=
+      "connection-form-page-name-input"` / `-rdbms-type-select"` / `-host-input"` /
+      `-port-input"` / `-database-name-input"` / `-username-input"` / `-password-input"` /
+      `-additional-params-input"` / `-test-button"` / `-submit-button"` /
+      `-test-result-message"`。編集時パスワード欄は空欄表示、空欄のまま保存で変更なし、
+      `frontend-components.md`）、`api/connectionApi.ts`（`createConnection`,
+      `updateConnection`, `listConnections`, `getConnection`, `testConnection`〈設定/ID
+      両対応〉）、`types.ts`を生成。
+- [ ] 11-2. `frontend/src/features/schema/` に
+      `SchemaImportPanel.tsx`（`data-testid="schema-import-panel-import-button"` /
+      `-result-message"`）、
+      `SchemaBrowserPage.tsx`（マウント時`schemaApi.listSchemas(connectionId)`）、
+      `SchemaSelector.tsx`（`data-testid="schema-selector-select"`）、
+      `TableList.tsx`（`DataTable`〈U1〉利用、`data-testid="table-list-row"`）、
+      `TableDetailPanel.tsx`（カラム一覧・主キー構成表示）、
+      `api/schemaApi.ts`（`importSchema`, `listSchemas`, `listTables`, `getTableDetail`）、
+      `types.ts`を生成（`frontend-components.md`）。
+- [ ] 11-3. `frontend/src/routes/AppRouter.tsx`（既存、ブラウンフィールド修正）:
+      `AuthenticatedRoutes`内に`/admin/rdbms-connections`（`ConnectionListPage`）,
+      `/admin/rdbms-connections/new`（`ConnectionFormPage mode='create'`）,
+      `/admin/rdbms-connections/:id`（`ConnectionFormPage mode='edit'`）,
+      `/admin/schema/:connectionId`（`SchemaBrowserPage`）を`ProtectedRoute
+      requiredRole="ADMIN"`配下に追加（`frontend-components.md`ルーティング表）。
+      `SchemaImportPanel`は独立ルートを持たず`ConnectionListPage`/`ConnectionFormPage`内から
+      起動するモーダル/パネルとして生成する。
+- [ ] 11-4. `frontend/src/components/AppLayout.tsx`（既存、ブラウンフィールド修正）に
+      「RDBMS接続管理」（`/admin/rdbms-connections`）へのナビゲーションリンクを追加
+      （管理者ロールのみ表示、U1の出し分け機構を再利用、`frontend-components.md`）。
+
+### Step 12: フロントエンドコンポーネント単体テスト
+- [ ] 12-1. Vitest + React Testing Library で以下のexample-basedテストを生成:
+      `connectionApi`（各関数のリクエスト形状）,
+      `ConnectionListPage`/`ConnectionTable`（一覧表示、編集/テスト/取り込み導線 —
+      ADM-3 AC）,
+      `ConnectionFormPage`（新規登録・編集の保存、接続テスト結果表示、パスワード空欄時の
+      維持動作 — MVP-7 AC）,
+      `schemaApi`（各関数のリクエスト形状）,
+      `SchemaImportPanel`（取り込み実行と結果表示 — MVP-8 AC）,
+      `SchemaBrowserPage`/`SchemaSelector`/`TableList`/`TableDetailPanel`（スキーマ選択→
+      テーブル一覧→カラム詳細の遷移、複合主キー表示）,
+      `AppRouter`（追加ルートの保護ルート・未認証リダイレクト）,
+      `AppLayout`（管理者ロールでのナビゲーションリンク表示）。
+
+### Step 13: フロントエンドコンポーネントサマリ
+- [ ] 13-1. `aidlc-docs/construction/u3-rdbms-connection-schema-import/code/
+      frontend-summary.md`を生成し、`features/rdbmsConnection/`・`features/schema/`の
+      コンポーネント一覧・`data-testid`一覧を記載。
+
+### Step 14: データベースマイグレーションスクリプト
+- [ ] 14-1. **該当なし（N/A）**: U1/U2と同様、内部DB(H2)のスキーマ管理はJPAの自動DDL生成に
+      委ね、Flyway/Liquibase等は導入しない。
+
+### Step 15: ドキュメント生成
+- [ ] 15-1. Step 4/7/10/13で生成した各サマリに加え、
+      `aidlc-docs/construction/u3-rdbms-connection-schema-import/code/testing-summary.md`
+      （P1〜P12とテストクラスの対応表、example-basedテスト一覧、PBT-10補完的テスト戦略の
+      再確認）を生成する。
+
+### Step 16: デプロイ成果物生成
+- [ ] 16-1. `backend/src/main/resources/application.yml`（既存、ブラウンフィールド修正）に
+      追記: `mm.app.rdbms-connection.encryption-key`（既定未設定、fail-fast、環境変数
+      プレースホルダ）,
+      `mm.app.rdbms-connection.pool.maximum-pool-size`（既定`5`）,
+      `mm.app.rdbms-connection.pool.minimum-idle`（既定`0`）,
+      `mm.app.rdbms-connection.pool.connection-timeout`（既定`5000`ミリ秒、
+      `tech-stack-decisions.md`設定キー一覧）。
+
+---
+
+## 完了基準
+- 上記全ステップの生成物がワークスペースルート配下に作成され、対応する単体テストが
+  生成されていること（実行・グリーン確認はBuild and Testステージで行う）。
+- P1〜P12全ての性質にjqwik `@Property`テストが対応していること（PBT-02〜PBT-08準拠）。
+- `aidlc-docs/construction/u3-rdbms-connection-schema-import/code/`配下に5つのサマリ
+  ドキュメント（business-logic-summary.md, api-layer-summary.md,
+  repository-layer-summary.md, frontend-summary.md, testing-summary.md）が生成されている
+  こと。
