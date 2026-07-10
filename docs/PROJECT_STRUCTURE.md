@@ -39,7 +39,8 @@ backend/
     │   │   ├── userregistration/ # 5.1 ユーザ登録（申請→メール→承認/却下）
     │   │   ├── rdbmsconnection/  # 5.2 対象RDBMS接続情報管理
     │   │   ├── schema/           # 5.2 スキーマ取込（テーブル/ビュー/カラム構造の読取）
-    │   │   ├── permission/       # 5.2 テーブル/カラム権限、YAMLエクスポート/インポート
+    │   │   ├── group/            # 5.2 ユーザグループの作成・所属管理
+    │   │   ├── permission/       # 5.2 テーブル/カラム権限、YAMLエクスポート/インポート（groupに依存）
     │   │   ├── masterdata/       # 5.4 マスタ一覧・絞込・編集・作成/削除の統一API
     │   │   ├── querybuilder/     # 5.5 クエリビルダー（SQL生成/逆解析）
     │   │   ├── savedquery/       # 5.6 クエリ保存（公開/非公開、実行、編集権限）
@@ -77,6 +78,7 @@ frontend/
     │   ├── userRegistration/    # 登録申請〜承認画面（一般/管理者）
     │   ├── rdbmsConnection/     # RDBMS接続設定（管理者）
     │   ├── schema/              # スキーマ取込（管理者）
+    │   ├── group/               # グループ作成・所属管理（管理者）
     │   ├── permission/          # 権限設定・YAML入出力（管理者）
     │   ├── masterData/          # テーブル一覧・レコード一覧編集
     │   ├── queryBuilder/        # クエリビルダー

@@ -2,9 +2,12 @@
 
 ## Step 1: ユニットコンテキスト分析
 
-- **ユニット定義**（`unit-of-work.md`）: バックエンドパッケージ `permission`。フロントエンド
-  `features/permission/`。対応ストーリー MVP-9, ADM-1, ADM-2, ADM-4, ADM-5。責務: テーブル/
-  カラム単位のアクセス権限（ユーザ個別・グループ）の設定と、実効権限の解決。
+- **ユニット定義**（`unit-of-work.md`）: バックエンドパッケージ `group`, `permission`。
+  フロントエンド `features/group/`, `features/permission/`（U4 Functional Designで
+  単一パッケージから分割、詳細はQ7参照。U2の`auth`/`userregistration`、U3の
+  `rdbmsconnection`/`schema`と同様の分割方針）。対応ストーリー MVP-9, ADM-1, ADM-2, ADM-4,
+  ADM-5。責務: テーブル/カラム単位のアクセス権限（ユーザ個別・グループ）の設定と、実効権限の
+  解決。
   - ユーザグループの作成・所属管理（ADM-1）
   - 主権限（なし/R/RU、スキーマ/テーブル/カラムの3階層）・補助権限（作成C/削除D、
     スキーマ/テーブルの2階層）の設定・変更、YAMLエクスポート/インポート
@@ -148,7 +151,12 @@
   残っていても実効権限解決時にそのテーブル自体がアクセス不能になるだけで、権限設定操作
   自体は妨げない）。存在しない物理名を指定した場合は`IllegalArgumentException`相当の
   例外とし、監査ログには失敗として記録する。(3) `setAuxPermission`は`column`パラメータを
-  持たないため階層チェックは不要（スキーマ/テーブルの2階層のみ）。
+  持たないため階層チェックは不要（スキーマ/テーブルの2階層のみ）。(4) principal実在
+  チェック——`PrincipalRef`の`principalId`が、`principalType`に応じて実在の`User.id`
+  （`USER`の場合）または`Group.id`（`GROUP`の場合）を指していること。`principalId`は
+  DBレベルのFKを持てない（`principalType`次第で参照先テーブルが変わるポリモーフィックな
+  参照のため）ので、この存在確認をアプリケーション層のバリデーションで代替する。存在しない
+  `principalId`を指定した場合も(2)と同様に例外とし、監査ログに失敗を記録する。
 - **B**: 参照整合性チェックは行わず、任意の文字列をそのまま保存する（存在しない物理名でも
   許可、`EffectivePermissionResolver`側で無視される想定）。
 - **C**: その他（自由記述）
@@ -167,12 +175,26 @@
 - **A（推奨）**: 本ユニットのスコープは`component-methods.md`確定済みの5メソッドのみとし、
   グループ名変更・グループ削除はMVPスコープ外とする（要件・ストーリーに記載がなく、
   将来必要になれば別途追加する）。グループ名の一意性のみ`createGroup`でチェックする。
-- **B**: グループ名変更（`renameGroup`）・グループ削除（`deleteGroup`、削除時は
+- **B（採用）**: グループ名変更（`renameGroup`）・グループ削除（`deleteGroup`、削除時は
   `GroupMember`・関連する`PermissionAssignment`/`AuxPermissionAssignment`も連動して削除）を
   本ユニットに追加する。
+  - 追加メソッドシグネチャ（`component-methods.md`のApplication Design確定分に対する
+    Functional Design段階での追記として扱う。既存5メソッドの変更ではなく追加のため、
+    Application Designの承認済み決定と矛盾しない）:
+    ```
+    GroupService:
+      void renameGroup(Long groupId, String newName)
+        // 一意性チェックはcreateGroupと同様
+      void deleteGroup(Long groupId)
+        // カスケード削除: GroupMember（該当groupId分）、
+        // PermissionAssignment/AuxPermissionAssignment（principalType=GROUP かつ
+        // principalId=groupId分）を同一トランザクションで削除
+    ```
+  - `deleteGroup`は監査ログ`EventType.GROUP_CHANGED`で記録する（既存の`addUserToGroup`等と
+    同じイベント種別、`summaryMessage`で操作種別（削除）を区別する）。
 - **C**: その他（自由記述）
 
-[Answer]: A
+[Answer]: B
 
 ---
 
@@ -181,14 +203,15 @@
 `exportPermissionsAsYaml`/`importPermissionsFromYaml`が扱うYAML構造をどう設計するか
 （ADM-4: 「ユーザ/グループ・テーブル/カラム単位の設定が含まれる」）。
 
-- **A（推奨）**: 接続単位で1ファイル。principal（ユーザ/グループ）ごとに配下へ主権限・
-  補助権限の設定一覧をネストする構造。
+- **A（採用、修正版）**: `connectionId`はYAML本文に含めない（`exportPermissionsAsYaml`/
+  `importPermissionsFromYaml`とも`connectionId`はメソッド引数（APIではパスパラメータ）
+  として渡され、YAML内で重複保持する必要がないため）。principal（ユーザ/グループ）ごとに
+  配下へ主権限・補助権限の設定一覧をネストする構造とし、principalの参照キーは内部IDでは
+  なく**メールアドレス（USER）/グループ名（GROUP）**とする（IDは視認性に欠けるため）。
   ```yaml
-  connectionId: 3
   principals:
     - type: USER
-      id: 42
-      email: alice@example.com   # 参照用、インポート時は id を正とする
+      email: alice@example.com
       permissions:
         - schema: public
           table: employees        # 省略時はスキーマレベル設定
@@ -200,20 +223,20 @@
           type: CREATE
           granted: true
     - type: GROUP
-      id: 7
       name: sales_team
       permissions: [...]
       auxPermissions: [...]
   ```
-  インポート時は`id`（ユーザ/グループの内部ID）を主キーとして照合し、`email`/`name`は
-  人間可読性のための参考情報として無視する（インポート先環境で`id`が一致しない場合は
-  Q6のエラー処理に従う）。
+  インポート時は`User.email`（一意）/`Group.name`（一意、Q1で確定）で該当principalを照合する。
+  一致するユーザ/グループが存在しない場合はQ6のエラー処理に従う（`PermissionYamlFormatException`、
+  一切反映しない）。
 - **B**: principalではなくスキーマ/テーブル/カラムを起点にネストし、各項目配下に
   アクセス可能なprincipalの一覧を列挙する構造（テーブル中心のレビューがしやすい一方、
-  同一principalの設定が複数箇所に分散する）。
+  同一principalの設定が複数箇所に分散する）。A/B両対応は不採用（インポート時の形式検出・
+  二重のバリデーション実装コストに見合う要件上の必要性がないため）。
 - **C**: その他（自由記述）
 
-[Answer]: A
+[Answer]: A（修正版）
 
 ---
 
@@ -222,43 +245,58 @@
 `importPermissionsFromYaml`で「形式不正時はエラー表示・反映しない」（ADM-5）をどこまで
 厳密に扱うか。
 
-- **A（推奨）**: 以下いずれかに該当すれば`PermissionYamlFormatException`とし、**一切反映
-  しない**（部分反映は行わない、Q3のバリデーションと同じ全件ロールバック方針）。
+- **A（推奨、Q5修正版に合わせて更新）**: 以下いずれかに該当すれば
+  `PermissionYamlFormatException`とし、**一切反映しない**（部分反映は行わない、Q3の
+  バリデーションと同じ全件ロールバック方針）。
   1. YAML構文自体が不正（パース不能）
-  2. トップレベルの`connectionId`がAPI呼び出しの`connectionId`引数と不一致
-  3. 必須フィールド欠落（`type`/`id`/`schema`/`permission`等）
-  4. `type`/`permission`/`auxType`が既定の enum 値以外
-  5. 参照先のユーザ/グループID、またはテーブル/カラム物理名が対象接続に存在しない
-     （Q3の参照整合性チェックをインポート時にも同様に適用）
+  2. 必須フィールド欠落（`type`/`email`（USER時）/`name`（GROUP時）/`schema`/`permission`等）
+  3. `type`/`permission`/`auxType`が既定の enum 値以外
+  4. 参照先の`email`（USER）/`name`（GROUP）に一致するユーザ/グループが存在しない、または
+     テーブル/カラム物理名が対象接続に存在しない（Q3の参照整合性チェックをインポート時にも
+     同様に適用）
+  5. **同一ファイル内での重複定義**——同一principal（`email`/`name`で識別）×`schema`×
+     `table`×`column`の組み合わせが`permissions`（または`schema`×`table`×`auxType`の組み合わせが
+     `auxPermissions`）配下に複数回出現する（`PermissionAssignment`/`AuxPermissionAssignment`の
+     一意制約（Q2）に対応する重複をインポート時点で検出する）。
   例外メッセージには最初に検出した違反内容の概要を含める（詳細な行番号特定までは行わない）。
   失敗時も`AuditLogService.record`で`PERMISSION_YAML_IMPORTED`・`Result.FAILURE`を記録する
   （ADM-5「インポート操作は監査ログに記録される」は成功/失敗どちらも対象と解釈）。
+  - **既存設定との関係（全置換方式を採用）**: バリデーションを通過した場合、対象接続の
+    既存`PermissionAssignment`/`AuxPermissionAssignment`を全削除してからYAMLの内容で
+    再構築する（マージではなく全置換）。「エクスポート→編集→再インポート」で
+    YAMLから削除したエントリが実際の権限からも削除される、という単純なメンタルモデルを
+    優先する。削除→再構築は同一トランザクション内で行う。
 - **B**: 個々のprincipal/権限エントリ単位で検証し、不正なエントリのみスキップして残りは
   反映する（部分成功を許容、`ImportResult`に成功件数・スキップ件数・エラー概要を含める）。
 - **C**: その他（自由記述）
 
-[Answer]: A
+[Answer]: A（重複拒否・全置換方式を含む）
 
 ---
 
-### Q7. Frontend Components — `permission/`機能のコンポーネント構成
+### Q7. Frontend Components — `group/`・`permission/`機能のコンポーネント構成
 
 U1-U3の`frontend-components.md`と同様の粒度で、本ユニットのフロントエンド機能を
 どこまで詳細に設計するか。
 
-- **A（推奨）**: 以下の画面・コンポーネントを設計する（いずれも管理者専用、`/admin`配下）。
-  - `GroupListPage`（グループ一覧、`DataTable`再利用、新規作成導線）、`GroupDetailPage`
-    （グループ名表示、所属ユーザ一覧・追加/削除、`ConfirmDialog`で削除確認）。
-  - `PermissionAssignmentPage`（接続選択→principal（ユーザ or グループ）選択→スキーマ/
-    テーブル/カラムのツリー表示（U3の`SchemaQueryService`メタデータを利用）→各階層に
-    主権限・補助権限を設定するフォーム）。
-  - `PermissionYamlPanel`（選択中接続のエクスポート（ダウンロード）ボタン、インポート
-    （ファイルアップロード）ボタン+結果表示）。
+- **A（採用、修正版）**: `group`と`permission`を別featureとして分割する（U2の
+  `auth`/`userRegistration`、U3の`rdbmsConnection`/`schema`と同様の分割方針。バックエンド
+  パッケージ分割（Step 1参照）に対応）。以下の画面・コンポーネントを設計する（いずれも
+  管理者専用、`/admin`配下）。
+  - **`features/group/`**: `GroupListPage`（グループ一覧、`DataTable`再利用、新規作成・
+    名称変更・削除導線、削除は`ConfirmDialog`で確認）、`GroupDetailPage`（グループ名表示、
+    所属ユーザ一覧・追加/削除）。
+  - **`features/permission/`**: `PermissionAssignmentPage`（接続選択→principal（ユーザ or
+    グループ）選択→スキーマ/テーブル/カラムのツリー表示（U3の`SchemaQueryService`メタデータを
+    利用）→各階層に主権限・補助権限を設定するフォーム）。principal選択でグループを選ぶ際は
+    `features/group/`の`groupApi.listGroups()`を呼び出し参照する（機能間の一方向依存、
+    バックエンドの`permission`→`group`依存と対応）。`PermissionYamlPanel`（選択中接続の
+    エクスポート（ダウンロード）ボタン、インポート（ファイルアップロード）ボタン+結果表示）。
   - `AppRouter.tsx`に`/admin/groups`、`/admin/groups/:id`、
     `/admin/permissions`（接続選択含む）等のルートを追加する。
 - **B**: 別の粒度・構成を希望する（自由記述）。
 
-[Answer]: A
+[Answer]: A（group/permission分割版）
 
 ---
 
@@ -274,11 +312,17 @@ Functional Designで確定すべき業務要件）。
   権限変更（`setPermission`等）の直後に`EffectivePermissionResolver`を呼び出した場合、
   必ず変更後の値が返る。NFR Designでキャッシュを導入する場合も、更新時の即時無効化
   （write-through/invalidate-on-write）が必須制約となる。
+  - **キャッシュ無効化が必要な操作の洗い出し（業務ロジックとして確定、実装方式はNFR
+    Designで決定）**: `PermissionAssignmentService`の書き込み系
+    （`setPermission`/`setAuxPermission`/`importPermissionsFromYaml`）に加え、
+    `GroupService`の書き込み系（`addUserToGroup`/`removeUserFromGroup`/`renameGroup`/
+    `deleteGroup`）も対象に含む。グループ所属の変更はグループ合成結果（判定ロジック要旨3.）
+    に影響し、権限設定自体に変更がなくても実効権限が変わり得るため。
 - **B**: 一定期間（数秒〜数分）古い権限設定が見える可能性を許容する（eventual
   consistency、NFR Designでのキャッシュ設計の自由度が上がる一方、権限変更直後に
   一般ユーザ側へ反映されないタイムラグが生じ得る）。
 - **C**: その他（自由記述）
 
-[Answer]: A
+[Answer]: A（キャッシュ無効化対象操作の洗い出しを含む）
 
 ---

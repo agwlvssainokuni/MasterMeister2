@@ -1429,3 +1429,20 @@
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U4: Permission Management - Functional Design (Q1-Q8 回答確定)
+**Timestamp**: 2026-07-10T23:50:00Z
+**User Input**: "Q1について。Many-To-Manyの対応になる認識。JPAの@ManyToManyを儲ける必要はあるだろうか。" → "GroupMemberにid列を設ける必要はある？JPAなのでサロゲートキーはあった方が良いのか？" → "OK。ではQ1はAとします。" → "Q2について。principalIdにFKは儲けられないよね。これは割り切る？" → "実在チェックの方針の追記について承認します。" → "Q3: Aとします。" → "Q4: Bとします。グループ名変更、削除はサポートしたい。" → "Q5について。インポート時にパスでconnectionIdが設定されるので、YAMLファイルには不要。USER, GROUPはメール・名前で指定させたい。IDだと視認性にかけるので。あと、A, B両方に対応することは可能か？" → "Q6はAとします。インポートについて追加で問題提起しても良いでしょうか？" → "パーミッション設定ファイル(YAML)を複数設定した場合の仕様を定義しておく必要があるのではないでしょうか？" → "OKです。" → "課題にあがっていませんが。パーミッションの実際の判定方法について、実現方式を考えておいた方が良いかなと思います。端的にいうと「キャッシュが必要だよね」ということです...初回はロジック通りに算出するとしても、その結果をキャッシュしておいて2回目以降はキャッシュを使う、という方向かなと考えています。いかがでしょうか？" → "Q8に合ったのですね。その認識で合っています。" → "Q7について。グループはパーミッションと別のfeatureとして暑かった方が良いのではないだろうか。これはbackendも同様。" → "ここまでコミット。"
+**AI Response**: 全8問について議論の上、回答を確定・プランファイルに反映した。
+- Q1=A: `Group`/`GroupMember`の2エンティティ構成。`@ManyToMany`は不採用（プロジェクト内に`@JoinColumn`/`@ManyToOne`の使用例がなく、全FKがプレーンLong+アプリ層整合性という既存流儀に合わせる）。`GroupMember`はサロゲートキー`id`を持つ（既存の`SchemaColumn`等と同じ「サロゲートキー+`@UniqueConstraint`」パターンを踏襲、複合PKは不採用）。
+- Q2=A: `PermissionAssignment`/`AuxPermissionAssignment`の2テーブル分離。
+- Q3=Aに追記: `principalId`はDBレベルFKを持てない（`principalType`次第で参照先テーブルが変わるポリモーフィック参照のため、既存の「DBレベルFKなし」の流儀の延長）ため、`setPermission`/`setAuxPermission`実装時にアプリケーション層で実在チェックを行う方針を追加。
+- Q4=B: `renameGroup`/`deleteGroup`を追加（`component-methods.md`の確定5メソッドへの追加、カスケード削除対象・監査ログ種別を明記）。
+- Q5=A修正版: `connectionId`はYAML本文から除外（メソッド引数/パスパラメータで既に指定されるため）。principal参照はIDではなく`email`（USER）/`name`（GROUP）に変更（視認性のため）。A/B両形式対応は不採用（実装・PBTコスト増に見合う要件がないため）と回答、Q6のエラー条件もこれに合わせて更新。
+- Q6=Aに追記: 同一ファイル内での重複定義（同一principal×schema×table×columnの複数出現）を形式不正としてインポート全体を拒否する方針、および既存設定との関係は「全置換」方式（対象接続の既存権限を全削除してからYAMLで再構築）を追加。
+- Q7=A（group/permission分割版）: U2（`auth`/`userregistration`）・U3（`rdbmsconnection`/`schema`）・U7（`savedquery`/`queryexecution`/`queryhistory`）の前例に倣い、`group`と`permission`を別バックエンドパッケージ・別フロントエンド`features/`に分割する方針へ変更（当初のApplication Design `unit-of-work.md`は単一パッケージだったため、Functional Designでの訂正として扱う）。これに伴い`aidlc-docs/inception/application-design/unit-of-work.md`（U4セクション・サマリ表）と`docs/PROJECT_STRUCTURE.md`（backend/frontend両方の構成図）を更新した。
+- Q8=Aに追記: strong consistency方針を維持しつつ、キャッシュ無効化が必要な操作を洗い出し（`PermissionAssignmentService`の書き込み系に加え、`GroupService`の書き込み系もグループ合成結果に影響するため対象に含む）。具体的なキャッシュ実装方式はNFR Designに委ねる方針を明記。
+ユーザの「ここまでコミット。」を受け、プランファイル・`unit-of-work.md`・`PROJECT_STRUCTURE.md`・本エントリをコミットする。
+**Context**: Per-Unit Loop、U4 Functional Design Step 5（回答収集・確定）完了。次はStep 6（Functional Design成果物生成: business-logic-model.md/business-rules.md/domain-entities.md/frontend-components.md）。
+
+---
+
