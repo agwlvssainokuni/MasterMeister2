@@ -1125,3 +1125,11 @@
 
 ---
 
+## CONSTRUCTION - U3 Code Generation - Part 2 Item 3-8
+**Timestamp**: 2026-07-10T17:46:00Z
+**User Input**: "続行する" (continuation choice after item 3-7, via AskUserQuestion)
+**AI Response**: Created a new test class `SchemaQueryServiceTest`, the final item of Step 3. Since `SchemaQueryService` carries no `@Transactional` annotation (unlike `SchemaImportService`), no `@TestConfiguration`/`@Bean` AOP-proxying workaround was needed — the class is annotated `@DataJpaTest @JqwikSpringSupport` at the class level (reusing item 3-6's `@TestPropertySource` test-only encryption key, since `@DataJpaTest` instantiates `EncryptedStringConverter` regardless of which repositories a given test class touches), and each test method simply does `new SchemaQueryService(tableRepository, columnRepository)` against the real `@Autowired` JPA repositories. Added 2 `@Property` tests: `listTablesExcludesStaleTables` (saves 1-5 tables with jqwik-generated per-table `stale` booleans, asserts `listTables`'s returned table-name set exactly matches the non-stale subset) and `getTableDetailExcludesStaleColumns` (saves 1 non-stale table with 1-5 columns with jqwik-generated per-column `stale` booleans, asserts `getTableDetail`'s returned column-name set exactly matches the non-stale subset). Deliberately used real `@DataJpaTest`-backed repositories rather than the Mockito-based hand-rolled fakes used for P7/P8/P9 in `SchemaImportServiceTest`, since P12's actual claim is about the correctness of the repositories' `*StaleFalse` Spring-Data-derived queries themselves, which a hand-written Java-side filter fake would not genuinely exercise. Ran `./gradlew test --tests "cherry.mastermeister.schema.SchemaQueryServiceTest"`: `BUILD SUCCESSFUL`; confirmed via the XML report (`tests="2" failures="0" errors="0" skipped="0"`) both property tests genuinely executed and passed. Marked plan item 3-8 `[x]` with an implementation note — this completes Step 3 (all P1-P12 property tests) in full.
+**Context**: Per-Unit Loop, U3 Code Generation Part 2, Step 3 item 3-8 complete — Step 3 fully done. Committing, then asking user whether to continue to Step 4 item 4-1 (business-logic-summary.md) or pause.
+
+---
+
