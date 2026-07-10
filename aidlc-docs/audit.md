@@ -1005,3 +1005,11 @@
 
 ---
 
+## CONSTRUCTION - U3 Code Generation - Part 2 Item 2-9
+**Timestamp**: 2026-07-10T14:05:00Z
+**User Input**: "続行してください。"
+**AI Response**: Generated `backend/src/main/java/cherry/mastermeister/schema/` package: `TableType` (enum: `TABLE`, `VIEW`), `SchemaTable` (JPA entity per `domain-entities.md`: `id`, `connectionId`, `schemaName`, `tableName`, `tableType`, `comment`, `stale` (default `false`), `importedAt`, `updatedAt`; unique constraint `(connectionId, schemaName, tableName)`), `SchemaColumn` (JPA entity: `id`, `tableId`, `columnName`, `dataType`, `nullable`, `comment`, `ordinalPosition`, `primaryKeySequence`, `stale` (default `false`), `importedAt`, `updatedAt`; unique constraint `(tableId, columnName)`). Both entities follow `RdbmsConnection`'s established style (protected no-arg constructor, full-arg constructor, `update` mutator, getter-only accessors). No explicit `@Table(indexes = {...})` added, per `nfr-design-patterns.md` 5.1 (unique constraints suffice). Verified via `./gradlew compileJava` that only the already-known `RdbmsConnectionRepository` unresolved reference remains (4 error lines, same root cause) — no new errors introduced by the new `schema` package. Marked plan item 2-9 `[x]`.
+**Context**: Per-Unit Loop, U3 Code Generation Part 2, Step 2 item 2-9 complete. Committing, then asking user whether to continue to item 2-10 (`schema` package DTO records).
+
+---
+

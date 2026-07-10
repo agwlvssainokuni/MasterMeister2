@@ -207,7 +207,7 @@ U1（Platform Foundation）のみに依存（`unit-of-work-dependency.md`）:
       targetUserId)`と同型の引数順）。`./gradlew compileJava`はStep 8待ちの
       `RdbmsConnectionRepository`未解決参照（2箇所→4箇所に増加、原因は同一・既知のまま）
       のみで失敗することを確認、新規エラーが無いことを検証した。
-- [ ] 2-9. `backend/src/main/java/cherry/mastermeister/schema/` に
+- [x] 2-9. `backend/src/main/java/cherry/mastermeister/schema/` に
       `SchemaTable`（JPAエンティティ。`domain-entities.md`のフィールド定義: `id`,
       `connectionId`（not null）, `schemaName`（not null）, `tableName`（not null）,
       `tableType`（`TableType`, not null）, `comment`（nullable）, `stale`（not null、
@@ -219,6 +219,10 @@ U1（Platform Foundation）のみに依存（`unit-of-work-dependency.md`）:
       `updatedAt`。一意制約`(tableId, columnName)`）、`TableType`（enum: `TABLE`, `VIEW`）を
       生成。いずれも明示的な`@Table(indexes = {...})`は追加しない（一意制約のみで賄う、
       `nfr-design-patterns.md` 5.1）。
+      `RdbmsConnection`と同様の規約（protected引数なしコンストラクタ、全項目コンストラクタ、
+      `update`ミューテータ、getterのみ）で生成した。`./gradlew compileJava`は既知の
+      `RdbmsConnectionRepository`未解決参照（4箇所、同一原因）のみで失敗することを確認、
+      新規エラーが無いことを検証した。
 - [ ] 2-10. `backend/src/main/java/cherry/mastermeister/schema/` に
       `SchemaImportResult`（record: `boolean success, int tableCount, String message`）、
       `TableMetadata`（record: `String schemaName, String tableName, TableType tableType,
