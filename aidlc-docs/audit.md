@@ -1397,3 +1397,19 @@
 
 ---
 
+## CONSTRUCTION - U3 Post-Completion Work - devenv Docker/colima修正 + サンプルデータ
+**Timestamp**: 2026-07-10T21:30:00Z（正式stageの枠外で実施されたため事後記録）
+**User Input**: "devenvをdocker compose upしたら、Attaching to mastermeister-mailpit, mastermeister-mariadb, mastermeister-mysql, mastermeister-postgres\nError response from daemon: error while creating mount source path '/Users/agawa/Documents/project/git/MasterMeister2/devenv/postgres/init': chown /Users/agawa/Documents/project/git/MasterMeister2/devenv/postgres/init: permission denied" → "Docker Desktopではなく、brewでcolimaを入れて使っている。"（診断訂正）→ "OKです。起動できました。確認ついでに、動作確認用のテーブルとデータを作る初期化ファイルをinitに作ってもらえる？" → "DB、スキーマ、ユーザも作れる？"（AskUserQuestionで選択肢提示後、実装のWrite呼び出しを拒否し）"やっぱなしで。"（この追加要求のみ撤回）→ "ここまでコミット。"
+**AI Response**: colima（sshfsマウント）のbind-mount chown失敗を診断（Docker Desktop誤診断をユーザ訂正で修正）、既存ディレクトリへの再実行で解決（colimaインスタンス再作成は他プロジェクトの共有ボリュームを破壊するため回避）。続いてpostgres:18のデータディレクトリ配置仕様変更に起因する起動失敗を発見し、`devenv/docker-compose.yml`のpostgresボリュームマウントを`/var/lib/postgresql/data`から`/var/lib/postgresql`に修正。動作確認用にMySQL/MariaDB/PostgreSQL向けサンプルテーブル・データ（`departments`/`employees`、4+10件）を`devenv/{mysql,mariadb,postgres}/init/01_sample_data.sql`として生成し、DBボリュームをリセットして初期化スクリプトを反映、3DB全てで件数を確認。PostgreSQL用の名前付きスキーマ＋権限制限ユーザーの追加要求は、AskUserQuestionでの選択後にユーザが明示的に撤回（"やっぱなしで。"）したため、ファイル作成なしで完全に中止。以上をコミット`b00d54c`として記録。
+**Context**: U3完了後、正式なper-unit-loopステージ外で実施されたアドホックなインフラ修正。U3の事後作業として記録。
+
+---
+
+## CONSTRUCTION - U3 Post-Completion Work - frontend features api配置のフラット構成統一
+**Timestamp**: 2026-07-10T22:20:00Z（正式stageの枠外で実施されたため事後記録）
+**User Input**: "frontend の auditLog だけ api の置き方が違うのは何か意図ある？" → "どちらを推奨？" → "PROJECT_STRUCTURE.mdを前提とせず、かつ、変更コストを考慮しないとすると、どういう構成を推奨する？" → "ではフラット構成で統一したいと思います。反映すべきドキュメントはありますか？" → "コード修正してコミットして、ドキュメント更新してコミット、とします。"（ファイル名についてAskUserQuestionで「api.tsに統一」を選択）
+**AI Response**: `auditLog`のみ`features/auditLog/api.ts`というフラット配置で、後発の`auth`/`userRegistration`/`rdbmsConnection`/`schema`は`features/xxx/api/xxxApi.ts`というサブディレクトリ配置になっていることを発見。調査の結果、`docs/PROJECT_STRUCTURE.md`が元々`api.ts`フラット配置を規約として明記していたが、U2/U3実装時にサブディレクトリ化する形へ規約から逸脱していたことが判明。コスト度外視の推奨として「ディレクトリ名がすでにfeatureを表すため単一ファイルだけのサブディレクトリは冗長」という理由でフラット構成を提案し、ユーザが採用を決定。4フィーチャー分のファイル移動（`api/xxxApi.ts`→`api.ts`、ファイル名は`api.ts`に統一）とimport修正を実施し、`npm run build`・`npx vitest run`（114/114件成功）・`npm run lint`全て確認の上コミット`db8df6a`。続けて`docs/PROJECT_STRUCTURE.md`（フラット構成方針の明確化）と、U2/U3の`frontend-components.md`のファイルパス表記（`features/xxx/api/xxxApi.ts`→`features/xxx/api.ts`）をコミット`6d6d0b1`として記録。
+**Context**: U3完了後、正式なper-unit-loopステージ外で実施されたアドホックなフロントエンド構成リファクタ。U3の事後作業として記録。
+
+---
+
