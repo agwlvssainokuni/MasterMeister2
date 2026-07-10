@@ -38,8 +38,8 @@
 
 ## 成果物生成タスク（`construction/nfr-requirements.md` Step 6）
 
-- [ ] `aidlc-docs/construction/u4-permission-management/nfr-requirements/nfr-requirements.md`
-- [ ] `aidlc-docs/construction/u4-permission-management/nfr-requirements/tech-stack-decisions.md`
+- [x] `aidlc-docs/construction/u4-permission-management/nfr-requirements/nfr-requirements.md`
+- [x] `aidlc-docs/construction/u4-permission-management/nfr-requirements/tech-stack-decisions.md`
 
 ---
 

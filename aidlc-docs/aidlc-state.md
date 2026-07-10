@@ -3,7 +3,7 @@
 ## Project Information
 - **Project Type**: Brownfield
 - **Start Date**: 2026-07-06T10:38:36Z
-- **Current Stage**: CONSTRUCTION - Per-Unit Loop - U4: Permission Management - NFR Requirements - Step 5 answers finalized (`aidlc-docs/construction/plans/u4-permission-management-nfr-requirements-plan.md`), next: Step 6 artifact generation.
+- **Current Stage**: CONSTRUCTION - Per-Unit Loop - U4: Permission Management - NFR Requirements - Step 6 artifacts generated (`aidlc-docs/construction/u4-permission-management/nfr-requirements/`), awaiting user review/approval (Step 8).
 
 ## Execution Plan Summary
 - **Plan Document**: aidlc-docs/inception/plans/execution-plan.md
