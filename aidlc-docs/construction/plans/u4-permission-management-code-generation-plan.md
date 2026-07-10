@@ -370,13 +370,22 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
       - `@Transactional`は付与しなかった（`SchemaQueryService`と同じ読み取り専用Facadeの
         既存パターンを踏襲、書き込みを伴わないため）。
       `./gradlew compileJava compileTestJava`成功を確認（単体テストはStep 3で作成）。
-- [ ] 2-12. `backend/src/main/java/cherry/mastermeister/permission/
+- [x] 2-12. `backend/src/main/java/cherry/mastermeister/permission/
       PermissionCacheInvalidationListener.java`（`@Component`）: `SchemaReimportedEvent`
       （U3 `schema`）・`GroupChangedEvent`（`group`）を`@TransactionalEventListener(phase =
       AFTER_COMMIT)`で購読し、`EffectivePermissionResolver`の6キャッシュを
       `@CacheEvict(cacheNames = {...}, allEntries = true)`を付与した空実装メソッドで一括
       削除する（`nfr-design-patterns.md` 2.1、Spring Cacheの`@CacheEvict`はメソッド呼び出し
       自体が無効化トリガーのため、リスナーメソッド本体は空でよい）。
+      実装メモ: `onGroupChanged(GroupChangedEvent)`・`onSchemaReimported(SchemaReimportedEvent)`
+      の2メソッドを生成し、いずれも本体は空、`@TransactionalEventListener(phase =
+      TransactionPhase.AFTER_COMMIT)`＋`@CacheEvict(cacheNames = {6キャッシュ名},
+      allEntries = true)`を付与した（`item 2-9`/`item 2-11`と同一の6キャッシュ名リテラル配列を
+      アノテーション属性としてそのまま複製、`@CacheEvict`はコンパイル時定数制約のため定数化
+      不可という既存の制約を踏襲）。イベントの発行側（`GroupService`での`GroupChangedEvent`
+      publish、`SchemaImportService`での`SchemaReimportedEvent`publish）は既存実装済みで
+      本item側の変更は不要だった。`./gradlew compileJava compileTestJava`成功を確認
+      （単体テストはStep 3で作成）。これでStep 2〈ビジネスロジック生成〉全12項目が完了。
 
 ### Step 3: ビジネスロジック単体テスト（PBT-01〜PBT-08, PBT-10）
 `business-logic-model.md`のP1〜P11に対応する`@Property`テストをjqwikで生成する。
