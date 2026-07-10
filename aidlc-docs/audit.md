@@ -1349,3 +1349,11 @@
 
 ---
 
+## CONSTRUCTION - U3 Code Generation - Part 2 Item 13-1
+**Timestamp**: 2026-07-10T19:55:00Z
+**User Input**: "続行してください。"
+**AI Response**: Step 13 item 13-1を実施。`aidlc-docs/construction/u3-rdbms-connection-schema-import/code/frontend-summary.md`を生成。内容: `features/rdbmsConnection/`（types.ts, api/connectionApi.ts, ConnectionListPage.tsx, ConnectionTable.tsx, ConnectionFormPage.tsx）・`features/schema/`（types.ts, api/schemaApi.ts, SchemaImportPanel.tsx, SchemaBrowserPage.tsx, SchemaSelector.tsx, TableList.tsx, TableDetailPanel.tsx）の各ファイルの役割・API結線を表形式で整理、追加ルーティング4パス（`/admin/rdbms-connections`, `/admin/rdbms-connections/new`, `/admin/rdbms-connections/:id`, `/admin/schema/:connectionId`）、新規data-testid一覧、実装時判断事項3点（編集時パスワード欄の常時空欄初期化、`/admin/schema/:connectionId`への直接ナビリンクが設計未規定のため今回は追加していない旨、`testConnection`の2オーバーロード設計）、Step 12テストカバレッジ表（新規10ファイル・41件＋既存`AppRouter.test.tsx`/`AppLayout.test.tsx`拡張分、フロントエンド全体30ファイル・114件全成功）を記載。U2の`frontend-summary.md`と同じ構成（既存資産拡張／新規feature／ルーティング一覧／data-testid一覧／実装時判断事項／テストカバレッジ）に準拠。作成前に実際のソースファイル（types.ts, api層, 各コンポーネント, AppRouter.tsx, AppLayout.tsx）を読み直し記載内容の正確性を確認した。計画書item 13-1のチェックボックスを`[x]`化し実装メモを追記。
+**Context**: Per-Unit Loop, U3 Code Generation Part 2, Step 13 item 13-1完了。コミット後、item 14-1（DBマイグレーション該当なし確認）へ進むか確認予定。
+
+---
+
