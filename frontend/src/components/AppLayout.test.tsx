@@ -41,6 +41,10 @@ describe('AppLayout', () => {
       'href',
       '/admin/audit-logs',
     )
+    expect(screen.getByTestId('app-layout-nav-rdbms-connections')).toHaveAttribute(
+      'href',
+      '/admin/rdbms-connections',
+    )
   })
 
   it('hides the admin-only links for an authenticated non-admin user', () => {
@@ -54,6 +58,7 @@ describe('AppLayout', () => {
 
     expect(screen.queryByTestId('app-layout-nav-pending-users')).not.toBeInTheDocument()
     expect(screen.queryByTestId('app-layout-nav-audit-logs')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('app-layout-nav-rdbms-connections')).not.toBeInTheDocument()
   })
 
   it('hides the admin-only links when unauthenticated', () => {
@@ -61,5 +66,6 @@ describe('AppLayout', () => {
 
     expect(screen.queryByTestId('app-layout-nav-pending-users')).not.toBeInTheDocument()
     expect(screen.queryByTestId('app-layout-nav-audit-logs')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('app-layout-nav-rdbms-connections')).not.toBeInTheDocument()
   })
 })

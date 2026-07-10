@@ -1333,3 +1333,11 @@
 
 ---
 
+## CONSTRUCTION - U3 Code Generation - Part 2 Item 12-1
+**Timestamp**: 2026-07-10T19:45:00Z
+**User Input**: "続行してください。"（`/compact`によるコンテキスト圧縮を挟んだ後の再開指示）。作業途中、Plan modeへの意図しない切り替わりが発生し「誤操作なのでPlan modeを終了し、通常の実行ワークフローを継続する」との回答で復帰。さらに`AppRouter.test.tsx`への編集が環境不具合により3回拒否され、「こちらの環境の不具合で拒否になっていました。続行してください。」との指示で再試行し成功。
+**AI Response**: Vitest + React Testing Libraryのexample-basedテストを新規10ファイル生成: `features/rdbmsConnection/api/connectionApi.test.ts`、`ConnectionTable.test.tsx`、`ConnectionFormPage.test.tsx`、`ConnectionListPage.test.tsx`、`features/schema/api/schemaApi.test.ts`、`SchemaImportPanel.test.tsx`、`SchemaSelector.test.tsx`、`TableList.test.tsx`、`SchemaBrowserPage.test.tsx`、`TableDetailPanel.test.tsx`。既存2ファイルを修正: `routes/AppRouter.test.tsx`に`/admin/rdbms-connections`・`/admin/schema/:connectionId`への未認証アクセス時のリダイレクトテストを追加、`components/AppLayout.test.tsx`に`app-layout-nav-rdbms-connections`リンクの管理者表示/非管理者非表示/未認証非表示を既存3テストへ追加。既存テスト規約（`vi.mock`によるAPIモジュールモック、api層は`globalThis.fetch`を`vi.spyOn`、`useParams`/`useNavigate`使用画面は`MemoryRouter`+`Routes`）を踏襲。`npx vitest run`初回実行で`connectionApi.test.ts`/`schemaApi.test.ts`のGETリクエスト検証4件が失敗（`apiFetch`が`method`未指定時に`RequestInit`へ`method`キー自体を含めない実装のため`expect.objectContaining({ method: undefined })`が欠落キー扱いで不一致）——`fetchSpy.mock.calls[0][0]`でURLのみ照合する方式に修正して解消。`npx oxlint`・`npx tsc -b`・`npx vitest run`（114件、30ファイル）いずれも成功を確認。
+**Context**: Per-Unit Loop, U3 Code Generation Part 2, Step 12 item 12-1完了。コミット後、item 13-1（フロントエンドサマリ生成）へ進むか確認予定。
+
+---
+

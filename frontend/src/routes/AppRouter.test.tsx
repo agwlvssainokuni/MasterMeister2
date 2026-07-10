@@ -49,6 +49,18 @@ describe('AppRouter', () => {
     expect(screen.getByTestId('login-page')).toBeInTheDocument()
   })
 
+  it('redirects to /login when accessing /admin/rdbms-connections while unauthenticated', () => {
+    renderAt('/admin/rdbms-connections')
+
+    expect(screen.getByTestId('login-page')).toBeInTheDocument()
+  })
+
+  it('redirects to /login when accessing /admin/schema/:connectionId while unauthenticated', () => {
+    renderAt('/admin/schema/1')
+
+    expect(screen.getByTestId('login-page')).toBeInTheDocument()
+  })
+
   it('renders the AppLayout navigation for authenticated routes', () => {
     useAuthStore.setState({
       currentUser: { id: 1, email: 'user@example.com', role: 'USER' },
