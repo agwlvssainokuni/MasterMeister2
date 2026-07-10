@@ -315,7 +315,7 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
       実装メモ: item 2-9のコンパイル依存のため先行生成した。`EntityNotFoundException`/
       `ValidationException`と同型（`(String message)`・`(String message, Throwable cause)`
       の2コンストラクタ）で生成。`./gradlew compileJava`成功を確認。
-- [ ] 2-11. `backend/src/main/java/cherry/mastermeister/permission/
+- [x] 2-11. `backend/src/main/java/cherry/mastermeister/permission/
       EffectivePermissionResolver.java`（`@Component`、内部Facade、コントローラなし）:
       `Permission resolveEffectiveTablePermission(Long userId, Long connectionId, String
       schema, String table)`、`Map<String, Permission>
@@ -330,6 +330,46 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
       条件）を実装する。`GroupMember`（`group`パッケージ、`permission→group`一方向参照）・
       `PermissionAssignment`/`AuxPermissionAssignment`・`SchemaTableRepository`/
       `SchemaColumnRepository`（U3、主キー構成参照）を利用する。
+      実装メモ:
+      - 階層継承・グループ合成・個別上書き（business-rules.md 2.5 手順1〜4）の相互作用は
+        文面だけでは一意に定まらない（例: ユーザ個別設定がスキーマ階層にのみ存在し、テーブル/
+        カラム階層には存在しない場合に、その個別設定がテーブル/カラム階層へ継承されるべきか、
+        それともテーブル/カラム階層は都度グループ合成結果に差し戻るべきか、記述からは両読み
+        できる）。以下の解釈で実装し、判断根拠を残す:
+        `findMostSpecificPermission(principal, schema, table, column)`は特定のprincipal
+        （ユーザ1名またはグループ1件）が持つ明示設定を、指定階層から上位（カラム→テーブル→
+        スキーマ）へ順に探索し、最初に見つかった明示設定の値を返す（=単一principal内での
+        手順1）。ユーザ自身にこの探索で明示設定が1件でも見つかれば、その値をそのまま採用する
+        （テーブル階層の個別設定はカラム階層にも継承される＝手順1をユーザ個別設定内で完結
+        させる）。ユーザに明示設定が一切ない場合のみ、所属する各グループについて同じ探索を
+        行い（手順3前段）、グループごとの解決値を`Permission.max`で合成する（手順3後段）。
+        これにより手順4「個別設定が存在する階層は上書きし、存在しない階層は合成結果を継続
+        適用する（部分上書きが起こり得る）」は、"ユーザの明示設定チェーンのどこかに設定が
+        見つかった時点でそれを採用し、見つからない場合のみグループ合成結果にフォールバック
+        する"という単一ロジックとして実装した（グループ合成自体はユーザの上書きの影響を
+        受けない独立した計算）。補助権限（C/D）もスキーマ→テーブルの2階層で同型ロジックを
+        適用し、グループ間合成はOR（`resolveAuxPermission`/`findMostSpecificAuxPermission`）。
+      - `canCreate`/`canDelete`は`SchemaColumnRepository.findByTableIdAndStaleFalse`から
+        `primaryKeySequence != null`のカラムを抽出し（`primaryKeySequence`昇順ソート、AND
+        判定の順序自体は結果に影響しないが可読性のため）、主キーなしテーブルは`canCreate`が
+        補助権限Cのみで許可（`true`即返却）、`canDelete`は常に`false`という業務規則5・6の
+        例外規定をそのまま分岐で実装した。
+      - `resolveEffectiveColumnPermissions`/`canCreate`/`canDelete`はテーブル実在確認に
+        `SchemaTableRepository.findByConnectionIdAndSchemaNameAndTableName`（stale問わず）を
+        用いた。item 2-9の`referenceExists`と同じ理由（business-rules.md 2.1がstale=trueの
+        行も実在対象として許容する）による判断の踏襲。`listAccessibleSchemas`/
+        `listAccessibleTables`は`component-methods.md`の定義通り`stale=false`のテーブルのみを
+        列挙対象とした（アクセス可能スキーマ/テーブルの一覧はUI表示用であり、消失した
+        テーブルを含めるべきではないため）。
+      - `listAccessibleSchemas`/`listAccessibleTables`は内部で`resolveMainPermission`
+        （非`@Cacheable`private メソッド）を直接呼ぶ設計とした。`resolveEffectiveTablePermission`
+        （`@Cacheable`付きpublicメソッド）を`this.`経由で自己呼び出しするとSpring AOPプロキシを
+        経由せずキャッシュが効かない既知の制約があるため、意図的に内部ロジックを共有private
+        メソッドに切り出し、自己呼び出しによるキャッシュ迂回を避けた（`effectivePermissions.table`
+        キャッシュは外部から`resolveEffectiveTablePermission`が直接呼ばれた場合のみ利用される）。
+      - `@Transactional`は付与しなかった（`SchemaQueryService`と同じ読み取り専用Facadeの
+        既存パターンを踏襲、書き込みを伴わないため）。
+      `./gradlew compileJava compileTestJava`成功を確認（単体テストはStep 3で作成）。
 - [ ] 2-12. `backend/src/main/java/cherry/mastermeister/permission/
       PermissionCacheInvalidationListener.java`（`@Component`）: `SchemaReimportedEvent`
       （U3 `schema`）・`GroupChangedEvent`（`group`）を`@TransactionalEventListener(phase =
