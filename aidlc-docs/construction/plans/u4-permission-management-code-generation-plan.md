@@ -561,9 +561,22 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
         153件全て成功（failures=0, errors=0）で回帰なしを確認。
 
 ### Step 4: ビジネスロジックサマリ
-- [ ] 4-1. `aidlc-docs/construction/u4-permission-management/code/business-logic-summary.md`
+- [x] 4-1. `aidlc-docs/construction/u4-permission-management/code/business-logic-summary.md`
       を生成し、Step 2・Step 3で生成したクラス一覧とP1〜P11の対応関係を表形式で記載する
       （U1/U2/U3の`business-logic-summary.md`と同一構成）。
+      実装メモ: U3の`business-logic-summary.md`と同一構成（生成クラス一覧／生成テストクラス
+      一覧／P対応表／補足／既知の課題の5セクション）で生成した。生成クラス一覧はStep 2の
+      2-1〜2-12（`SchemaReimportedEvent`新規＋`SchemaImportService`ブラウンフィールド修正、
+      `group`パッケージ5クラス、`permission`パッケージ10クラス）に加え、item 3-5で追加した
+      `config.CacheConfig`（Step 2計画には含まれていなかったブラウンフィールド発見事項として
+      「補足」節に明記）を含めた。生成テストクラス一覧はStep 3の3-1〜3-6で生成した5クラス
+      （`GroupServiceTest`/`PermissionAssignmentServiceTest`/`EffectivePermissionResolverTest`/
+      `PermissionCacheConsistencyTest`/`SchemaReimportCacheConsistencyTest`）を検証方式付きで
+      列挙した。P1〜P11対応表は`business-logic-model.md`のP1〜P11行の文言をそのまま要約し、
+      対応するテストクラスと状態（すべて「実装済み（Step 3）」）を記載した。「既知の課題」節は
+      U3と同型（`GroupRepository`/`GroupMemberRepository`/`PermissionAssignmentRepository`/
+      `AuxPermissionAssignmentRepository`がStep 8未生成のため`compileJava`単体は失敗し続ける
+      既知の状態）を明記した。
 
 ### Step 5: APIレイヤ生成
 - [ ] 5-1. `backend/src/main/java/cherry/mastermeister/group/GroupController.java`
