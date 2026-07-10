@@ -335,7 +335,7 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
       エラーレスポンス表（`PERMISSION_YAML_FORMAT_ERROR`含む）を記載する。
 
 ### Step 8: リポジトリレイヤ生成
-- [ ] 8-1. `backend/src/main/java/cherry/mastermeister/group/GroupRepository.java`
+- [x] 8-1. （item 2-2の直後に暫定実装として先行実施、`u4-permission-management-code-generation-plan.md`実行順序変更の注記参照）`backend/src/main/java/cherry/mastermeister/group/GroupRepository.java`
       （`JpaRepository<Group, Long>`。`Optional<Group> findByName(String)`）、
       `GroupMemberRepository.java`（`JpaRepository<GroupMember, Long>`。
       `Optional<GroupMember> findByGroupIdAndUserId(Long, Long)`,
