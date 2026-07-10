@@ -348,13 +348,23 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
       `List<GroupMember> findByGroupId(Long)`, `List<GroupMember> findByUserId(Long)`
       〈`EffectivePermissionResolver`のグループ合成、`(userId, groupId)`インデックスを利用〉,
       `void deleteByGroupId(Long)`〈カスケード削除〉）を生成する。
-- [ ] 8-2. `backend/src/main/java/cherry/mastermeister/permission/
+- [x] 8-2. `backend/src/main/java/cherry/mastermeister/permission/
       PermissionAssignmentRepository.java`（`JpaRepository<PermissionAssignment, Long>`。
       `principalId`起点・`connectionId`起点の検索メソッド一式）、
       `AuxPermissionAssignmentRepository.java`（同様）を生成する。実際に必要なメソッド
       シグネチャはStep 2実装時の呼び出し箇所（`EffectivePermissionResolver`の解決クエリ、
       `PermissionAssignmentService`の全置換・カスケード削除）に合わせて確定する
       （U3 Step 8と同様、Step 2先行実装との整合を優先）。
+      実装メモ: item 2-6の直後に暫定・最小実装として先行実施（item 8-1と同様の
+      実行順序変更）。両リポジトリとも
+      `find...ByPrincipalTypeAndPrincipalIdAndConnectionIdAndSchemaNameAndTableName...`
+      （`setPermission`/`setAuxPermission`の既存行検索用、単数）、
+      `findByPrincipalTypeAndPrincipalIdAndConnectionId`（`EffectivePermissionResolver`の
+      階層解決用、複数）、`findByConnectionId`（YAMLエクスポート用）、
+      `deleteByConnectionId`（YAMLインポート時の全置換用）の4メソッドを暫定実装した。
+      item 2-9（`PermissionAssignmentService`）・2-11
+      （`EffectivePermissionResolver`）の実装時に不足があれば追加する。
+      `./gradlew compileJava`成功を確認。
 
 ### Step 9: リポジトリレイヤ単体テスト
 - [ ] 9-1. `GroupRepositoryTest`/`GroupMemberRepositoryTest`/
