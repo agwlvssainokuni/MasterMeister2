@@ -157,7 +157,7 @@ U1（Platform Foundation）のみに依存（`unit-of-work-dependency.md`）:
       連結しBase64エンコードして1文字列として保存/復元。`mm.app.rdbms-connection.encryption-key`
       の設定値追加は16-1で対応（`@Value`にデフォルト値は与えずfail-fastのまま）。
       `./gradlew compileJava`でコンパイル成功を確認、`RdbmsConnection`の未解決参照も解消した。
-- [ ] 2-6. `backend/src/main/java/cherry/mastermeister/rdbmsconnection/` に
+- [x] 2-6. `backend/src/main/java/cherry/mastermeister/rdbmsconnection/` に
       `ConnectionConfig`（record: `String name, RdbmsType rdbmsType, String host, int port,
       String databaseName, String username, String password, String additionalParams`
       〈nullable〉）、`ConnectionSummary`（record: `Long id, String name, RdbmsType
@@ -165,7 +165,9 @@ U1（Platform Foundation）のみに依存（`unit-of-work-dependency.md`）:
       String name, RdbmsType rdbmsType, String host, int port, String databaseName, String
       username, String additionalParams`——**パスワードは含めない**、
       `frontend-components.md`「パスワード入力の扱い」）、`ConnectionTestResult`（record:
-      `boolean success, String message`）を生成。
+      `boolean success, String message`）を生成。`userregistration.PendingUserSummary`と
+      同型のスタイル（1ファイル1レコード、バリデーションアノテーションなし）で実装。
+      `./gradlew compileJava`でコンパイル成功を確認した。
 - [ ] 2-7. `backend/src/main/java/cherry/mastermeister/rdbmsconnection/
       ConnectionPoolRegistry.java`（`@Component`、シングルトンスコープ既定）:
       `ConcurrentHashMap<Long, HikariDataSource>`でキャッシュ。
