@@ -1325,3 +1325,11 @@
 
 ---
 
+## CONSTRUCTION - U3 Code Generation - Part 2 Paused After Item 11-4
+**Timestamp**: 2026-07-10T19:40:00Z
+**User Input**: "ここで中断する"（項目11-4コミット後、Step 12 item 12-1へ進むかの確認に対する回答）
+**AI Response**: ユーザ要求によりここで中断。コミット`13029f6`以降の変更なし。次回はStep 12 item 12-1（Vitest + React Testing Libraryによるフロントエンドコンポーネント単体テスト生成: `connectionApi`/`ConnectionListPage`/`ConnectionTable`/`ConnectionFormPage`/`schemaApi`/`SchemaImportPanel`/`SchemaBrowserPage`/`SchemaSelector`/`TableList`/`TableDetailPanel`/`AppRouter`/`AppLayout`）から再開する。
+**Context**: Per-Unit Loop, U3 Code Generation Part 2（Generation）、item 12-1着手前にユーザ要求で中断。42項目中5項目が残存。
+
+---
+
