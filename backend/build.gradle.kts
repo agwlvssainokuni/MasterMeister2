@@ -67,6 +67,7 @@ dependencies {
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("net.jqwik:jqwik")
     testImplementation("net.jqwik:jqwik-spring")
+    testImplementation("com.h2database:h2")
 }
 
 tasks.withType<JavaCompile> {
