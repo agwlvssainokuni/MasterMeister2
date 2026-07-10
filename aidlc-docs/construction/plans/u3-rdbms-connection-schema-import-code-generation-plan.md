@@ -223,13 +223,15 @@ U1（Platform Foundation）のみに依存（`unit-of-work-dependency.md`）:
       `update`ミューテータ、getterのみ）で生成した。`./gradlew compileJava`は既知の
       `RdbmsConnectionRepository`未解決参照（4箇所、同一原因）のみで失敗することを確認、
       新規エラーが無いことを検証した。
-- [ ] 2-10. `backend/src/main/java/cherry/mastermeister/schema/` に
+- [x] 2-10. `backend/src/main/java/cherry/mastermeister/schema/` に
       `SchemaImportResult`（record: `boolean success, int tableCount, String message`）、
       `TableMetadata`（record: `String schemaName, String tableName, TableType tableType,
       String comment`）、`ColumnDetail`（record: `String columnName, String dataType,
       boolean nullable, String comment, int ordinalPosition, Integer primaryKeySequence`）、
       `TableDetail`（record: `String schemaName, String tableName, TableType tableType,
       String comment, List<ColumnDetail> columns`）を生成。
+      `./gradlew compileJava`は既知の`RdbmsConnectionRepository`未解決参照（4箇所、同一原因）
+      のみで失敗することを確認、新規エラーが無いことを検証した。
 - [ ] 2-11. `backend/src/main/java/cherry/mastermeister/schema/SchemaImportService.java`
       （`@Service`、メソッド全体に`@Transactional`、`nfr-design-patterns.md` 4.2）:
       `SchemaImportResult importSchema(Long connectionId, Long adminUserId)`。
