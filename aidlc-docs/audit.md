@@ -989,3 +989,11 @@
 
 ---
 
+## CONSTRUCTION - U3 Code Generation - Part 2 Item 2-8
+**Timestamp**: 2026-07-10T13:58:00Z
+**User Input**: "続行する" (via AskUserQuestion, in response to the post-commit continuation prompt for item 2-7)
+**AI Response**: Generated `backend/src/main/java/cherry/mastermeister/rdbmsconnection/RdbmsConnectionService.java` (`@Service`) implementing `createConnection`, `updateConnection`, `testConnection(ConnectionConfig)`, `testConnection(Long)`, `listConnections`, `getConnection` per `business-logic-model.md` flows 1/2. Filled a gap in the plan's abbreviated method-signature text: `createConnection`/`updateConnection` need an `adminUserId` parameter to satisfy the mandatory `AuditLogService.record(...)` call, so both were given an explicit `Long adminUserId` first parameter, matching the existing `UserRegistrationService.approveUser(adminUserId, targetUserId)` convention. `updateConnection` preserves the existing encrypted password when `config.password()` is empty (`frontend-components.md`'s password-input policy) and otherwise re-encrypts transparently via the entity's `@Convert`; on success it calls `ConnectionPoolRegistry.invalidate(connectionId)` before recording the audit entry. `testConnection(ConnectionConfig)` builds a disposable `HikariDataSource` (`maximumPoolSize=1`, using the same `mm.app.rdbms-connection.pool.connection-timeout` value), attempts and immediately closes a connection, and returns the raw `SQLException.getMessage()` on failure per the admin-only error-exposure policy (`nfr-requirements.md` 1.2); it is never registered with `ConnectionPoolRegistry`. `testConnection(Long)` loads the decrypted `ConnectionConfig` from the repository and delegates. Verified via `./gradlew compileJava` that only the already-known `RdbmsConnectionRepository` unresolved reference remains (now 4 error lines across `ConnectionPoolRegistry`/`RdbmsConnectionService`, same single root cause) — no new errors introduced. Marked plan item 2-8 `[x]`.
+**Context**: Per-Unit Loop, U3 Code Generation Part 2, Step 2 item 2-8 complete — Step 2's `rdbmsconnection` package business logic is now fully generated. Committing, then asking user whether to continue to item 2-9 (`SchemaTable`/`SchemaColumn`/`TableType` in the new `schema` package).
+
+---
+

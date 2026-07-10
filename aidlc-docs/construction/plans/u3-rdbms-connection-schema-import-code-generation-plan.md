@@ -184,7 +184,7 @@ U1（Platform Foundation）のみに依存（`unit-of-work-dependency.md`）:
       `./gradlew compileJava`は「シンボルを見つけられません: RdbmsConnectionRepository」の
       未解決参照エラーのみで失敗する（想定どおり、他のエラーは無いことを確認済み）。
       8-1完了までコンパイル不可状態が継続する。
-- [ ] 2-8. `backend/src/main/java/cherry/mastermeister/rdbmsconnection/
+- [x] 2-8. `backend/src/main/java/cherry/mastermeister/rdbmsconnection/
       RdbmsConnectionService.java`（`@Service`）: `Long createConnection(ConnectionConfig
       config)`（保存後`AuditLogService.record(ADMIN_OPERATION, RDBMS_CONNECTION_CHANGED,
       adminUserId, connectionId, SUCCESS, name, ...)`、`business-rules.md` 1.2）、
@@ -200,6 +200,13 @@ U1（Platform Foundation）のみに依存（`unit-of-work-dependency.md`）:
       委譲、`business-rules.md` 1.4パターン2）、`List<ConnectionSummary>
       listConnections()`、`ConnectionDetail getConnection(Long connectionId)`
       （`EntityNotFoundException`）を実装（`business-logic-model.md`フロー1・2）。
+      計画テキストのメソッドシグネチャに`adminUserId`が明示されていなかったが、監査記録に
+      必須のため`createConnection(Long adminUserId, ConnectionConfig config)`/
+      `updateConnection(Long adminUserId, Long connectionId, ConnectionConfig config)`として
+      補完（`userregistration.UserRegistrationService`の`approveUser(adminUserId,
+      targetUserId)`と同型の引数順）。`./gradlew compileJava`はStep 8待ちの
+      `RdbmsConnectionRepository`未解決参照（2箇所→4箇所に増加、原因は同一・既知のまま）
+      のみで失敗することを確認、新規エラーが無いことを検証した。
 - [ ] 2-9. `backend/src/main/java/cherry/mastermeister/schema/` に
       `SchemaTable`（JPAエンティティ。`domain-entities.md`のフィールド定義: `id`,
       `connectionId`（not null）, `schemaName`（not null）, `tableName`（not null）,
