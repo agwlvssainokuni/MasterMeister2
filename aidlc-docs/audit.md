@@ -1413,3 +1413,19 @@
 
 ---
 
+## Process Improvement - aidlc-state.md Current Stageフィールドの肥大化解消
+**Timestamp**: 2026-07-10T23:00:00Z
+**User Input**: "aidlc-state.md の Current Stage が肥大化しているがこれはAI-DLCのプロセスとして適正なのか？" → "あるべき形にしてください。"（1回目の圧縮案（要約＋事後作業の再掲＋設計意図の説明）を提示したところツール実行を拒否し）"U3の事後作業のことから後ろは不要。" → （再提示した「Current Stage: ...（承認日付はStage Progressテーブル参照）」の案も再度拒否）"Current Stageとしては「Per-Unit Loop - U4: Permission Management - Functional Design - not yet started.」で十分では？これ以上の記述が必要ですか？"
+**AI Response**: `common/session-continuity.md`のCurrent Stageテンプレート・`construction/code-generation.md`のStep 9/12を確認し、「常に追記・上書き禁止」というルールはCLAUDE.mdでは`audit.md`にのみ適用される規定であり、Current Stageフィールドを追記し続けたのはAI-DLCの実際の設計に反する自己流の運用ミスであったと結論。ユーザの最終確認（「これで十分では」）を受け、Current Stageフィールドを`CONSTRUCTION - Per-Unit Loop - U4: Permission Management - Functional Design - not yet started.`の1行のみに圧縮（U1〜U3の詳細な実装履歴・事後作業の記述は全て削除、Stage Progressテーブルとaudit.md・各ユニットのartifactsに委ねる）、コミット`818e740`として記録。
+**Context**: 正式なper-unit-loopステージ外で実施されたドキュメント運用改善。今後のCurrent Stage更新は短い現在地サマリのみとし、詳細経緯はaudit.mdへの追記と各ユニットのartifacts（functional-design/, nfr-requirements/, nfr-design/, code/*-summary.md, construction/plans/配下）に一任する。
+
+---
+
+## CONSTRUCTION - Per-Unit Loop - U4: Permission Management - Functional Design (開始)
+**Timestamp**: 2026-07-10T23:10:00Z
+**User Input**: "U4を開始してください。"
+**AI Response**: `unit-of-work.md`のU4定義（バックエンドパッケージ`permission`、フロントエンド`features/permission/`、対応ストーリーMVP-9/ADM-1/ADM-2/ADM-4/ADM-5）、`stories.md`の該当ストーリー、`component-methods.md`の`GroupService`/`PermissionAssignmentService`/`EffectivePermissionResolver`確定済みシグネチャと判定ロジック要旨（Application Design Question 1, 2, 9）、U3`domain-entities.md`の「権限参照は物理名ベース」という既存確認事項、U2の`User`エンティティ、U3の`SchemaTable`/`SchemaColumn`エンティティ、U1の`AuditLogService`/`EventType`（`GROUP_CHANGED`/`PERMISSION_CHANGED`/`PERMISSION_YAML_EXPORTED`/`PERMISSION_YAML_IMPORTED`が既に予約済み）を確認した上で、`aidlc-docs/construction/plans/u4-permission-management-functional-design-plan.md`を作成。Step 1（ユニットコンテキスト分析）を記載し、Step 2-4として8問の質問（Q1: グループ/所属関係のエンティティ構成、Q2: 権限データの保存モデル（主権限/補助権限を別テーブルに分離）、Q3: 権限設定時のバリデーション、Q4: グループ管理のスコープ（改名・削除はMVP対象外）、Q5: YAMLフォーマット設計、Q6: YAMLインポート時のエラー処理、Q7: `permission/`フロントエンド構成、Q8: `EffectivePermissionResolver`の一貫性方針）を推奨案（A）付きで提示、各質問に`[Answer]: A`を仮設定。
+**Context**: Per-Unit Loop、U4 Functional Design Step 2-4（計画・質問作成）完了。ユーザによる各質問の回答確定待ち。
+
+---
+

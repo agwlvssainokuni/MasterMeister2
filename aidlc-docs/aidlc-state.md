@@ -3,7 +3,7 @@
 ## Project Information
 - **Project Type**: Brownfield
 - **Start Date**: 2026-07-06T10:38:36Z
-- **Current Stage**: CONSTRUCTION - Per-Unit Loop - U4: Permission Management - Functional Design - not yet started.
+- **Current Stage**: CONSTRUCTION - Per-Unit Loop - U4: Permission Management - Functional Design - Plan created (`aidlc-docs/construction/plans/u4-permission-management-functional-design-plan.md`, 8 questions), awaiting user answers.
 
 ## Execution Plan Summary
 - **Plan Document**: aidlc-docs/inception/plans/execution-plan.md
