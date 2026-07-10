@@ -1357,3 +1357,11 @@
 
 ---
 
+## CONSTRUCTION - U3 Code Generation - Part 2 Item 14-1
+**Timestamp**: 2026-07-10T19:57:00Z
+**User Input**: AskUserQuestion回答「続行する（推奨）」（項目13-1コミット後、Step 14 item 14-1へ進むかの確認に対する回答）
+**AI Response**: Step 14 item 14-1（該当なし/N/A確認）を実施。U1/U2と同様、内部DB(H2)のスキーマ管理はJPAの自動DDL生成（`spring.jpa.hibernate.ddl-auto`）に委ね、Flyway/Liquibase等のマイグレーションツールは導入しない方針（U1 NFR Design Question 5 = A）を本Unitでも踏襲することを確認。本Unitで追加した`RdbmsConnection`（Step 2-4）・`SchemaTable`/`SchemaColumn`（Step 2-9）の3エンティティもJPA自動DDLの対象であり追加のマイグレーションスクリプトは不要、また対象RDBMS（MySQL/MariaDB/PostgreSQL/H2）側のスキーマはユーザ管理下の既存データでありアプリケーションのマイグレーション対象外である点も変更がないことを確認メモとして記載。計画書item 14-1のチェックボックスを`[x]`化し確認メモを追記。
+**Context**: Per-Unit Loop, U3 Code Generation Part 2, Step 14 item 14-1完了。コミット後、item 15-1（testing-summary.md生成）へ進むか確認予定。
+
+---
+
