@@ -145,7 +145,7 @@ U1（Platform Foundation）のみに依存（`unit-of-work-dependency.md`）:
       コンストラクタ+全フィールド引数コンストラクタ+`update`メソッド+getterのみ）で実装。
       `EncryptedStringConverter`は2-5で生成するため、本項目時点では未解決参照
       （2-1/2-2と同様、ペア項目間のコンパイル未検証は許容）。
-- [ ] 2-5. `backend/src/main/java/cherry/mastermeister/rdbmsconnection/
+- [x] 2-5. `backend/src/main/java/cherry/mastermeister/rdbmsconnection/
       EncryptedStringConverter.java`（`@Component` + `@Converter`、
       `AttributeConverter<String, String>`）: コンストラクタで
       `@Value("${mm.app.rdbms-connection.encryption-key}")`（Base64エンコード32バイト鍵）を
@@ -153,7 +153,10 @@ U1（Platform Foundation）のみに依存（`unit-of-work-dependency.md`）:
       `domain-entities.md`「実装方針」）。AES/GCM暗号化、IVはGCM推奨12バイトを暗号化ごとに
       `SecureRandom`で生成し暗号文の先頭に付加して1つの文字列として保存
       （`nfr-requirements.md` 1.1）。`convertToDatabaseColumn`/`convertToEntityAttribute`を
-      実装。
+      実装。AES/GCM/NoPadding、タグ長128ビット、鍵長32バイト（AES-256）を検証。IV+暗号文を
+      連結しBase64エンコードして1文字列として保存/復元。`mm.app.rdbms-connection.encryption-key`
+      の設定値追加は16-1で対応（`@Value`にデフォルト値は与えずfail-fastのまま）。
+      `./gradlew compileJava`でコンパイル成功を確認、`RdbmsConnection`の未解決参照も解消した。
 - [ ] 2-6. `backend/src/main/java/cherry/mastermeister/rdbmsconnection/` に
       `ConnectionConfig`（record: `String name, RdbmsType rdbmsType, String host, int port,
       String databaseName, String username, String password, String additionalParams`

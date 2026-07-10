@@ -957,3 +957,11 @@
 
 ---
 
+## CONSTRUCTION - U3 Code Generation - Part 2 Item 2-5
+**Timestamp**: 2026-07-10T13:52:00Z
+**User Input**: "続行する" (via AskUserQuestion, in response to the post-commit continuation prompt for item 2-4)
+**AI Response**: Generated `backend/src/main/java/cherry/mastermeister/rdbmsconnection/EncryptedStringConverter.java` (`@Component` + `@Converter`, `AttributeConverter<String, String>`), matching `JwtTokenProvider`'s fail-fast constructor pattern: receives `@Value("${mm.app.rdbms-connection.encryption-key}")` (Base64-encoded key), decodes it, and throws `IllegalArgumentException` if the decoded length is not 32 bytes (AES-256). Encryption uses `AES/GCM/NoPadding` with a 128-bit tag; a fresh 12-byte IV is generated via `SecureRandom` per encryption, prepended to the ciphertext, and the combined bytes are Base64-encoded for storage (`nfr-requirements.md` 1.1). `convertToDatabaseColumn`/`convertToEntityAttribute` implement encrypt/decrypt symmetrically. The `mm.app.rdbms-connection.encryption-key` config value itself is deferred to item 16-1 (`application.yml`). Verified via `./gradlew compileJava` — succeeded with no errors, resolving `RdbmsConnection`'s previously-unresolved `@Convert` reference from item 2-4. Marked plan item 2-5 `[x]`.
+**Context**: Per-Unit Loop, U3 Code Generation Part 2, Step 2 item 2-5 complete. Committing, then asking user whether to continue to item 2-6 (rdbmsconnection DTO records: `ConnectionConfig`/`ConnectionSummary`/`ConnectionDetail`/`ConnectionTestResult`).
+
+---
+
