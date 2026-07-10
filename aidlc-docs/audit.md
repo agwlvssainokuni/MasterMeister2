@@ -2209,3 +2209,19 @@ U3の`frontend-summary.md`の章立て（コンポーネント一覧テーブル
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U4: Permission Management - Code Generation Step 14完了確認
+**Timestamp**: 2026-07-11T08:50:00Z
+**User Input**: [AskUserQuestion回答] "続行"（質問: "Step 14（DBマイグレーション、item 14-1: 該当なしN/A確認、コミット80490e3）が完了しました。次はStep 15（testing-summary.md生成 + docs/PROJECT_STRUCTURE.md訂正、item 15-1）に進んでよいですか？"）
+**AI Response**: ユーザが続行を選択したため、Step 15 item 15-1（testing-summary.md生成、docs/PROJECT_STRUCTURE.md訂正）に着手する。
+**Context**: Per-Unit Loop、U4 Code Generation Step 15着手。
+
+---
+
+## CONSTRUCTION - Per-Unit Loop - U4: Permission Management - Code Generation Step 15 item 15-1完了
+**Timestamp**: 2026-07-11T08:56:00Z
+**User Input**: (継続実行、質問なし)
+**AI Response**: `aidlc-docs/construction/u4-permission-management/code/testing-summary.md`をU3の構成（PBT-10遵守状況／P1〜P11対応表／example-basedテスト一覧／実行確認状況／既知の課題）に準拠して新規生成した。作成にあたり`./gradlew test`（backend/で実行、40テストクラス・214/214件成功、0失敗・0エラー、うちU4新規追加は11クラス・81件：`GroupServiceTest` 2、`PermissionAssignmentServiceTest` 6、`EffectivePermissionResolverTest` 6、`PermissionCacheConsistencyTest` 4、`SchemaReimportCacheConsistencyTest` 2、`GroupControllerTest` 21、`PermissionControllerTest` 11、`GroupRepositoryTest` 5、`GroupMemberRepositoryTest` 8、`PermissionAssignmentRepositoryTest` 8、`AuxPermissionAssignmentRepositoryTest` 8）、`npx vitest run`（frontend/で実行、40ファイル・156/156件成功）を実行し、テスト結果XML（`build/test-results/test/`）の集計値と突き合わせて数値を確認した。あわせて`docs/PROJECT_STRUCTURE.md`のbackend構成図を訂正し、`group`パッケージが`userregistration`の`User`/`UserRepository`に依存する一方向依存（`grep`でソースの実際のimport文を確認済み）を補記した。`permission`パッケージの既存の「groupに依存」コメントも「`PrincipalType.GROUP`解決のため`listGroups`を一方向で参照」に具体化した。プラン`u4-permission-management-code-generation-plan.md`のitem 15-1を`[x]`に更新し実装メモを記載。これによりStep 15が完了した。
+**Context**: Per-Unit Loop、U4 Code Generation Step 15（ドキュメント生成）完了。
+
+---
+

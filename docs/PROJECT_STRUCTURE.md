@@ -39,8 +39,11 @@ backend/
     │   │   ├── userregistration/ # 5.1 ユーザ登録（申請→メール→承認/却下）
     │   │   ├── rdbmsconnection/  # 5.2 対象RDBMS接続情報管理
     │   │   ├── schema/           # 5.2 スキーマ取込（テーブル/ビュー/カラム構造の読取）
-    │   │   ├── group/            # 5.2 ユーザグループの作成・所属管理
-    │   │   ├── permission/       # 5.2 テーブル/カラム権限、YAMLエクスポート/インポート（groupに依存）
+    │   │   ├── group/            # 5.2 ユーザグループの作成・所属管理（userregistrationのUser/
+    │   │   │                     #  UserRepositoryに依存。所属ユーザの実体はuserregistrationが
+    │   │   │                     #  所有し、groupは所属関係のみを保持する一方向依存）
+    │   │   ├── permission/       # 5.2 テーブル/カラム権限、YAMLエクスポート/インポート（groupに依存、
+    │   │   │                     #  PrincipalType.GROUP解決のためlistGroupsを一方向で参照）
     │   │   ├── masterdata/       # 5.4 マスタ一覧・絞込・編集・作成/削除の統一API
     │   │   ├── querybuilder/     # 5.5 クエリビルダー（SQL生成/逆解析）
     │   │   ├── savedquery/       # 5.6 クエリ保存（公開/非公開、実行、編集権限）

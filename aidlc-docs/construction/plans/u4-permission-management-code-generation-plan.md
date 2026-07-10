@@ -888,10 +888,18 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
       外である点も変更なし。
 
 ### Step 15: ドキュメント生成
-- [ ] 15-1. Step 4/7/10/13のサマリに加え、`aidlc-docs/construction/
+- [x] 15-1. Step 4/7/10/13のサマリに加え、`aidlc-docs/construction/
       u4-permission-management/code/testing-summary.md`（P1〜P11とテストクラスの対応表、
       example-basedテスト一覧）を生成する。`docs/PROJECT_STRUCTURE.md`の依存関係表に
       `group→userregistration`の一方向依存を補記する（「ブラウンフィールド発見事項」）。
+      実装メモ: `testing-summary.md`はU3の構成（PBT-10遵守状況／P1〜P11対応表／
+      example-basedテスト一覧／実行確認状況／既知の課題）に準拠して新規作成。`./gradlew test`
+      （40クラス・214/214件成功、うちU4新規11クラス・81件）・`npx vitest run`
+      （40ファイル・156/156件成功）を実際に実行し数値を確認済み。`docs/PROJECT_STRUCTURE.md`の
+      backend構成図に、`group`パッケージが`userregistration`の`User`/`UserRepository`に依存する
+      一方向依存（ソースを`grep`し実際のimport文で確認済み）を補記した。あわせて`permission`
+      パッケージの`group`依存コメントも「`PrincipalType.GROUP`解決のため`listGroups`を一方向で
+      参照」に具体化した。
 
 ### Step 16: デプロイ成果物生成
 - [ ] 16-1. `backend/src/main/resources/application.yml`（既存、ブラウンフィールド修正）に
