@@ -773,7 +773,7 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
       `/pending`のみで承認済みユーザの一覧・検索エンドポイントを持たない）が存在しないため
       数値のユーザID直接入力とした（`GroupMemberAddRequest(Long userId)`に整合）。
       `tsc -b --noEmit`・`npm run lint`（oxlint）ともにエラーなし。
-- [ ] 11-2. `frontend/src/features/permission/` に`PermissionAssignmentPage.tsx`、
+- [x] 11-2. `frontend/src/features/permission/` に`PermissionAssignmentPage.tsx`、
       `ConnectionSelector.tsx`、`PrincipalSelector.tsx`、`PermissionTree.tsx`、
       `PermissionForm.tsx`、`PermissionYamlPanel.tsx`、`api.ts`（YAMLエクスポートは
       `blob`ダウンロード、インポートは`FormData`アップロード。トークン取得は`apiClient`の
@@ -781,6 +781,23 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
       フィールド発見事項」相当のAI決定、Step 2完了後に確定）、`types.ts`を生成する
       （`frontend-components.md`）。`features/permission/`は`features/group/`の
       `groupApi.listGroups()`のみを参照する（一方向依存）。
+      実装メモ: `PermissionController`（`PermissionControllerTest`のJSONフィクスチャで
+      `Optional<T>`フィールドがnull/値として素直にシリアライズされることを確認済み）に
+      合わせ`setPermission`/`setAuxPermission`は共に単一の`PUT /permissions`
+      エンドポイントへ`permission`/`auxType`+`granted`のいずれかをnullにして呼び分ける。
+      `PermissionController`には単一principalの現在の権限設定を取得するGETエンドポイントが
+      存在しない（`export`はYAML全件、`import`は全置換のみ）ため、`PermissionForm`の
+      `currentPermission`/`currentAuxPermissions`は`PermissionAssignmentPage`から常に`null`
+      を渡し、フォームは常に`NONE`/未チェックから開始する設計とした（バックエンド変更なし
+      での対応、ブラウンフィールド発見事項相当のAI決定）。`PrincipalSelector`のユーザ選択は
+      `features/group/`の`GroupDetailPage`と同様、ユーザ検索APIが存在しないためユーザID
+      直接入力とした。`PermissionTree`はU3の`schemaApi`（`listSchemas`/`listTables`/
+      `getTableDetail`）をスキーマ選択時・テーブル選択時に遅延取得するアコーディオン構成。
+      `importPermissionsFromYaml`は`PermissionAssignmentService`の実装
+      （`PermissionYamlFormatException`を内部でcatchし`ImportResult(false, message)`を
+      200で返す設計、`PermissionControllerTest`の400テストはサービスをモックした場合のみの
+      挙動）に合わせ、非200レスポンスも極力`ImportResult`形へ正規化して表示する。
+      `tsc -b --noEmit`・`npm run lint`（oxlint）ともにエラーなし。
 - [ ] 11-3. `frontend/src/routes/AppRouter.tsx`（既存、ブラウンフィールド修正）:
       `/admin/groups`, `/admin/groups/:id`, `/admin/permissions`を`ProtectedRoute
       requiredRole="ADMIN"`配下に追加する。
