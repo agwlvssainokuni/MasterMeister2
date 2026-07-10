@@ -476,9 +476,55 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
       検証した。`./gradlew compileJava compileTestJava`成功、`./gradlew test --tests
       EffectivePermissionResolverTest`で6件全て成功（tests=6, failures=0, errors=0）、
       `./gradlew test`（全体）でも回帰なしを確認。
-- [ ] 3-5. **P10**（書き込み直後の強整合性Invariant）: `PermissionCacheInvalidationListener`
+- [x] 3-5. **P10**（書き込み直後の強整合性Invariant）: `PermissionCacheInvalidationListener`
       を含む統合的な検証（`@SpringBootTest`または`@DataJpaTest`＋実キャッシュBeanでの
       検証）を`EffectivePermissionResolverTest`または専用テストクラスに生成する。
+      実装メモ: テスト作成前の事前確認で、アプリケーション全体に`@EnableCaching`が
+      一度も付与されていないことが判明した（`@SpringBootTest`でBeanを取得し、プロキシ
+      クラス名に`$$SpringCGLIB$$`が含まれないことで確認）。Spring Bootのキャッシュ
+      自動構成は`CacheManager` Beanを用意するのみで、`@Cacheable`/`@CacheEvict`の
+      AOPプロキシ化には`@EnableCaching`の明示付与が必須（Spring Boot 4.1で変更なし）。
+      これが欠けていたため、6キャッシュの`@Cacheable`/`@CacheEvict`は現状すべて
+      no-opであり、P10の検証対象（無効化の有無で結果が変わる状況）自体が存在しない
+      状態だった。`backend/src/main/java/cherry/mastermeister/config/CacheConfig.java`
+      （`@Configuration @EnableCaching`の空クラス、`GlobalExceptionHandler`と同じ
+      `config`パッケージに配置）を追加し、`@EnableCaching`を付与した上で
+      `EffectivePermissionResolver`がCGLIBプロキシ化されCaffeineの`CacheManager`が
+      有効になることを再確認した（`spring.cache.type`/`spring.cache.caffeine.spec`は
+      `nfr-design-patterns.md` 1.1どおりStep 16で追記予定のため未設定のままだが、
+      Caffeineがクラスパス上にあるため既定で`CaffeineCacheManager`が自動選択される
+      ことを確認済み）。
+      本体のテストは新規`PermissionCacheConsistencyTest`（`@SpringBootTest`＋
+      `@JqwikSpringSupport`、実DB・実キャッシュBeanを使用、`EffectivePermissionResolverTest`
+      のMockito方式とは別クラス）として生成した。`business-rules.md` 2.6のフロー1
+      （`GroupService.addUserToGroup`/`removeUserFromGroup`）・フロー2
+      （`PermissionAssignmentService.setPermission`/`setAuxPermission`）・フロー4
+      （`importPermissionsFromYaml`）に対応する4件の`@Property`テストを生成し、
+      いずれも「キャッシュに旧値を乗せてから書き込み、直後に新値が返ることを確認する」
+      形式で強整合性を検証した。フロー1のテスト（`groupMembershipChangeIsImmediately
+      VisibleAfterCommit`）は`PermissionCacheInvalidationListener.onGroupChanged`
+      （`@TransactionalEventListener(phase = AFTER_COMMIT)`）を実際に発火させる
+      唯一の経路であり、書き込みがコミットされるまでイベントが飛ばないことを保証する
+      ため、テストクラス自体やテストメソッドに`@Transactional`を付与しない設計とした
+      （付与するとテストトランザクションがロールバックされAFTER_COMMITイベントが
+      発火しない）。フロー2・フロー4は`PermissionAssignmentService`自身の
+      `@CacheEvict(allEntries = true)`による直接無効化を検証する。フロー2の
+      補助権限テストは主キーなしテーブル（`EffectivePermissionResolverTest`のP9と
+      同じ手法）を使い、`canCreate`の戻り値が補助権限Cの値のみに一致することを
+      利用して検証した。フロー4はYAMLを`PermissionEntryYaml`/`PrincipalYaml`/
+      `PermissionYamlDocument`から`YAMLMapper`で組み立てて`importPermissionsFromYaml`
+      に渡した。テストは内部DB（ファイルベースH2、`AuthenticationServiceTest`等
+      既存テストと同じ実DBを使用、Spring Boot 4.1では`@DataJpaTest`/
+      `@AutoConfigureTestDatabase`のどちらも組み込みDBへの自動置換をサポートしない
+      ことを確認済み）を用いるため、複数回のテスト実行間でも一意なキーとなるよう
+      `System.nanoTime()`を混ぜた`RUN_SEED`とインクリメンタルな`SEQ`を組み合わせて
+      email/グループ名/schema名/connectionIdを生成した（`AuthenticationServiceTest`の
+      `deleteAll()`方式は、他機能のデータも含む共有DBを丸ごと削除するリスクがあるため
+      採用しなかった）。`./gradlew compileJava compileTestJava`成功、
+      `./gradlew test --tests PermissionCacheConsistencyTest`を2回連続実行して
+      いずれも4件全て成功（tests=4, failures=0, errors=0）することを確認（実行間の
+      一意性キー設計の検証を兼ねる）、`./gradlew test`（全体）でも151件全て成功
+      （failures=0, errors=0）で回帰なしを確認。
 - [ ] 3-6. **P11**（U3スキーマ再取り込みとの一貫性Invariant）: `SchemaReimportedEvent`発行
       〜`PermissionCacheInvalidationListener`〜`EffectivePermissionResolver`再判定の連携を
       検証する`@Property`テストを生成する。
