@@ -1253,3 +1253,11 @@
 
 ---
 
+## CONSTRUCTION - U3 Code Generation - Part 2 Item 9-1
+**Timestamp**: 2026-07-10T18:50:00Z
+**User Input**: "続行する" (continuation confirmation after item 8-3); mid-item: "テスト用の設定もYAMLに。無害とはいえ不要なプロパティ設定は削除。"（`application.properties`ではなくYAML形式にし、不要なプロパティは書かない指示）; "なんで削除？"（`application.yml`同名ファイル削除の意図を問う確認）; "推奨は？"（対応方針の推奨を求める）; "進める（推奨）"（`application-test.yml`＋`spring.profiles.active=test`方式の承認）
+**AI Response**: Generated `RdbmsConnectionRepositoryTest`/`SchemaTableRepositoryTest`/`SchemaColumnRepositoryTest`（いずれも`@DataJpaTest`）with example-based CRUD/query-method/unique-constraint tests. Discovered mid-item that Step 2's `RdbmsConnection`エンティティ導入により、`@DataJpaTest`のデフォルトエンティティスキャンがアプリ全体に及ぶため、U1/U2の既存4つの`@DataJpaTest`クラス（`UserRepositoryTest`/`RegistrationTokenRepositoryTest`/`RefreshTokenRepositoryTest`/`AuditLogRepositoryTest`）が`EncryptedStringConverter`のプロパティ未設定により巻き添えで壊れていたことを発見・ユーザに報告。ユーザ選択により共通test設定で一括修正する方針を採用。最初に試みた`src/test/resources/application.properties`をユーザ指示によりYAML化（`application.yml`、mainと同名）したところ、`classpath:application.yml`解決がマージでなく完全上書きとなり`MasterMeisterApplicationTests.contextLoads()`（JWT秘密鍵等の欠落）を壊すことが発覚。ユーザに削除の意図を確認された上で、推奨案（`application-test.yml`のプロファイル別設定ファイル＋`backend/build.gradle.kts`の`tasks.withType<Test>`へ`systemProperty("spring.profiles.active", "test")`追加）を提示し承認を得て実施。プロファイル別ファイルはベースの`application.yml`と加算マージされるため、新規3クラス・既存4クラスとも個別`@TestPropertySource`なしに解決。`./gradlew test`（全29テストクラス・133件）で`BUILD SUCCESSFUL`を確認。**Step 9（リポジトリレイヤ単体テスト）は完了。**
+**Context**: Per-Unit Loop, U3 Code Generation Part 2, Step 9 item 9-1 complete. Committing, then asking user whether to continue to Step 10 item 10-1 (repository layer summary) or pause.
+
+---
+

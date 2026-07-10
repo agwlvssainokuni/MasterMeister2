@@ -1,0 +1,4 @@
+mm:
+  app:
+    rdbms-connection:
+      encryption-key: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
