@@ -175,9 +175,12 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
       `Group`のような更新対象フィールドを持たないため`rename`/`update`ミューテータは実装せず
       getterのみとした（追加・削除はレコード自体の作成/削除で表現、`GroupService`側の責務）。
       `compileJava`成功を確認済み。
-- [ ] 2-3. `backend/src/main/java/cherry/mastermeister/group/GroupChangedEvent.java`
+- [x] 2-3. `backend/src/main/java/cherry/mastermeister/group/GroupChangedEvent.java`
       （新規、record: `Long groupId`）を生成する（`nfr-requirements.md` 1.2、`group`
       パッケージの語彙のみで定義）。
+      実装メモ: `SchemaReimportedEvent`と同型の単純recordとして実装。発行元
+      （`GroupService`、item 2-5）はまだ未実装のためこの時点では未使用。
+      `./gradlew compileJava`成功を確認。
 - [ ] 2-4. `backend/src/main/java/cherry/mastermeister/group/` に`GroupSummary`（record:
       `Long id, String name, Instant createdAt`）、`UserSummary`（record: `Long id, String
       email`）を生成する（`component-methods.md`シグネチャ、「ブラウンフィールド発見事項」
