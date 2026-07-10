@@ -878,8 +878,14 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
       合計42件、フロントエンド全体40ファイル・156件）を記載した。
 
 ### Step 14: データベースマイグレーションスクリプト
-- [ ] 14-1. **該当なし（N/A）**: U1/U2/U3と同様、内部DB(H2)のスキーマ管理はJPAの自動DDL
+- [x] 14-1. **該当なし（N/A）**: U1/U2/U3と同様、内部DB(H2)のスキーマ管理はJPAの自動DDL
       生成に委ね、Flyway/Liquibase等は導入しない（U1 NFR Design Question 5 = Aを踏襲）。
+      確認メモ: 本Unitで追加した`Group`/`GroupMember`（Step 2）・`PermissionAssignment`/
+      `AuxPermissionAssignment`（Step 2）の4エンティティもJPA自動DDL
+      （`spring.jpa.hibernate.ddl-auto`）の対象であり、追加のマイグレーションスクリプトは
+      不要。対象RDBMS（MySQL/MariaDB/PostgreSQL/H2、`NamedParameterJdbcTemplate`経由）側の
+      スキーマはユーザ管理下の既存データであり、本アプリケーションのマイグレーション対象
+      外である点も変更なし。
 
 ### Step 15: ドキュメント生成
 - [ ] 15-1. Step 4/7/10/13のサマリに加え、`aidlc-docs/construction/
