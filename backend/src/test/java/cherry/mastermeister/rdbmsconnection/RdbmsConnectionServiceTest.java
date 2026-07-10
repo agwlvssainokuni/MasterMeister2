@@ -18,9 +18,13 @@ package cherry.mastermeister.rdbmsconnection;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Arbitrary;
@@ -38,7 +42,7 @@ import cherry.mastermeister.common.dialect.PostgreSqlDialectStrategy;
 import cherry.mastermeister.common.dialect.RdbmsType;
 
 /**
- * P3（business-logic-model.md）を検証するプロパティテスト。
+ * P3・P6（business-logic-model.md）を検証するプロパティテスト。
  */
 class RdbmsConnectionServiceTest {
 
@@ -71,6 +75,67 @@ class RdbmsConnectionServiceTest {
 
         assertThat(jdbcUrl).isEqualTo(baseUrl + "?" + config.additionalParams());
         assertThat(jdbcUrl.indexOf("?")).isEqualTo(jdbcUrl.lastIndexOf("?"));
+    }
+
+    // P6: 未保存の設定でtestConnectionを呼び出しても、ConnectionPoolRegistryのキャッシュ状態
+    // （登録済みプールの集合）は呼び出し前後で変化しない。
+    @Property(tries = 10)
+    void registryCacheUnchangedForUnsavedConfig(@ForAll("configsForCacheCheck") ConnectionConfig config) {
+        ConnectionPoolRegistry registry = mock(ConnectionPoolRegistry.class);
+        RdbmsConnectionService testService = new RdbmsConnectionService(
+                mock(RdbmsConnectionRepository.class), dialectStrategyFactory,
+                registry, mock(AuditLogService.class), Duration.ofMillis(200));
+
+        try {
+            testService.testConnection(config);
+        } catch (RuntimeException ignored) {
+            // 接続失敗時にHikariCPが送出する可能性のある例外はP6の関心事ではない。
+        }
+
+        verifyNoInteractions(registry);
+    }
+
+    // P6: 既存接続IDの再テストでtestConnectionを呼び出しても、ConnectionPoolRegistryの
+    // キャッシュ状態は呼び出し前後で変化しない。
+    @Property(tries = 10)
+    void registryCacheUnchangedForExistingConnectionId(
+            @ForAll("connectionIds") Long connectionId, @ForAll("configsForCacheCheck") ConnectionConfig config) {
+        ConnectionPoolRegistry registry = mock(ConnectionPoolRegistry.class);
+        RdbmsConnectionRepository repository = mock(RdbmsConnectionRepository.class);
+        Instant now = Instant.now();
+        when(repository.findById(connectionId)).thenReturn(Optional.of(new RdbmsConnection(
+                config.name(), config.rdbmsType(), config.host(), config.port(),
+                config.databaseName(), config.username(), config.password(),
+                config.additionalParams(), now, now)));
+        RdbmsConnectionService testService = new RdbmsConnectionService(
+                repository, dialectStrategyFactory, registry, mock(AuditLogService.class), Duration.ofMillis(200));
+
+        try {
+            testService.testConnection(connectionId);
+        } catch (RuntimeException ignored) {
+            // 接続失敗時にHikariCPが送出する可能性のある例外はP6の関心事ではない。
+        }
+
+        verifyNoInteractions(registry);
+    }
+
+    @Provide
+    Arbitrary<Long> connectionIds() {
+        return Arbitraries.longs().between(1L, 1_000_000L);
+    }
+
+    @Provide
+    Arbitrary<ConnectionConfig> configsForCacheCheck() {
+        Arbitrary<String> name = Arbitraries.strings().alpha().ofMinLength(1).ofMaxLength(20);
+        Arbitrary<RdbmsType> rdbmsType = Arbitraries.of(RdbmsType.class);
+        Arbitrary<String> host = Arbitraries.just("localhost");
+        Arbitrary<Integer> port = Arbitraries.integers().between(1, 65535);
+        Arbitrary<String> databaseName = Arbitraries.strings().alpha().ofMinLength(1).ofMaxLength(20);
+        Arbitrary<String> username = Arbitraries.strings().alpha().ofMinLength(1).ofMaxLength(20);
+        Arbitrary<String> password = Arbitraries.strings().alpha().ofMinLength(1).ofMaxLength(20);
+        Arbitrary<String> additionalParams = Arbitraries.just((String) null);
+        return Combinators.combine(name, rdbmsType, host, port, databaseName, username, password, additionalParams)
+                .as(ConnectionConfig::new);
     }
 
     @Provide

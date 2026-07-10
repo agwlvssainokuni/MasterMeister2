@@ -1085,3 +1085,11 @@
 
 ---
 
+## CONSTRUCTION - U3 Code Generation - Part 2 Item 3-4
+**Timestamp**: 2026-07-10T14:50:00Z
+**User Input**: "続行してください。" (after a `/compact` local-command marker, not itself a user instruction)
+**AI Response**: Investigated `RdbmsConnectionService.testConnection(ConnectionConfig)`/`testConnection(Long)` and confirmed neither overload references `ConnectionPoolRegistry` at all — both build their own throwaway `HikariDataSource` directly and never call `getDataSource`/`invalidate`, so P6 (registry cache unchanged before/after `testConnection`) holds by construction. Added two jqwik `@Property` tests to the existing `RdbmsConnectionServiceTest.java`: `registryCacheUnchangedForUnsavedConfig` (an unsaved `ConnectionConfig` passed directly) and `registryCacheUnchangedForExistingConnectionId` (a `connectionId` passed, with `RdbmsConnectionRepository` mocked to resolve it to a matching `RdbmsConnection`). Both construct a fresh Mockito-mocked `ConnectionPoolRegistry`, invoke `testConnection` wrapped in `try/catch (RuntimeException ignored)` (since a failed/refused real connection attempt can surface as an unchecked exception from HikariCP's pool initialization, which is irrelevant to P6's actual claim), then assert `verifyNoInteractions(registry)`. To keep the real connection attempts fast and deterministic, the new `configsForCacheCheck` arbitrary fixes `host = "localhost"` and the service under test is built with `connectionTimeout = Duration.ofMillis(200)`; both `@Property` tests use `tries = 10` given each try performs genuine (fast-failing) I/O. Added a `connectionIds` arbitrary (`1..1_000_000`, matching `ConnectionPoolRegistryTest`'s convention). Ran `./gradlew compileJava` and `compileTestJava`; both fail with the same 15 error lines across the same 3 known, intentionally-deferred repository types (`RdbmsConnectionRepository`, `SchemaTableRepository`, `SchemaColumnRepository`) — no new/unexpected symbol. Marked plan item 3-4 `[x]`.
+**Context**: Per-Unit Loop, U3 Code Generation Part 2, Step 3 item 3-4 complete. Committing, then asking user whether to continue to item 3-5 (P7/P8/P9 property tests for `SchemaImportService`) or pause.
+
+---
+
