@@ -17,6 +17,7 @@
 package cherry.mastermeister.schema;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -25,6 +26,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.Proxy;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Connection;
@@ -43,14 +45,23 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 import org.h2.tools.Server;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Arbitrary;
 import net.jqwik.api.ForAll;
+import net.jqwik.api.Group;
 import net.jqwik.api.Property;
 import net.jqwik.api.Provide;
 import net.jqwik.api.lifecycle.AfterContainer;
 import net.jqwik.api.lifecycle.BeforeContainer;
+import net.jqwik.spring.JqwikSpringSupport;
 
 import cherry.mastermeister.audit.AuditLogService;
 import cherry.mastermeister.common.dialect.DialectStrategyFactory;
@@ -61,7 +72,7 @@ import cherry.mastermeister.rdbmsconnection.RdbmsConnection;
 import cherry.mastermeister.rdbmsconnection.RdbmsConnectionRepository;
 
 /**
- * P7・P8・P9（business-logic-model.md）を検証するプロパティテスト。
+ * P7・P8・P9・P10（business-logic-model.md）を検証するプロパティテスト。
  */
 class SchemaImportServiceTest {
 
@@ -211,6 +222,109 @@ class SchemaImportServiceTest {
     @Provide
     Arbitrary<ChangePattern> changePatterns() {
         return Arbitraries.of(ChangePattern.values());
+    }
+
+    // P10（importSchema失敗時のロールバックRound-trip）は、実JPAリポジトリ・実トランザクション境界
+    // でのみ検証可能なため、@DataJpaTest（内部DB用の埋め込みH2）＋@JqwikSpringSupportで
+    // Spring TestContextをjqwikのプロパティテストに適用するグループとして分離する。
+    // テストメソッド自体を包む外側トランザクション（@DataJpaTestが既定で付与する）を
+    // Propagation.NOT_SUPPORTEDで無効化し、importSchema()自身の@Transactional
+    // （Propagation.REQUIRED）がテストメソッドから見て新規かつ唯一の物理トランザクションとなる
+    // ようにしている。これにより、失敗時のロールバックがimportSchema()の呼び出しが返る時点で
+    // 実際に完了しており、呼び出し後にリポジトリで内部DB状態を検証すれば
+    // 「ロールバック済みの実データ」を確認できる（テストの外側トランザクション内で検証すると、
+    // ロールバックがテスト終了時まで遅延され、コミット前の変更がまだ見えてしまうため）。
+    // mm.app.rdbms-connection.encryption-keyはStep 16（application.yml設定追記）で
+    // 本設定されるまで未定義のため、EncryptedStringConverterのBean化（RdbmsConnectionエンティティが
+    // AttributeConverterとして参照するため、@DataJpaTestがHibernateの永続ユニット構築時に必ず
+    // インスタンス化する）に必要な値をテスト専用にここで注入する（本番設定はStep 16の担当）。
+    @Group
+    @DataJpaTest
+    @JqwikSpringSupport
+    @TestPropertySource(properties = "mm.app.rdbms-connection.encryption-key=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=")
+    class RollbackRoundTrip {
+
+        @Autowired
+        RdbmsConnectionRepository connectionRepository;
+        @Autowired
+        SchemaTableRepository tableRepository;
+        @Autowired
+        SchemaColumnRepository columnRepository;
+        @Autowired
+        SchemaImportService service;
+
+        // SchemaImportServiceを`new`で直接生成すると、Springのトランザクション用AOPプロキシを
+        // 経由しないため@Transactionalが一切効かず（=物理トランザクションの開始/ロールバックが
+        // 起きず）P10の検証ができない。そのためSpringコンテナ管理Beanとして登録し、
+        // @Autowiredでプロキシ経由のインスタンスを取得する。カラム保存を確実に失敗させるため、
+        // SchemaColumnRepositoryをJDK動的プロキシで包み、save呼び出し時のみ例外を送出し、
+        // 他の呼び出しは実Beanへ委譲する（Mockito.spy()はSpring DataのJPAリポジトリ実装が
+        // JDK動的プロキシであるためUnfinishedStubbingExceptionを引き起こし利用不可だった）。
+        @TestConfiguration
+        static class ImportServiceUnderTestConfig {
+            @Bean
+            SchemaImportService schemaImportServiceUnderTest(
+                    RdbmsConnectionRepository rdbmsConnectionRepository,
+                    SchemaTableRepository schemaTableRepository,
+                    SchemaColumnRepository schemaColumnRepository) {
+                DialectStrategyFactory factory = new DialectStrategyFactory(List.of(new H2DialectStrategy()));
+                ConnectionPoolRegistry registry = new ConnectionPoolRegistry(
+                        rdbmsConnectionRepository, factory, 1, 0, Duration.ofSeconds(5));
+                SchemaColumnRepository failingColumnRepository = (SchemaColumnRepository) Proxy.newProxyInstance(
+                        SchemaColumnRepository.class.getClassLoader(),
+                        new Class<?>[]{SchemaColumnRepository.class},
+                        (proxy, method, args) -> {
+                            if ("save".equals(method.getName())) {
+                                throw new RuntimeException("injected failure for P10 rollback test");
+                            }
+                            return method.invoke(schemaColumnRepository, args);
+                        });
+                return new SchemaImportService(
+                        rdbmsConnectionRepository, schemaTableRepository, failingColumnRepository,
+                        registry, factory, mock(AuditLogService.class));
+            }
+        }
+
+        // P10: 取り込み処理途中（1テーブル目の物理名upsert後・カラム保存中）で想定外の実行時例外が
+        // 発生した場合、importSchemaの@Transactionalロールバックにより内部DB状態
+        // （SchemaTable/SchemaColumn）が呼び出し前と完全に一致すること（新規行が一切残らないこと）
+        // を検証する。テーブル数はtableCountで1〜3をjqwikで生成し、少なくとも1テーブル分の
+        // 物理名upsertがカラム保存失敗より前に成功していることを保証する。
+        // テストメソッド自体を包む外側トランザクション（@DataJpaTestが既定で付与する）を
+        // Propagation.NOT_SUPPORTEDで無効化し、importSchema()自身の@Transactional
+        // （Propagation.REQUIRED）がテストメソッドから見て新規かつ唯一の物理トランザクションとなる
+        // ようにしている。これにより、失敗時のロールバックがimportSchema()の呼び出しが返る時点で
+        // 実際に完了しており、呼び出し後にリポジトリで内部DB状態を検証すれば
+        // 「ロールバック済みの実データ」を確認できる（テストの外側トランザクション内で検証すると、
+        // ロールバックがテスト終了時まで遅延され、コミット前の変更がまだ見えてしまうため）。
+        @Property(tries = 10)
+        @Transactional(propagation = Propagation.NOT_SUPPORTED)
+        void importSchemaRollsBackAllChangesOnFailure(@ForAll("tableCounts") int tableCount) throws Exception {
+            String dbName = "SCHEMAIMPORT" + DB_COUNTER.incrementAndGet();
+            try (Connection setup = openConnection(dbName)) {
+                createSchema(setup, TEST_SCHEMA);
+                for (int i = 0; i < tableCount; i++) {
+                    createTable(setup, TEST_SCHEMA, "T" + i);
+                }
+            }
+
+            Instant now = Instant.now();
+            RdbmsConnection connection = connectionRepository.save(new RdbmsConnection(
+                    "test", RdbmsType.H2, "localhost", h2Server.getPort(), dbName, "sa", "sa", null, now, now));
+            Long connectionId = connection.getId();
+
+            assertThatThrownBy(() -> service.importSchema(connectionId, 1L))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessage("injected failure for P10 rollback test");
+
+            assertThat(tableRepository.findByConnectionId(connectionId)).isEmpty();
+            assertThat(columnRepository.findAll()).isEmpty();
+        }
+
+        @Provide
+        Arbitrary<Integer> tableCounts() {
+            return Arbitraries.integers().between(1, 3);
+        }
     }
 
     private SchemaImportService newService(String dbName, FakeRepositories repos) {
