@@ -676,9 +676,15 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
       これでStep 6（APIレイヤ単体テスト）の全2項目が完了。
 
 ### Step 7: APIレイヤサマリ
-- [ ] 7-1. `aidlc-docs/construction/u4-permission-management/code/api-layer-summary.md`を
+- [x] 7-1. `aidlc-docs/construction/u4-permission-management/code/api-layer-summary.md`を
       生成し、エンドポイント一覧（パス・メソッド・認可要件・リクエスト/レスポンス形状）と
       エラーレスポンス表（`PERMISSION_YAML_FORMAT_ERROR`含む）を記載する。
+      【実装メモ】U3の`api-layer-summary.md`と同構成（エンドポイント一覧表、
+      Controllerごとの詳細説明、エラーレスポンス表、テストカバレッジ表）で生成した。
+      `PermissionController`の項では`PUT ""`のリクエスト例をテーブル/カラム権限設定と
+      補助権限設定の2パターン併記し、エラーレスポンス表に既知の課題（インポートAPI経路では
+      `PERMISSION_YAML_FORMAT_ERROR`は実際には到達せず、防御的フォールバックである旨）を
+      明記した。
 
 ### Step 8: リポジトリレイヤ生成
 - [x] 8-1. （item 2-2の直後に暫定実装として先行実施、`u4-permission-management-code-generation-plan.md`実行順序変更の注記参照）`backend/src/main/java/cherry/mastermeister/group/GroupRepository.java`
