@@ -91,12 +91,7 @@ public class RdbmsConnectionService {
     }
 
     public ConnectionTestResult testConnection(ConnectionConfig config) {
-        String baseUrl = dialectStrategyFactory.resolve(config.rdbmsType())
-                .buildJdbcUrl(config.host(), config.port(), config.databaseName());
-        String additionalParams = config.additionalParams();
-        String jdbcUrl = (additionalParams == null || additionalParams.isBlank())
-                ? baseUrl
-                : baseUrl + "?" + additionalParams;
+        String jdbcUrl = buildJdbcUrl(config);
 
         HikariConfig hikariConfig = new HikariConfig();
         hikariConfig.setJdbcUrl(jdbcUrl);
@@ -135,6 +130,15 @@ public class RdbmsConnectionService {
                 connection.getId(), connection.getName(), connection.getRdbmsType(), connection.getHost(),
                 connection.getPort(), connection.getDatabaseName(), connection.getUsername(),
                 connection.getAdditionalParams());
+    }
+
+    String buildJdbcUrl(ConnectionConfig config) {
+        String baseUrl = dialectStrategyFactory.resolve(config.rdbmsType())
+                .buildJdbcUrl(config.host(), config.port(), config.databaseName());
+        String additionalParams = config.additionalParams();
+        return (additionalParams == null || additionalParams.isBlank())
+                ? baseUrl
+                : baseUrl + "?" + additionalParams;
     }
 
     private RdbmsConnection requireConnection(Long connectionId) {

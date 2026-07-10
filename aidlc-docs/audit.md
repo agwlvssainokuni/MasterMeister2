@@ -1061,3 +1061,11 @@
 
 ---
 
+## CONSTRUCTION - U3 Code Generation - Part 2 Item 3-2
+**Timestamp**: 2026-07-10T14:30:00Z
+**User Input**: "続行する" (via AskUserQuestion, in response to the post-commit continuation prompt for item 3-1)
+**AI Response**: Investigated `RdbmsConnectionService.testConnection`'s JDBC URL assembly (`dialectStrategyFactory.resolve(...).buildJdbcUrl(...)` + conditional `"?" + additionalParams` concatenation) and found it inline inside a method that also drives a real HikariCP connection attempt, making it unsuitable for direct property testing. Extracted the pure assembly logic (behavior-preserving) into a new package-private method `String buildJdbcUrl(ConnectionConfig config)` on `RdbmsConnectionService`, with `testConnection` now calling it. Generated `backend/src/test/java/cherry/mastermeister/rdbmsconnection/RdbmsConnectionServiceTest.java` with two jqwik `@Property` tests against this extracted method: `jdbcUrlEqualsBaseUrlWhenAdditionalParamsAbsent` (additionalParams null/empty/blank-only → result equals the dialect's base URL exactly) and `jdbcUrlAppendsAdditionalParamsOnceWhenPresent` (non-empty additionalParams → result is `baseUrl + "?" + additionalParams`, with an explicit `indexOf("?") == lastIndexOf("?")` check ruling out double-appending). `RdbmsConnectionRepository`/`ConnectionPoolRegistry`/`AuditLogService` are Mockito mocks; `DialectStrategyFactory` is real, constructed with all 4 real dialect strategy implementations, so the test exercises genuine `buildJdbcUrl` output per `RdbmsType`. Ran `./gradlew test --tests RdbmsConnectionServiceTest --tests EncryptedStringConverterTest`; build still fails at `compileJava` with the same 15 error lines across the same 3 known, intentionally-deferred repository types — no new/unexpected symbol (the extraction and new test do not reference any repository beyond the already-known `RdbmsConnectionRepository`). Marked plan item 3-2 `[x]`.
+**Context**: Per-Unit Loop, U3 Code Generation Part 2, Step 3 item 3-2 complete. Committing, then asking user whether to continue to item 3-3 (P4/P5 property tests for `ConnectionPoolRegistry`) or pause.
+
+---
+
