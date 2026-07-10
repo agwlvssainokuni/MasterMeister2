@@ -1919,3 +1919,26 @@ listGroups/listGroupMembers/addUserToGroup/removeUserFromGroup）それぞれに
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U4: Permission Management - Code Generation item 6-2完了・Step 6完了
+**Timestamp**: 2026-07-11T18:50:00Z
+**User Input**: [AskUserQuestion回答] "続行"（質問: "item 6-1（GroupControllerTest生成、21件全て成功、コミットd551c85）が完了しました。次はitem 6-2（PermissionControllerTest：権限更新・エクスポート・インポートの3エンドポイント、インポート形式不正時の400含む）に進んでよいですか？"）
+**AI Response**: item 6-2を実施。`backend/src/test/java/cherry/mastermeister/permission/
+PermissionControllerTest.java`を新規生成した。`AuthControllerTest`を参考に、`@WebMvcTest`が
+`GlobalExceptionHandler`（`@RestControllerAdvice`）を自動検出し明示`@Import`が不要であることを
+確認した上で構成。権限更新は`permission`present（`setPermission`委譲）/absent
+（`setAuxPermission`委譲）の2分岐をそれぞれ成功系として検証、加えて非管理者403・未認証401。
+エクスポートは`Content-Type: application/x-yaml`・`Content-Disposition:
+attachment; filename=permissions-42.yaml`ヘッダを`header()`マッチャで検証、加えて非管理者403・
+未認証401。インポートは`MockMultipartFile`による`multipart()`リクエストで成功系
+（`ImportResult`のJSONボディ）を検証し、形式不正時の400は`importPermissionsFromYaml`が
+`PermissionYamlFormatException`をスローするようモックしてitem 5-3のハンドラとの結線を検証した
+（実サービスは同例外を内部でcatchしImportResult(false,...)を返す設計のため、この400経路は
+コントローラ層の防御的フォールバック配線の確認である旨を計画書に記載）。加えて非管理者403・
+未認証401。合計11テストメソッドを実装。
+`./gradlew test --tests "cherry.mastermeister.permission.PermissionControllerTest"`で11件全て成功、
+続けて`./gradlew test`（フルスイート）も成功しリグレッションなしを確認。計画書item 6-2を`[x]`に
+更新。これでStep 6（APIレイヤ単体テスト、item 6-1〜6-2）が全て完了。
+**Context**: Per-Unit Loop、U4 Code Generation Step 6完了。次はStep 7（api-layer-summary.md生成）。
+
+---
+

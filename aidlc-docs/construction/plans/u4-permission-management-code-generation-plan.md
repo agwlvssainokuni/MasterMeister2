@@ -657,9 +657,23 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
       非管理者系は`@WithMockUser(roles = "USER")`、未認証系は`@WithAnonymousUser`を使用した。
       `./gradlew test --tests "cherry.mastermeister.group.GroupControllerTest"`成功
       （21件全て成功）。
-- [ ] 6-2. `PermissionControllerTest`（`@WebMvcTest` + `spring-security-test`）: 3エンドポイント
+- [x] 6-2. `PermissionControllerTest`（`@WebMvcTest` + `spring-security-test`）: 3エンドポイント
       （権限更新・エクスポート・インポート）それぞれについて管理者成功系・非管理者403・
       未認証401、およびインポート形式不正時の400をexample-basedテストで検証する。
+      【実装メモ】`AuthControllerTest`と同様、`@WebMvcTest`は`GlobalExceptionHandler`
+      （`@RestControllerAdvice`）を自動検出するため明示`@Import`不要であることを確認した。
+      権限更新は`permission`present/absentの2分岐（`setPermission`/`setAuxPermission`への
+      委譲）をそれぞれ成功系として検証。エクスポートは`Content-Type: application/x-yaml`と
+      `Content-Disposition`ヘッダを`header()`マッチャで検証。インポートは`MockMultipartFile`
+      による`multipart()`リクエストで成功系（`ImportResult`のJSONボディ）を検証し、形式不正時の
+      400は`permissionAssignmentService.importPermissionsFromYaml`が`PermissionYamlFormatException`
+      をスローするようモックして`GlobalExceptionHandler`の item 5-3 ハンドラとの結線を検証した
+      （実サービス実装は同例外を内部でcatchし`ImportResult(false, ...)`を返す設計のため、
+      この400経路はコントローラ層の防御的フォールバック配線の確認である旨、item 5-3の
+      既知の課題と対応）。3エンドポイント×3〜4ケースの11テストメソッドを実装。
+      `./gradlew test --tests "cherry.mastermeister.permission.PermissionControllerTest"`成功
+      （11件全て成功）、`./gradlew test`（フルスイート）成功も確認しリグレッションなしを確認。
+      これでStep 6（APIレイヤ単体テスト）の全2項目が完了。
 
 ### Step 7: APIレイヤサマリ
 - [ ] 7-1. `aidlc-docs/construction/u4-permission-management/code/api-layer-summary.md`を
