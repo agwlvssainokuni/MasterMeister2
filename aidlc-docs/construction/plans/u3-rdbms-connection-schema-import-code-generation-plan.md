@@ -135,12 +135,16 @@ U1（Platform Foundation）のみに依存（`unit-of-work-dependency.md`）:
 - [x] 2-3. **該当なし（変更なし）**: `SchemaResolutionMode`（enum: `CATALOG_BASED`,
       `SCHEMA_BASED`）はU1で実装済み。「ブラウンフィールド発見事項」のとおり、本計画では
       新規定義・変更を行わない。実装済みファイルを確認し、変更不要であることを確認した。
-- [ ] 2-4. `backend/src/main/java/cherry/mastermeister/rdbmsconnection/` に
+- [x] 2-4. `backend/src/main/java/cherry/mastermeister/rdbmsconnection/` に
       `RdbmsConnection`（JPAエンティティ。`domain-entities.md`のフィールド定義: `id`,
       `name`（not null）, `rdbmsType`（`RdbmsType`, not null）, `host`（not null）,
       `port`（Integer, not null）, `databaseName`（not null）, `username`（not null）,
       `password`（not null、`@Convert(converter = EncryptedStringConverter.class)`）,
-      `additionalParams`（nullable）, `createdAt`, `updatedAt`）を生成。
+      `additionalParams`（nullable）, `createdAt`, `updatedAt`）を生成。`User`/
+      `RegistrationToken`（`userregistration`パッケージ）と同型のスタイル（`protected`引数なし
+      コンストラクタ+全フィールド引数コンストラクタ+`update`メソッド+getterのみ）で実装。
+      `EncryptedStringConverter`は2-5で生成するため、本項目時点では未解決参照
+      （2-1/2-2と同様、ペア項目間のコンパイル未検証は許容）。
 - [ ] 2-5. `backend/src/main/java/cherry/mastermeister/rdbmsconnection/
       EncryptedStringConverter.java`（`@Component` + `@Converter`、
       `AttributeConverter<String, String>`）: コンストラクタで
