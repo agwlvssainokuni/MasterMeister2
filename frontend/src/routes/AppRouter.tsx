@@ -18,6 +18,9 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { AppLayout } from '../components/AppLayout'
 import { AuditLogPage } from '../features/auditLog/AuditLogPage'
 import { LoginPage } from '../features/auth/LoginPage'
+import { ConnectionFormPage } from '../features/rdbmsConnection/ConnectionFormPage'
+import { ConnectionListPage } from '../features/rdbmsConnection/ConnectionListPage'
+import { SchemaBrowserPage } from '../features/schema/SchemaBrowserPage'
 import { PasswordSetupPage } from '../features/userRegistration/PasswordSetupPage'
 import { PendingUsersPage } from '../features/userRegistration/PendingUsersPage'
 import { RegistrationRequestPage } from '../features/userRegistration/RegistrationRequestPage'
@@ -40,6 +43,38 @@ function AuthenticatedRoutes() {
           element={
             <ProtectedRoute requiredRole="ADMIN">
               <PendingUsersPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/rdbms-connections"
+          element={
+            <ProtectedRoute requiredRole="ADMIN">
+              <ConnectionListPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/rdbms-connections/new"
+          element={
+            <ProtectedRoute requiredRole="ADMIN">
+              <ConnectionFormPage mode="create" />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/rdbms-connections/:id"
+          element={
+            <ProtectedRoute requiredRole="ADMIN">
+              <ConnectionFormPage mode="edit" />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/schema/:connectionId"
+          element={
+            <ProtectedRoute requiredRole="ADMIN">
+              <SchemaBrowserPage />
             </ProtectedRoute>
           }
         />

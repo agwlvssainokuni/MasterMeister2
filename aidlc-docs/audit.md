@@ -1309,3 +1309,11 @@
 
 ---
 
+## CONSTRUCTION - U3 Code Generation - Part 2 Item 11-3
+**Timestamp**: 2026-07-10T19:30:00Z
+**User Input**: "続行する"（項目11-2コミット後、item 11-3へ進むかの確認に対する回答）
+**AI Response**: `frontend/src/routes/AppRouter.tsx`を修正し、`AuthenticatedRoutes`内に`/admin/rdbms-connections`（`ConnectionListPage`）、`/admin/rdbms-connections/new`（`ConnectionFormPage mode="create"`）、`/admin/rdbms-connections/:id`（`ConnectionFormPage mode="edit"`）、`/admin/schema/:connectionId`（`SchemaBrowserPage`）の4ルートを既存の`/admin/audit-logs`等と同じ`<ProtectedRoute requiredRole="ADMIN">`ラップパターンで追加した。`SchemaImportPanel`は独立ルートを追加していない（11-2で`ConnectionListPage.tsx`に実結線済み）。`cd frontend && npx oxlint`・`npx tsc -b`をいずれも実行しエラーなしを確認。
+**Context**: Per-Unit Loop, U3 Code Generation Part 2, Step 11 item 11-3完了。コミット後、item 11-4（AppLayout修正）へ進むか確認予定。
+
+---
+
