@@ -1021,3 +1021,11 @@
 
 ---
 
+## CONSTRUCTION - U3 Code Generation - Part 2 Item 2-11
+**Timestamp**: 2026-07-10T14:10:00Z
+**User Input**: "続行する" (via AskUserQuestion, in response to the post-commit continuation prompt for item 2-10)
+**AI Response**: Generated `backend/src/main/java/cherry/mastermeister/schema/SchemaImportService.java` (`@Service`, `importSchema` under whole-method `@Transactional`). Uses `ConnectionPoolRegistry.getDataSource` + `Connection.getMetaData()`: for `CATALOG_BASED` mode resolves a single pseudo-schema name equal to `RdbmsConnection.databaseName` and calls `getTables(catalog, schema=null, ...)`; for `SCHEMA_BASED` mode enumerates `getSchemas(catalog, null)` and calls `getTables` per schema. For each table, reads `getColumns`/`getPrimaryKeys` (primary keys skipped entirely for `TableType.VIEW`, leaving `primaryKeySequence` always `null` per `business-rules.md` 2.1) and upserts by physical name, marking previously-known rows no longer seen as `stale = true` without deleting them (`business-rules.md` 2.2). On `SQLException`, explicitly calls `TransactionAspectSupport.currentTransactionStatus().setRollbackOnly()` before returning a failure `SchemaImportResult` — required because a caught exception followed by a normal method return would otherwise commit rather than roll back. Both success and failure paths call `AuditLogService.record(ADMIN_OPERATION, SCHEMA_IMPORTED, ...)` (`business-rules.md` 2.3). Newly fixed 4 method signatures on the not-yet-generated `SchemaTableRepository`/`SchemaColumnRepository` (deferred to items 8-2/8-3, same known-gap pattern as `RdbmsConnectionRepository`): `findByConnectionIdAndSchemaNameAndTableName`, `findByConnectionId`, `findByTableIdAndColumnName`, `findByTableId`. Verified via `./gradlew compileJava` that failures are limited to exactly the known `RdbmsConnectionRepository` gap plus these 2 newly-referenced, intentionally-deferred repository types (11 error lines total, 3 distinct missing symbols) — no other/unexpected errors. Marked plan item 2-11 `[x]`.
+**Context**: Per-Unit Loop, U3 Code Generation Part 2, Step 2 item 2-11 complete. Committing, then asking user whether to continue to item 2-12 (`SchemaQueryService`).
+
+---
+

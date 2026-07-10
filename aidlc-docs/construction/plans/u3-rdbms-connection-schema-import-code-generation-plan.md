@@ -232,7 +232,7 @@ U1（Platform Foundation）のみに依存（`unit-of-work-dependency.md`）:
       String comment, List<ColumnDetail> columns`）を生成。
       `./gradlew compileJava`は既知の`RdbmsConnectionRepository`未解決参照（4箇所、同一原因）
       のみで失敗することを確認、新規エラーが無いことを検証した。
-- [ ] 2-11. `backend/src/main/java/cherry/mastermeister/schema/SchemaImportService.java`
+- [x] 2-11. `backend/src/main/java/cherry/mastermeister/schema/SchemaImportService.java`
       （`@Service`、メソッド全体に`@Transactional`、`nfr-design-patterns.md` 4.2）:
       `SchemaImportResult importSchema(Long connectionId, Long adminUserId)`。
       `ConnectionPoolRegistry`経由で対象RDBMSへの`DataSource`を取得し、
@@ -249,6 +249,20 @@ U1（Platform Foundation）のみに依存（`unit-of-work-dependency.md`）:
       全ロールバック（`business-rules.md` 2.3）。成功/失敗いずれも
       `AuditLogService.record(ADMIN_OPERATION, SCHEMA_IMPORTED, adminUserId, connectionId,
       SUCCESS|FAILURE, connectionName, ...)`を呼び出す。
+      実装ノート: `SQLException`は`try`ブロック内でキャッチし、
+      `TransactionAspectSupport.currentTransactionStatus().setRollbackOnly()`で
+      明示的にロールバック指定した上で`SchemaImportResult(false, 0, message)`を返す
+      （`@Transactional`メソッドが正常returnする経路のみを使うため、キャッチ後も
+      ロールバックさせるにはこの明示指定が必要）。`SchemaTableRepository`/
+      `SchemaColumnRepository`（未生成、item 8-2/8-3で生成予定）に対し、本項目時点で
+      次のメソッドシグネチャを新たに確定した:
+      `findByConnectionIdAndSchemaNameAndTableName(Long, String, String): Optional<SchemaTable>`,
+      `findByConnectionId(Long): List<SchemaTable>`,
+      `findByTableIdAndColumnName(Long, String): Optional<SchemaColumn>`,
+      `findByTableId(Long): List<SchemaColumn>`。`./gradlew compileJava`は既知の
+      `RdbmsConnectionRepository`未解決参照に加え、上記2つの未生成リポジトリ参照
+      （新規、item 8-2/8-3待ちの既定路線内）のみで失敗することを確認、それ以外の
+      新規エラーが無いことを検証した。
 - [ ] 2-12. `backend/src/main/java/cherry/mastermeister/schema/SchemaQueryService.java`
       （`@Service`）: `List<String> listSchemas(Long connectionId)`（`stale = false`の
       `SchemaTable`から`schemaName`をdistinct取得）、`List<TableMetadata>
