@@ -187,7 +187,7 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
       のDTO配置方針）。
       実装メモ: 既存`UserSummary`（他パッケージ）は無く、命名衝突なし。`ConnectionSummary`
       と同型の単純recordとして実装。`./gradlew compileJava`成功を確認。
-- [ ] 2-5. `backend/src/main/java/cherry/mastermeister/group/GroupService.java`
+- [x] 2-5. `backend/src/main/java/cherry/mastermeister/group/GroupService.java`
       （`@Service`、書き込み系メソッド全体に`@Transactional`）: `Long createGroup(String
       name)`（`business-rules.md` 1.1一意性チェック）、`void renameGroup(Long groupId,
       String newName)`（1.1）、`void deleteGroup(Long groupId)`（1.3カスケード削除:
@@ -208,6 +208,15 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
       イベントのpayloadとしては引き続き有効な識別子として使う）。メソッドシグネチャに
       `adminUserId`が明示されていないため、U3の`RdbmsConnectionService`と同型で
       `createGroup(Long adminUserId, String name)`のように補完する。
+      実装メモ: 名前重複・重複所属チェックの違反は`common/exception/ValidationException`
+      （既存）を使用（`AuthenticationService.login`と同型でバリデーション/実在チェック→
+      失敗時は`Result.FAILURE`で`record`後に例外送出→成功時は`Result.SUCCESS`で`record`後に
+      イベント発行、という順序を各メソッドで踏襲）。`Group`/`GroupMember`不在は
+      `EntityNotFoundException`（既存）。`deleteGroup`のカスケード削除用に
+      `PermissionAssignmentRepository`/`AuxPermissionAssignmentRepository`（item 8-2）へ
+      `deleteByPrincipalTypeAndPrincipalId(PrincipalType, Long)`を追加した（8-2時点では
+      未定だったメソッド、Step 2先行実装との整合を優先する方針どおり）。
+      `./gradlew compileJava compileTestJava`成功を確認（単体テストはitem 3で作成）。
 - [x] 2-6. `backend/src/main/java/cherry/mastermeister/permission/` に`PermissionAssignment`
       （JPAエンティティ: `id`, `principalType`, `principalId`, `connectionId`, `schemaName`,
       `tableName`〈nullable〉, `columnName`〈nullable〉, `permission`, `updatedAt`。一意制約
@@ -376,6 +385,8 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
       item 2-9（`PermissionAssignmentService`）・2-11
       （`EffectivePermissionResolver`）の実装時に不足があれば追加する。
       `./gradlew compileJava`成功を確認。
+      追記（item 2-5実装時）: `deleteByPrincipalTypeAndPrincipalId(PrincipalType, Long)`を
+      両リポジトリに追加した（`GroupService.deleteGroup`のカスケード削除用）。
 
 ### Step 9: リポジトリレイヤ単体テスト
 - [ ] 9-1. `GroupRepositoryTest`/`GroupMemberRepositoryTest`/

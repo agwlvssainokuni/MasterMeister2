@@ -34,4 +34,6 @@ public interface PermissionAssignmentRepository extends JpaRepository<Permission
 
     void deleteByConnectionId(Long connectionId);
 
+    void deleteByPrincipalTypeAndPrincipalId(PrincipalType principalType, Long principalId);
+
 }

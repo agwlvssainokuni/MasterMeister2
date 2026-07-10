@@ -34,4 +34,6 @@ public interface AuxPermissionAssignmentRepository extends JpaRepository<AuxPerm
 
     void deleteByConnectionId(Long connectionId);
 
+    void deleteByPrincipalTypeAndPrincipalId(PrincipalType principalType, Long principalId);
+
 }
