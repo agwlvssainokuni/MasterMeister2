@@ -91,7 +91,7 @@ frontend/
     └── types/                   # API型定義（バックエンドDTOに対応）
 ```
 
-- 各 `features/xxx/` 配下は `components/`, `hooks/`, `api.ts`, `types.ts` を持つ想定。
+- 各 `features/xxx/` 配下はフラット構成を基本とする（`api.ts`, `types.ts`, 各コンポーネント/フックのファイルを `features/xxx/` 直下に配置）。ディレクトリ名がすでにフィーチャーを表すため、`api/xxxApi.ts` のような単一ファイルだけのサブディレクトリは作らない。ファイル数が増えて分割が必要になった場合のみ、`components/` や `hooks/` などのサブディレクトリを導入する。
 
 ## devenv/ 構成
 
