@@ -925,3 +925,11 @@
 
 ---
 
+## CONSTRUCTION - U3 Code Generation - Part 2 Item 2-2
+**Timestamp**: 2026-07-10T13:40:00Z
+**User Input**: "続行する" (via AskUserQuestion, in response to the post-commit continuation prompt for item 2-1)
+**AI Response**: Implemented `buildJdbcUrl` in all four `DialectStrategy` implementations per the plan's decided JDBC URL schemes: `MySqlDialectStrategy` → `jdbc:mysql://{host}:{port}/{databaseName}`, `MariaDbDialectStrategy` → `jdbc:mariadb://{host}:{port}/{databaseName}`, `PostgreSqlDialectStrategy` → `jdbc:postgresql://{host}:{port}/{databaseName}`, `H2DialectStrategy` → `jdbc:h2:tcp://{host}:{port}/{databaseName}` (TCP server mode, per `domain-entities.md`'s requirement that host/port be present for all `RdbmsType` values including H2). Verified via `./gradlew compileJava` with no errors. Marked plan item 2-2 `[x]`.
+**Context**: Per-Unit Loop, U3 Code Generation Part 2, Step 2 item 2-2 complete. Committing, then asking user whether to continue to item 2-3 (confirmation-only: `SchemaResolutionMode` requires no changes).
+
+---
+

@@ -49,4 +49,9 @@ public class PostgreSqlDialectStrategy implements DialectStrategy {
         return SchemaResolutionMode.SCHEMA_BASED;
     }
 
+    @Override
+    public String buildJdbcUrl(String host, int port, String databaseName) {
+        return "jdbc:postgresql://" + host + ":" + port + "/" + databaseName;
+    }
+
 }

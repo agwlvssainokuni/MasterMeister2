@@ -123,14 +123,15 @@ U1（Platform Foundation）のみに依存（`unit-of-work-dependency.md`）:
       （既存、ブラウンフィールド修正）に`String buildJdbcUrl(String host, int port, String
       databaseName)`を追加（「ブラウンフィールド発見事項」参照、`business-rules.md` 1.3）。
       インターフェースにメソッドシグネチャを追加した（実装は2-2で対応）。
-- [ ] 2-2. `MySqlDialectStrategy`/`MariaDbDialectStrategy`/`PostgreSqlDialectStrategy`/
+- [x] 2-2. `MySqlDialectStrategy`/`MariaDbDialectStrategy`/`PostgreSqlDialectStrategy`/
       `H2DialectStrategy`（既存、ブラウンフィールド修正）に`buildJdbcUrl`を実装:
       `jdbc:mysql://{host}:{port}/{databaseName}`,
       `jdbc:mariadb://{host}:{port}/{databaseName}`,
       `jdbc:postgresql://{host}:{port}/{databaseName}`,
       `jdbc:h2:tcp://{host}:{port}/{databaseName}`（対象RDBMSとしてのH2はTCPサーバモード
       接続を前提とする——`domain-entities.md`が`RdbmsConnection.host`/`port`を`H2`含む
-      全`RdbmsType`で必須としているため）。
+      全`RdbmsType`で必須としているため）。4クラスすべてに実装し、`./gradlew compileJava`で
+      コンパイル成功を確認した。
 - [ ] 2-3. **該当なし（変更なし）**: `SchemaResolutionMode`（enum: `CATALOG_BASED`,
       `SCHEMA_BASED`）はU1で実装済み。「ブラウンフィールド発見事項」のとおり、本計画では
       新規定義・変更を行わない。

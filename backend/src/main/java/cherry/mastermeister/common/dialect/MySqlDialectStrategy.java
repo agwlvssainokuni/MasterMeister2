@@ -51,4 +51,9 @@ public class MySqlDialectStrategy implements DialectStrategy {
         return SchemaResolutionMode.CATALOG_BASED;
     }
 
+    @Override
+    public String buildJdbcUrl(String host, int port, String databaseName) {
+        return "jdbc:mysql://" + host + ":" + port + "/" + databaseName;
+    }
+
 }
