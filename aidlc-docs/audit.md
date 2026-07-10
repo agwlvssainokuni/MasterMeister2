@@ -1261,3 +1261,11 @@
 
 ---
 
+## CONSTRUCTION - U3 Code Generation - Part 2 Item 9-1 Follow-up Cleanup
+**Timestamp**: 2026-07-10T18:56:00Z
+**User Input**: "SchemaImportServiceTest, SchemaQueryServiceTest の @TestPropertySource は削除して良い？"
+**AI Response**: Confirmed yes — both were per-class workarounds added in Step 3 for the same `EncryptedStringConverter`/`mm.app.rdbms-connection.encryption-key`問題 that item 9-1's `application-test.yml`＋`spring.profiles.active=test`修正が既にアプリ全体（全`@DataJpaTest`）に対して恒久解決済みであるため、重複設定になっていた。`SchemaQueryServiceTest`のクラスレベル`@TestPropertySource`と付随コメント、`SchemaImportServiceTest.RollbackRoundTrip`グループの`@TestPropertySource`と付随コメントを削除し、両ファイルの未使用`import org.springframework.test.context.TestPropertySource;`も削除。`./gradlew test`（全29テストクラス）で`BUILD SUCCESSFUL`を確認、リグレッションなし。
+**Context**: Per-Unit Loop, U3 Code Generation Part 2, Step 9 item 9-1のフォローアップクリーンアップ（同一項目内の追加修正）。
+
+---
+

@@ -49,7 +49,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -275,14 +274,9 @@ class SchemaImportServiceTest {
     // 実際に完了しており、呼び出し後にリポジトリで内部DB状態を検証すれば
     // 「ロールバック済みの実データ」を確認できる（テストの外側トランザクション内で検証すると、
     // ロールバックがテスト終了時まで遅延され、コミット前の変更がまだ見えてしまうため）。
-    // mm.app.rdbms-connection.encryption-keyはStep 16（application.yml設定追記）で
-    // 本設定されるまで未定義のため、EncryptedStringConverterのBean化（RdbmsConnectionエンティティが
-    // AttributeConverterとして参照するため、@DataJpaTestがHibernateの永続ユニット構築時に必ず
-    // インスタンス化する）に必要な値をテスト専用にここで注入する（本番設定はStep 16の担当）。
     @Group
     @DataJpaTest
     @JqwikSpringSupport
-    @TestPropertySource(properties = "mm.app.rdbms-connection.encryption-key=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=")
     class RollbackRoundTrip {
 
         @Autowired

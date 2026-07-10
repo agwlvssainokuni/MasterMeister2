@@ -25,7 +25,6 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
-import org.springframework.test.context.TestPropertySource;
 
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Arbitrary;
@@ -39,11 +38,6 @@ import net.jqwik.spring.JqwikSpringSupport;
  */
 @DataJpaTest
 @JqwikSpringSupport
-// RdbmsConnectionエンティティが参照するEncryptedStringConverterのBean化（RdbmsConnectionRepository
-// を全く使わないテストクラスでも、@DataJpaTestはHibernateの永続ユニット構築時に全@Converter
-// Beanをインスタンス化するため必要）に、mm.app.rdbms-connection.encryption-keyのテスト専用値を
-// 注入する（本番設定はStep 16の担当。SchemaImportServiceTestのRollbackRoundTripグループと同じ理由）。
-@TestPropertySource(properties = "mm.app.rdbms-connection.encryption-key=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=")
 class SchemaQueryServiceTest {
 
     private static final String TEST_SCHEMA = "TESTSCHEMA";
