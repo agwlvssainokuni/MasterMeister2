@@ -109,18 +109,31 @@ LARGE_RECORD_READ, userId, connectionId, Result.SUCCESS, targetDescription=schem
 `DataSource`は対象RDBMS接続ごとに動的生成されるもので、Spring起動時に単一Beanとして
 登録される内部DB（H2/JPA）用の構成とは異なり、宣言的`@Transactional`（AOPプロキシ生成時に
 静的解決される単一の`PlatformTransactionManager`が前提）を素朴に適用できない。そのため、
-`applyChanges`実行時にリクエスト単位で`DataSourceTransactionManager`を都度生成し（対象
-`DataSource`インスタンスは`ConnectionPoolRegistry`内で`connectionId`ごとにキャッシュ済み
-のものを使う）、`TransactionTemplate`によるプログラム的トランザクション制御を行う。
-`DataSourceTransactionManager`はSpring管理Beanにはせず、サービスメソッド内のローカル
-オブジェクトとして生成・破棄する（対象が動的なため）。`ConnectionPoolRegistry.
-getJdbcTemplate(connectionId)`の呼び出し自体（`NamedParameterJdbcTemplate`インスタンスの
-生成）はDBに接続しないため`TransactionTemplate`の外で行っても問題ないが、その
-`NamedParameterJdbcTemplate`の`update`/`query`等のメソッドを**実行する**のは必ず
-`TransactionTemplate`のコールバック内でなければならない。メソッド実行時に内部で呼ばれる
-`DataSourceUtils.getConnection(dataSource)`が、そのタイミングでスレッドに同期済みの
-トランザクション（同一`DataSource`インスタンスに対して`TransactionTemplate`が開始した
-もの）を検出して初めて、コネクション・トランザクションへ自動的に参加する（宣言的
+`applyChanges`実行時にリクエスト単位でプログラム的トランザクション制御（`TransactionTemplate`）
+を行う。
+
+`DataSourceTransactionManager`/`TransactionTemplate`の構築ロジックは`masterdata`側
+（`MasterDataMutationService`）ではなく、`DataSource`のライフサイクル（生成・接続設定
+変更時の再構築）を既に一元管理している`ConnectionPoolRegistry`（U3）に置く（U4 Q4の
+メソッド追加と同種のFunctional Designレベルでの許容される詳細化。`component-methods.md`
+のスナップショットは据え置き、本ユニットの成果物で追加を明記する）。
+```
+TransactionTemplate getTransactionTemplate(Long connectionId)
+// 内部で new DataSourceTransactionManager(getDataSource(connectionId)) をラップした
+// TransactionTemplate を都度生成して返す（Spring管理Beanにはしない）。
+// TransactionManager/TransactionTemplate 自体のキャッシュは不要——トランザクション同期は
+// DataSourceインスタンスの同一性（dataSourcesマップでキャッシュ済み）で成立するため。
+```
+`MasterDataMutationService`は`connectionPoolRegistry.getTransactionTemplate(connectionId)`
+が返す`TransactionTemplate`の`execute`コールバック内で`ConnectionPoolRegistry.
+getJdbcTemplate(connectionId)`（同一`DataSource`インスタンスに紐づく
+`NamedParameterJdbcTemplate`）を使う。`getJdbcTemplate(connectionId)`の呼び出し自体
+（`NamedParameterJdbcTemplate`インスタンスの生成）はDBに接続しないため`TransactionTemplate`
+の外で行っても問題ないが、その`NamedParameterJdbcTemplate`の`update`/`query`等のメソッドを
+**実行する**のは必ず`TransactionTemplate`のコールバック内でなければならない。メソッド実行時に
+内部で呼ばれる`DataSourceUtils.getConnection(dataSource)`が、そのタイミングでスレッドに
+同期済みのトランザクション（同一`DataSource`インスタンスに対して`TransactionTemplate`が
+開始したもの）を検出して初めて、コネクション・トランザクションへ自動的に参加する（宣言的
 `@Transactional`配下のJdbcTemplate呼び出しと同じ仕組み）。`TransactionTemplate`の外で
 `update`/`query`を実行した場合は同期済みトランザクションが存在せず、呼び出しごとに
 独立してオートコミットされる（3.3の原子性は成立しない）。生の

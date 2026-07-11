@@ -2305,3 +2305,11 @@ Step 6として以下4成果物を生成した。
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U5: Master Data Maintenance - Functional Design ConnectionPoolRegistry.getTransactionTemplate()追加
+**Timestamp**: 2026-07-11T20:15:00Z
+**User Input**: "ConnectionPoolRegistryにgetTransactionTemplate()を追加する、というのはありですか？"
+**AI Response**: 妥当な提案として承認した。理由: (1) `DataSourceTransactionManager`の構築は`getDataSource(connectionId)`が返す`DataSource`インスタンスに依存し、そのライフサイクル（生成・`invalidate`）は既に`ConnectionPoolRegistry`（U3）が一元管理しているため、`getJdbcTemplate()`と同じ置き場所が自然。(2) `masterdata`（U5）側の`MasterDataMutationService`から`DataSourceTransactionManager`の構築詳細が見えなくなり、対象RDBMS接続へのアクセス手段の提供という責務が`rdbmsconnection`に一貫する。(3) 将来U6/U7が対象RDBMSへの書き込みトランザクションを必要とする場合の再利用にも備えられる。キャッシュについては`getJdbcTemplate()`と同様に呼び出しの都度生成する方式とし（トランザクション同期は`DataSourceTransactionManager`ではなく`DataSource`インスタンスの同一性で成立するため、`TransactionManager`/`TransactionTemplate`自体のキャッシュは不要と判断）、`TransactionManager`/`TransactionTemplate`もSpring管理Beanにはしない。`ConnectionPoolRegistry`はU3実装済みの既存コンポーネントだが、U4 Q4のメソッド追加と同種の扱い（`component-methods.md`のApplication Designスナップショットは据え置き、Functional Design段階での詳細化として本ユニットの成果物に明記——過去のgit履歴確認により`component-methods.md`はU4 Q4時点でも遡及編集されていないことを確認済み）とし、業務ロジックとしてではなくコンポーネントのメソッド追加として扱った。`business-rules.md`3.3を`getTransactionTemplate(Long connectionId)`のシグネチャ・使用方法（`getJdbcTemplate`呼び出し自体とメソッド実行タイミングの区別を含む）で更新した。
+**Context**: Per-Unit Loop、U5 Functional Design。承認前の設計改善。標準完了メッセージを再提示しユーザ承認待ちに戻る。
+
+---
+
