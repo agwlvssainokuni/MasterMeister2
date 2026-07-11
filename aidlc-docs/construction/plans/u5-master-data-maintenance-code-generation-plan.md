@@ -340,9 +340,28 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       `EffectivePermissionResolver`/`AuditLogService`のMockitoモックという構成を踏襲。
       `./gradlew test --tests "cherry.mastermeister.masterdata.MasterDataMutationServiceTest"`で
       成功を確認（BUILD SUCCESSFUL）。
-- [ ] 3-5. **P9**（トランザクション原子性Invariant：`SQLException`発生時に対象RDBMS状態が
+- [x] 3-5. **P9**（トランザクション原子性Invariant：`SQLException`発生時に対象RDBMS状態が
       呼び出し前と完全一致）・**P10**（成功時の反映結果Invariant：`creates`/`updates`/
       `deletes`の内容が過不足なく反映）: `MasterDataMutationServiceTest`に追加生成する。
+      実装メモ: 既存の`MasterDataMutationServiceTest.java`に2つの`@Property`テストを追加。
+      P9は`applyChangesRollsBackAllChangesWhenSqlExceptionOccurs`として実装。テーブル
+      `T1(ID PK, COL0 VARCHAR(5) NOT NULL)`と、`T1.ID`を外部キー参照する`T2`を用意し、
+      `@ForAll("failureTargets")`（0〜2）でcreate（既存ID重複によるPRIMARY KEY違反）・
+      update（VARCHAR(5)超過による値超過エラー）・delete（T2から参照中の行の削除による
+      外部キー制約違反）のいずれか1件のみでSQLExceptionを発生させ、他の2操作が事前に
+      成功していても（`MasterDataMutationService`はトランザクション内で逐次実行するため）
+      `applyChanges`が`MutationResult(success=false, ...)`を返し、かつ対象テーブルの全行・
+      関連行が呼び出し前の状態と完全一致することをJDBCで直接検証。P10は
+      `applyChangesReflectsCreatesUpdatesDeletesExactlyOnSuccess`として実装。
+      `@ForAll @IntRange(min=0,max=2)`でcreate/update/delete件数をそれぞれランダム化し、
+      既存5行のテーブルに対して重複しないID範囲でcreates/updates/deletesを構成、
+      `MutationResult`の各カウントが指定件数と一致すること、生成行・更新後の値・削除済み
+      行の不在・未変更行の値・最終行数（5+createCount-deleteCount）の全てをJDBCで検証。
+      両テストとも既存の`newService`/`openConnection`/`createSchema`ヘルパーとH2 TCP
+      サーバ構成を再利用。
+      `./gradlew test --tests "cherry.mastermeister.masterdata.MasterDataMutationServiceTest"`
+      で成功を確認（BUILD SUCCESSFUL、5テスト全て成功）。Step 3は全項目完了、P1〜P10
+      全てにプロパティテストが対応済み。
 
 ### Step 4: ビジネスロジックサマリ
 - [ ] 4-1. `aidlc-docs/construction/u5-master-data-maintenance/code/business-logic-summary.md`

@@ -33,6 +33,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -47,6 +48,7 @@ import net.jqwik.api.Arbitrary;
 import net.jqwik.api.ForAll;
 import net.jqwik.api.Property;
 import net.jqwik.api.Provide;
+import net.jqwik.api.constraints.IntRange;
 import net.jqwik.api.lifecycle.AfterContainer;
 import net.jqwik.api.lifecycle.BeforeContainer;
 
@@ -67,7 +69,7 @@ import cherry.mastermeister.schema.TableDetail;
 import cherry.mastermeister.schema.TableType;
 
 /**
- * P6・P7・P8（business-logic-model.md）を検証するプロパティテスト。
+ * P6・P7・P8・P9・P10（business-logic-model.md）を検証するプロパティテスト。
  */
 class MasterDataMutationServiceTest {
 
@@ -225,6 +227,173 @@ class MasterDataMutationServiceTest {
                         "SELECT COUNT(*) AS CNT FROM " + TEST_SCHEMA + ".T1")) {
             assertThat(rs.next()).isTrue();
             assertThat(rs.getInt("CNT")).isEqualTo(1);
+        }
+    }
+
+    // P9: applyChanges実行中にSQLExceptionが発生した場合、対象RDBMSの状態は呼び出し前と
+    //     完全に一致する（トランザクション原子性。他の操作が事前に実行済みであっても全てロールバックされる）。
+    @Property(tries = 20)
+    void applyChangesRollsBackAllChangesWhenSqlExceptionOccurs(
+            @ForAll("failureTargets") int failureTarget
+    ) throws Exception {
+        boolean createFails = failureTarget == 0;
+        boolean updateFails = failureTarget == 1;
+        boolean deleteFails = failureTarget == 2;
+
+        String dbName = "MASTERDATAMUTATIONP9" + DB_COUNTER.incrementAndGet();
+        try (Connection setup = openConnection(dbName)) {
+            createSchema(setup, TEST_SCHEMA);
+            try (Statement st = setup.createStatement()) {
+                st.execute("CREATE TABLE " + TEST_SCHEMA + ".T1 (ID INT PRIMARY KEY, COL0 VARCHAR(5) NOT NULL)");
+                st.execute("INSERT INTO " + TEST_SCHEMA + ".T1 VALUES (0, 'A')");
+                st.execute("INSERT INTO " + TEST_SCHEMA + ".T1 VALUES (2, 'B')");
+                st.execute("INSERT INTO " + TEST_SCHEMA + ".T1 VALUES (3, 'C')");
+                st.execute("CREATE TABLE " + TEST_SCHEMA + ".T2 (ID INT PRIMARY KEY, PARENT_ID INT, "
+                        + "FOREIGN KEY (PARENT_ID) REFERENCES " + TEST_SCHEMA + ".T1(ID))");
+                st.execute("INSERT INTO " + TEST_SCHEMA + ".T2 VALUES (100, 2)");
+            }
+        }
+
+        List<ColumnDetail> columns = List.of(
+                new ColumnDetail("ID", "INTEGER", false, null, 1, 1),
+                new ColumnDetail("COL0", "VARCHAR", false, null, 2, null));
+        Map<String, Permission> columnPermissions = new LinkedHashMap<>();
+        columnPermissions.put("ID", Permission.UPDATE);
+        columnPermissions.put("COL0", Permission.UPDATE);
+
+        AuditLogService auditLogService = mock(AuditLogService.class);
+        MasterDataMutationService service = newService(
+                dbName, columns, columnPermissions, true, true, auditLogService);
+
+        // createFails: 既存ID(0)と重複するPRIMARY KEY違反を発生させる。
+        // updateFails: VARCHAR(5)を超える値を設定し、値超過エラーを発生させる。
+        // deleteFails: T2から参照中の行(ID=2)を削除し、外部キー制約違反を発生させる。
+        int createId = createFails ? 0 : 1;
+        String updateValue = updateFails ? "TOOLONG" : "UPD";
+        int deleteId = deleteFails ? 2 : 3;
+
+        MutationRequest request = new MutationRequest(
+                List.of(new RecordCreate(Map.of("ID", createId, "COL0", "NEW"))),
+                List.of(new RecordUpdate(Map.of("ID", 0), Map.of("COL0", updateValue))),
+                List.of(new RecordDelete(Map.of("ID", deleteId))));
+
+        MutationResult result = service.applyChanges(1L, 1L, TEST_SCHEMA, "T1", request);
+
+        assertThat(result.success()).isFalse();
+
+        try (Connection check = openConnection(dbName);
+                Statement st = check.createStatement();
+                ResultSet rs = st.executeQuery(
+                        "SELECT ID, COL0 FROM " + TEST_SCHEMA + ".T1 ORDER BY ID")) {
+            assertThat(rs.next()).isTrue();
+            assertThat(rs.getInt("ID")).isEqualTo(0);
+            assertThat(rs.getString("COL0")).isEqualTo("A");
+            assertThat(rs.next()).isTrue();
+            assertThat(rs.getInt("ID")).isEqualTo(2);
+            assertThat(rs.getString("COL0")).isEqualTo("B");
+            assertThat(rs.next()).isTrue();
+            assertThat(rs.getInt("ID")).isEqualTo(3);
+            assertThat(rs.getString("COL0")).isEqualTo("C");
+            assertThat(rs.next()).isFalse();
+        }
+        try (Connection check = openConnection(dbName);
+                Statement st = check.createStatement();
+                ResultSet rs = st.executeQuery("SELECT COUNT(*) AS CNT FROM " + TEST_SCHEMA + ".T2")) {
+            assertThat(rs.next()).isTrue();
+            assertThat(rs.getInt("CNT")).isEqualTo(1);
+        }
+    }
+
+    // P10: 成功時、creates/updates/deletesの内容が過不足なくRDBMSに反映される。
+    @Property(tries = 20)
+    void applyChangesReflectsCreatesUpdatesDeletesExactlyOnSuccess(
+            @ForAll @IntRange(min = 0, max = 2) int createCount,
+            @ForAll @IntRange(min = 0, max = 2) int updateCount,
+            @ForAll @IntRange(min = 0, max = 2) int deleteCount
+    ) throws Exception {
+        String dbName = "MASTERDATAMUTATIONP10" + DB_COUNTER.incrementAndGet();
+        try (Connection setup = openConnection(dbName)) {
+            createSchema(setup, TEST_SCHEMA);
+            try (Statement st = setup.createStatement()) {
+                st.execute("CREATE TABLE " + TEST_SCHEMA + ".T1 (ID INT PRIMARY KEY, COL0 VARCHAR(50))");
+                for (int i = 0; i < 5; i++) {
+                    st.execute("INSERT INTO " + TEST_SCHEMA + ".T1 VALUES (" + i + ", 'V" + i + "')");
+                }
+            }
+        }
+
+        List<ColumnDetail> columns = List.of(
+                new ColumnDetail("ID", "INTEGER", false, null, 1, 1),
+                new ColumnDetail("COL0", "VARCHAR", true, null, 2, null));
+        Map<String, Permission> columnPermissions = new LinkedHashMap<>();
+        columnPermissions.put("ID", Permission.UPDATE);
+        columnPermissions.put("COL0", Permission.UPDATE);
+
+        AuditLogService auditLogService = mock(AuditLogService.class);
+        MasterDataMutationService service = newService(
+                dbName, columns, columnPermissions, true, true, auditLogService);
+
+        // updates は ID 0..updateCount-1、deletes はその直後の ID を対象とし、互いに重複しない。
+        List<RecordCreate> creates = new ArrayList<>();
+        for (int i = 0; i < createCount; i++) {
+            creates.add(new RecordCreate(Map.of("ID", 100 + i, "COL0", "NEW" + i)));
+        }
+        List<RecordUpdate> updates = new ArrayList<>();
+        for (int i = 0; i < updateCount; i++) {
+            updates.add(new RecordUpdate(Map.of("ID", i), Map.of("COL0", "UPD" + i)));
+        }
+        List<RecordDelete> deletes = new ArrayList<>();
+        for (int i = updateCount; i < updateCount + deleteCount; i++) {
+            deletes.add(new RecordDelete(Map.of("ID", i)));
+        }
+
+        MutationRequest request = new MutationRequest(creates, updates, deletes);
+
+        MutationResult result = service.applyChanges(1L, 1L, TEST_SCHEMA, "T1", request);
+
+        assertThat(result.success()).isTrue();
+        assertThat(result.createdCount()).isEqualTo(createCount);
+        assertThat(result.updatedCount()).isEqualTo(updateCount);
+        assertThat(result.deletedCount()).isEqualTo(deleteCount);
+
+        try (Connection check = openConnection(dbName)) {
+            for (int i = 0; i < createCount; i++) {
+                try (Statement st = check.createStatement();
+                        ResultSet rs = st.executeQuery(
+                                "SELECT COL0 FROM " + TEST_SCHEMA + ".T1 WHERE ID = " + (100 + i))) {
+                    assertThat(rs.next()).isTrue();
+                    assertThat(rs.getString("COL0")).isEqualTo("NEW" + i);
+                }
+            }
+            for (int i = 0; i < updateCount; i++) {
+                try (Statement st = check.createStatement();
+                        ResultSet rs = st.executeQuery(
+                                "SELECT COL0 FROM " + TEST_SCHEMA + ".T1 WHERE ID = " + i)) {
+                    assertThat(rs.next()).isTrue();
+                    assertThat(rs.getString("COL0")).isEqualTo("UPD" + i);
+                }
+            }
+            for (int i = updateCount; i < updateCount + deleteCount; i++) {
+                try (Statement st = check.createStatement();
+                        ResultSet rs = st.executeQuery(
+                                "SELECT COUNT(*) AS CNT FROM " + TEST_SCHEMA + ".T1 WHERE ID = " + i)) {
+                    assertThat(rs.next()).isTrue();
+                    assertThat(rs.getInt("CNT")).isEqualTo(0);
+                }
+            }
+            for (int i = updateCount + deleteCount; i < 5; i++) {
+                try (Statement st = check.createStatement();
+                        ResultSet rs = st.executeQuery(
+                                "SELECT COL0 FROM " + TEST_SCHEMA + ".T1 WHERE ID = " + i)) {
+                    assertThat(rs.next()).isTrue();
+                    assertThat(rs.getString("COL0")).isEqualTo("V" + i);
+                }
+            }
+            try (Statement st = check.createStatement();
+                    ResultSet rs = st.executeQuery("SELECT COUNT(*) AS CNT FROM " + TEST_SCHEMA + ".T1")) {
+                assertThat(rs.next()).isTrue();
+                assertThat(rs.getInt("CNT")).isEqualTo(5 + createCount - deleteCount);
+            }
         }
     }
 
