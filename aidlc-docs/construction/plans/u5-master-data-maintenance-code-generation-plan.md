@@ -130,16 +130,23 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
 ## ステップ一覧
 
 ### Step 1: プロジェクト構造セットアップ
-- [ ] 1-1. **該当なし（N/A）**: `tech-stack-decisions.md`確定のとおり本ユニットで新規追加
+- [x] 1-1. **該当なし（N/A）**: `tech-stack-decisions.md`確定のとおり本ユニットで新規追加
       する依存関係はない。`backend/build.gradle.kts`の変更は不要。
 
 ### Step 2: ビジネスロジック生成
-- [ ] 2-1. `backend/src/main/java/cherry/mastermeister/rdbmsconnection/
+- [x] 2-1. `backend/src/main/java/cherry/mastermeister/rdbmsconnection/
       ConnectionPoolRegistry.java`（既存、ブラウンフィールド修正）に
       `TransactionTemplate getTransactionTemplate(Long connectionId)`を追加する
       （「ブラウンフィールド発見事項」1、`business-rules.md` 3.3: `new
       DataSourceTransactionManager(getDataSource(connectionId))`をラップした
       `TransactionTemplate`を都度生成して返す、Spring管理Beanにはしない）。
+
+      実装メモ: `getJdbcTemplate`と同型の1行メソッドとして実装（
+      `new TransactionTemplate(new DataSourceTransactionManager(getDataSource(connectionId)))`
+      を都度生成して返す）。Spring管理Beanにしないため`@Bean`定義は追加していない。
+      `getJdbcTemplate`自体に専用の単体テストがないのと同じ理由で、本メソッド単体の
+      直接テストは追加していない（Step 3-5のP9/P10でトランザクション動作を間接的に検証する）。
+      `./gradlew compileJava`成功を確認。
 - [ ] 2-2. `backend/src/main/java/cherry/mastermeister/masterdata/` に読み取り系DTOを生成する
       （`domain-entities.md`確定）: `TableSummary`（record: `schemaName, tableName,
       TableType tableType, comment, Permission effectivePermission, canCreate, canDelete`）、

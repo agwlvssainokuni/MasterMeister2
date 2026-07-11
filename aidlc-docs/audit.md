@@ -2511,3 +2511,14 @@ Step 2-1から着手）。
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U5: Master Data Maintenance - Code Generation Part 2 Step 1/2-1
+**Timestamp**: 2026-07-11T22:00:00Z
+**User Input**: (継続、"Part 2を開始してください。"に対する実行)
+**AI Response**: Step 1（プロジェクト構造セットアップ）はN/Aのため完了扱い（`[x]`）とした。
+Step 2-1として`ConnectionPoolRegistry.java`に`getTransactionTemplate(Long connectionId)`を
+追加（`getJdbcTemplate`と同型の1行メソッド、Spring管理Beanにはしない）。`compileJava`成功を
+確認。
+**Context**: Per-Unit Loop、U5 Code Generation Part 2。Step 1完了、Step 2-1完了。
+
+---
+

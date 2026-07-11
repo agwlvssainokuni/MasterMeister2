@@ -25,7 +25,9 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import cherry.mastermeister.common.dialect.DialectStrategyFactory;
 import cherry.mastermeister.common.exception.EntityNotFoundException;
@@ -61,6 +63,10 @@ public class ConnectionPoolRegistry {
 
     public NamedParameterJdbcTemplate getJdbcTemplate(Long connectionId) {
         return new NamedParameterJdbcTemplate(getDataSource(connectionId));
+    }
+
+    public TransactionTemplate getTransactionTemplate(Long connectionId) {
+        return new TransactionTemplate(new DataSourceTransactionManager(getDataSource(connectionId)));
     }
 
     public void invalidate(Long connectionId) {
