@@ -2297,3 +2297,11 @@ Step 6として以下4成果物を生成した。
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U5: Master Data Maintenance - Functional Design 3.3の記述精緻化（getJdbcTemplate呼び出しとメソッド実行の区別）
+**Timestamp**: 2026-07-11T20:05:00Z
+**User Input**: "念のため。ConnectionPoolRegistry#getJdbcTemplate()だけで使うことはない、ということですよね。" → "正確には、getJdbcTemplate()を呼び出すこと自体は、TransactionTemplateの外でOKで、NamedParameterJdbcTemplateを使うのがTransactionTemplateの中でなければならない、ですよね。"
+**AI Response**: 1問目に対し、`getJdbcTemplate()`を`TransactionTemplate`の外で単独使用した場合は各文が独立オートコミットされ3.3の原子性が成立しない旨を回答。これに対しユーザから、正確には「`getJdbcTemplate()`の呼び出し自体（`NamedParameterJdbcTemplate`インスタンス生成、DB非接続）は`TransactionTemplate`の外でも可、トランザクション同期に関わるのはその後の`update`/`query`等メソッドの**実行**であり、それが`TransactionTemplate`内でなければならない」という訂正を受けた。これは正確な指摘であり（`getJdbcTemplate()`はコンストラクタ呼び出しのみでDBに触れない、`DataSourceUtils.getConnection`が呼ばれるのは`update`/`query`実行時）、3.3の文面がテンプレート取得とメソッド実行を混同していた点を認め、「`getJdbcTemplate`呼び出し自体は`TransactionTemplate`の外でも可、`update`/`query`等メソッドの実行は必ず`TransactionTemplate`内」と区別する形に修正した。
+**Context**: Per-Unit Loop、U5 Functional Design。承認前の記述精緻化。標準完了メッセージを再提示しユーザ承認待ちに戻る。
+
+---
+

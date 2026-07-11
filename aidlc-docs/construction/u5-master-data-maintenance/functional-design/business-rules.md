@@ -113,11 +113,17 @@ LARGE_RECORD_READ, userId, connectionId, Result.SUCCESS, targetDescription=schem
 `DataSource`インスタンスは`ConnectionPoolRegistry`内で`connectionId`ごとにキャッシュ済み
 のものを使う）、`TransactionTemplate`によるプログラム的トランザクション制御を行う。
 `DataSourceTransactionManager`はSpring管理Beanにはせず、サービスメソッド内のローカル
-オブジェクトとして生成・破棄する（対象が動的なため）。この`TransactionTemplate`内で
-`ConnectionPoolRegistry.getJdbcTemplate(connectionId)`（同一`DataSource`インスタンスに
-紐づく`NamedParameterJdbcTemplate`）を呼び出すことで、Spring
-の`DataSourceUtils`によるスレッドバインドされたコネクション・トランザクションへ自動的に
-参加する（宣言的`@Transactional`配下のJdbcTemplate呼び出しと同じ仕組み）。生の
+オブジェクトとして生成・破棄する（対象が動的なため）。`ConnectionPoolRegistry.
+getJdbcTemplate(connectionId)`の呼び出し自体（`NamedParameterJdbcTemplate`インスタンスの
+生成）はDBに接続しないため`TransactionTemplate`の外で行っても問題ないが、その
+`NamedParameterJdbcTemplate`の`update`/`query`等のメソッドを**実行する**のは必ず
+`TransactionTemplate`のコールバック内でなければならない。メソッド実行時に内部で呼ばれる
+`DataSourceUtils.getConnection(dataSource)`が、そのタイミングでスレッドに同期済みの
+トランザクション（同一`DataSource`インスタンスに対して`TransactionTemplate`が開始した
+もの）を検出して初めて、コネクション・トランザクションへ自動的に参加する（宣言的
+`@Transactional`配下のJdbcTemplate呼び出しと同じ仕組み）。`TransactionTemplate`の外で
+`update`/`query`を実行した場合は同期済みトランザクションが存在せず、呼び出しごとに
+独立してオートコミットされる（3.3の原子性は成立しない）。生の
 `Connection.setAutoCommit(false)`/`commit()`/`rollback()`は用いない。
 
 3.1の検証を全て通過した場合、上記方式で単一トランザクションを開始し、`creates`→
