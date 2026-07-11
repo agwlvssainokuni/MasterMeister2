@@ -590,8 +590,19 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       既存分含めた計183件（44ファイル）全て成功を確認。
 
 ### Step 13: フロントエンドコンポーネントサマリ
-- [ ] 13-1. `aidlc-docs/construction/u5-master-data-maintenance/code/frontend-summary.md`を
+- [x] 13-1. `aidlc-docs/construction/u5-master-data-maintenance/code/frontend-summary.md`を
       生成する。
+      実装メモ: U4の`frontend-summary.md`と同じ構成（新規feature一覧・ルーティング一覧・
+      data-testid一覧・実装時判断事項・テストカバレッジ表）で生成。`features/masterData/`の
+      6ファイル（`types.ts`/`api.ts`/`SchemaTableListPage.tsx`/`FilterPanel.tsx`/
+      `RecordListPage.tsx`/`MutationResultDialog.tsx`）と`/master-data`系2ルートを記載。
+      実装時判断事項として、`DataTable`本体非変更方針・行データが位置配列であることへの
+      `pkKey`/`buildPrimaryKeyValues`/`rowKeyOf`ヘルパー対応・テーブル単位`canCreate`/
+      `canDelete`取得手段不在への`listAccessibleTables`再呼び出し対応・`reloadKey`による
+      `useEffect`再取得トリガー方式（`react-hooks/exhaustive-deps`警告回避）の4点を明記した。
+      テストカバレッジ表はStep 12で生成した新規4ファイル・27件と、ブラウンフィールド修正で
+      回帰確認した既存12件を記載し、フロントエンド全体44ファイル・183件全成功である旨を
+      記した。
 
 ### Step 14: データベースマイグレーションスクリプト
 - [ ] 14-1. **該当なし（N/A）**: 本ユニットは内部DBエンティティを持たないため対象外

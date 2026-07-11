@@ -3031,3 +3031,26 @@ Step 11-5を`[x]`にマークした。
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U5: Master Data Maintenance - Code Generation Part 2 Step 13-1
+**Timestamp**: 2026-07-12T02:15:00Z
+**User Input**: "継続。"
+**AI Response**: `aidlc-docs/construction/u5-master-data-maintenance/code/frontend-summary.md`
+を、U4の`frontend-summary.md`と同じ構成（新規feature一覧・ルーティング一覧・data-testid
+一覧・実装時判断事項・テストカバレッジ表）で生成した。`features/masterData/`の6ファイル
+（`types.ts`/`api.ts`/`SchemaTableListPage.tsx`/`FilterPanel.tsx`/`RecordListPage.tsx`/
+`MutationResultDialog.tsx`）の内容と、`/master-data`・`/master-data/:connectionId/:schema/:table`
+の2ルート（全認証ユーザ向け、ロール制約なし）を記載した。実装時判断事項として、
+`DataTable`本体を変更しない拡張方針、行データが位置配列（`unknown[]`）であることへの
+`pkKey`/`buildPrimaryKeyValues`/`rowKeyOf`ヘルパー対応、テーブル単位の`canCreate`/
+`canDelete`取得専用APIが存在しないため`listAccessibleTables`を再呼び出しする対応、
+`react-hooks/exhaustive-deps`警告を回避するための`reloadKey`による`useEffect`再取得
+トリガー方式の4点を明記した。テストカバレッジ表にはStep 12で生成した新規4ファイル・27件と、
+ブラウンフィールド修正（Step 11-6）で回帰確認した既存`AppRouter.test.tsx`/
+`AppLayout.test.tsx`の12件を記載し、フロントエンド全体が44ファイル・183件全成功である旨を
+記した。計画のStep 13-1を`[x]`にマークし、Step 13が完了した。
+**Context**: Per-Unit Loop、U5 Code Generation Part 2。次はStep 14
+（データベースマイグレーションスクリプト、内部DBエンティティを持たないため該当なし＝N/A、
+U1 NFR Design Question 5 = A踏襲）。
+
+---
+
