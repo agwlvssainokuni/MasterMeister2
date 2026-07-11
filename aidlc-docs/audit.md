@@ -2365,3 +2365,13 @@ Step 6として以下2成果物を生成：
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U5: Master Data Maintenance - NFR Requirements 承認
+**Timestamp**: 2026-07-11T20:40:00Z
+**User Input**: "Continue to Next Stage。記録したらコミット。NFR Designを始めてください。"
+**AI Response**: NFR Requirements（Step 9）承認を記録。`aidlc-state.md`のU5行NFR Requirements列を
+承認済みに更新し、Current Stageを次段階（NFR Design）へ更新。コミット後、NFR Designステージへ
+着手する。
+**Context**: Per-Unit Loop、U5 NFR Requirements完了・承認。NFR Design着手。
+
+---
+
