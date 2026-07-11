@@ -264,9 +264,32 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
 実アクセスを伴うため、U3 `SchemaImportServiceTest`/U4 `SchemaReimportCacheConsistencyTest`と
 同じ手法（`org.h2.tools.Server`によるH2 TCPサーバを対象RDBMS役として起動、`@SpringBootTest`
 `@JqwikSpringSupport`）を用いる。
-- [ ] 3-1. **P1**（SELECT列のNONE権限除外Invariant）・**P2**（`columns`と`records`各行の
+- [x] 3-1. **P1**（SELECT列のNONE権限除外Invariant）・**P2**（`columns`と`records`各行の
       要素数・対応順序の構造整合性Invariant）: `MasterDataQueryServiceTest`に`@Property`
       テストを生成する。
+      **実装メモ**: `MasterDataQueryServiceTest.java`を新規生成。
+      `listRecordsExcludesNonePermissionColumnsAndAlignsRowsToColumns`という単一の`@Property`
+      （tries=20）でP1・P2を同時検証する構成とした（両者とも同じ`listRecords`呼び出し1回の
+      結果から導出できる不変性であり、テーブル/データセットアップを共有した方がプロパティの
+      意図が明確になるため）。
+      対象RDBMSはU3 `SchemaImportServiceTest`と同じ手法（`org.h2.tools.Server`によるH2 TCP
+      サーバを`@BeforeContainer`/`@AfterContainer`で起動・停止し、`ConnectionPoolRegistry`
+      経由で実接続）を用いた。`EffectivePermissionResolver`と`SchemaQueryService`は
+      Mockitoでモック化し、権限解決ロジック自体（`EffectivePermissionResolverTest`側で
+      別途検証済み）とは独立して`MasterDataQueryService`のSELECT列選定・行マッピングだけを
+      検証できるようにした。
+      テーブルは`ID INT PRIMARY KEY`固定列1つ（常にREAD権限、SELECT列が空にならない保証用）
+      と`COL0`〜`COL3`の4つの生成列（`@ForAll`で`Permission`値をランダム割当）で構成。
+      各生成列の値には自身のカラム名文字列自体を格納することで、返却された`records`の
+      各行の位置`i`の値が`columns.get(i)`のカラムに実際に対応していることを直接検証できる
+      （P2の「位置対応」を値レベルで確認する設計）。
+      P1は`result.columns()`が`columnPermissions`から`NONE`を除外した期待リストと
+      `containsExactlyElementsOf`で完全一致すること、およびいずれのカラムも
+      `effectivePermission() == NONE`でないことの両面で検証。
+      P2は`rowCount`（0〜3を`@ForAll`で生成）に応じた各行が`columns()`と同じ要素数を持つこと、
+      および`ID`列は`Number`型、生成列はカラム名文字列と一致することを検証。
+      `./gradlew test --tests "cherry.mastermeister.masterdata.MasterDataQueryServiceTest"`で
+      成功を確認（BUILD SUCCESSFUL）。
 - [ ] 3-2. **P3**（UIモード条件のREAD未満カラム参照時の例外Invariant）・**P4**（RAWモードの
       セミコロン簡易防御Invariant）: `MasterDataQueryServiceTest`に追加生成する。
 - [ ] 3-3. **P5**（`large-record-threshold`境界値での監査記録Invariant）:
