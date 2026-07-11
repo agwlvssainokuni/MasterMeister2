@@ -49,6 +49,12 @@ mm:
     audit:
       default-page-size: 20
       page-size-options: 20,50,100
+    master-data:
+      default-page-size: 50
+      page-size-options: 50,100,200
+      query-timeout: 30s
+      max-mutation-batch-size: 500
+      large-record-threshold: 100
     security:
       password-encoder-strength: ${MM_APP_SECURITY_PASSWORD_ENCODER_STRENGTH:10}
     user-registration:

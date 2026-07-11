@@ -3091,3 +3091,24 @@ exceeded」として連鎖する環境要因の事象であると特定した。
 
 ---
 
+## Code Generation Step 16-1（U5 Master Data Maintenance）
+**Timestamp**: 2026-07-12T01:03:00Z
+**User Input**: "継続。"
+**AI Response**: `backend/src/main/resources/application.yml`の`mm.app`配下に`master-data`
+セクションを新設し、`default-page-size: 50`・`page-size-options: 50,100,200`・
+`query-timeout: 30s`・`max-mutation-batch-size: 500`・`large-record-threshold: 100`の
+5プロパティを`mm.app.audit`セクションと同形式で追記した。`query-timeout`・
+`max-mutation-batch-size`・`large-record-threshold`は`MasterDataQueryService`・
+`MasterDataMutationService`の既存`@Value("${mm.app.master-data.xxx:既定値}")`インライン
+デフォルトと同値であり動作変更はないが、設定値を明示化し運用時の上書きを可能にした。
+`default-page-size`・`page-size-options`は現時点でJavaコード側から未参照（フロントエンドも
+`pageSize: 50`固定、`AuditLogService`のようなページサイズ検証・フォールバックロジックは
+本ユニットには未実装）であり、`nfr-design/logical-components.md`の`application.yml`行に
+記載された設定サーフェスを先行して用意するものである。当該2キーの実配線は承認済みStep 16
+計画のスコープ外と判断し、追加実装は行わなかった。`./gradlew test --tests
+"cherry.mastermeister.masterdata.*"`で既存19件が全て成功することを確認した。計画の
+Step 16-1を`[x]`にマークし、Step 16（デプロイ成果物生成）およびU5の全16ステップが完了した。
+**Context**: Per-Unit Loop、U5 Code Generation Part 2、最終ステップ完了。
+
+---
+

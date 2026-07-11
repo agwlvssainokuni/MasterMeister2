@@ -626,13 +626,25 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       44ファイル・183/183件成功をそれぞれ確認した。
 
 ### Step 16: デプロイ成果物生成
-- [ ] 16-1. `backend/src/main/resources/application.yml`（既存、ブラウンフィールド修正）に
+- [x] 16-1. `backend/src/main/resources/application.yml`（既存、ブラウンフィールド修正）に
       `mm.app.master-data.default-page-size`（既定`50`）、
       `mm.app.master-data.page-size-options`（既定`50,100,200`）、
       `mm.app.master-data.query-timeout`（既定`30`秒）、
       `mm.app.master-data.max-mutation-batch-size`（既定`500`）、
       `mm.app.master-data.large-record-threshold`（既定`100`）を追記する
       （`nfr-requirements.md`・`business-rules.md` 2.5確定）。
+      実装メモ: `mm.app.audit`セクションと同様の形式で`mm.app.master-data`セクションを新設し、
+      5キー全てを追記した。`query-timeout`・`max-mutation-batch-size`・`large-record-threshold`は
+      `MasterDataMutationService`/`MasterDataQueryService`の`@Value("${mm.app.master-data.xxx:既定値}")`
+      と一致する値を設定（既存のインラインデフォルトと同値のため動作変更なし、明示的な
+      設定値として可視化・上書き可能にする目的）。`default-page-size`/`page-size-options`は
+      現時点では`MasterDataQueryService`側で参照されておらず（フロントエンドも
+      `pageSize: 50`を固定値で使用、`page-size-options`のフォールバック検証ロジックは
+      `AuditLogService`のような形では未実装）、`nfr-design/logical-components.md`の
+      `application.yml`行に記載された設定サーフェスを先行して用意するもの。この2キーの
+      実際のバリデーション配線はStep 16のスコープ外（本Stepの承認済み計画に含まれない）。
+      `./gradlew test --tests "cherry.mastermeister.masterdata.*"` で既存テスト（19件）が
+      全て成功することを確認した。
 
 ---
 
