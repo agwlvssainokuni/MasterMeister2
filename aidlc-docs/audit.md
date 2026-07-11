@@ -3067,3 +3067,27 @@ U1 NFR Design Question 5 = A踏襲）。
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U5: Master Data Maintenance - Code Generation Part 2 Step 15-1
+**Timestamp**: 2026-07-12T02:30:00Z
+**User Input**: "継続。"
+**AI Response**: `aidlc-docs/construction/u5-master-data-maintenance/code/testing-summary.md`を、
+U4の`testing-summary.md`と同じ構成（PBT-10遵守状況・P1〜P10対応表・example-basedテスト
+一覧・実行確認状況・既知の課題）で生成した。本ユニットはリポジトリ層がN/A（内部DBエンティティ
+を持たない）のため`repository-layer-summary.md`は生成せず、その旨を冒頭に明記した。実行確認の
+ため`./gradlew test`を実行したところ7件が失敗し、原因を調査した結果、バックグラウンドで
+起動中だった`./gradlew bootRun`プロセス（U5の作業とは無関係の既存プロセス）がファイルベース
+H2DB（`backend/data/mastermeister.mv.db`）をロックしていたため`MasterMeisterApplicationTests`
+のApplicationContext起動が失敗し、同一コンテキスト構成を使う`PermissionCacheConsistencyTest`・
+`SchemaReimportCacheConsistencyTest`（いずれもU4既存）へ「ApplicationContext failure threshold
+exceeded」として連鎖する環境要因の事象であると特定した。ユーザに確認の上（AskUserQuestionで
+「停止して再実行」を選択）、当該プロセスを停止して`./gradlew test`を再実行し、43テスト
+クラス・233/233件成功（うちU5新規19件: `MasterDataQueryServiceTest` 4、
+`MasterDataMutationServiceTest` 5、`MasterDataControllerTest` 10、U1〜U4既存214件は回帰なし）を
+確認した。フロントエンドは`npx vitest run` 44ファイル・183/183件成功、`npx tsc -b`・
+`npm run lint`ともにエラー・警告なしを確認した。計画のStep 15-1を`[x]`にマークし、Step 15が
+完了した。
+**Context**: Per-Unit Loop、U5 Code Generation Part 2。次はStep 16
+（デプロイ成果物生成、`application.yml`への`mm.app.master-data.*`プロパティ追記）。
+
+---
+

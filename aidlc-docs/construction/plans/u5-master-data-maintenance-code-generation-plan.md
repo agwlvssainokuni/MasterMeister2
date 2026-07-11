@@ -611,8 +611,19 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       マイグレーションスクリプト生成は不要と確認しスキップした。
 
 ### Step 15: ドキュメント生成
-- [ ] 15-1. `aidlc-docs/construction/u5-master-data-maintenance/code/testing-summary.md`
+- [x] 15-1. `aidlc-docs/construction/u5-master-data-maintenance/code/testing-summary.md`
       （P1〜P10とテストクラスの対応表、example-basedテスト一覧）を生成する。
+      実装メモ: U4の`testing-summary.md`と同じ構成（PBT-10遵守状況・P1〜P10対応表・
+      example-basedテスト一覧・実行確認状況・既知の課題）で生成。本ユニットはリポジトリ層が
+      N/Aのため`repository-layer-summary.md`は生成せず、その旨を冒頭に明記した。実行確認の
+      ため`./gradlew test`を実行したところ、バックグラウンドで起動中だった`bootRun`
+      プロセスがファイルベースH2DBをロックしていたことに起因する7件の失敗
+      （`MasterMeisterApplicationTests`のコンテキスト起動失敗が`PermissionCacheConsistencyTest`・
+      `SchemaReimportCacheConsistencyTest`へ連鎖）を検出、U5のコード起因ではない環境要因と
+      特定した。ユーザに確認の上で当該プロセスを停止し再実行、`./gradlew test`
+      43テストクラス・233/233件成功（うちU5新規19件: `MasterDataQueryServiceTest` 4、
+      `MasterDataMutationServiceTest` 5、`MasterDataControllerTest` 10）、`npx vitest run`
+      44ファイル・183/183件成功をそれぞれ確認した。
 
 ### Step 16: デプロイ成果物生成
 - [ ] 16-1. `backend/src/main/resources/application.yml`（既存、ブラウンフィールド修正）に
