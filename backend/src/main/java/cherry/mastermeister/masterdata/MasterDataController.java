@@ -27,9 +27,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import cherry.mastermeister.common.PageRequest;
+import cherry.mastermeister.rdbmsconnection.ConnectionSummary;
 
 @RestController
-@RequestMapping("/api/master-data/{connectionId}")
+@RequestMapping("/api/master-data")
 public class MasterDataController {
 
     private final MasterDataQueryService masterDataQueryService;
@@ -41,20 +42,26 @@ public class MasterDataController {
         this.masterDataMutationService = masterDataMutationService;
     }
 
-    @GetMapping("/schemas")
+    @GetMapping("/connections")
+    public List<ConnectionSummary> listAccessibleConnections(Authentication authentication) {
+        Long userId = (Long) authentication.getPrincipal();
+        return masterDataQueryService.listAccessibleConnections(userId);
+    }
+
+    @GetMapping("/{connectionId}/schemas")
     public List<String> listAccessibleSchemas(@PathVariable Long connectionId, Authentication authentication) {
         Long userId = (Long) authentication.getPrincipal();
         return masterDataQueryService.listAccessibleSchemas(userId, connectionId);
     }
 
-    @GetMapping("/schemas/{schema}/tables")
+    @GetMapping("/{connectionId}/schemas/{schema}/tables")
     public List<TableSummary> listAccessibleTables(
             @PathVariable Long connectionId, @PathVariable String schema, Authentication authentication) {
         Long userId = (Long) authentication.getPrincipal();
         return masterDataQueryService.listAccessibleTables(userId, connectionId, schema);
     }
 
-    @PostMapping("/schemas/{schema}/tables/{table}/records:search")
+    @PostMapping("/{connectionId}/schemas/{schema}/tables/{table}/records:search")
     public RecordListResult listRecords(
             @PathVariable Long connectionId, @PathVariable String schema, @PathVariable String table,
             @RequestBody RecordSearchRequest request, Authentication authentication) {
@@ -63,7 +70,7 @@ public class MasterDataController {
         return masterDataQueryService.listRecords(userId, connectionId, schema, table, request.criteria(), page);
     }
 
-    @PostMapping("/schemas/{schema}/tables/{table}/records:apply")
+    @PostMapping("/{connectionId}/schemas/{schema}/tables/{table}/records:apply")
     public MutationResult applyChanges(
             @PathVariable Long connectionId, @PathVariable String schema, @PathVariable String table,
             @RequestBody MutationRequest request, Authentication authentication) {

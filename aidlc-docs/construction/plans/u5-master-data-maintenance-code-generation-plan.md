@@ -438,11 +438,14 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       `.anyRequest().authenticated()`の間に1行追記。既存ADMINルールとの前方一致競合が
       ないため挿入順序上の制約はなし。`./gradlew compileJava`成功を確認。これにより**Step 5
       は全項目完了**。
-- [ ] 5-4. `backend/src/main/java/cherry/mastermeister/masterdata/MasterDataController.java`
+- [x] 5-4. `backend/src/main/java/cherry/mastermeister/masterdata/MasterDataController.java`
       （既存、ブラウンフィールド修正）に`GET "/connections"`（`listAccessibleConnections`）
       を追加する（「ブラウンフィールド発見事項」5）。クラスレベルの`@RequestMapping`を
       `"/api/master-data/{connectionId}"`から`"/api/master-data"`へ変更し、`{connectionId}`
       を既存4メソッドの`@GetMapping`/`@PostMapping`側へ移す（解決後のURLは不変）。
+      実装メモ: 設計どおり実装。`./gradlew compileJava`成功、既存
+      `MasterDataControllerTest`（8件）無修正のまま全件成功を確認（URL解決結果が不変である
+      ことを実証）。
 
 ### Step 6: APIレイヤ単体テスト
 - [x] 6-1. `MasterDataControllerTest`（`@WebMvcTest` + `spring-security-test`）: 4エンドポイント

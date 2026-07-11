@@ -2845,3 +2845,19 @@ importを追加。`./gradlew compileJava`成功を確認。計画のStep 2-7を`
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U5: Master Data Maintenance - Code Generation Part 2 Step 5-4
+**Timestamp**: 2026-07-12T00:20:00Z
+**User Input**: "継続。"
+**AI Response**: `MasterDataController`のクラスレベル`@RequestMapping`を
+`"/api/master-data/{connectionId}"`から`"/api/master-data"`へ変更し、`{connectionId}`を
+既存4メソッド（`listAccessibleSchemas`/`listAccessibleTables`/`listRecords`/`applyChanges`）
+の`@GetMapping`/`@PostMapping`側へ移動した。新規`GET /connections`
+（`listAccessibleConnections`）を追加し、`masterDataQueryService.listAccessibleConnections
+(userId)`を呼び出す実装とした。`cherry.mastermeister.rdbmsconnection.ConnectionSummary`の
+importを追加。`./gradlew compileJava`成功、既存`MasterDataControllerTest`（8件）を無修正の
+まま実行し全件成功（解決後URLが不変であることを確認）。計画のStep 5-4を`[x]`にマークした。
+**Context**: Per-Unit Loop、U5 Code Generation Part 2。次はStep 6-2
+（`MasterDataControllerTest`への`GET /connections`テスト追加）。
+
+---
+
