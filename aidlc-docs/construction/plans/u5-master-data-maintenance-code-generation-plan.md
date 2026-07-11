@@ -400,10 +400,15 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       `listRecords`に渡す。`records:apply`は`MutationResult`をそのまま返却し、実行時DB失敗
       （`success=false`）も200 OKで返る（Step 2-6の設計どおり、HTTPステータスの分離は行わない）。
       `./gradlew compileJava`成功を確認。単体テストはStep 6-1で追加する。
-- [ ] 5-3. `backend/src/main/java/cherry/mastermeister/security/SecurityConfig.java`
+- [x] 5-3. `backend/src/main/java/cherry/mastermeister/security/SecurityConfig.java`
       （既存、ブラウンフィールド修正）に`.requestMatchers("/api/master-data/**")
       .authenticated()`を、他の一般ユーザ向けルールと同様の場所に追記する
       （「ブラウンフィールド発見事項」3、`business-rules.md` 4節）。
+
+      実装メモ: `.requestMatchers("/api/groups/**").hasRole("ADMIN")`と
+      `.anyRequest().authenticated()`の間に1行追記。既存ADMINルールとの前方一致競合が
+      ないため挿入順序上の制約はなし。`./gradlew compileJava`成功を確認。これにより**Step 5
+      は全項目完了**。
 
 ### Step 6: APIレイヤ単体テスト
 - [ ] 6-1. `MasterDataControllerTest`（`@WebMvcTest` + `spring-security-test`）: 4エンドポイント

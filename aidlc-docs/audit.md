@@ -2744,3 +2744,17 @@ pageSize`の3フィールドを持つrecordとして実装（`listRecords`の`cr
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U5: Master Data Maintenance - Code Generation Part 2 Step 5-3
+**Timestamp**: 2026-07-11T10:30:00Z
+**User Input**: "継続。"
+**AI Response**: `backend/src/main/java/cherry/mastermeister/security/SecurityConfig.java`
+（既存、ブラウンフィールド修正）に`.requestMatchers("/api/master-data/**").authenticated()`を
+`.requestMatchers("/api/groups/**").hasRole("ADMIN")`と`.anyRequest().authenticated()`の間に
+追記した。「ブラウンフィールド発見事項」3のとおり既存`/api/rdbms-connections/**`
+（`hasRole("ADMIN")`）とは前方一致しないため挿入順序を意識する必要はなく、他の一般ユーザ向け
+ルールと同様の位置に追加した。`./gradlew compileJava`成功を確認。これにより**Step 5
+（APIレイヤ生成）は全項目完了**。
+**Context**: Per-Unit Loop、U5 Code Generation Part 2。Step 5-3完了、Step 5全体完了。
+
+---
+
