@@ -2321,3 +2321,28 @@ Step 6として以下4成果物を生成した。
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U5: Master Data Maintenance - NFR Requirements Step 1-4（分析・質問作成）完了
+**Timestamp**: 2026-07-11T20:25:00Z
+**User Input**: "NFR Requirementsを始めてください"
+**AI Response**: `nfr-requirements.md`の手順に従い、Step 1としてU5のFunctional Design成果物
+（domain-entities.md/business-rules.md/business-logic-model.md/frontend-components.md）と
+U1/U3/U4のNFR Requirements成果物（重複質問回避のため）を分析した。Step 2-4として
+`u5-master-data-maintenance-nfr-requirements-plan.md`を作成し、4問を構成した。
+- Question 1（Performance/Scalability）: `listRecords`ページングの既定/許容ページサイズ。
+  U1`AuditLogService`の「既定値＋選択肢リスト検証」方式（`resolvePageSize`）を踏襲する案を
+  推奨として提示。`business-rules.md` 2.5の大量データ監査閾値（既定100）との整合も論点として
+  明記。
+- Question 2（Reliability/Security）: 対象RDBMSへのクエリ実行タイムアウト。U3で確立した
+  `connection-timeout`（コネクション取得までのタイムアウト、既定5秒）では、コネクション
+  取得後のSQL実行時間（特にRAWモードの任意WHERE句）をカバーできない点を指摘し、
+  `NamedParameterJdbcTemplate.setQueryTimeout`による設定を推奨として提示。
+- Question 3（Tech Stack/Performance）: `applyChanges`の実行方式。`RecordUpdate.changedValues`
+  が行ごとに異なるカラム集合を持ちうる疎な設計（Functional Design Q2）とJDBCバッチ更新の
+  相性を検討し、個別実行ループ方式を推奨として提示。
+- Question 4（Reliability/Scalability）: 単一`applyChanges`リクエストあたりの最大件数上限。
+  設定キーによる上限導入（既定500件）を推奨として提示。
+ユーザへ回答方法を案内し、回答完了を待つ。
+**Context**: Per-Unit Loop、U5 NFR Requirements Step 1-4完了。Step 5（回答収集・整合性確認）着手待ち。
+
+---
+
