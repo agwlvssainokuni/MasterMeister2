@@ -902,11 +902,18 @@ Repository未定義エラーで失敗し続ける状態を許容していた。U
       参照」に具体化した。
 
 ### Step 16: デプロイ成果物生成
-- [ ] 16-1. `backend/src/main/resources/application.yml`（既存、ブラウンフィールド修正）に
+- [x] 16-1. `backend/src/main/resources/application.yml`（既存、ブラウンフィールド修正）に
       `spring.cache.type: caffeine`、`spring.cache.caffeine.spec`（6キャッシュ共通の
       `maximumSize`/`expireAfterWrite`既定値、`nfr-design-patterns.md` 1.1）を追記する。
       本ユニット固有の`mm.app.*`設定キーは既存の`spring.servlet.multipart.max-file-size`
       既定値をそのまま使うため追加なし（`nfr-requirements.md` 2.2）。
+      実装メモ: `spring.cache.type: caffeine`と`spring.cache.caffeine.spec:
+      maximumSize=10000,expireAfterWrite=5m`を`spring.jpa`ブロックと`spring.mail`ブロックの間に
+      追記した（設計文書に具体的な数値の指定はなく、単一ノード・小規模内部利用という前提
+      （`nfr-requirements.md` 1.1）に基づくCode Generation時点のAI決定。実測値に基づく調整は
+      将来対応と設計文書に明記済み）。追記後`./gradlew test`を実行し40テストクラス・214/214件
+      成功を確認（実行前にファイルベースH2 DBのロック競合を避けるため、ユーザの許可を得て
+      並走していた`bootRun`プロセスを停止した）。`mm.app.*`への追加設定キーはなし。
 
 ---
 

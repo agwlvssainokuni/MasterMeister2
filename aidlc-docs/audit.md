@@ -2225,3 +2225,19 @@ U3の`frontend-summary.md`の章立て（コンポーネント一覧テーブル
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U4: Permission Management - Code Generation Step 15完了確認
+**Timestamp**: 2026-07-11T08:57:00Z
+**User Input**: [AskUserQuestion回答] "続行"（質問: "Step 15（testing-summary.md生成、PROJECT_STRUCTURE.md訂正、コミット72e51e8）が完了しました。次はStep 16（デプロイ成果物生成、item 16-1: application.ymlへのU4関連設定追記）に進んでよいですか？（Step 16完了でU4 Code Generation全ステップ完了となります）"）
+**AI Response**: ユーザが続行を選択したため、Step 16 item 16-1（application.ymlへのCaffeineキャッシュ設定追記）に着手する。
+**Context**: Per-Unit Loop、U4 Code Generation Step 16着手（最終ステップ）。
+
+---
+
+## CONSTRUCTION - Per-Unit Loop - U4: Permission Management - Code Generation Step 16 item 16-1完了（Step 16完了、U4 Code Generation全ステップ完了）
+**Timestamp**: 2026-07-11T09:02:00Z
+**User Input**: (継続実行、質問なし。ただしテスト実行前にH2ファイルロック競合の確認のため一度AskUserQuestionを実施し、"停止してよい"の回答を得てbootRunプロセスを停止した)
+**AI Response**: `backend/src/main/resources/application.yml`に`spring.cache.type: caffeine`と`spring.cache.caffeine.spec: maximumSize=10000,expireAfterWrite=5m`を追記した（`nfr-design-patterns.md` 1.1が指定する「6キャッシュ共通のデフォルト値」の具体的な数値は設計文書に記載がなかったため、単一ノード・小規模内部利用という前提（`nfr-requirements.md` 1.1）に基づきCode Generation時点でAI決定した）。`mm.app.*`固有設定キーの追加は不要（既存の`spring.servlet.multipart.max-file-size`既定値をそのまま使用）であることを確認した。追記後`./gradlew test`を実行したところ、並走していた`bootRun`プロセス（PID 58224）がファイルベースH2 DB（`data/mastermeister.mv.db`）をロックしており`PermissionCacheConsistencyTest`/`SchemaReimportCacheConsistencyTest`が`@SpringBootTest`のコンテキストロードに失敗する事象が発生した。ユーザに確認の上（"停止してよい"）bootRunプロセスを停止し、再実行して40テストクラス・214/214件成功、0失敗・0エラーを確認した。プラン`u4-permission-management-code-generation-plan.md`のitem 16-1を`[x]`に更新し実装メモを記載。これによりStep 16、およびU4 Permission Management Code Generationの全16ステップが完了した。
+**Context**: Per-Unit Loop、U4 Code Generation Step 16（デプロイ成果物生成）完了。U4 Code Generation全ステップ完了。
+
+---
+
