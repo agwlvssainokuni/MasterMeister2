@@ -2462,3 +2462,20 @@ Code Generation - starting.」に更新。コミット後、Code Generation Part
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U5: Master Data Maintenance - Code Generation Part 1（計画作成）
+**Timestamp**: 2026-07-11T21:35:00Z
+**User Input**: (継続、"Code Generationを始めてください。"に対する実行)
+**AI Response**: `aidlc-docs/construction/plans/u5-master-data-maintenance-code-generation-plan.md`
+を新規生成（16ステップ、U1〜U4の計画構成を踏襲）。既存バックエンドコード
+（`ConnectionPoolRegistry`/`SchemaController`/`SecurityConfig`/`AuditLogController`）を確認し、
+4件のブラウンフィールド発見事項を記録した: (1) `getTransactionTemplate`未実装、(2)
+`GET .../schemas`・`.../schemas/{schema}/tables`はU3 `SchemaController`が既に管理者専用で
+実装済みのためパス衝突——U5エンドポイントを`/master-data/**`配下に分離、(3)
+`SecurityConfig`の`/api/rdbms-connections/**`ADMIN一括ルールがU5の一般ユーザ向けパスも
+包含してしまうため、より具体的な`authenticated()`マッチャを先に追記する必要、(4)
+`FilterCriteria`はGETクエリパラメータにフラット化できないため`listRecords`を
+`POST .../records:search`に変更。ユーザ承認待ち。
+**Context**: Per-Unit Loop、U5 Code Generation Part 1（Planning）Step 5-6完了。Step 7（承認待ち）。
+
+---
+
