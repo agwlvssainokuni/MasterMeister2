@@ -20,6 +20,8 @@ import { AuditLogPage } from '../features/auditLog/AuditLogPage'
 import { LoginPage } from '../features/auth/LoginPage'
 import { GroupDetailPage } from '../features/group/GroupDetailPage'
 import { GroupListPage } from '../features/group/GroupListPage'
+import { RecordListPage } from '../features/masterData/RecordListPage'
+import { SchemaTableListPage } from '../features/masterData/SchemaTableListPage'
 import { PermissionAssignmentPage } from '../features/permission/PermissionAssignmentPage'
 import { ConnectionFormPage } from '../features/rdbmsConnection/ConnectionFormPage'
 import { ConnectionListPage } from '../features/rdbmsConnection/ConnectionListPage'
@@ -102,6 +104,22 @@ function AuthenticatedRoutes() {
           element={
             <ProtectedRoute requiredRole="ADMIN">
               <PermissionAssignmentPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/master-data"
+          element={
+            <ProtectedRoute>
+              <SchemaTableListPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/master-data/:connectionId/:schema/:table"
+          element={
+            <ProtectedRoute>
+              <RecordListPage />
             </ProtectedRoute>
           }
         />

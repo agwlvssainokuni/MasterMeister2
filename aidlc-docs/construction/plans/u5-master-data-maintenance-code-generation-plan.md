@@ -550,11 +550,19 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       一覧を再取得、失敗時は`pendingChanges`を保持する。`MutationResultDialog`は`result`が
       `null`の間何も描画せず、成功時は件数、失敗時は`errorMessage`を表示する。`npx tsc -b`・
       `npm run lint`（oxlint、react-hooks/exhaustive-deps含め警告0件）成功を確認。
-- [ ] 11-6. `frontend/src/routes/AppRouter.tsx`（既存、ブラウンフィールド修正）に
+- [x] 11-6. `frontend/src/routes/AppRouter.tsx`（既存、ブラウンフィールド修正）に
       `/master-data`（`SchemaTableListPage`）・`/master-data/:connectionId/:schema/:table`
       （`RecordListPage`）を`ProtectedRoute`配下に追加する。`frontend/src/components/
       AppLayout.tsx`（既存、ブラウンフィールド修正）に「マスタデータ」ナビゲーションリンクを
       全ユーザ表示で追加する（`frontend-components.md` AppRouter.tsxへの追加）。
+      実装メモ: `AppRouter.tsx`の`AuthenticatedRoutes`内に2ルートを追加、いずれも
+      `<ProtectedRoute>`に`requiredRole`を指定せず（全認証ユーザ対象）`SchemaTableListPage`/
+      `RecordListPage`をラップした。`AppLayout.tsx`には`isAuthenticated`のみを条件とする
+      「マスタデータ」リンク（`data-testid="app-layout-nav-master-data"`、`/master-data`）を
+      管理者専用リンク群より前（ロール非依存の位置）に追加した。`npx tsc -b`・`npm run lint`
+      （oxlint）成功に加え、既存の`AppLayout.test.tsx`・`AppRouter.test.tsx`（計12件）が
+      本修正後も全件成功することを`npx vitest run`で確認した（ブラウンフィールド修正の
+      後方互換性検証）。
 
 ### Step 12: フロントエンドコンポーネント単体テスト
 - [ ] 12-1. `SchemaTableListPage.test.tsx`・`FilterPanel.test.tsx`・`RecordListPage.test.tsx`・

@@ -2987,3 +2987,21 @@ Step 11-5を`[x]`にマークした。
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U5: Master Data Maintenance - Code Generation Part 2 Step 11-6
+**Timestamp**: 2026-07-12T01:40:00Z
+**User Input**: "継続。"
+**AI Response**: `frontend/src/routes/AppRouter.tsx`（既存）に`/master-data`
+（`SchemaTableListPage`）・`/master-data/:connectionId/:schema/:table`（`RecordListPage`）の
+2ルートを`AuthenticatedRoutes`内へ追加した。いずれも`<ProtectedRoute>`に`requiredRole`を
+指定せず、全認証ユーザがアクセスできるようにした。`frontend/src/components/AppLayout.tsx`
+（既存）には`isAuthenticated`のみを条件とする「マスタデータ」ナビゲーションリンク
+（`data-testid="app-layout-nav-master-data"`）を、管理者専用リンク群より前の位置に追加した。
+`npx tsc -b`・`npm run lint`（oxlint）成功に加え、ブラウンフィールド修正であるため既存の
+`AppLayout.test.tsx`・`AppRouter.test.tsx`（計12件）を`npx vitest run`で実行し全件成功する
+ことを確認した。計画のStep 11-6を`[x]`にマークし、これでStep 11（フロントエンド
+コンポーネント）の全サブ項目（11-1〜11-6）が完了した。
+**Context**: Per-Unit Loop、U5 Code Generation Part 2。次はStep 12
+（フロントエンドコンポーネント単体テスト）。
+
+---
+
