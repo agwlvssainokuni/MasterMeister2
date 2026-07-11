@@ -2289,3 +2289,11 @@ Step 6として以下4成果物を生成した。
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U5: Master Data Maintenance - Functional Design 完了メッセージ提示後、3.3トランザクション制御方式の指摘・修正
+**Timestamp**: 2026-07-11T19:55:00Z
+**User Input**: "business-rules.mdの「3.3 単一トランザクション実行・ロールバック」について。トランザクション制御の方法は確立できていますか？Springの外で作成したDataSourceを使うので、Springのトランザクション制御の仕組みを使うには、ひと工夫が必要だと思われます。" → "OKです。"
+**AI Response**: 完了メッセージ提示直後にユーザから指摘を受け、3.3の記述が「単一トランザクション内で実行する」とだけ書かれており実現方式が未確立であったことを認めた。`ConnectionPoolRegistry.getDataSource(connectionId)`（実装コードを確認）は接続ごとに動的生成される`HikariDataSource`であり、Spring起動時に単一Beanとして登録される内部DB（H2/JPA）用構成とは異なるため、宣言的`@Transactional`（AOPプロキシ生成時に静的解決される単一`PlatformTransactionManager`が前提）をそのまま適用できない点を説明。解決策として、`applyChanges`実行時にリクエスト単位で`DataSourceTransactionManager`を対象`DataSource`に対して都度生成し（Spring管理Beanにはしない）、`TransactionTemplate`によるプログラム的トランザクション制御を行う方式を提案した。この方式では、同一`DataSource`インスタンスに紐づく`NamedParameterJdbcTemplate`（`ConnectionPoolRegistry.getJdbcTemplate`）呼び出しがSpringの`DataSourceUtils`によるスレッドバインドされたコネクション・トランザクションへ自動的に参加するため、生の`Connection.setAutoCommit(false)`/`commit()`/`rollback()`を自前で書く必要がなく、`SQLException`は`DataAccessException`階層に変換される（3.3の「例外由来の概要メッセージ」要件とも整合）。ユーザ承認を受け、`business-rules.md`の3.3を「トランザクション制御方式」の説明段落を追加する形で更新した。
+**Context**: Per-Unit Loop、U5 Functional Design。完了メッセージ提示後だが未承認の段階でのユーザ指摘のため、承認前の設計修正として扱う。標準完了メッセージを再提示しユーザ承認待ちに戻る。
+
+---
+

@@ -104,13 +104,30 @@ LARGE_RECORD_READ, userId, connectionId, Result.SUCCESS, targetDescription=schem
 主キーなしテーブルは「作成のみ可能・更新/削除は不可」という一貫した扱いになる。
 
 ### 3.3 単一トランザクション実行・ロールバック（GEN-4）
-3.1の検証を全て通過した場合、対象RDBMSへの接続（`ConnectionPoolRegistry`）上で単一
-トランザクションを開始し、`creates`→`updates`→`deletes`の順（または要件上問題のない順序、
-Code Generationで確定）で`INSERT`/`UPDATE`/`DELETE`文を発行する。いずれか1件でも
-`SQLException`が発生した場合はトランザクション全体をロールバックし、`MutationResult`の
-`errorMessage`には`SQLException`由来の概要メッセージのみを設定する（行・カラム単位の詳細
-特定は行わない、Application Design Question 8 = B）。`INSERT`/`UPDATE`/`DELETE`の実際の
-SQL文組み立ても`DialectStrategy.quoteIdentifier`で識別子をクオートする（2.4と同様）。
+
+**トランザクション制御方式**: `ConnectionPoolRegistry.getDataSource(connectionId)`が返す
+`DataSource`は対象RDBMS接続ごとに動的生成されるもので、Spring起動時に単一Beanとして
+登録される内部DB（H2/JPA）用の構成とは異なり、宣言的`@Transactional`（AOPプロキシ生成時に
+静的解決される単一の`PlatformTransactionManager`が前提）を素朴に適用できない。そのため、
+`applyChanges`実行時にリクエスト単位で`DataSourceTransactionManager`を都度生成し（対象
+`DataSource`インスタンスは`ConnectionPoolRegistry`内で`connectionId`ごとにキャッシュ済み
+のものを使う）、`TransactionTemplate`によるプログラム的トランザクション制御を行う。
+`DataSourceTransactionManager`はSpring管理Beanにはせず、サービスメソッド内のローカル
+オブジェクトとして生成・破棄する（対象が動的なため）。この`TransactionTemplate`内で
+`ConnectionPoolRegistry.getJdbcTemplate(connectionId)`（同一`DataSource`インスタンスに
+紐づく`NamedParameterJdbcTemplate`）を呼び出すことで、Spring
+の`DataSourceUtils`によるスレッドバインドされたコネクション・トランザクションへ自動的に
+参加する（宣言的`@Transactional`配下のJdbcTemplate呼び出しと同じ仕組み）。生の
+`Connection.setAutoCommit(false)`/`commit()`/`rollback()`は用いない。
+
+3.1の検証を全て通過した場合、上記方式で単一トランザクションを開始し、`creates`→
+`updates`→`deletes`の順（または要件上問題のない順序、Code Generationで確定）で
+`INSERT`/`UPDATE`/`DELETE`文を発行する。いずれか1件でも`DataAccessException`
+（`NamedParameterJdbcTemplate`が`SQLException`をラップする標準の例外変換）が発生した
+場合はトランザクション全体をロールバックし、`MutationResult`の`errorMessage`には
+その例外由来の概要メッセージのみを設定する（行・カラム単位の詳細特定は行わない、
+Application Design Question 8 = B）。`INSERT`/`UPDATE`/`DELETE`の実際のSQL文組み立ても
+`DialectStrategy.quoteIdentifier`で識別子をクオートする（2.4と同様）。
 
 ### 3.4 監査記録
 `applyChanges`の成功・失敗いずれも`AuditLogService.record(DATA_ACCESS,
