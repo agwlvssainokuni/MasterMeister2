@@ -1,5 +1,7 @@
 -- 動作確認用サンプルテーブル・データ（MySQL）
 
+SET NAMES utf8mb4;
+
 CREATE TABLE departments (
     id              INT AUTO_INCREMENT PRIMARY KEY,
     department_code VARCHAR(10)  NOT NULL UNIQUE,
