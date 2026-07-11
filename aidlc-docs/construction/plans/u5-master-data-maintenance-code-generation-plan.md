@@ -509,11 +509,18 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       `listRecords`は`RecordSearchRequest`ボディ（`criteria`/`page`/`pageSize`）を組み立てて
       POST、`page`は共通`PageRequest`型を受け取り分解する。`npx tsc -b`・`npm run lint`
       （oxlint）成功を確認。
-- [ ] 11-3. `frontend/src/features/masterData/SchemaTableListPage.tsx`:
+- [x] 11-3. `frontend/src/features/masterData/SchemaTableListPage.tsx`:
       `listAccessibleConnections`によるアクセス可能接続選択（「ブラウンフィールド発見事項」5、
       `rdbmsConnection`featureには依存せず本ユニット自身のAPIのみで完結させる）→スキーマ選択→
       `DataTable`（U1既存）で`TableSummary`一覧表示、行選択で`RecordListPage`へ遷移する
       （`frontend-components.md`、フロー1）。
+      実装メモ: 接続選択→スキーマ選択→テーブル一覧の3段階UIを`schema`featureの
+      `SchemaBrowserPage`/`SchemaSelector`と同じ`<select>`＋`useEffect`パターンで実装。
+      行選択は`schema`featureの`TableList`と同じ「操作」列ボタン（`render`プロパティ）方式で
+      `useNavigate`により`/master-data/:connectionId/:schema/:table`へ遷移する。
+      `rdbmsConnection`/`schema`/`permission`featureへの直接参照なし。`npx tsc -b`・
+      `npm run lint`（oxlint）成功を確認（`AppRouter.tsx`未配線のため画面遷移確認は
+      Step 11-6完了後）。
 - [ ] 11-4. `frontend/src/features/masterData/FilterPanel.tsx`: UI/RAWモードトグル、UIモードは
       `columns`のうち`effectivePermission >= READ`のカラムのみ対象に`UiCondition`/`UiSort`
       組み立てUIを提供、RAWモードは`rawWhere`/`rawOrderBy`テキスト入力欄を提供する
