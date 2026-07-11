@@ -2758,3 +2758,26 @@ pageSize`の3フィールドを持つrecordとして実装（`listRecords`の`cr
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U5: Master Data Maintenance - Code Generation Part 2 Step 6-1
+**Timestamp**: 2026-07-11T10:40:00Z
+**User Input**: "継続。"
+**AI Response**: `backend/src/test/java/cherry/mastermeister/masterdata/MasterDataControllerTest.java`を
+新規生成した。`@WebMvcTest(MasterDataController.class)` + `spring-security-test`（U3
+`SchemaControllerTest`/U4 `PermissionControllerTest`のパターンを踏襲）で、4エンドポイント
+（`listAccessibleSchemas`/`listAccessibleTables`/`listRecords`/`applyChanges`）それぞれに
+ついて認証済みユーザ成功系1件・未認証401 1件の計8テストを実装。本ユニットは管理者ロール
+制約を持たないため（`business-rules.md` 4節）403系テストは対象外とした（計画どおり）。
+成功系テストは`@WithMockUser`ではなく`SchemaControllerTest`のadmin認証パターンと同様、
+`UsernamePasswordAuthenticationToken(1L, null, ROLE_USER)`を明示的に`.with(authentication(...))`
+で適用した（コントローラが`Authentication#getPrincipal()`を`Long`にキャストするため、
+`@WithMockUser`の既定`UserDetails`プリンシパルでは`ClassCastException`になる）。
+`records:search`/`records:apply`はJSON文字列ボディで`RecordSearchRequest`/`MutationRequest`を
+渡し、`MasterDataQueryService`/`MasterDataMutationService`をMockitoモック化して`eq()`で
+呼び出し引数を検証。
+`./gradlew test --tests "cherry.mastermeister.masterdata.MasterDataControllerTest"`および
+`cherry.mastermeister.masterdata.*`で成功を確認（BUILD SUCCESSFUL）。これにより**Step 6
+（APIレイヤ単体テスト）は全項目完了**。
+**Context**: Per-Unit Loop、U5 Code Generation Part 2。Step 6-1完了、Step 6全体完了。
+
+---
+

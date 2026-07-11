@@ -411,10 +411,18 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       は全項目完了**。
 
 ### Step 6: APIレイヤ単体テスト
-- [ ] 6-1. `MasterDataControllerTest`（`@WebMvcTest` + `spring-security-test`）: 4エンドポイント
+- [x] 6-1. `MasterDataControllerTest`（`@WebMvcTest` + `spring-security-test`）: 4エンドポイント
       それぞれについて認証済みユーザ成功系・未認証401をexample-basedテストで検証する
       （U2/U3/U4のControllerTestパターンを踏襲、本ユニットは管理者ロール制約がないため
       403系テストは不要——`business-rules.md` 4節）。
+
+      実装メモ: `SchemaControllerTest`/`PermissionControllerTest`と同型の構成で8テスト
+      （4エンドポイント×成功系/401）を実装。成功系は`UsernamePasswordAuthenticationToken(1L,
+      null, ROLE_USER)`を`.with(authentication(...))`で明示適用（`@WithMockUser`の既定
+      プリンシパルは`Long`にキャストできないため）。`records:search`/`records:apply`は
+      JSON文字列ボディで検証。`./gradlew test --tests
+      "cherry.mastermeister.masterdata.MasterDataControllerTest"`および
+      `cherry.mastermeister.masterdata.*`で成功を確認（BUILD SUCCESSFUL）。
 
 ### Step 7: APIレイヤサマリ
 - [ ] 7-1. `aidlc-docs/construction/u5-master-data-maintenance/code/api-layer-summary.md`を
