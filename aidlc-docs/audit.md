@@ -2861,3 +2861,19 @@ importを追加。`./gradlew compileJava`成功、既存`MasterDataControllerTes
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U5: Master Data Maintenance - Code Generation Part 2 Step 6-2
+**Timestamp**: 2026-07-12T00:30:00Z
+**User Input**: "継続。"
+**AI Response**: `MasterDataControllerTest`に`listAccessibleConnectionsReturnsOkForAuthenticatedUser`
+（`GET /api/master-data/connections`成功系）と
+`listAccessibleConnectionsReturnsUnauthorizedWhenNotAuthenticated`（未認証401）の2件を追加した
+（既存8件と同じ`.with(authentication(userAuthentication()))`/`@WithAnonymousUser`パターン）。
+`cherry.mastermeister.common.dialect.RdbmsType`と
+`cherry.mastermeister.rdbmsconnection.ConnectionSummary`のimportを追加。
+`./gradlew test --tests MasterDataControllerTest`で計10件全成功を確認。計画のStep 6-2を
+`[x]`にマークした。
+**Context**: Per-Unit Loop、U5 Code Generation Part 2。次はStep 7-2
+（`api-layer-summary.md`への`GET /connections`追記）。
+
+---
+

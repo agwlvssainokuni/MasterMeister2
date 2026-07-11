@@ -460,8 +460,12 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       JSON文字列ボディで検証。`./gradlew test --tests
       "cherry.mastermeister.masterdata.MasterDataControllerTest"`および
       `cherry.mastermeister.masterdata.*`で成功を確認（BUILD SUCCESSFUL）。
-- [ ] 6-2. `MasterDataControllerTest`に`GET /connections`の成功系・未認証401テストを追加する
+- [x] 6-2. `MasterDataControllerTest`に`GET /connections`の成功系・未認証401テストを追加する
       （「ブラウンフィールド発見事項」5）。
+      実装メモ: `listAccessibleConnectionsReturnsOkForAuthenticatedUser`/
+      `listAccessibleConnectionsReturnsUnauthorizedWhenNotAuthenticated`の2件を追加
+      （既存8件と同じ`.with(authentication(...))`/`@WithAnonymousUser`パターン）。
+      計10件全成功を確認。
 
 ### Step 7: APIレイヤサマリ
 - [x] 7-1. `aidlc-docs/construction/u5-master-data-maintenance/code/api-layer-summary.md`を
