@@ -2811,3 +2811,23 @@ pageSize`の3フィールドを持つrecordとして実装（`listRecords`の`cr
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U5: Master Data Maintenance - Code Generation Part 2 Step 11着手時の計画修正（ブラウンフィールド発見事項5）
+**Timestamp**: 2026-07-11T11:10:00Z
+**User Input**: "継続。"（Step 11着手前に、AIが新規発見した設計ギャップについてAskUserQuestionで
+選択肢を提示し、ユーザは「新規エンドポイント追加（Recommended）」を選択）
+**AI Response**: Step 11（フロントエンド）着手のため`frontend-components.md`の
+`SchemaTableListPage`（接続選択を内包）を確認したところ、一般ユーザがアクセス可能な接続を
+列挙する手段が存在しないことが判明した（既存`GET /api/rdbms-connections`は`SecurityConfig`で
+`hasRole("ADMIN")`専用、`EffectivePermissionResolver`の6メソッドも接続一覧列挙は非対応）。
+ユーザに解決方針を確認し、「新規エンドポイント追加」（`MasterDataQueryService.
+listAccessibleConnections(userId)`を新設し`RdbmsConnectionRepository.findAll()`を
+`listAccessibleSchemas`が非空の接続のみへ絞り込む、戻り値は既存`ConnectionSummary`を再利用、
+`MasterDataController`に`GET /api/master-data/connections`を追加）を選択された。
+`u5-master-data-maintenance-code-generation-plan.md`の「ブラウンフィールド発見事項」に項目5を
+追記し、Step 2に2-7、Step 5に5-4、Step 6に6-2、Step 7に7-2の未完了チェックボックスを新規追加、
+Step 11-2/11-3の説明文を新エンドポイント前提に更新した。
+**Context**: Per-Unit Loop、U5 Code Generation Part 2。計画ファイル修正（コード生成はまだ
+行っていない、次の継続確認でStep 2-7から再開）。
+
+---
+

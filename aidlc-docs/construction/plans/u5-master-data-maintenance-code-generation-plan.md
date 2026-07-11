@@ -89,6 +89,26 @@ U1・U3・U4に依存（`unit-of-work-dependency.md`: `masterdata→common,audit
    という留保に沿う（`frontend-components.md`のAPI一覧表に記載の`GET`は本計画で`POST`へ
    変更する）。
 
+5. **一般ユーザがアクセス可能な接続を列挙する手段が存在しない**ことが、Step 11
+   （フロントエンド）着手時に判明した。`frontend-components.md`の`SchemaTableListPage`は
+   「接続選択を内包」する設計だが、既存`GET /api/rdbms-connections`は`SecurityConfig`で
+   `hasRole("ADMIN")`専用であり、`EffectivePermissionResolver`の6メソッドにも接続一覧を
+   列挙するものはない（`listAccessibleSchemas`/`listAccessibleTables`はいずれも
+   `connectionId`を引数に取る＝呼び出し前に接続IDが確定している前提）。
+   → ユーザ指示により、`MasterDataQueryService`に`listAccessibleConnections(userId)`を
+   新設し、`RdbmsConnectionRepository.findAll()`の全接続を`listAccessibleSchemas(userId,
+   connectionId)`が非空になるもの（＝当該接続上に`NONE`超の権限を持つテーブルが1件以上
+   存在するもの）のみへ絞り込んで返す（戻り値は`rdbmsconnection`パッケージ既存の
+   `ConnectionSummary`をそのまま再利用、新規DTOは定義しない）。`MasterDataController`に
+   `GET /api/master-data/connections`を追加する（`/api/master-data/**`は既に
+   `authenticated()`のため`SecurityConfig`の追加変更は不要）。ただしクラスレベル
+   `@RequestMapping("/api/master-data/{connectionId}")`のままでは`/connections`という
+   2セグメントの絶対パスを同一コントローラ内に素直に追加できないため、クラスレベルを
+   `@RequestMapping("/api/master-data")`へ変更し、`{connectionId}`を各メソッドの
+   `@GetMapping`/`@PostMapping`側へ移す（解決後のURLは既存4エンドポイントと完全に同一の
+   ため、Step 6-1で作成済みの`MasterDataControllerTest`は無修正で通る想定）。Step 2に
+   2-7、Step 5に5-4、Step 6に6-2、Step 7に7-2として追加する。
+
 ### 提供インタフェース・契約（他ユニットが依存する公開API）
 - なし。`unit-of-work-dependency.md`上、U6（Query Builder）・U7（Saved Query / Execution /
   History）はいずれも`masterdata`パッケージへの依存を持たない（`SchemaQueryService`/
@@ -258,6 +278,13 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       2種類の失敗表現を使い分けた。Code Generationレベルの設計判断、Step 5のAPI層で
       HTTPステータスへのマッピングを確定する）。`./gradlew compileJava`成功を確認。
       単体テストはStep 3-3/3-4で追加する。
+- [ ] 2-7. `backend/src/main/java/cherry/mastermeister/masterdata/MasterDataQueryService.java`
+      （既存、ブラウンフィールド修正）に`List<ConnectionSummary>
+      listAccessibleConnections(Long userId)`を追加する（「ブラウンフィールド発見事項」5）。
+      既に注入済みの`rdbmsConnectionRepository`から全接続を取得し、各接続について
+      `effectivePermissionResolver.listAccessibleSchemas(userId, connectionId)`が非空の
+      ものだけを`ConnectionSummary`（`rdbmsconnection`パッケージ既存、新規DTOなし）へ
+      マッピングして返す。
 
 ### Step 3: ビジネスロジック単体テスト（PBT-01〜PBT-08, PBT-10）
 `business-logic-model.md`のP1〜P10に対応する`@Property`テストをjqwikで生成する。対象RDBMSへの
@@ -409,6 +436,11 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       `.anyRequest().authenticated()`の間に1行追記。既存ADMINルールとの前方一致競合が
       ないため挿入順序上の制約はなし。`./gradlew compileJava`成功を確認。これにより**Step 5
       は全項目完了**。
+- [ ] 5-4. `backend/src/main/java/cherry/mastermeister/masterdata/MasterDataController.java`
+      （既存、ブラウンフィールド修正）に`GET "/connections"`（`listAccessibleConnections`）
+      を追加する（「ブラウンフィールド発見事項」5）。クラスレベルの`@RequestMapping`を
+      `"/api/master-data/{connectionId}"`から`"/api/master-data"`へ変更し、`{connectionId}`
+      を既存4メソッドの`@GetMapping`/`@PostMapping`側へ移す（解決後のURLは不変）。
 
 ### Step 6: APIレイヤ単体テスト
 - [x] 6-1. `MasterDataControllerTest`（`@WebMvcTest` + `spring-security-test`）: 4エンドポイント
@@ -423,6 +455,8 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       JSON文字列ボディで検証。`./gradlew test --tests
       "cherry.mastermeister.masterdata.MasterDataControllerTest"`および
       `cherry.mastermeister.masterdata.*`で成功を確認（BUILD SUCCESSFUL）。
+- [ ] 6-2. `MasterDataControllerTest`に`GET /connections`の成功系・未認証401テストを追加する
+      （「ブラウンフィールド発見事項」5）。
 
 ### Step 7: APIレイヤサマリ
 - [x] 7-1. `aidlc-docs/construction/u5-master-data-maintenance/code/api-layer-summary.md`を
@@ -433,6 +467,8 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       レスポンスJSON例、`applyChanges`の例外系（403/400）とDB実行時失敗
       （`MutationResult(success=false,...)`、200 OK）の使い分け、エラーレスポンス対応表
       （新規例外クラス追加なし）、`MasterDataControllerTest`（8件）のテストカバレッジを記載。
+- [ ] 7-2. `api-layer-summary.md`に`GET /api/master-data/connections`
+      （「ブラウンフィールド発見事項」5）を追記する。
 
 ### Step 8〜10: リポジトリレイヤ
 - [x] 8/9/10-1. **該当なし（N/A）**: `domain-entities.md`確定（Q1 = A）のとおり本ユニットは
@@ -448,10 +484,13 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       `domain-entities.md`のDTOに対応するTypeScript型（`TableSummary`/`ColumnMetadata`/
       `RecordListResult`/`FilterCriteria`/`UiCondition`/`UiSort`/`RecordCreate`/
       `RecordUpdate`/`RecordDelete`/`MutationRequest`/`MutationResult`等）を定義する。
-- [ ] 11-2. `frontend/src/features/masterData/api.ts`: `listAccessibleSchemas`/
-      `listAccessibleTables`/`listRecords`/`applyChanges`（「ブラウンフィールド発見事項」2・4
-      反映後の実パス、Step 5参照）を実装する。U1の`apiClient`を再利用する。
-- [ ] 11-3. `frontend/src/features/masterData/SchemaTableListPage.tsx`: 接続選択→スキーマ選択→
+- [ ] 11-2. `frontend/src/features/masterData/api.ts`: `listAccessibleConnections`/
+      `listAccessibleSchemas`/`listAccessibleTables`/`listRecords`/`applyChanges`
+      （「ブラウンフィールド発見事項」2・4・5反映後の実パス、Step 5参照）を実装する。U1の
+      `apiClient`を再利用する。
+- [ ] 11-3. `frontend/src/features/masterData/SchemaTableListPage.tsx`:
+      `listAccessibleConnections`によるアクセス可能接続選択（「ブラウンフィールド発見事項」5、
+      `rdbmsConnection`featureには依存せず本ユニット自身のAPIのみで完結させる）→スキーマ選択→
       `DataTable`（U1既存）で`TableSummary`一覧表示、行選択で`RecordListPage`へ遷移する
       （`frontend-components.md`、フロー1）。
 - [ ] 11-4. `frontend/src/features/masterData/FilterPanel.tsx`: UI/RAWモードトグル、UIモードは
