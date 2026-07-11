@@ -2698,3 +2698,20 @@ P10は`applyChangesReflectsCreatesUpdatesDeletesExactlyOnSuccess`として実装
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U5: Master Data Maintenance - Code Generation Part 2 Step 4-1
+**Timestamp**: 2026-07-11T10:00:00Z
+**User Input**: "継続。"
+**AI Response**: `aidlc-docs/construction/u5-master-data-maintenance/code/business-logic-summary.md`を
+新規生成した。U4の`business-logic-summary.md`と同一構成（生成クラス一覧・生成テストクラス一覧・
+P1〜P10対応表・補足・Step 2完了時点で新規判明した設計要素・既知の課題）を踏襲。生成クラス
+一覧はStep 2-1〜2-6で生成した`ConnectionPoolRegistry`（ブラウンフィールド修正）・読み取り系
+DTO8種・更新系DTO5種・`RecordRowMapper`・`MasterDataQueryService`・`MasterDataMutationService`を
+記載。生成テストクラス一覧は`MasterDataQueryServiceTest`・`MasterDataMutationServiceTest`の
+2クラス。P1〜P10対応表はStep 3-1〜3-5の実装メモから各Invariantとテストメソッド名を対応付けて
+記載し、全10件が実装済みであることを明記。U4と異なり本ユニットは内部DBエンティティを持たない
+ため（`domain-entities.md`確定Q1=A）Step 8該当リポジトリスタブは存在せず「既知の課題」は
+なしと補足した。
+**Context**: Per-Unit Loop、U5 Code Generation Part 2。Step 4-1完了、Step 4全体完了。
+
+---
+

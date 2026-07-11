@@ -364,9 +364,18 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       全てにプロパティテストが対応済み。
 
 ### Step 4: ビジネスロジックサマリ
-- [ ] 4-1. `aidlc-docs/construction/u5-master-data-maintenance/code/business-logic-summary.md`
+- [x] 4-1. `aidlc-docs/construction/u5-master-data-maintenance/code/business-logic-summary.md`
       を生成し、Step 2・Step 3で生成したクラス一覧とP1〜P10の対応関係を表形式で記載する
       （U1〜U4の`business-logic-summary.md`と同一構成）。
+      実装メモ: U4の`business-logic-summary.md`の構成（生成クラス一覧・生成テストクラス
+      一覧・P1〜P10対応表・補足・Step 2完了時点で新規判明した設計要素・既知の課題）を
+      踏襲して新規生成。生成クラス一覧はStep 2-1〜2-6の9クラス（`ConnectionPoolRegistry`
+      ブラウンフィールド修正1件、読み取り系DTO8種・更新系DTO5種をまとめた行、
+      `RecordRowMapper`、`MasterDataQueryService`、`MasterDataMutationService`）、
+      生成テストクラス一覧は`MasterDataQueryServiceTest`・`MasterDataMutationServiceTest`の
+      2クラス、P1〜P10対応表はStep 3-1〜3-5の実装メモから各Invariantとテストメソッド名を
+      対応付けて記載した。U4と異なり本ユニットは内部DBエンティティを持たないため
+      「既知の課題」はなし（Step 8該当なし）である点を補足に明記。
 
 ### Step 5: APIレイヤ生成
 - [ ] 5-1. `backend/src/main/java/cherry/mastermeister/masterdata/
