@@ -2543,3 +2543,13 @@ Step 2-1として`ConnectionPoolRegistry.java`に`getTransactionTemplate(Long co
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U5: Master Data Maintenance - Code Generation Part 2 Step 2-4
+**Timestamp**: 2026-07-11T22:20:00Z
+**User Input**: "継続。"
+**AI Response**: `RecordRowMapper.java`（`RowMapper<List<Object>>`）を生成。
+`nfr-design-patterns.md` 2.1確定の型マッピング表（DATE→LocalDate等）を`switch`式で実装。
+`compileJava`成功を確認。
+**Context**: Per-Unit Loop、U5 Code Generation Part 2。Step 2-4完了。
+
+---
+

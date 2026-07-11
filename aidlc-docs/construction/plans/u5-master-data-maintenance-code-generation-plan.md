@@ -174,13 +174,18 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
 
       実装メモ: `domain-entities.md`記載のフィールド構成をそのまま5ファイルのrecordとして
       実装。`./gradlew compileJava`成功を確認。
-- [ ] 2-4. `backend/src/main/java/cherry/mastermeister/masterdata/RecordRowMapper.java`
+- [x] 2-4. `backend/src/main/java/cherry/mastermeister/masterdata/RecordRowMapper.java`
       （`RowMapper<List<Object>>`、`nfr-design-patterns.md` 2.1・`logical-components.md`
       1節）を生成する。`ResultSetMetaData.getColumnType(int)`（`java.sql.Types`）に基づき
       `DATE`→`LocalDate`、`TIME`/`TIME_WITH_TIMEZONE`→`LocalTime`、`TIMESTAMP`→
       `LocalDateTime`、`TIMESTAMP_WITH_TIMEZONE`→`OffsetDateTime`、`NUMERIC`/`DECIMAL`→
       `BigDecimal`は`ResultSet.getObject(int, Class)`で明示要求し、それ以外は
       `getObject(int)`をそのまま用いる（NFR Design Question 2確定方式）。
+
+      実装メモ: `mapRow`で`ResultSetMetaData.getColumnCount()`分ループし、列ごとに
+      `switch`式（`java.sql.Types`定数）で`nfr-design-patterns.md` 2.1のマッピング表を
+      そのまま実装。`./gradlew compileJava`成功を確認（対象RDBMSへの実アクセスを伴う動作検証は
+      Step 3のP1/P2で行う）。
 - [ ] 2-5. `backend/src/main/java/cherry/mastermeister/masterdata/
       MasterDataQueryService.java`（`@Service`）: `List<String>
       listAccessibleSchemas(Long userId, Long connectionId)`（`EffectivePermissionResolver`
