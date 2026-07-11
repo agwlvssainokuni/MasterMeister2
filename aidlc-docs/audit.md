@@ -2399,3 +2399,24 @@ U3先例と同じ判断基準）はいずれも新規質問なしと判断し理
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U5: Master Data Maintenance - NFR Design Step 5-7（回答反映・成果物生成・完了メッセージ）
+**Timestamp**: 2026-07-11T21:00:00Z
+**User Input**: "Q1=A, Q2=A, Q3=A"
+**AI Response**: 3問すべて回答Aを`u5-master-data-maintenance-nfr-design-plan.md`の各
+`[Answer]:`タグに記入。全問が推奨案どおりであり曖昧・矛盾なし（Step 5完了、明確化質問は不要）。
+Step 6として`nfr-design-patterns.md`を生成（U1〜U4の先例に倣い`logical-components.md`は
+独立作成せず統合）：
+- 1. Logical Components: `MasterDataQueryService`/`MasterDataMutationService`・関連DTOを
+  `masterdata`パッケージへ集約、依存方向`masterdata → schema/permission/audit`の一方向のみ。
+- 2. Performance: 対象RDBMS4種の型マッピングをJDBC 4.2標準`getObject(int, Class)`による
+  専用RowMapperで統一（`java.sql.Types`→java.time/BigDecimalの明示マッピング表）。同節に
+  クエリタイムアウトの適用単位（ステートメント単位、`getJdbcTemplate`呼び出しごとに1回
+  `setQueryTimeout`）を確定。
+- 3. Scalability/Performance（インデックス）・4. Security・5. Resilience: いずれも該当なし
+  （理由を明記）。
+- 6. PBT: NFR Designは対象外ステージ。
+標準完了メッセージ（🎨 NFR Design Complete - U5）を提示し、ユーザの承認待ち。
+**Context**: Per-Unit Loop、U5 NFR Design Step 5-7完了。Step 8（承認待ち）。
+
+---
+
