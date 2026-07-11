@@ -2942,3 +2942,20 @@ Step 11-3を`[x]`にマークした。
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U5: Master Data Maintenance - Code Generation Part 2 Step 11-4
+**Timestamp**: 2026-07-12T01:20:00Z
+**User Input**: "継続。"
+**AI Response**: `frontend/src/features/masterData/FilterPanel.tsx`を新規生成した。Props
+（`columns`/`criteria`/`onChange`）＋内部`mode`状態（`'UI' | 'RAW'`）で構成し、
+`PERMISSION_ORDER`（NONE=0/READ=1/UPDATE=2）による比較で`effectivePermission >= READ`の
+カラムのみをUIモードの対象に絞り込んだ。UIモードでは`uiConditions`（カラム選択・`Operator`
+プルダウン・値入力、`IS_NULL`/`IS_NOT_NULL`選択時は値入力欄を非表示）と`uiSorts`（カラム
+選択・昇順/降順）をそれぞれ追加・編集・削除できるフォームUIを提供し、RAWモードでは
+`rawWhere`/`rawOrderBy`のテキスト入力欄を提供した。モード切り替えは`criteria.mode`の更新を
+都度`onChange`へ通知することで排他的に制御している。`npx tsc -b`・`npm run lint`（oxlint）
+成功を確認。計画のStep 11-4を`[x]`にマークした。
+**Context**: Per-Unit Loop、U5 Code Generation Part 2。次はStep 11-5
+（`RecordListPage.tsx`・`MutationResultDialog.tsx`）。
+
+---
+

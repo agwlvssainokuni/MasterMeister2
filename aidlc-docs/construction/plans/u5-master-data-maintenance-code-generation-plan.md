@@ -521,10 +521,17 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       `rdbmsConnection`/`schema`/`permission`featureへの直接参照なし。`npx tsc -b`・
       `npm run lint`（oxlint）成功を確認（`AppRouter.tsx`未配線のため画面遷移確認は
       Step 11-6完了後）。
-- [ ] 11-4. `frontend/src/features/masterData/FilterPanel.tsx`: UI/RAWモードトグル、UIモードは
+- [x] 11-4. `frontend/src/features/masterData/FilterPanel.tsx`: UI/RAWモードトグル、UIモードは
       `columns`のうち`effectivePermission >= READ`のカラムのみ対象に`UiCondition`/`UiSort`
       組み立てUIを提供、RAWモードは`rawWhere`/`rawOrderBy`テキスト入力欄を提供する
       （`frontend-components.md`、フロー2手順1）。
+      実装メモ: Props（`columns`/`criteria`/`onChange`）＋内部`mode`状態で構成。
+      `PERMISSION_ORDER`（NONE=0/READ=1/UPDATE=2）で`effectivePermission >= READ`のカラムに
+      絞り込み、UIモードでは`uiConditions`（カラム・`Operator`プルダウン・値入力、`IS_NULL`/
+      `IS_NOT_NULL`時は値入力欄を非表示）と`uiSorts`（カラム・昇順/降順）を追加・編集・削除
+      できるフォームを提供。RAWモードでは`rawWhere`/`rawOrderBy`のテキスト入力欄を提供し、
+      モード切り替えは排他的（`criteria.mode`を都度更新して`onChange`に通知）。`npx tsc -b`・
+      `npm run lint`（oxlint）成功を確認。
 - [ ] 11-5. `frontend/src/features/masterData/RecordListPage.tsx`・
       `MutationResultDialog.tsx`: `RecordListResult`を`DataTable`拡張版（インライン編集セル・
       行選択チェックボックス・新規行追加ボタン）で表示し、`pendingChanges`に差分を蓄積、
