@@ -378,9 +378,12 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       「既知の課題」はなし（Step 8該当なし）である点を補足に明記。
 
 ### Step 5: APIレイヤ生成
-- [ ] 5-1. `backend/src/main/java/cherry/mastermeister/masterdata/
+- [x] 5-1. `backend/src/main/java/cherry/mastermeister/masterdata/
       RecordSearchRequest.java`（record: `FilterCriteria criteria, int page, int
       pageSize`、「ブラウンフィールド発見事項」4）を生成する。
+
+      実装メモ: `domain-entities.md`/「ブラウンフィールド発見事項」4のフィールド構成
+      （`criteria, page, pageSize`）のとおりrecordとして実装。`./gradlew compileJava`成功を確認。
 - [ ] 5-2. `backend/src/main/java/cherry/mastermeister/masterdata/MasterDataController.java`
       （`@RestController @RequestMapping("/api/master-data/{connectionId}")`）: `GET
       "/schemas"`（`listAccessibleSchemas`）、`GET "/schemas/{schema}/tables"`
