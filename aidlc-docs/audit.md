@@ -2313,3 +2313,11 @@ Step 6として以下4成果物を生成した。
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U5: Master Data Maintenance - Functional Design 承認
+**Timestamp**: 2026-07-11T20:20:00Z
+**User Input**: "Continue to Next Stage。記録したらコミット。"
+**AI Response**: U5 Functional Designの完了承認を受けた。`aidlc-state.md`のU5行のFunctional Designを承認済みに更新し、Current Stageを次段階（NFR Requirements）着手待ちに更新する。
+**Context**: Per-Unit Loop、U5 Functional Design承認完了。次はNFR Requirements。
+
+---
+
