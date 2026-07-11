@@ -501,10 +501,14 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       （他feature非依存の方針、`frontend-components.md`）。`PageResult`のみは`features/`配下
       ではない共通`src/types/api.ts`（`auditLog`と同じ再利用パターン）からimportした。
       `npx tsc -b`成功を確認。
-- [ ] 11-2. `frontend/src/features/masterData/api.ts`: `listAccessibleConnections`/
+- [x] 11-2. `frontend/src/features/masterData/api.ts`: `listAccessibleConnections`/
       `listAccessibleSchemas`/`listAccessibleTables`/`listRecords`/`applyChanges`
       （「ブラウンフィールド発見事項」2・4・5反映後の実パス、Step 5参照）を実装する。U1の
       `apiClient`を再利用する。
+      実装メモ: Step 5-4確定の`/api/master-data/**`実パスに対応する5関数を実装。
+      `listRecords`は`RecordSearchRequest`ボディ（`criteria`/`page`/`pageSize`）を組み立てて
+      POST、`page`は共通`PageRequest`型を受け取り分解する。`npx tsc -b`・`npm run lint`
+      （oxlint）成功を確認。
 - [ ] 11-3. `frontend/src/features/masterData/SchemaTableListPage.tsx`:
       `listAccessibleConnections`によるアクセス可能接続選択（「ブラウンフィールド発見事項」5、
       `rdbmsConnection`featureには依存せず本ユニット自身のAPIのみで完結させる）→スキーマ選択→
