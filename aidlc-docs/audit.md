@@ -2616,3 +2616,22 @@ Invariant）・P2（`columns`と`records`各行の要素数・対応順序の構
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U5: Master Data Maintenance - Code Generation Part 2 Step 3-2
+**Timestamp**: 2026-07-11T09:15:00Z
+**User Input**: "継続。"
+**AI Response**: `MasterDataQueryServiceTest.java`にP3・P4検証用の`@Property`テストを2件追加した。
+P3（UIモード条件のREAD未満カラム参照時の例外Invariant）は
+`listRecordsRejectsUiReferenceToNonePermissionColumn`として実装し、`@ForAll`で選んだ1列を
+強制的に`Permission.NONE`に上書きした上で`UiCondition`または`UiSort`（`referenceViaSort`で
+ランダム選択）のいずれかから参照させ、他の列の権限パターンや参照経路によらず常に
+`PermissionDeniedException`が送出されることを検証。P4（RAWモードのセミコロン簡易防御
+Invariant）は`listRecordsRejectsRawCriteriaContainingSemicolon`として実装し、
+`semicolonInWhere`（`@ForAll boolean`）で`rawWhere`/`rawOrderBy`のどちらにセミコロンを
+含めるかを切り替え、生成カラムの権限パターンによらず常に`PermissionDeniedException`が
+送出されることを検証。いずれも例外検証が目的のためテーブル作成のみでレコード投入は不要。
+`./gradlew test --tests "cherry.mastermeister.masterdata.MasterDataQueryServiceTest"`で
+成功を確認（BUILD SUCCESSFUL）。
+**Context**: Per-Unit Loop、U5 Code Generation Part 2。Step 3-2完了。
+
+---
+

@@ -290,8 +290,21 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       および`ID`列は`Number`型、生成列はカラム名文字列と一致することを検証。
       `./gradlew test --tests "cherry.mastermeister.masterdata.MasterDataQueryServiceTest"`で
       成功を確認（BUILD SUCCESSFUL）。
-- [ ] 3-2. **P3**（UIモード条件のREAD未満カラム参照時の例外Invariant）・**P4**（RAWモードの
+- [x] 3-2. **P3**（UIモード条件のREAD未満カラム参照時の例外Invariant）・**P4**（RAWモードの
       セミコロン簡易防御Invariant）: `MasterDataQueryServiceTest`に追加生成する。
+      実装メモ: P3は`listRecordsRejectsUiReferenceToNonePermissionColumn`として実装。
+      `COL0`〜`COL3`のうち`@ForAll`で選んだ1列を強制的に`Permission.NONE`に上書きし、
+      その列を`UiCondition`（`referenceViaSort=false`）または`UiSort`
+      （`referenceViaSort=true`、`@ForAll boolean`でランダム選択）のいずれかから参照させ、
+      他の列の権限パターンや参照経路によらず常に`PermissionDeniedException`が送出される
+      ことを`assertThatThrownBy`で検証。P4は`listRecordsRejectsRawCriteriaContainingSemicolon`
+      として実装。`semicolonInWhere`（`@ForAll boolean`）で`rawWhere`と`rawOrderBy`の
+      どちらにセミコロンを含めるかを切り替え、生成カラムの権限パターン（NONE〜UPDATEまで
+      ランダム）によらず常に`PermissionDeniedException`が送出されることを検証。
+      いずれもテーブル作成のみでレコード投入は不要（例外検証のためSELECT自体が発行され
+      ないことをテストの前提としている）。
+      `./gradlew test --tests "cherry.mastermeister.masterdata.MasterDataQueryServiceTest"`で
+      成功を確認（BUILD SUCCESSFUL）。
 - [ ] 3-3. **P5**（`large-record-threshold`境界値での監査記録Invariant）:
       `MasterDataQueryServiceTest`に追加生成する。
 - [ ] 3-4. **P6**（`applyChanges`権限検証all-or-nothing Invariant）・**P7**（主キーなし

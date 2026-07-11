@@ -17,6 +17,7 @@
 package cherry.mastermeister.masterdata;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -54,6 +55,8 @@ import cherry.mastermeister.common.PageRequest;
 import cherry.mastermeister.common.dialect.DialectStrategyFactory;
 import cherry.mastermeister.common.dialect.H2DialectStrategy;
 import cherry.mastermeister.common.dialect.RdbmsType;
+import cherry.mastermeister.common.dialect.SortDirection;
+import cherry.mastermeister.common.exception.PermissionDeniedException;
 import cherry.mastermeister.permission.EffectivePermissionResolver;
 import cherry.mastermeister.permission.Permission;
 import cherry.mastermeister.rdbmsconnection.ConnectionPoolRegistry;
@@ -162,6 +165,76 @@ class MasterDataQueryServiceTest {
         }
     }
 
+    // P3: UIモードでuiConditions/uiSortsが参照するいずれかのcolumnNameがREAD未満（NONE）の場合、
+    //     SELECT文は発行されず常に例外となる（他のカラムの権限や参照経路（条件/ソート）によらない）。
+    @Property(tries = 20)
+    void listRecordsRejectsUiReferenceToNonePermissionColumn(
+            @ForAll("columnPermissionPatterns") List<Permission> generatedColumnPermissions,
+            @ForAll("targetColumnIndices") int targetIndex,
+            @ForAll boolean referenceViaSort
+    ) throws Exception {
+        String dbName = "MASTERDATAQUERYP3" + DB_COUNTER.incrementAndGet();
+        try (Connection setup = openConnection(dbName)) {
+            createSchema(setup, TEST_SCHEMA);
+            try (Statement st = setup.createStatement()) {
+                st.execute("CREATE TABLE " + TEST_SCHEMA + ".T1 "
+                        + "(ID INT PRIMARY KEY, COL0 VARCHAR(50), COL1 VARCHAR(50), "
+                        + "COL2 VARCHAR(50), COL3 VARCHAR(50))");
+            }
+        }
+
+        Map<String, Permission> columnPermissions = new LinkedHashMap<>();
+        columnPermissions.put("ID", Permission.READ);
+        for (int i = 0; i < GENERATED_COLUMNS.size(); i++) {
+            columnPermissions.put(GENERATED_COLUMNS.get(i), generatedColumnPermissions.get(i));
+        }
+        String targetColumn = GENERATED_COLUMNS.get(targetIndex);
+        columnPermissions.put(targetColumn, Permission.NONE);
+
+        MasterDataQueryService service = newService(dbName, columnPermissions);
+
+        FilterCriteria criteria = referenceViaSort
+                ? new FilterCriteria(FilterMode.UI, List.of(),
+                        List.of(new UiSort(targetColumn, SortDirection.ASC)), null, null)
+                : new FilterCriteria(FilterMode.UI,
+                        List.of(new UiCondition(targetColumn, Operator.EQ, "x")), List.of(), null, null);
+
+        assertThatThrownBy(() -> service.listRecords(1L, 1L, TEST_SCHEMA, "T1", criteria, new PageRequest(0, 10)))
+                .isInstanceOf(PermissionDeniedException.class);
+    }
+
+    // P4: RAWモードのrawWhere/rawOrderByにセミコロンが含まれる場合、カラム権限の値によらず常に例外となる。
+    @Property(tries = 20)
+    void listRecordsRejectsRawCriteriaContainingSemicolon(
+            @ForAll("columnPermissionPatterns") List<Permission> generatedColumnPermissions,
+            @ForAll boolean semicolonInWhere
+    ) throws Exception {
+        String dbName = "MASTERDATAQUERYP4" + DB_COUNTER.incrementAndGet();
+        try (Connection setup = openConnection(dbName)) {
+            createSchema(setup, TEST_SCHEMA);
+            try (Statement st = setup.createStatement()) {
+                st.execute("CREATE TABLE " + TEST_SCHEMA + ".T1 "
+                        + "(ID INT PRIMARY KEY, COL0 VARCHAR(50), COL1 VARCHAR(50), "
+                        + "COL2 VARCHAR(50), COL3 VARCHAR(50))");
+            }
+        }
+
+        Map<String, Permission> columnPermissions = new LinkedHashMap<>();
+        columnPermissions.put("ID", Permission.READ);
+        for (int i = 0; i < GENERATED_COLUMNS.size(); i++) {
+            columnPermissions.put(GENERATED_COLUMNS.get(i), generatedColumnPermissions.get(i));
+        }
+
+        MasterDataQueryService service = newService(dbName, columnPermissions);
+
+        String rawWhere = semicolonInWhere ? "ID = 1; DROP TABLE T1" : "ID = 1";
+        String rawOrderBy = semicolonInWhere ? "ID" : "ID; DROP TABLE T1";
+        FilterCriteria criteria = new FilterCriteria(FilterMode.RAW, List.of(), List.of(), rawWhere, rawOrderBy);
+
+        assertThatThrownBy(() -> service.listRecords(1L, 1L, TEST_SCHEMA, "T1", criteria, new PageRequest(0, 10)))
+                .isInstanceOf(PermissionDeniedException.class);
+    }
+
     @Provide
     Arbitrary<List<Permission>> columnPermissionPatterns() {
         return Arbitraries.of(Permission.values()).list().ofSize(GENERATED_COLUMNS.size());
@@ -170,6 +243,11 @@ class MasterDataQueryServiceTest {
     @Provide
     Arbitrary<Integer> rowCounts() {
         return Arbitraries.integers().between(0, 3);
+    }
+
+    @Provide
+    Arbitrary<Integer> targetColumnIndices() {
+        return Arbitraries.integers().between(0, GENERATED_COLUMNS.size() - 1);
     }
 
     private MasterDataQueryService newService(String dbName, Map<String, Permission> columnPermissions) {
