@@ -425,9 +425,14 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       `cherry.mastermeister.masterdata.*`で成功を確認（BUILD SUCCESSFUL）。
 
 ### Step 7: APIレイヤサマリ
-- [ ] 7-1. `aidlc-docs/construction/u5-master-data-maintenance/code/api-layer-summary.md`を
+- [x] 7-1. `aidlc-docs/construction/u5-master-data-maintenance/code/api-layer-summary.md`を
       生成し、エンドポイント一覧（パス・メソッド・認可要件・リクエスト/レスポンス形状）を
       記載する。
+
+      実装メモ: U4の`api-layer-summary.md`と同一構成で生成。4エンドポイントのリクエスト/
+      レスポンスJSON例、`applyChanges`の例外系（403/400）とDB実行時失敗
+      （`MutationResult(success=false,...)`、200 OK）の使い分け、エラーレスポンス対応表
+      （新規例外クラス追加なし）、`MasterDataControllerTest`（8件）のテストカバレッジを記載。
 
 ### Step 8〜10: リポジトリレイヤ
 - [ ] 8/9/10-1. **該当なし（N/A）**: `domain-entities.md`確定（Q1 = A）のとおり本ユニットは

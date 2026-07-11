@@ -2781,3 +2781,21 @@ pageSize`の3フィールドを持つrecordとして実装（`listRecords`の`cr
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U5: Master Data Maintenance - Code Generation Part 2 Step 7-1
+**Timestamp**: 2026-07-11T10:50:00Z
+**User Input**: "継続。"
+**AI Response**: `aidlc-docs/construction/u5-master-data-maintenance/code/api-layer-summary.md`を
+新規生成した。U4の`api-layer-summary.md`と同一構成（エンドポイント一覧・Controller別詳細・
+エラーレスポンス対応表・テストカバレッジ）を踏襲。エンドポイント一覧は4件とも
+「認証必須（ロール制約なし）」であり、`/api/master-data/**`の明示`authenticated()`ルール
+（item 5-3）は末尾の`anyRequest().authenticated()`と実質同義だが構成を揃えるため追加した旨を
+補足。各エンドポイントのリクエスト/レスポンスJSON例、`applyChanges`の権限検証・入力検証
+失敗（例外→403/400）とDB実行時失敗（`MutationResult(success=false,...)`→200 OK）という
+2種類の失敗表現の使い分け（Step 2-6/Step 5-2の設計）を明記。エラーレスポンス対応表は
+`GlobalExceptionHandler`の既存マッピング（`PermissionDeniedException`→403、
+`ValidationException`→400、`EntityNotFoundException`→404）をそのまま参照し、本ユニットでの
+新規例外クラス追加はないことを明記。テストカバレッジは`MasterDataControllerTest`（8件）を記載。
+**Context**: Per-Unit Loop、U5 Code Generation Part 2。Step 7-1完了、Step 7全体完了。
+
+---
+
