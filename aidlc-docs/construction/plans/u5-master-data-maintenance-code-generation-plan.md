@@ -164,13 +164,16 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       実装（`TableSummary`/`ColumnMetadata`/`RecordListResult`/`FilterMode`/`Operator`/
       `UiCondition`/`UiSort`/`FilterCriteria`）。`TableMetadata`（schema）と同様Javadocなし・
       コンパクトなrecord宣言スタイルを踏襲。`./gradlew compileJava`成功を確認。
-- [ ] 2-3. `backend/src/main/java/cherry/mastermeister/masterdata/` に更新系DTOを生成する
+- [x] 2-3. `backend/src/main/java/cherry/mastermeister/masterdata/` に更新系DTOを生成する
       （`domain-entities.md`確定）: `RecordCreate`（record: `Map<String, Object> values`）、
       `RecordUpdate`（record: `Map<String, Object> primaryKeyValues, Map<String, Object>
       changedValues`）、`RecordDelete`（record: `Map<String, Object> primaryKeyValues`）、
       `MutationRequest`（record: `List<RecordCreate> creates, List<RecordUpdate> updates,
       List<RecordDelete> deletes`）、`MutationResult`（record: `boolean success, int
       createdCount, int updatedCount, int deletedCount, String errorMessage`）。
+
+      実装メモ: `domain-entities.md`記載のフィールド構成をそのまま5ファイルのrecordとして
+      実装。`./gradlew compileJava`成功を確認。
 - [ ] 2-4. `backend/src/main/java/cherry/mastermeister/masterdata/RecordRowMapper.java`
       （`RowMapper<List<Object>>`、`nfr-design-patterns.md` 2.1・`logical-components.md`
       1節）を生成する。`ResultSetMetaData.getColumnType(int)`（`java.sql.Types`）に基づき
