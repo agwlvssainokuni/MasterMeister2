@@ -3054,3 +3054,16 @@ U1 NFR Design Question 5 = A踏襲）。
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U5: Master Data Maintenance - Code Generation Part 2 Step 14-1
+**Timestamp**: 2026-07-12T02:20:00Z
+**User Input**: "継続。"
+**AI Response**: Step 14（データベースマイグレーションスクリプト）は計画に既記載のとおり
+「該当なし（N/A）」であることを確認した。本ユニットは内部DB（H2/JPA）へ新規エンティティを
+追加せず、`RdbmsConnection`等の既存内部DBエンティティ・マイグレーションスクリプトのみを
+参照する設計（U1 NFR Design Question 5 = A踏襲）であるため、生成物なしでスキップした。
+計画のStep 14-1を`[x]`にマークし、Step 14が完了した。
+**Context**: Per-Unit Loop、U5 Code Generation Part 2。次はStep 15
+（ドキュメント生成、testing-summary.md）。
+
+---
+

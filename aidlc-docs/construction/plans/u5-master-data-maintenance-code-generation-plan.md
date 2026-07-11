@@ -605,8 +605,10 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       記した。
 
 ### Step 14: データベースマイグレーションスクリプト
-- [ ] 14-1. **該当なし（N/A）**: 本ユニットは内部DBエンティティを持たないため対象外
+- [x] 14-1. **該当なし（N/A）**: 本ユニットは内部DBエンティティを持たないため対象外
       （U1 NFR Design Question 5 = Aを踏襲）。
+      実装メモ: 生成物なし。U5は内部DB（H2/JPA）へ新規エンティティを追加しないため
+      マイグレーションスクリプト生成は不要と確認しスキップした。
 
 ### Step 15: ドキュメント生成
 - [ ] 15-1. `aidlc-docs/construction/u5-master-data-maintenance/code/testing-summary.md`
