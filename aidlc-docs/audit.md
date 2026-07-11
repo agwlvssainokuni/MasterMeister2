@@ -2375,3 +2375,27 @@ Step 6として以下2成果物を生成：
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U5: Master Data Maintenance - NFR Design Step 1-4（分析・質問作成）完了
+**Timestamp**: 2026-07-11T20:50:00Z
+**User Input**: "Continue to Next Stage。記録したらコミット。NFR Designを始めてください。"（継続）
+**AI Response**: NFR Requirements/Functional Design成果物、U3/U4のNFR Design先例を分析し、U5は
+EXECUTEと判定（`u5-master-data-maintenance-nfr-design-plan.md`作成）。3問を構成：
+- Question 1（Logical Components）: `MasterDataQueryService`/`MasterDataMutationService`の
+  パッケージ配置。U4 Q3と同じ判断基準（単一実装サービスの直接参照、拡張ポイントではない）を
+  適用し`masterdata`パッケージへの集約案を推奨として提示。
+- Question 2（Performance/Tech Stack）: `domain-entities.md`で明示的に先送りされていた対象
+  RDBMS4種間の型マッピング差異の吸収方式。JDBC 4.2標準の`getObject(int, Class)`を用いる
+  専用RowMapper方式（ドライバ固有分岐不要）を推奨として提示。
+- Question 3（Reliability）: クエリタイムアウトの適用単位。`setQueryTimeout`がステートメント
+  単位である一方`applyChanges`は複数ステートメントを発行するため、トランザクション全体の
+  累積タイムアウト予算の要否を問う。ステートメント単位のみ（`max-mutation-batch-size`との
+  組み合わせで十分）を推奨として提示。
+Scalability/Performance（インデックス、内部DBエンティティなしのため該当なし）・Security
+（RAWモード安全性は既にFunctional Designで確定済み）・Resilience（`resiliency-baseline`無効、
+U3先例と同じ判断基準）はいずれも新規質問なしと判断し理由を明記。
+成果物ファイル構成はU1〜U4の先例（`logical-components.md`を独立作成せず
+`nfr-design-patterns.md`内に統合）を踏襲する方針を明記。
+**Context**: Per-Unit Loop、U5 NFR Design Step 1-4完了。Step 5（回答収集）着手待ち。
+
+---
+
