@@ -2250,3 +2250,11 @@ U3の`frontend-summary.md`の章立て（コンポーネント一覧テーブル
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U5: Master Data Maintenance - Functional Design (開始)
+**Timestamp**: 2026-07-11T09:15:00Z
+**User Input**: (継続実行、質問なし。U4承認直後の自動移行)
+**AI Response**: `unit-of-work.md`のU5定義（バックエンドパッケージ`masterdata`、フロントエンド`features/masterData/`、対応ストーリーMVP-10/MVP-11/GEN-1〜5）、`stories.md`の該当ストーリー、`component-methods.md`の`MasterDataQueryService`/`MasterDataMutationService`確定済みシグネチャ、`services.md`フロー3・フロー4、U4`EffectivePermissionResolver`のAPI、U3`SchemaQueryService`/`ConnectionPoolRegistry`、U1`common/dialect/DialectStrategy`・`AuditLogService`の`EventType`（`LARGE_RECORD_READ`/`MASTER_DATA_MUTATION`が既に予約済み）、`component-dependency.md`の依存マトリクスおよび`queryexecution`（U7）の読み取り専用SQL論点（手入力SQLに対する権限フィルタ非適用のセキュリティ論点を先送りする既定方針）を確認した上で、`aidlc-docs/construction/plans/u5-master-data-maintenance-functional-design-plan.md`を作成。Step 1（ユニットコンテキスト分析）を記載し、Step 2-4として8問の質問（Q1: 内部DBエンティティの要否、Q2: `RecordDto`のデータ構造、Q3: `FilterCriteria`のデータモデル、Q4: 手入力WHERE/ORDER BY（GEN-2）の安全性方針——`queryexecution`と同一方針を踏襲する案、Q5: `MutationRequest`の権限検証失敗時の挙動、Q6: 主キーなしテーブルの更新・削除の扱い、Q7: 大量データ閲覧監査の閾値設定、Q8: `masterData/`フロントエンド構成）を推奨案（A）付きで提示。`question-format-guide.md`の規定に従い各質問の`[Answer]:`タグは空欄のまま提示し、ユーザの回答確定を待つ。
+**Context**: Per-Unit Loop、U5 Functional Design Step 2-4（計画・質問作成）完了。ユーザによる各質問の回答確定待ち。
+
+---
+
