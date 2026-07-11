@@ -2959,3 +2959,31 @@ Step 11-3を`[x]`にマークした。
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U5: Master Data Maintenance - Code Generation Part 2 Step 11-5
+**Timestamp**: 2026-07-12T01:30:00Z
+**User Input**: "継続。"
+**AI Response**: `frontend/src/features/masterData/RecordListPage.tsx`・
+`MutationResultDialog.tsx`を新規生成した。`components/DataTable`本体は変更せず、
+`DataTableColumn.render`で列ごとの描画を拡張する方式を採用（`frontend-components.md`の
+「本体は変更しない想定」に準拠）。`effectivePermission === 'UPDATE'`の列のみ`<input>`を
+描画し、編集内容は主キー（`primaryKeySequence`から構築した`primaryKeyValues`をソート済み
+キー文字列化する`pkKey`ヘルパー）でupsertして`pendingChanges.updates`へ反映する。
+`table.canDelete`が`true`の場合のみ削除チェックボックス列を追加し
+`pendingChanges.deletes`へ、`table.canCreate`が`true`の場合のみ「新規行を追加」ボタンと
+新規行編集用の別テーブルを表示し`pendingChanges.creates`へ反映する。テーブルの
+`canCreate`/`canDelete`は`listAccessibleTables(connectionId, schema)`を呼び出し対象
+テーブル名で検索して取得した（URLパラメータには`connectionId`/`schema`/`table`のみで
+`TableSummary`自体は含まれないため）。`FilterPanel`の条件変更時はページを0へリセットして
+再取得し、「反映」ボタンで`applyChanges`を呼び出し、成功時は`pendingChanges`をクリアして
+`reloadKey`state経由で一覧を再取得、失敗時は`pendingChanges`を保持してユーザが修正・
+再送信できるようにした。`MutationResultDialog`は`result`が`null`の間何も描画せず、成功時は
+`createdCount`/`updatedCount`/`deletedCount`、失敗時は`errorMessage`を表示する。当初
+`useEffect`内で呼び出す再取得用のローカル関数を定義したところ`oxlint`の
+`react-hooks/exhaustive-deps`警告が出たため、`reloadKey`stateをuseEffectの依存配列に含める
+形に書き直して警告を解消した。`npx tsc -b`・`npm run lint`（oxlint）成功を確認。計画の
+Step 11-5を`[x]`にマークした。
+**Context**: Per-Unit Loop、U5 Code Generation Part 2。次はStep 11-6
+（`AppRouter.tsx`・`AppLayout.tsx`のブラウンフィールド修正）。
+
+---
+

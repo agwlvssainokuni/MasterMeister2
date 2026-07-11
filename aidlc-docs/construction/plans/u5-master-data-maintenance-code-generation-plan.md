@@ -532,11 +532,24 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       できるフォームを提供。RAWモードでは`rawWhere`/`rawOrderBy`のテキスト入力欄を提供し、
       モード切り替えは排他的（`criteria.mode`を都度更新して`onChange`に通知）。`npx tsc -b`・
       `npm run lint`（oxlint）成功を確認。
-- [ ] 11-5. `frontend/src/features/masterData/RecordListPage.tsx`・
+- [x] 11-5. `frontend/src/features/masterData/RecordListPage.tsx`・
       `MutationResultDialog.tsx`: `RecordListResult`を`DataTable`拡張版（インライン編集セル・
       行選択チェックボックス・新規行追加ボタン）で表示し、`pendingChanges`に差分を蓄積、
       「反映」ボタンで`applyChanges`を呼び出し`MutationResultDialog`で結果表示する
       （`frontend-components.md`、フロー2〜3）。
+      実装メモ: `components/DataTable`本体は変更せず、列定義（`DataTableColumn.render`）で
+      拡張。`effectivePermission === 'UPDATE'`のセルのみ`<input>`を描画し編集内容を
+      `pendingChanges.updates`へ主キー（`primaryKeySequence`が設定された列から構築した
+      `primaryKeyValues`をソート済みキー文字列化した`pkKey`）でupsertする。`table.canDelete`が
+      `true`の場合のみ削除チェックボックス列を先頭に追加し`pendingChanges.deletes`へ反映、
+      `table.canCreate`が`true`の場合のみ「新規行を追加」ボタンと別テーブルの新規行編集UIを
+      表示し`pendingChanges.creates`へ反映する。`table`のcanCreate/canDelete判定は
+      `listAccessibleTables(connectionId, schema)`から対象テーブル名で検索して取得（URLは
+      connectionId/schema/tableのみのため）。フィルタ条件変更時はページを0へリセットして
+      再取得、「反映」成功時は`pendingChanges`をクリアし`reloadKey`をインクリメントして
+      一覧を再取得、失敗時は`pendingChanges`を保持する。`MutationResultDialog`は`result`が
+      `null`の間何も描画せず、成功時は件数、失敗時は`errorMessage`を表示する。`npx tsc -b`・
+      `npm run lint`（oxlint、react-hooks/exhaustive-deps含め警告0件）成功を確認。
 - [ ] 11-6. `frontend/src/routes/AppRouter.tsx`（既存、ブラウンフィールド修正）に
       `/master-data`（`SchemaTableListPage`）・`/master-data/:connectionId/:schema/:table`
       （`RecordListPage`）を`ProtectedRoute`配下に追加する。`frontend/src/components/
