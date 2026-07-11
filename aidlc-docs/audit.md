@@ -2452,3 +2452,13 @@ logical-components.md 1節参照」という参照文に置き換えた。
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U5: Master Data Maintenance - NFR Design 承認・Code Generation開始
+**Timestamp**: 2026-07-11T21:20:00Z
+**User Input**: "Continue to Next Stage。記録したらコミット。Code Generationを始めてください。"
+**AI Response**: NFR Design（Step 8）を承認として記録。`aidlc-state.md`のU5行NFR Design列を
+`[x] approved 2026-07-11T21:20:00Z`に更新、Current Stageを「U5: Master Data Maintenance -
+Code Generation - starting.」に更新。コミット後、Code Generation Part 1（Planning）を開始する。
+**Context**: Per-Unit Loop、U5 NFR Design Step 9完了。Code Generationへ移行。
+
+---
+
