@@ -66,11 +66,11 @@ U5は **実行（EXECUTE）** と判定。
 
 ## 成果物生成タスク（`construction/nfr-design.md` Step 6）
 
-U1〜U4の先例（`logical-components.md`は独立ファイルとして作成せず、`nfr-design-patterns.md`内の
-「Logical Components Patterns」節に統合する運用が一貫して踏襲されている）に倣い、本ユニットも
-同様とする。
+U1〜U4の先例（`nfr-design-patterns.md`／`logical-components.md`の2ファイルを常に生成）に
+倣い、本ユニットも同様とする。
 
 - [x] `aidlc-docs/construction/u5-master-data-maintenance/nfr-design/nfr-design-patterns.md`
+- [x] `aidlc-docs/construction/u5-master-data-maintenance/nfr-design/logical-components.md`
 
 ---
 

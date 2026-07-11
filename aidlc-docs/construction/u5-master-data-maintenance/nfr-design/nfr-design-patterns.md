@@ -8,11 +8,9 @@
 
 ### 1.1 主要コンポーネントのパッケージ配置（Question 1）
 
-- `MasterDataQueryService`・`MasterDataMutationService`、および本ユニット固有のDTO
-  （`domain-entities.md`確定の`TableSummary`/`ColumnMetadata`/`RecordListResult`/
-  `FilterCriteria`/`UiCondition`/`UiSort`/`RecordCreate`/`RecordUpdate`/`RecordDelete`/
-  `MutationRequest`/`MutationResult`等）は、すべて`cherry.mastermeister.masterdata`
-  パッケージに配置する。
+- `MasterDataQueryService`・`MasterDataMutationService`、および本ユニット固有のDTO群は、
+  すべて`cherry.mastermeister.masterdata`パッケージに配置する（コンポーネント一覧は
+  `logical-components.md` 1節参照）。
 - **依存方向**: `masterdata → schema`（U3、`SchemaQueryService`によるメタデータ参照）・
   `masterdata → permission`（U4、`EffectivePermissionResolver`による実効権限判定）・
   `masterdata → audit`（U1、`AuditLogService`による監査記録）の一方向のみ

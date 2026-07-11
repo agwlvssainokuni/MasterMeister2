@@ -2420,3 +2420,35 @@ Step 6として`nfr-design-patterns.md`を生成（U1〜U4の先例に倣い`log
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U5: Master Data Maintenance - NFR Design logical-components.md訂正
+**Timestamp**: 2026-07-11T21:10:00Z
+**User Input**: "logical-components.mdを統合する前例はない。"
+**AI Response**: 誤りを確認。以前の`find -iname '*nfr-design*'`によるファイル名検索が
+`logical-components.md`（ファイル名に"nfr-design"を含まない）を検出できておらず、
+それに基づき「U1〜U4は`logical-components.md`を独立作成せず統合する運用」という誤った
+前例判断を行い、直前の2エントリ（Step 1-4完了・Step 5-7完了）および
+`u5-master-data-maintenance-nfr-design-plan.md`にその誤った記載をしていた。
+`ls`で実際のディレクトリを確認し、U1・U4とも`nfr-design-patterns.md`と
+`logical-components.md`の2ファイルを常に生成していたことを確認。U4
+`logical-components.md`をテンプレートとして、
+`aidlc-docs/construction/u5-master-data-maintenance/nfr-design/logical-components.md`を
+新規生成（1. masterdataパッケージのコンポーネント一覧表、2. クエリタイムアウト適用表、
+3. Frontend参照、4. 設定ファイル、5. U3/U4/U5責務境界の再確認）。プラン内の誤った記載も
+修正（成果物生成タスクのチェックリストに`logical-components.md`を追加）。audit.mdの過去
+エントリ自体は追記専用の方針（`common/session-continuity.md`等）に基づき書き換えず、本
+エントリで訂正内容を記録する。
+**Context**: Per-Unit Loop、U5 NFR Design。Step 6成果物の欠落を訂正、Step 8（承認待ち）は継続。
+
+---
+
+## CONSTRUCTION - Per-Unit Loop - U5: Master Data Maintenance - NFR Design nfr-design-patterns.md簡略化
+**Timestamp**: 2026-07-11T21:12:00Z
+**User Input**: "nfr-design-pattern.mdも修正が必要。"
+**AI Response**: ユーザに具体的な修正点を確認（AskUserQuestion）、「Logical Components Patterns節を
+簡略化」を選択。`nfr-design-patterns.md` 1.1のDTO一覧（`TableSummary`/`ColumnMetadata`等の
+列挙）を`logical-components.md`の詳細一覧表と重複していたため削除し、「コンポーネント一覧は
+logical-components.md 1節参照」という参照文に置き換えた。
+**Context**: Per-Unit Loop、U5 NFR Design。Step 6成果物間の重複を解消、Step 8（承認待ち）は継続。
+
+---
+
