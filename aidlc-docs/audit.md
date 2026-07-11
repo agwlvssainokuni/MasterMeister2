@@ -2522,3 +2522,14 @@ Step 2-1として`ConnectionPoolRegistry.java`に`getTransactionTemplate(Long co
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U5: Master Data Maintenance - Code Generation Part 2 Step 2-2
+**Timestamp**: 2026-07-11T22:10:00Z
+**User Input**: "継続。"
+**AI Response**: `masterdata`パッケージに読み取り系DTO 8ファイルを生成（`TableSummary`/
+`ColumnMetadata`/`RecordListResult`/`FilterMode`/`Operator`/`UiCondition`/`UiSort`/
+`FilterCriteria`）。`domain-entities.md`確定のフィールド構成どおり、`TableType`/`Permission`/
+`SortDirection`/`PageResult`は既存を再利用し新規定義しなかった。`compileJava`成功を確認。
+**Context**: Per-Unit Loop、U5 Code Generation Part 2。Step 2-2完了。
+
+---
+

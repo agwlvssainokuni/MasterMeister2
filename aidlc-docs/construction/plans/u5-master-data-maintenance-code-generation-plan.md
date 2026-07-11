@@ -147,7 +147,7 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       `getJdbcTemplate`自体に専用の単体テストがないのと同じ理由で、本メソッド単体の
       直接テストは追加していない（Step 3-5のP9/P10でトランザクション動作を間接的に検証する）。
       `./gradlew compileJava`成功を確認。
-- [ ] 2-2. `backend/src/main/java/cherry/mastermeister/masterdata/` に読み取り系DTOを生成する
+- [x] 2-2. `backend/src/main/java/cherry/mastermeister/masterdata/` に読み取り系DTOを生成する
       （`domain-entities.md`確定）: `TableSummary`（record: `schemaName, tableName,
       TableType tableType, comment, Permission effectivePermission, canCreate, canDelete`）、
       `ColumnMetadata`（record: `columnName, dataType, nullable, Integer primaryKeySequence,
@@ -159,6 +159,11 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       List<UiCondition> uiConditions, List<UiSort> uiSorts, String rawWhere, String
       rawOrderBy`）。`TableType`（U3）・`Permission`（U4）・`SortDirection`（U1
       `common.dialect`）・`PageResult`（U1 `common`）は既存を再利用し新規定義しない。
+
+      実装メモ: `domain-entities.md`記載のフィールド構成をそのまま8ファイルのrecord/enumとして
+      実装（`TableSummary`/`ColumnMetadata`/`RecordListResult`/`FilterMode`/`Operator`/
+      `UiCondition`/`UiSort`/`FilterCriteria`）。`TableMetadata`（schema）と同様Javadocなし・
+      コンパクトなrecord宣言スタイルを踏襲。`./gradlew compileJava`成功を確認。
 - [ ] 2-3. `backend/src/main/java/cherry/mastermeister/masterdata/` に更新系DTOを生成する
       （`domain-entities.md`確定）: `RecordCreate`（record: `Map<String, Object> values`）、
       `RecordUpdate`（record: `Map<String, Object> primaryKeyValues, Map<String, Object>
