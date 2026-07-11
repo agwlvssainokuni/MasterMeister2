@@ -2799,3 +2799,15 @@ pageSize`の3フィールドを持つrecordとして実装（`listRecords`の`cr
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U5: Master Data Maintenance - Code Generation Part 2 Step 8/9/10-1
+**Timestamp**: 2026-07-11T11:00:00Z
+**User Input**: "継続。"
+**AI Response**: Step 8〜10（リポジトリレイヤ生成・単体テスト・サマリ）を`domain-entities.md`
+確定（Q1 = A）のとおり**該当なし（N/A）**として一括チェック済みにした。`masterdata`パッケージは
+内部DB（H2/JPA）エンティティ・リポジトリを一切持たず、全DTOが対象RDBMSへの
+`NamedParameterJdbcTemplate`経由アクセス用の純粋な`record`であるため、コード・テスト・
+ドキュメントいずれも生成対象がない。Step 1のN/A処理と同じ扱い。
+**Context**: Per-Unit Loop、U5 Code Generation Part 2。Step 8/9/10-1完了（N/A）。
+
+---
+

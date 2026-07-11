@@ -435,8 +435,13 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       （新規例外クラス追加なし）、`MasterDataControllerTest`（8件）のテストカバレッジを記載。
 
 ### Step 8〜10: リポジトリレイヤ
-- [ ] 8/9/10-1. **該当なし（N/A）**: `domain-entities.md`確定（Q1 = A）のとおり本ユニットは
+- [x] 8/9/10-1. **該当なし（N/A）**: `domain-entities.md`確定（Q1 = A）のとおり本ユニットは
       内部DBエンティティを一切持たない。リポジトリ生成・単体テスト・サマリのいずれも対象外。
+
+      実装メモ: Step 1（N/A）と同様、対象コード・テスト・ドキュメントの生成は不要。
+      `masterdata`パッケージは全DTOが純粋な`record`（対象RDBMSへの`NamedParameterJdbcTemplate`
+      経由アクセスのみ）であり、内部DB（H2/JPA）エンティティ・リポジトリを持たないため
+      Step 8〜10は一括してN/Aとした。
 
 ### Step 11: フロントエンドコンポーネント生成
 - [ ] 11-1. `frontend/src/features/masterData/types.ts`: `frontend-components.md`・
