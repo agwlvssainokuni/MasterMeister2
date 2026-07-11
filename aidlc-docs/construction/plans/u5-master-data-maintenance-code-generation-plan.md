@@ -278,13 +278,15 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       2種類の失敗表現を使い分けた。Code Generationレベルの設計判断、Step 5のAPI層で
       HTTPステータスへのマッピングを確定する）。`./gradlew compileJava`成功を確認。
       単体テストはStep 3-3/3-4で追加する。
-- [ ] 2-7. `backend/src/main/java/cherry/mastermeister/masterdata/MasterDataQueryService.java`
+- [x] 2-7. `backend/src/main/java/cherry/mastermeister/masterdata/MasterDataQueryService.java`
       （既存、ブラウンフィールド修正）に`List<ConnectionSummary>
       listAccessibleConnections(Long userId)`を追加する（「ブラウンフィールド発見事項」5）。
       既に注入済みの`rdbmsConnectionRepository`から全接続を取得し、各接続について
       `effectivePermissionResolver.listAccessibleSchemas(userId, connectionId)`が非空の
       ものだけを`ConnectionSummary`（`rdbmsconnection`パッケージ既存、新規DTOなし）へ
       マッピングして返す。
+      実装メモ: 設計どおり実装（`ConnectionSummary`のインポート追加）。
+      `./gradlew compileJava`成功を確認。
 
 ### Step 3: ビジネスロジック単体テスト（PBT-01〜PBT-08, PBT-10）
 `business-logic-model.md`のP1〜P10に対応する`@Property`テストをjqwikで生成する。対象RDBMSへの

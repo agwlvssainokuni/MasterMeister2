@@ -2831,3 +2831,17 @@ Step 11-2/11-3の説明文を新エンドポイント前提に更新した。
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U5: Master Data Maintenance - Code Generation Part 2 Step 2-7
+**Timestamp**: 2026-07-12T00:11:00Z
+**User Input**: "継続。"
+**AI Response**: `MasterDataQueryService`に`List<ConnectionSummary>
+listAccessibleConnections(Long userId)`を追加した。既に注入済みの`rdbmsConnectionRepository`
+から全接続を取得し、`effectivePermissionResolver.listAccessibleSchemas(userId, connectionId)`
+が非空の接続のみを`ConnectionSummary`（`rdbmsconnection`パッケージ既存、新規DTOなし）へ
+マッピングして返す実装とした。`cherry.mastermeister.rdbmsconnection.ConnectionSummary`の
+importを追加。`./gradlew compileJava`成功を確認。計画のStep 2-7を`[x]`にマークした。
+**Context**: Per-Unit Loop、U5 Code Generation Part 2。次はStep 5-4
+（`MasterDataController`への`GET /connections`追加）。
+
+---
+
