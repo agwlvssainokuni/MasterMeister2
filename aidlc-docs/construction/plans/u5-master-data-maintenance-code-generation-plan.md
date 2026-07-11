@@ -565,9 +565,29 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       後方互換性検証）。
 
 ### Step 12: フロントエンドコンポーネント単体テスト
-- [ ] 12-1. `SchemaTableListPage.test.tsx`・`FilterPanel.test.tsx`・`RecordListPage.test.tsx`・
+- [x] 12-1. `SchemaTableListPage.test.tsx`・`FilterPanel.test.tsx`・`RecordListPage.test.tsx`・
       `MutationResultDialog.test.tsx`（vitest + Testing Library、U4の`features/permission/`
       配下のテストパターンを踏襲）を生成する。
+      実装メモ: 4ファイル・計27件のテストを生成。`SchemaTableListPage.test.tsx`は
+      `rdbmsConnection/ConnectionFormPage.test.tsx`と同じ「`MemoryRouter`+`Routes`+遷移先の
+      スタブ`Route`」パターンで接続/スキーマ選択・テーブル一覧表示・行選択による
+      `/master-data/:connectionId/:schema/:table`への遷移を検証（`useNavigate`のモック化はせず、
+      本物のルーティングで到達を確認）。`FilterPanel.test.tsx`は`criteria`/`onChange`を
+      `useState`で束ねる`ControlledFilterPanel`ラッパーでUI/RAWモード切替・
+      `effectivePermission`が`NONE`の列がプルダウンから除外されること・`IS_NULL`演算子選択時に
+      値入力欄が消えること・条件/ソート追加削除・RAWモードの`rawWhere`/`rawOrderBy`入力を検証、
+      加えて素の`FilterPanel`に対して`onChange`呼び出し引数も直接検証。`RecordListPage.test.tsx`
+      は`api.ts`5関数のうち使用する3関数（`listAccessibleTables`/`listRecords`/`applyChanges`）を
+      モックし、`MemoryRouter`の`:connectionId/:schema/:table`パラメータ経由でページを描画、
+      READ列は非編集表示・UPDATE列は`<input>`編集であること、`canDelete`/`canCreate`に応じた
+      削除チェックボックス列・新規行UIの表示/非表示、セル編集→「反映」→`applyChanges`への
+      `primaryKeyValues`/`changedValues`引数・成功時`pendingChanges`クリアと`listRecords`再取得
+      （`reloadKey`）・失敗時`pendingChanges`保持、削除チェック・新規行追加それぞれの
+      `applyChanges`呼び出し引数、ページングボタンの活性/非活性を検証。
+      `MutationResultDialog.test.tsx`は`result`が`null`の間何も描画しないこと、成功時件数表示・
+      失敗時`errorMessage`表示・閉じるボタンでの`onClose`呼び出しを検証。全ファイル
+      `npx tsc -b`成功、`npm run lint`（oxlint）警告0件、`npx vitest run`で新規27件を含む
+      既存分含めた計183件（44ファイル）全て成功を確認。
 
 ### Step 13: フロントエンドコンポーネントサマリ
 - [ ] 13-1. `aidlc-docs/construction/u5-master-data-maintenance/code/frontend-summary.md`を

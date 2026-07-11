@@ -3005,3 +3005,29 @@ Step 11-5を`[x]`にマークした。
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U5: Master Data Maintenance - Code Generation Part 2 Step 12-1
+**Timestamp**: 2026-07-12T02:00:00Z
+**User Input**: "継続。"
+**AI Response**: `SchemaTableListPage.test.tsx`・`FilterPanel.test.tsx`・`RecordListPage.test.tsx`・
+`MutationResultDialog.test.tsx`（`frontend/src/features/masterData/`配下）を生成した。
+`SchemaTableListPage.test.tsx`は`rdbmsConnection/ConnectionFormPage.test.tsx`と同じ
+「`MemoryRouter`+`Routes`+遷移先スタブ`Route`」パターンで接続/スキーマ選択・テーブル一覧表示・
+行選択による`/master-data/:connectionId/:schema/:table`遷移を検証。`FilterPanel.test.tsx`は
+`criteria`/`onChange`を`useState`で束ねる`ControlledFilterPanel`ラッパーでUI/RAWモード切替・
+`effectivePermission=NONE`列のプルダウン除外・`IS_NULL`演算子時の値入力欄非表示・条件/ソート
+追加削除・RAWモード入力を検証し、素の`FilterPanel`への`onChange`呼び出し引数も直接確認した。
+`RecordListPage.test.tsx`は`api.ts`の`listAccessibleTables`/`listRecords`/`applyChanges`を
+モックし、READ列は非編集表示・UPDATE列は`<input>`編集であること、`canDelete`/`canCreate`に
+応じた削除チェックボックス列・新規行UIの表示切替、セル編集→反映→`applyChanges`への
+`primaryKeyValues`/`changedValues`引数と成功時の`pendingChanges`クリア・再取得
+（`reloadKey`）／失敗時の`pendingChanges`保持、削除・新規行追加それぞれの`applyChanges`
+呼び出し引数、ページングボタンの活性/非活性を検証した。`MutationResultDialog.test.tsx`は
+`result=null`時に何も描画しないこと・成功時件数表示・失敗時`errorMessage`表示・閉じるボタンの
+`onClose`呼び出しを検証した。4ファイル計27件のテストを追加し、`npx tsc -b`成功、
+`npm run lint`（oxlint）警告0件、`npx vitest run`で新規分を含む全44ファイル・183件が
+全て成功することを確認した。計画のStep 12-1を`[x]`にマークし、Step 12が完了した。
+**Context**: Per-Unit Loop、U5 Code Generation Part 2。次はStep 13
+（フロントエンドコンポーネントサマリドキュメント生成）。
+
+---
+
