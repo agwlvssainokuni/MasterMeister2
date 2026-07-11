@@ -2877,3 +2877,16 @@ importを追加。`./gradlew compileJava`成功、既存`MasterDataControllerTes
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U5: Master Data Maintenance - Code Generation Part 2 Step 7-2
+**Timestamp**: 2026-07-12T00:40:00Z
+**User Input**: "継続。"
+**AI Response**: `api-layer-summary.md`にエンドポイント一覧表への`GET /api/master-data/connections`
+行の追加、`GET /connections`詳細サブセクション（レスポンス例含む）の新設、クラスレベル
+`@RequestMapping`が`/api/master-data`へ変更されたことに伴う既存4サブセクションの見出し
+（`### GET /schemas`→`### GET /{connectionId}/schemas`等）の更新、テストカバレッジ表の
+8件→10件への更新を行った。
+**Context**: Per-Unit Loop、U5 Code Generation Part 2。これで「ブラウンフィールド発見事項」5
+（Step 2-7/5-4/6-2/7-2）が全て完了。次はStep 11（フロントエンドコンポーネント生成）に進む。
+
+---
+

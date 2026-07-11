@@ -476,8 +476,11 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       レスポンスJSON例、`applyChanges`の例外系（403/400）とDB実行時失敗
       （`MutationResult(success=false,...)`、200 OK）の使い分け、エラーレスポンス対応表
       （新規例外クラス追加なし）、`MasterDataControllerTest`（8件）のテストカバレッジを記載。
-- [ ] 7-2. `api-layer-summary.md`に`GET /api/master-data/connections`
+- [x] 7-2. `api-layer-summary.md`に`GET /api/master-data/connections`
       （「ブラウンフィールド発見事項」5）を追記する。
+      実装メモ: エンドポイント一覧表への追加、`GET /connections`詳細サブセクションの追加、
+      クラスレベルマッピング変更に伴う既存4サブセクションの見出しパス更新
+      （`{connectionId}`プレフィックス付与）、テストカバレッジ表を8件→10件に更新した。
 
 ### Step 8〜10: リポジトリレイヤ
 - [x] 8/9/10-1. **該当なし（N/A）**: `domain-entities.md`確定（Q1 = A）のとおり本ユニットは
