@@ -2258,3 +2258,34 @@ U3の`frontend-summary.md`の章立て（コンポーネント一覧テーブル
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U5: Master Data Maintenance - Functional Design Q1-Q8 回答確定
+**Timestamp**: 2026-07-11T19:30:00Z
+**User Input**: "Q1=A" → "Q2について。カラムのメタデータを渡す方法は別に設ける？" → "メタデータを取得するメソッドを設ける方式(提案してくれた方式)と、返却値にレコードのリストと一緒にメタデータも含めるのとでは、どちらがより適正でしょうか？(ここまでの検討で決めたことを前提とせずに検討)" → "あとのユニットでクエリビルダをサポートすることを考えるとテーブルを前提とおいていることが気になります。クエリビルダはまた別の方法でメタデータを返却することになりますでしょうか。" → "いいえ、説明が不十分でした。クエリビルダで組み立てたSQLを実行した時に、そのクエリの実行結果にもメタデータが必要だと思うのです。" → "U5でテーブル・ビューの内容(検索結果)をfrontendで描画するプログラムと、U7で一般的なSQLを実行した結果をfrontendで描画するプログラムは全く別々に開発する、ということですか？" → "すみません。やはり、納得感が弱いです。JDBC APIでは、単一テーブルの内容を取得する場合も一般のSQLの実行結果を取得する場合も、同じResultSetという返却値が使われていて、ResultSetからレコードデータ(のリスト)とカラムメタデータ(ResultSet#getColumnMetadata())を取得する形式です。" → "OKです。あ、RecordListResultのフィールド名はcolumnsとpageですか？pageの方はレコードデータが返却されるので、pageという名前付けは少し違和感があります。" → "Q3=A" → "Q4=A" → "Q5について。frontend側で権限のない操作をできないよう制御していますよね。その上でAPIを直接呼び出して権限がない場合の話ですよね？" → "Q5=A" → "Q6について。「canDeleteが常にfalseに なる」というのはどういうこと？" → "了解です。Q6=A" → "Q7=A" → "Q8=A"
+**AI Response**: 全8問の回答を`u5-master-data-maintenance-functional-design-plan.md`に確定した。
+- Q1=A（内部DBエンティティは追加しない、`masterdata`は状態を持たない）
+- **Q2**: 当初提案（`RecordDto`はMap<String,Object>ベース、カラムメタデータは別メソッド`getColumnMetadata`で取得）に対し、ユーザから複数回の実質的な指摘を受け、設計を全面的に見直した。検討の経緯: (1)メタデータ取得を別メソッドにするか結果に同梱するかの比較を要求され、両論比較した上で当初は別メソッド案を維持。(2)将来のクエリビルダ（U6）ユニットとの整合性を懸念され、`QueryBuilderMetadataService.listSelectableColumns`も同様にテーブル単位である点を確認し矛盾なしと回答。(3)真の論点はU7（クエリ実行）の任意SQL実行結果のメタデータであると指摘され、これはテーブル単位の事前定義メタデータでは対応できない別種の問題であると認識。(4)U5とU7のfrontend描画が完全に別々になるのか問われ、既存の共有`DataTable`コンポーネント（`frontend/src/components/DataTable.tsx`）による再利用が可能である点を回答。(5)決定打として、JDBCの`ResultSet`が単一テーブル取得・任意SQL実行のいずれでも同一の「行データ＋`ResultSetMetaData`」という形で返却される点を指摘され、この設計思想を踏襲すべきと納得。結果、`RecordDto`と`getColumnMetadata`メソッドを廃止し、`record ColumnMetadata(columnName, dataType, nullable, primaryKeySequence, effectivePermission)`と`record RecordListResult(List<ColumnMetadata> columns, PageResult<List<Object>> records)`を新設、`listRecords`の戻り値を`PageResult<RecordDto>`（Application Design確定値）から`RecordListResult`へ変更した（U4 Q4のメソッド追加と同種のFunctional Designレベルでの許容される詳細化として扱う）。NONE権限カラムはSELECT句から除外することで`columns`と`records`の列が構造的に食い違わないことを保証。行データは位置ベースの`List<Object>`とし、列名を都度保持するマップ形式は`columns`側に既にあるため冗長と判断し廃止。更新系（`MutationRequest`）は疎な変更表現・主キーのカラム名指定の明確さのため引き続きMap形式を維持し、読み取り系との非対称設計とした。フィールド名は当初`page`としていたが、レコードデータが入る点で紛らわしいとの指摘を受け`records`に変更（最終形）。U7（未着手）も同じ「`ResultSetMetaData`由来のカラム情報＋結果行を同梱」という設計思想を踏襲する想定である旨を申し送り事項としてQ2本文に明記した。
+- Q3=A（`FilterCriteria`はUI/RAWモード排他の2種類、`UiCondition`/`UiSort`、AND結合のみ）
+- Q4=A（手入力WHERE/ORDER BYは`queryexecution`と同一方針、追加のSQL解析は導入せず複数ステートメント注入のみ簡易チェックで拒否）
+- Q5: ユーザから「フロントエンド制御を前提とした上でAPIを直接呼び出す場合の話か」との確認があり、その通りである旨回答（UI制御は利便性のためのガードであり、バックエンド検証がフロントエンド迂回に対する最終防衛線である点を説明）。Q5=A（権限検証失敗はリクエスト全体を拒否、all-or-nothing方針をGEN-4の実行時失敗と統一）。
+- Q6: ユーザから「`canDelete`が常にfalseになる」の意味を問われ、これはU5で新規に導入する仕様ではなくU4 Application Design Question 9で確定済み・`EffectivePermissionResolver.canDelete`（`permission/EffectivePermissionResolver.java` 104-121行目）に既に実装済みの既存仕様であり、U5は追加ロジックなしにこれをそのまま呼び出すだけである旨を説明（調査はExploreサブエージェントに委託）。Q6=A（主キーなしテーブルは`RecordUpdate`をQ5と同じ全体拒否方針の対象とし、`RecordCreate`は`canCreate`の例外規定どおり許可、`RecordDelete`は`canDelete`が常にfalseで自然に拒否——「作成のみ可能」という一貫した扱い）。
+- Q7=A（`mm.app.master-data.large-record-threshold`、デフォルト100、環境変数オーバーライド可。本文中の`PageResult<RecordDto>`表記をQ2確定内容に合わせ`RecordListResult.records`（`PageResult<List<Object>>`）に修正）
+- Q8=A（`SchemaTableListPage`/`RecordListPage`/`FilterPanel`/`MutationResultDialog`の4画面構成、`DataTable`再利用、権限に応じたUI制御）
+すべて`[Answer]:`欄に反映済み。Q3・Q6の本文はQ2の新構造と矛盾しないことを確認した（Q3はクエリ条件のみでレコード形状に非依存、Q6はMutation側のMap形式のみを参照しRecordDtoへの言及なし）。次はStep 5（整合性確認）およびStep 6（成果物生成: domain-entities.md/business-rules.md/business-logic-model.md/frontend-components.md）に進む。
+**Context**: Per-Unit Loop、U5 Functional Design Step 2-4（Q&A）完了。Step 5-6（整合性確認・成果物生成）着手待ち。
+
+---
+
+## CONSTRUCTION - Per-Unit Loop - U5: Master Data Maintenance - Functional Design Step 5-6（整合性確認・成果物生成）完了
+**Timestamp**: 2026-07-11T19:45:00Z
+**User Input**: (継続実行、質問なし)
+**AI Response**: Step 5として、Q2の構造変更（`RecordDto`→`RecordListResult`）に伴いQ7本文中の`PageResult<RecordDto>`表記を`RecordListResult.records`（`PageResult<List<Object>>`）へ修正し、Q3・Q6の本文がQ2の新構造と矛盾しないことを確認した（Q3はクエリ条件のみでレコード形状に非依存、Q6はMutation側のMap形式のみを参照しRecordDtoへの言及なし）。実装コード（`SortDirection`, `Permission`, `PageResult`, `PageRequest`, `EventType`, `AuditLogService`, `EffectivePermissionResolver`, `DialectStrategy`, `ConnectionPoolRegistry`, `SchemaQueryService`, `TableType`, 共通例外クラス`PermissionDeniedException`/`ValidationException`/`EntityNotFoundException`）を確認し、Q3の`UiSort`は新規enumを定義せず既存の`common.dialect.SortDirection`を再利用する設計に修正した。
+Step 6として以下4成果物を生成した。
+- `domain-entities.md`: Q1（内部DBエンティティなし）を明記した上で、`masterdata`のサービス境界を流れるDTO/値オブジェクト（`TableSummary`, `ColumnMetadata`, `RecordListResult`, `FilterCriteria`/`UiCondition`/`UiSort`/`Operator`/`FilterMode`, `RecordCreate`/`RecordUpdate`/`RecordDelete`/`MutationRequest`/`MutationResult`）をカタログ化。既存共通例外クラスの再利用方針も明記。
+- `business-rules.md`: MVP-10（アクセス可能テーブル一覧）、MVP-11/GEN-1/GEN-2（レコード一覧取得、SELECT列のNONE除外、UIモード権限検証、RAWモード安全性方針、大量データ監査閾値）、GEN-3/GEN-4/GEN-5（MutationRequestのall-or-nothing権限検証、主キーなしテーブルの扱い、単一トランザクション実行・ロールバック、監査記録）、API認可（一般ユーザ向け、管理者ロール制約なし）を整理。
+- `business-logic-model.md`: フロー1（アクセス可能テーブル一覧表示）、フロー2（レコード一覧の絞り込み・並び替え・閲覧）、フロー3（レコードの編集・作成・削除と単一トランザクション反映）を定義。PBT-01テスト可能な性質としてP1〜P10を識別（SELECT列のNONE除外不変性、RecordListResultの構造整合性、UIモード権限検証、RAWモード簡易防御、大量データ監査の境界値、MutationRequestのall-or-nothing不変性、主キーなしテーブルのUpdate/Delete拒否、トランザクション原子性、成功時の反映結果一致）。
+- `frontend-components.md`: `features/masterData/`の`SchemaTableListPage`/`RecordListPage`/`FilterPanel`/`MutationResultDialog`のProps/状態/責務、`DataTable`拡張部分（インライン編集・行選択・新規行追加ボタンの権限連動表示）、api.ts関数一覧、AppRouter追加ルート（`/master-data`、管理者ロール制約なし）を定義。あわせてU7（クエリ実行、未着手）との将来的な`DataTable`アダプタロジック共通化の可能性を申し送り事項として明記。
+`u5-master-data-maintenance-functional-design-plan.md`のStep 6チェックリストを全て`[x]`に更新した。
+**Context**: Per-Unit Loop、U5 Functional Design Step 5-6完了。標準完了メッセージ提示、ユーザ承認待ち。
+
+---
+
