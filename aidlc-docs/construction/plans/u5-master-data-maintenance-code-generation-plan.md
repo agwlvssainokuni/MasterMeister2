@@ -217,7 +217,7 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       解決に必要、`nfr-design-patterns.md` 1.1の依存方向記載は`ConnectionPoolRegistry`同様
       `rdbmsconnection`パッケージへの依存を前提としており矛盾しない）。
       `./gradlew compileJava`成功を確認。単体テストはStep 3-1/3-2で追加する。
-- [ ] 2-6. `backend/src/main/java/cherry/mastermeister/masterdata/
+- [x] 2-6. `backend/src/main/java/cherry/mastermeister/masterdata/
       MasterDataMutationService.java`（`@Service`）: `MutationResult applyChanges(Long
       userId, Long connectionId, String schema, String table, MutationRequest request)`
       （3.1: 全操作の権限検証をall-or-nothingで先に実施——`canCreate`/カラムUPDATE権限/
@@ -230,6 +230,34 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       する。リクエスト内の総操作件数（`creates.size() + updates.size() + deletes.size()`）が
       `mm.app.master-data.max-mutation-batch-size`を超える場合はSQL実行前に
       `ValidationException`で拒否する（`tech-stack-decisions.md` #4）。
+      **実装メモ**: バッチサイズ超過チェック→権限検証（3.1: `creates`が空でなければ
+      `canCreate`、`deletes`が空でなければ`canDelete`、`updates`が空でなければ主キー構成の
+      有無を先にチェックしてから——3.2どおり主キーなしテーブルは`ValidationException`——
+      各`changedValues`のカラムが`UPDATE`権限以上か検証）の順で実施し、いずれかの失敗
+      （`PermissionDeniedException`/`ValidationException`）もバッチサイズ超過も、対象RDBMSへ
+      問い合わせる前に`AuditLogService.record(..., Result.FAILURE, ...)`を記録してから
+      例外を再送出する（3.1「権限検証失敗もFAILUREとして記録」・3.4の統一方針どおり）。
+      検証を通過した場合のみ`ConnectionPoolRegistry.getTransactionTemplate(connectionId)`の
+      `execute`コールバック内で`INSERT`→`UPDATE`→`DELETE`を`creates`/`updates`/`deletes`の
+      順に1件ずつ`NamedParameterJdbcTemplate.update`で発行する（`setQueryTimeout`は
+      コールバック内の最初に1回適用——Step 2-5の`MasterDataQueryService`と同じ理由で
+      `ConnectionPoolRegistry.getJdbcTemplate`は呼び出しごとに新規インスタンスを返すため）。
+      SQL文はMasterDataQueryServiceと同じCATALOG_BASED/SCHEMA_BASED判定でテーブル名を
+      修飾し、`INSERT`は`create.values()`のキー集合から動的に列リストとプレースホルダを
+      構築、`UPDATE`は`changedValues`をSET句に・`primaryKeyValues`をWHERE句に、`DELETE`は
+      主キー列全部をWHERE句に使う（パラメータ名衝突を避けるため`UPDATE`のSET句パラメータは
+      `set_`、WHERE句パラメータは`pk_`のプレフィックスを付与——`RecordUpdate`は
+      `primaryKeyValues`と`changedValues`が別マップだが同じカラム名を含みうるため）。
+      `DataAccessException`発生時は`TransactionTemplate.execute`のコールバックが例外を
+      伝播し自動的にロールバックされる仕様（Spring標準）に委ね、呼び出し元でcatchして
+      `errorMessage`に`getMostSpecificCause().getMessage()`（元の`SQLException`相当の
+      メッセージのみ、行・カラム単位の詳細特定はしない=3.3どおり）を設定した
+      `MutationResult(false, ...)`を返す（例外を再送出せず失敗結果として返却——呼び出し元
+      APIが「バリデーション失敗=4xx」と「実行時失敗=結果に含めて200で返す」を区別できる
+      よう、権限検証・バッチサイズ超過は例外、実行時のDB由来失敗は`MutationResult`という
+      2種類の失敗表現を使い分けた。Code Generationレベルの設計判断、Step 5のAPI層で
+      HTTPステータスへのマッピングを確定する）。`./gradlew compileJava`成功を確認。
+      単体テストはStep 3-3/3-4で追加する。
 
 ### Step 3: ビジネスロジック単体テスト（PBT-01〜PBT-08, PBT-10）
 `business-logic-model.md`のP1〜P10に対応する`@Property`テストをjqwikで生成する。対象RDBMSへの
