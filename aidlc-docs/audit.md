@@ -2890,3 +2890,20 @@ importを追加。`./gradlew compileJava`成功、既存`MasterDataControllerTes
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U5: Master Data Maintenance - Code Generation Part 2 Step 11-1
+**Timestamp**: 2026-07-12T00:50:00Z
+**User Input**: "継続。"
+**AI Response**: `frontend/src/features/masterData/types.ts`を新規生成し、`domain-entities.md`の
+全DTO（`TableSummary`/`ColumnMetadata`/`RecordListResult`/`FilterMode`/`Operator`/
+`UiCondition`/`SortDirection`/`UiSort`/`FilterCriteria`/`RecordCreate`/`RecordUpdate`/
+`RecordDelete`/`MutationRequest`/`MutationResult`）とStep 5-4で追加した
+`GET /connections`のレスポンス型（`ConnectionSummary`/`RdbmsType`）に対応するTypeScript型を
+定義した。`ConnectionSummary`/`RdbmsType`/`TableType`/`Permission`は既存の`rdbmsConnection`/
+`schema`/`permission`各featureのローカル型と同一shapeで本feature内に再定義し（他feature非
+依存の方針）、`PageResult`のみ`features/`配下ではない共通`src/types/api.ts`から
+importした（`auditLog`と同じ再利用パターン）。`npx tsc -b`成功を確認。計画のStep 11-1を
+`[x]`にマークした。
+**Context**: Per-Unit Loop、U5 Code Generation Part 2。次はStep 11-2（`api.ts`実装）。
+
+---
+

@@ -492,10 +492,15 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       Step 8〜10は一括してN/Aとした。
 
 ### Step 11: フロントエンドコンポーネント生成
-- [ ] 11-1. `frontend/src/features/masterData/types.ts`: `frontend-components.md`・
+- [x] 11-1. `frontend/src/features/masterData/types.ts`: `frontend-components.md`・
       `domain-entities.md`のDTOに対応するTypeScript型（`TableSummary`/`ColumnMetadata`/
       `RecordListResult`/`FilterCriteria`/`UiCondition`/`UiSort`/`RecordCreate`/
       `RecordUpdate`/`RecordDelete`/`MutationRequest`/`MutationResult`等）を定義する。
+      実装メモ: `ConnectionSummary`/`RdbmsType`/`TableType`/`Permission`は`rdbmsConnection`/
+      `schema`/`permission`各featureの型と同一shapeで本feature内にローカル再定義した
+      （他feature非依存の方針、`frontend-components.md`）。`PageResult`のみは`features/`配下
+      ではない共通`src/types/api.ts`（`auditLog`と同じ再利用パターン）からimportした。
+      `npx tsc -b`成功を確認。
 - [ ] 11-2. `frontend/src/features/masterData/api.ts`: `listAccessibleConnections`/
       `listAccessibleSchemas`/`listAccessibleTables`/`listRecords`/`applyChanges`
       （「ブラウンフィールド発見事項」2・4・5反映後の実パス、Step 5参照）を実装する。U1の
