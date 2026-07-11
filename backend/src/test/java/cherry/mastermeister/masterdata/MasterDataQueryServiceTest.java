@@ -18,9 +18,13 @@ package cherry.mastermeister.masterdata;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -51,6 +55,9 @@ import net.jqwik.api.lifecycle.AfterContainer;
 import net.jqwik.api.lifecycle.BeforeContainer;
 
 import cherry.mastermeister.audit.AuditLogService;
+import cherry.mastermeister.audit.EventCategory;
+import cherry.mastermeister.audit.EventType;
+import cherry.mastermeister.audit.Result;
 import cherry.mastermeister.common.PageRequest;
 import cherry.mastermeister.common.dialect.DialectStrategyFactory;
 import cherry.mastermeister.common.dialect.H2DialectStrategy;
@@ -235,6 +242,52 @@ class MasterDataQueryServiceTest {
                 .isInstanceOf(PermissionDeniedException.class);
     }
 
+    // P5: listRecordsの返却行数がlargeRecordThreshold未満の場合はLARGE_RECORD_READ監査記録が
+    //     発生せず、threshold以上の場合は必ず発生する（境界値検証：threshold-1件では記録なし、
+    //     threshold件では記録あり）。
+    @Property(tries = 20)
+    void listRecordsRecordsLargeRecordAuditAtThresholdBoundary(
+            @ForAll("thresholds") int threshold, @ForAll boolean atThreshold
+    ) throws Exception {
+        int rowCount = atThreshold ? threshold : threshold - 1;
+        String dbName = "MASTERDATAQUERYP5" + DB_COUNTER.incrementAndGet();
+        try (Connection setup = openConnection(dbName)) {
+            createSchema(setup, TEST_SCHEMA);
+            try (Statement st = setup.createStatement()) {
+                st.execute("CREATE TABLE " + TEST_SCHEMA + ".T1 "
+                        + "(ID INT PRIMARY KEY, COL0 VARCHAR(50), COL1 VARCHAR(50), "
+                        + "COL2 VARCHAR(50), COL3 VARCHAR(50))");
+            }
+            for (int i = 0; i < rowCount; i++) {
+                try (Statement st = setup.createStatement()) {
+                    st.execute("INSERT INTO " + TEST_SCHEMA + ".T1 VALUES "
+                            + "(" + i + ", 'COL0', 'COL1', 'COL2', 'COL3')");
+                }
+            }
+        }
+
+        Map<String, Permission> columnPermissions = new LinkedHashMap<>();
+        columnPermissions.put("ID", Permission.READ);
+        for (String column : GENERATED_COLUMNS) {
+            columnPermissions.put(column, Permission.READ);
+        }
+
+        AuditLogService auditLogService = mock(AuditLogService.class);
+        MasterDataQueryService service = newService(dbName, columnPermissions, threshold, auditLogService);
+
+        FilterCriteria criteria = new FilterCriteria(FilterMode.UI, List.of(), List.of(), null, null);
+        service.listRecords(1L, 1L, TEST_SCHEMA, "T1", criteria, new PageRequest(0, threshold + 10));
+
+        if (atThreshold) {
+            verify(auditLogService).record(
+                    eq(EventCategory.DATA_ACCESS), eq(EventType.LARGE_RECORD_READ), eq(1L), eq(1L),
+                    eq(Result.SUCCESS), eq(TEST_SCHEMA + ".T1"), anyString());
+        } else {
+            verify(auditLogService, never()).record(
+                    any(), eq(EventType.LARGE_RECORD_READ), anyLong(), anyLong(), any(), anyString(), anyString());
+        }
+    }
+
     @Provide
     Arbitrary<List<Permission>> columnPermissionPatterns() {
         return Arbitraries.of(Permission.values()).list().ofSize(GENERATED_COLUMNS.size());
@@ -250,7 +303,19 @@ class MasterDataQueryServiceTest {
         return Arbitraries.integers().between(0, GENERATED_COLUMNS.size() - 1);
     }
 
+    @Provide
+    Arbitrary<Integer> thresholds() {
+        return Arbitraries.integers().between(1, 5);
+    }
+
     private MasterDataQueryService newService(String dbName, Map<String, Permission> columnPermissions) {
+        return newService(dbName, columnPermissions, 100, mock(AuditLogService.class));
+    }
+
+    private MasterDataQueryService newService(
+            String dbName, Map<String, Permission> columnPermissions, int largeRecordThreshold,
+            AuditLogService auditLogService
+    ) {
         RdbmsConnectionRepository connectionRepository = mock(RdbmsConnectionRepository.class);
         Instant now = Instant.now();
         when(connectionRepository.findById(1L)).thenReturn(Optional.of(new RdbmsConnection(
@@ -275,7 +340,7 @@ class MasterDataQueryServiceTest {
 
         return new MasterDataQueryService(
                 schemaQueryService, permissionResolver, registry, connectionRepository, dialectStrategyFactory,
-                mock(AuditLogService.class), Duration.ofSeconds(30), 100);
+                auditLogService, Duration.ofSeconds(30), largeRecordThreshold);
     }
 
     private Connection openConnection(String dbName) throws SQLException {

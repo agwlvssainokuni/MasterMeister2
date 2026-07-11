@@ -305,8 +305,18 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       ないことをテストの前提としている）。
       `./gradlew test --tests "cherry.mastermeister.masterdata.MasterDataQueryServiceTest"`で
       成功を確認（BUILD SUCCESSFUL）。
-- [ ] 3-3. **P5**（`large-record-threshold`境界値での監査記録Invariant）:
+- [x] 3-3. **P5**（`large-record-threshold`境界値での監査記録Invariant）:
       `MasterDataQueryServiceTest`に追加生成する。
+      実装メモ: `listRecordsRecordsLargeRecordAuditAtThresholdBoundary`として実装。
+      `newService`に`largeRecordThreshold`と`AuditLogService`モックを注入できるオーバーロードを
+      追加し、`@ForAll("thresholds")`（1〜5の範囲）で境界値となるthreshold自体をランダム化。
+      `atThreshold`（`@ForAll boolean`）で`threshold-1`件（未満）と`threshold`件（以上）の
+      いずれを投入するかを切り替え、`threshold`件の場合のみ`EventType.LARGE_RECORD_READ`の
+      監査記録が発生し、`threshold-1`件の場合は一切発生しないことをMockito
+      `verify`/`verify(..., never())`で検証。PageRequestのpageSizeは`threshold+10`として
+      ページングによる行数の切り詰めが境界値検証に影響しないようにしている。
+      `./gradlew test --tests "cherry.mastermeister.masterdata.MasterDataQueryServiceTest"`で
+      成功を確認（BUILD SUCCESSFUL）。
 - [ ] 3-4. **P6**（`applyChanges`権限検証all-or-nothing Invariant）・**P7**（主キーなし
       テーブルへの`RecordUpdate`拒否Invariant）・**P8**（主キーなしテーブルへの
       `RecordDelete`拒否Invariant）: `MasterDataMutationServiceTest`に`@Property`テストを

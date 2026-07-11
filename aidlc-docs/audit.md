@@ -2635,3 +2635,22 @@ Invariant）は`listRecordsRejectsRawCriteriaContainingSemicolon`として実装
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U5: Master Data Maintenance - Code Generation Part 2 Step 3-3
+**Timestamp**: 2026-07-11T09:30:00Z
+**User Input**: "継続。"
+**AI Response**: `MasterDataQueryServiceTest.java`にP5（`large-record-threshold`境界値での監査記録
+Invariant）検証用の`@Property`テストを追加した。
+`listRecordsRecordsLargeRecordAuditAtThresholdBoundary`として実装し、`newService`に
+`largeRecordThreshold`と`AuditLogService`モックを注入できるオーバーロードを追加。
+`@ForAll("thresholds")`（1〜5の範囲）でthreshold自体をランダム化し、`atThreshold`
+（`@ForAll boolean`）で`threshold-1`件（未満）と`threshold`件（以上）のいずれを投入するかを
+切り替え、`threshold`件の場合のみ`EventType.LARGE_RECORD_READ`の監査記録が発生し、
+`threshold-1`件の場合は一切発生しないことをMockito `verify`/`verify(..., never())`で検証。
+PageRequestのpageSizeは`threshold+10`とし、ページングによる行数の切り詰めが境界値検証に
+影響しないようにしている。
+`./gradlew test --tests "cherry.mastermeister.masterdata.MasterDataQueryServiceTest"`で
+成功を確認（BUILD SUCCESSFUL）。
+**Context**: Per-Unit Loop、U5 Code Generation Part 2。Step 3-3完了。
+
+---
+
