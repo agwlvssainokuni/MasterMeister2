@@ -2479,3 +2479,23 @@ Code Generation - starting.」に更新。コミット後、Code Generation Part
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U5: Master Data Maintenance - Code Generation Part 1（ブラウンフィールド発見事項レビュー）
+**Timestamp**: 2026-07-11T21:50:00Z
+**User Input**: "ブラウンフィールド発見事項について一つずつ確認しよう。" → 発見事項1「1: OK」→
+発見事項2「一般ユーザ用のAPIはrdbms-connections以外にしたい。」→ 発見事項2改訂案「OK」→
+発見事項3改訂確認「OK」→ 発見事項4「OK」
+**AI Response**: 4件のブラウンフィールド発見事項を1件ずつユーザと確認。発見事項1
+（`getTransactionTemplate`未実装）・4（`listRecords`のPOST化）は原案どおり承認。発見事項2は
+ユーザ指示により当初案（`/api/rdbms-connections/{connectionId}/master-data/**`）から独立
+ルートパス`/api/master-data/{connectionId}/**`に変更（`AuditLogController`の`/api/audit-logs`
+等、既存コントローラの命名慣習に倣う）。この変更に伴い発見事項3（`SecurityConfig`マッチャ
+順序）も再検討——新パスは`/api/rdbms-connections/**`と前方一致しなくなるため「既存ADMIN
+ルールより前に挿入」という順序制約が解消され、単純な`.requestMatchers("/api/master-data/**")
+.authenticated()`追加に変更。計画書（`u5-master-data-maintenance-code-generation-plan.md`）の
+発見事項2・3の記述とStep 5-2（`MasterDataController`の`@RequestMapping`）・Step 5-3
+（`SecurityConfig`追記内容）を更新。
+**Context**: Per-Unit Loop、U5 Code Generation Part 1（Planning）。4件のブラウンフィールド
+発見事項すべてユーザ確認完了。計画書更新済み、コミット待ち。
+
+---
+

@@ -59,19 +59,21 @@ U1・U3・U4に依存（`unit-of-work-dependency.md`: `masterdata→common,audit
    Spring MVCの`ambiguous mapping`エラーで起動に失敗する。加えてU3のこれらのエンドポイントは
    管理者専用・権限フィルタなしであり、U5の要件（一般ユーザ向け・`EffectivePermissionResolver`
    による権限フィルタ済み一覧）とはレスポンス内容も認可要件も異なる別物である。
-   → 本計画ではU5のエンドポイントを`/api/rdbms-connections/{connectionId}/master-data/**`
-   配下に配置し、U3の`/api/rdbms-connections/{connectionId}/schemas/**`（管理者向け・生メタ
-   データ）とパスを完全に分離する（詳細はStep 5参照）。
+   → ユーザ指示により、U5のエンドポイントは`/api/rdbms-connections/**`配下ではなく
+   **独立したルートパス`/api/master-data/{connectionId}/**`に配置する**（`AuditLogController`
+   の`/api/audit-logs`、`GroupController`の`/api/groups`と同様、コントローラ単位でリソース名を
+   ルートに置く既存の命名慣習に倣う）。これによりU3の
+   `/api/rdbms-connections/{connectionId}/schemas/**`（管理者向け・生メタデータ）とはパスの
+   ルートから完全に分離される（詳細はStep 5参照）。
 
-3. **`SecurityConfig`の`.requestMatchers("/api/rdbms-connections/**").hasRole("ADMIN")`は
-   前方一致で`/api/rdbms-connections/{connectionId}/master-data/**`も包含してしまう**ため、
-   このままではU5の一般ユーザ向けエンドポイントが管理者専用になってしまう
-   （`business-rules.md` 4節「認証済み（`isAuthenticated()`）であればアクセス可能」と矛盾）。
-   → 本計画のStep 5で`.requestMatchers("/api/rdbms-connections/*/master-data/**")
-   .authenticated()`を、既存の`.requestMatchers("/api/rdbms-connections/**")
-   .hasRole("ADMIN")`より**前**に追記する（Spring Securityは最初にマッチしたルールを採用する
-   ため順序が重要、U4 Q3/Q4の「サービス境界確認のみ」パターンとは異なり本ユニットは実際に
-   ルール追加が必要）。
+3. **`SecurityConfig`に一般ユーザ向け`master-data`エンドポイント用のルールが存在しない**
+   ことが判明した（`business-rules.md` 4節「認証済み（`isAuthenticated()`）であればアクセス
+   可能」を満たすルールを新規追加する必要がある）。発見事項2の対応により新パスは
+   `/api/master-data/**`という独立したルートになったため、既存の`.requestMatchers(
+   "/api/rdbms-connections/**").hasRole("ADMIN")`とは前方一致せず、**順序を意識した挿入は
+   不要**（当初検討していた「既存ADMINルールより前に挿入」という制約は解消）。
+   → 本計画のStep 5で`.requestMatchers("/api/master-data/**").authenticated()`を、他の
+   一般ユーザ向けルールと同様の場所に追記する。
 
 4. **`listRecords`の`criteria`（`FilterCriteria`）はGETのクエリパラメータに素直に
    フラット化できない**ことが判明した。`AuditLogController.search`（既存、`GET` +
@@ -223,20 +225,18 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       RecordSearchRequest.java`（record: `FilterCriteria criteria, int page, int
       pageSize`、「ブラウンフィールド発見事項」4）を生成する。
 - [ ] 5-2. `backend/src/main/java/cherry/mastermeister/masterdata/MasterDataController.java`
-      （`@RestController @RequestMapping("/api/rdbms-connections/{connectionId}/
-      master-data")`）: `GET "/schemas"`（`listAccessibleSchemas`）、`GET
-      "/schemas/{schema}/tables"`（`listAccessibleTables`）、`POST
-      "/schemas/{schema}/tables/{table}/records:search"`（`RecordSearchRequest`を受け
-      `listRecords`→`RecordListResult`）、`POST
+      （`@RestController @RequestMapping("/api/master-data/{connectionId}")`）: `GET
+      "/schemas"`（`listAccessibleSchemas`）、`GET "/schemas/{schema}/tables"`
+      （`listAccessibleTables`）、`POST "/schemas/{schema}/tables/{table}/records:search"`
+      （`RecordSearchRequest`を受け`listRecords`→`RecordListResult`）、`POST
       "/schemas/{schema}/tables/{table}/records:apply"`（`MutationRequest`を受け
       `applyChanges`→`MutationResult`）を生成する（「ブラウンフィールド発見事項」2・4、
       `business-rules.md` 4節）。`userId`は`Authentication#getPrincipal()`キャスト取得
       （U2/U3/U4のコントローラと同一パターン）。
 - [ ] 5-3. `backend/src/main/java/cherry/mastermeister/security/SecurityConfig.java`
-      （既存、ブラウンフィールド修正）に`.requestMatchers("/api/rdbms-connections/*/
-      master-data/**").authenticated()`を、既存の`.requestMatchers("/api/rdbms-connections/
-      **").hasRole("ADMIN")`より**前**に追記する（「ブラウンフィールド発見事項」3、
-      `business-rules.md` 4節）。
+      （既存、ブラウンフィールド修正）に`.requestMatchers("/api/master-data/**")
+      .authenticated()`を、他の一般ユーザ向けルールと同様の場所に追記する
+      （「ブラウンフィールド発見事項」3、`business-rules.md` 4節）。
 
 ### Step 6: APIレイヤ単体テスト
 - [ ] 6-1. `MasterDataControllerTest`（`@WebMvcTest` + `spring-security-test`）: 4エンドポイント
