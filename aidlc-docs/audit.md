@@ -2553,3 +2553,22 @@ Step 2-1として`ConnectionPoolRegistry.java`に`getTransactionTemplate(Long co
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U5: Master Data Maintenance - Code Generation Part 2 Step 2-5
+**Timestamp**: 2026-07-11T22:30:00Z
+**User Input**: "継続。"
+**AI Response**: `MasterDataQueryService.java`（`@Service`）を生成。`listAccessibleSchemas`/
+`listAccessibleTables`は`EffectivePermissionResolver`/`SchemaQueryService`への委譲・組み立て
+（`business-rules.md` 1.1-1.2）。`listRecords`はテーブル権限NONE時の`PermissionDeniedException`、
+`resolveEffectiveColumnPermissions`によるSELECT列のNONE除外、UIモードのカラム権限検証、RAW
+モードのセミコロン簡易チェック、`DialectStrategy`によるページング/方言吸収（`quoteIdentifier`/
+`buildPagingClause`/`buildNullsOrderingClause`）、`ResultSetExtractor`内で`ResultSetMetaData`
+から`ColumnMetadata`を都度導出しつつ`RecordRowMapper`で行を構築、`mm.app.master-data.
+query-timeout`の`setQueryTimeout`適用、`mm.app.master-data.large-record-threshold`以上での
+`AuditLogService.record(DATA_ACCESS, LARGE_RECORD_READ, ...)`をすべて実装（`business-rules.md`
+2.1-2.5）。`DialectStrategy.getSchemaResolutionMode`に基づくテーブル参照のスキーマ修飾要否判定
+（CATALOG_BASED/SCHEMA_BASED）とNULL順序`NullsOrder.LAST`固定はCode Generationレベルの
+AI判断として追加（要件未言及部分の詳細化）。`compileJava`成功を確認。
+**Context**: Per-Unit Loop、U5 Code Generation Part 2。Step 2-5完了。
+
+---
+

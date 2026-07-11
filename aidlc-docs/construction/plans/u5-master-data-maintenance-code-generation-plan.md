@@ -186,7 +186,7 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       `switch`式（`java.sql.Types`定数）で`nfr-design-patterns.md` 2.1のマッピング表を
       そのまま実装。`./gradlew compileJava`成功を確認（対象RDBMSへの実アクセスを伴う動作検証は
       Step 3のP1/P2で行う）。
-- [ ] 2-5. `backend/src/main/java/cherry/mastermeister/masterdata/
+- [x] 2-5. `backend/src/main/java/cherry/mastermeister/masterdata/
       MasterDataQueryService.java`（`@Service`）: `List<String>
       listAccessibleSchemas(Long userId, Long connectionId)`（`EffectivePermissionResolver`
       へそのまま委譲、`business-rules.md` 1.1）、`List<TableSummary>
@@ -201,6 +201,22 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       `mm.app.master-data.query-timeout`を`setQueryTimeout`で適用、`RecordRowMapper`で行を
       構築、1ページの件数が`mm.app.master-data.large-record-threshold`以上なら
       `AuditLogService.record(DATA_ACCESS, LARGE_RECORD_READ, ...)`）を実装する。
+      **実装メモ**: `listAccessibleSchemas`/`listAccessibleTables`は計画どおり実装。
+      `listRecords`は`ResultSetExtractor`ラムダ内で`ResultSetMetaData`から`ColumnMetadata`の
+      `columnName`/`dataType`/`nullable`を都度導出し（`domain-entities.md`確定どおりU3の
+      `SchemaColumn`スナップショットに依存しない）、`primaryKeySequence`のみ
+      `SchemaQueryService.getTableDetail`の結果をカラム名で突合、`RecordRowMapper.mapRow`を
+      同一`ResultSetExtractor`内で行構築に再利用した。`DialectStrategy.getSchemaResolutionMode`
+      が`CATALOG_BASED`（MySQL/MariaDB）の場合はテーブル参照をスキーマ修飾せず（接続時の
+      カタログ＝schema値のため）、`SCHEMA_BASED`（PostgreSQL/H2）の場合のみ
+      `quoteIdentifier(schema) + "." + quoteIdentifier(table)`で修飾する設計判断を追加した
+      （`business-rules.md`未言及、U3`SchemaImportService.resolveSchemaNames`と同じ判定基準を
+      流用）。UIモード条件のNULL順序は`NullsOrder.LAST`固定とした（要件に明記がないための
+      AI判断、Code Generationレベルの詳細化）。ページング件数照会は`SELECT COUNT(*)`を
+      別途発行する方式とした。`RdbmsConnectionRepository`への直接依存を追加（`DialectStrategy`
+      解決に必要、`nfr-design-patterns.md` 1.1の依存方向記載は`ConnectionPoolRegistry`同様
+      `rdbmsconnection`パッケージへの依存を前提としており矛盾しない）。
+      `./gradlew compileJava`成功を確認。単体テストはStep 3-1/3-2で追加する。
 - [ ] 2-6. `backend/src/main/java/cherry/mastermeister/masterdata/
       MasterDataMutationService.java`（`@Service`）: `MutationResult applyChanges(Long
       userId, Long connectionId, String schema, String table, MutationRequest request)`
