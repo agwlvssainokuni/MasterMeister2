@@ -317,10 +317,29 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       ページングによる行数の切り詰めが境界値検証に影響しないようにしている。
       `./gradlew test --tests "cherry.mastermeister.masterdata.MasterDataQueryServiceTest"`で
       成功を確認（BUILD SUCCESSFUL）。
-- [ ] 3-4. **P6**（`applyChanges`権限検証all-or-nothing Invariant）・**P7**（主キーなし
+- [x] 3-4. **P6**（`applyChanges`権限検証all-or-nothing Invariant）・**P7**（主キーなし
       テーブルへの`RecordUpdate`拒否Invariant）・**P8**（主キーなしテーブルへの
       `RecordDelete`拒否Invariant）: `MasterDataMutationServiceTest`に`@Property`テストを
       生成する。
+      実装メモ: `MasterDataMutationServiceTest.java`を新規生成し、3つの`@Property`テストを
+      実装。P6は`applyChangesRejectsAllOrNothingWhenAnyOperationFailsPermission`として実装。
+      `@ForAll("failureTargets")`（0〜2）でcreate/update/deleteのいずれか1件のみを失敗させ
+      （`canCreate`/カラムUPDATE権限/`canDelete`をそれぞれfalse・READ・falseに設定）、
+      他の2操作は有効なまま`MutationRequest`に含め、`PermissionDeniedException`送出後に
+      対象テーブルの全行が呼び出し前の状態（ID=0/2の既存2行のCOL0値も含め）と完全一致する
+      ことをJDBCで直接検証。P7は`applyChangesRejectsRecordUpdateOnTableWithoutPrimaryKey`
+      として実装。`ColumnDetail`の`primaryKeySequence`を全カラムnullにして主キーなしテーブルを
+      表現し、`@ForAll("columnPermissionPatterns")`でカラム権限をランダム化（NONE〜UPDATEの
+      全域を含む）しても`RecordUpdate`を含むリクエストが常に`ValidationException`となることを
+      検証。P8は`applyChangesRejectsRecordDeleteOnTableWithoutPrimaryKey`として実装。同じく
+      主キーなしテーブルで、U4既存仕様により`canDelete`が常にfalseとなる契約を`newService`の
+      `canDelete=false`注入で模擬し、`RecordDelete`を含むリクエストが常に
+      `PermissionDeniedException`となること、および対象行が削除されず残存することを検証。
+      3テストとも`MasterDataQueryServiceTest`と同じくH2 TCPサーバ（`@BeforeContainer`/
+      `@AfterContainer`）・`ConnectionPoolRegistry`実接続・`SchemaQueryService`/
+      `EffectivePermissionResolver`/`AuditLogService`のMockitoモックという構成を踏襲。
+      `./gradlew test --tests "cherry.mastermeister.masterdata.MasterDataMutationServiceTest"`で
+      成功を確認（BUILD SUCCESSFUL）。
 - [ ] 3-5. **P9**（トランザクション原子性Invariant：`SQLException`発生時に対象RDBMS状態が
       呼び出し前と完全一致）・**P10**（成功時の反映結果Invariant：`creates`/`updates`/
       `deletes`の内容が過不足なく反映）: `MasterDataMutationServiceTest`に追加生成する。
