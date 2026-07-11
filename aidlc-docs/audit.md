@@ -2726,3 +2726,21 @@ pageSize`の3フィールドを持つrecordとして実装（`listRecords`の`cr
 
 ---
 
+## CONSTRUCTION - Per-Unit Loop - U5: Master Data Maintenance - Code Generation Part 2 Step 5-2
+**Timestamp**: 2026-07-11T10:20:00Z
+**User Input**: "継続。"
+**AI Response**: `backend/src/main/java/cherry/mastermeister/masterdata/MasterDataController.java`を
+新規生成した。`@RequestMapping("/api/master-data/{connectionId}")`配下に`GET /schemas`
+（`listAccessibleSchemas`）・`GET /schemas/{schema}/tables`（`listAccessibleTables`）・
+`POST /schemas/{schema}/tables/{table}/records:search`（`RecordSearchRequest`を受け`criteria`+
+`PageRequest(page, pageSize)`に分解して`listRecords`を呼び出す）・
+`POST /schemas/{schema}/tables/{table}/records:apply`（`MutationRequest`を受け`applyChanges`を
+呼び出す）の4エンドポイントを実装。`userId`は`Authentication#getPrincipal()`キャスト取得
+（U2/U3/U4のコントローラと同一パターン）。例外処理は既存`GlobalExceptionHandler`に委譲し
+（`SchemaController`等と同様、コントローラ自体は例外を捕捉しない）、`applyChanges`の実行時DB
+失敗は`MutationResult(success=false, ...)`として200 OKで返却される（Step 2-6の設計どおり）。
+`./gradlew compileJava`成功を確認。
+**Context**: Per-Unit Loop、U5 Code Generation Part 2。Step 5-2完了。
+
+---
+

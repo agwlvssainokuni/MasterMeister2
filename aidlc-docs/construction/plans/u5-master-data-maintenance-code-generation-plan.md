@@ -384,7 +384,7 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
 
       実装メモ: `domain-entities.md`/「ブラウンフィールド発見事項」4のフィールド構成
       （`criteria, page, pageSize`）のとおりrecordとして実装。`./gradlew compileJava`成功を確認。
-- [ ] 5-2. `backend/src/main/java/cherry/mastermeister/masterdata/MasterDataController.java`
+- [x] 5-2. `backend/src/main/java/cherry/mastermeister/masterdata/MasterDataController.java`
       （`@RestController @RequestMapping("/api/master-data/{connectionId}")`）: `GET
       "/schemas"`（`listAccessibleSchemas`）、`GET "/schemas/{schema}/tables"`
       （`listAccessibleTables`）、`POST "/schemas/{schema}/tables/{table}/records:search"`
@@ -393,6 +393,13 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       `applyChanges`→`MutationResult`）を生成する（「ブラウンフィールド発見事項」2・4、
       `business-rules.md` 4節）。`userId`は`Authentication#getPrincipal()`キャスト取得
       （U2/U3/U4のコントローラと同一パターン）。
+
+      実装メモ: `SchemaController`（U3）と同型のシンプルな戻り値直接返却スタイルで実装
+      （`ResponseEntity`ラップなし、例外処理は`GlobalExceptionHandler`に委譲）。
+      `records:search`は`RecordSearchRequest`の`page`/`pageSize`から`PageRequest`を組み立てて
+      `listRecords`に渡す。`records:apply`は`MutationResult`をそのまま返却し、実行時DB失敗
+      （`success=false`）も200 OKで返る（Step 2-6の設計どおり、HTTPステータスの分離は行わない）。
+      `./gradlew compileJava`成功を確認。単体テストはStep 6-1で追加する。
 - [ ] 5-3. `backend/src/main/java/cherry/mastermeister/security/SecurityConfig.java`
       （既存、ブラウンフィールド修正）に`.requestMatchers("/api/master-data/**")
       .authenticated()`を、他の一般ユーザ向けルールと同様の場所に追記する
