@@ -442,8 +442,8 @@ U1〜U6の`frontend-components.md`と同様の粒度で、本ユニットの3フ
 
 ## Step 6: 成果物生成チェックリスト
 
-- [ ] `aidlc-docs/construction/u7-saved-query-execution-history/functional-design/domain-entities.md`
-- [ ] `aidlc-docs/construction/u7-saved-query-execution-history/functional-design/business-rules.md`
-- [ ] `aidlc-docs/construction/u7-saved-query-execution-history/functional-design/business-logic-model.md`
+- [x] `aidlc-docs/construction/u7-saved-query-execution-history/functional-design/domain-entities.md`
+- [x] `aidlc-docs/construction/u7-saved-query-execution-history/functional-design/business-rules.md`
+- [x] `aidlc-docs/construction/u7-saved-query-execution-history/functional-design/business-logic-model.md`
       （PBT-01: テスト可能な性質セクションを含む、`property-based-testing`拡張が有効なため）
-- [ ] `aidlc-docs/construction/u7-saved-query-execution-history/functional-design/frontend-components.md`
+- [x] `aidlc-docs/construction/u7-saved-query-execution-history/functional-design/frontend-components.md`

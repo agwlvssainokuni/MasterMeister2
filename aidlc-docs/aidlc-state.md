@@ -3,7 +3,7 @@
 ## Project Information
 - **Project Type**: Brownfield
 - **Start Date**: 2026-07-06T10:38:36Z
-- **Current Stage**: CONSTRUCTION - Per-Unit Loop - U7: Saved Query / Execution / History — Functional Design Part 1 (Planning) complete, all Q1-Q11 answered. Awaiting approval to proceed to Part 2 (artifact generation).
+- **Current Stage**: CONSTRUCTION - Per-Unit Loop - U7: Saved Query / Execution / History — Functional Design Part 2 (Generation) artifacts created, awaiting user review/approval.
 
 ## Execution Plan Summary
 - **Plan Document**: aidlc-docs/inception/plans/execution-plan.md

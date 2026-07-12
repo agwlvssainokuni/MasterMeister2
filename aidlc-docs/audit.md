@@ -4083,3 +4083,35 @@ Functional Design中にユーザが発見した設計上の問題点について
 
 ---
 
+## Per-Unit Loop - U7 Functional Design Part 2（Generation）
+**Timestamp**: 2026-07-13T10:45:00Z
+**User Input**: "続行してください。"
+**AI Response**: `u7-saved-query-execution-history-functional-design-plan.md`のQ1〜Q11の
+確定内容に基づき、4つの成果物ドキュメントを`aidlc-docs/construction/
+u7-saved-query-execution-history/functional-design/`配下に生成した。
+- `domain-entities.md`: 内部DBエンティティ2件（`SavedQuery`・`QueryHistory`、Q1）、
+  `Visibility`/`SavedQueryStatus`/`QueryResult`/`ResultColumn`/`DetectedParam`/
+  `PagingOption`/`HistoryFilterCriteria`/`ExecutorScope`等のサポート型（Q2・Q3・Q6〜Q8）、
+  例外は既存共通例外（`EntityNotFoundException`/`PermissionDeniedException`/
+  `ValidationException`）を再利用しU6と同じ方針で新規例外クラスは定義しなかった。
+- `business-rules.md`: 8節構成（1: 可視性・編集・廃止権限、2: 読み取り専用SQL検証、
+  3: パラメータ検出、4: ページング、5: 履歴の絞り込み・可視性マトリクス・マスキング、
+  6: U6↔U7連携、7: 大量データ対策、8: API認可）。Q5の廃止フラグ状態遷移表、Q8の可視性
+  マトリクス（訂正版）をそのまま転記した。
+- `business-logic-model.md`: 4フロー（1: 保存クエリ保存・一覧・詳細・編集・廃止、
+  2: SQL実行、3: 履歴一覧・絞り込み・マスキング、4: 履歴からの画面遷移）と、PBT-01に基づく
+  テスト可能な性質P1〜P10（可視性フィルタ、`retired`状態遷移の一方向性、読み取り専用検証、
+  パラメータ検出、ページング境界値、実行のたびの二重記録（履歴＋監査ログ）、
+  `executionCount`インクリメント整合性、履歴マスキング、廃止バッジの独立性）を定義した。
+- `frontend-components.md`: `features/savedQuery/`（`SavedQueryListPage`/
+  `SavedQuerySaveForm`/`SavedQueryDetailPage`）・`features/queryExecution/`
+  （`QueryExecutionPage`）・`features/queryHistory/`（`QueryHistoryListPage`）の3feature、
+  U6の`GeneratedSqlPanel.onNavigateToSave`/`onNavigateToExecute`への実装差し込み方針
+  （Q9）、AppRouter追加ルート一覧を記載した。
+`aidlc-docs/construction/plans/u7-saved-query-execution-history-functional-design-plan.md`の
+Step 6チェックリスト4項目を`[x]`に更新した。
+**Context**: Per-Unit Loop、U7: Saved Query / Execution / History — Functional Design
+Part 2（Generation）完了。標準2択完了メッセージ提示・ユーザ承認待ち。
+
+---
+
