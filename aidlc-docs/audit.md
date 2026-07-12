@@ -3970,3 +3970,22 @@ Per-Unit Loop（Functional Design等）に進む。
 
 ---
 
+## Per-Unit Loop - U7 Functional Design - Plan作成
+**Timestamp**: 2026-07-13T09:35:00Z
+**User Input**: "U7のFunctional Designに進めてください。"
+**AI Response**: `aidlc-docs/construction/plans/u7-saved-query-execution-history-functional-design-plan.md`
+を作成した。Step 1でユニット定義（`unit-of-work.md`）・対応ストーリー（GEN-10〜16、`stories.md`）・
+Application Design時点の既存確定事項（`component-methods.md`草案シグネチャ、
+`component-dependency.md`の依存マトリクスと未解決セキュリティ注記、U6/U5からの申し送り事項、
+`AuditLog`の`QUERY_EXECUTED`予約済みEventType、JPA規約等）を整理した。Step 2-4で11問の
+明確化質問（Q1: 内部DBエンティティ一覧、Q2: `SavedQuery`構造・保存対象、Q3: `QueryHistory`構造・
+実行回数記録方式、Q4: 読み取り専用SQL検証方式とU4非依存の扱い、Q5: 可視性・実行・編集・削除権限、
+Q6: パラメータ自動検出・バインド方式、Q7: ページング制御方式、Q8: 履歴絞り込み仕様・結果表現、
+Q9: U6↔U7連携の具体実装、Q10: フロントエンド画面構成、Q11: 大量データ・タイムアウト対策）を
+U6のplanと同一フォーマット（`### Qn.`見出し＋A/B/(C)/[Answer]:タグ、推奨案には理由を付記）で
+作成し、各質問に推奨回答（A）を事前記入した。
+**Context**: Per-Unit Loop、U7: Saved Query / Execution / History — Functional Design
+Part 1（Planning）。ユーザによる質問内容の確認・回答編集待ち。
+
+---
+
