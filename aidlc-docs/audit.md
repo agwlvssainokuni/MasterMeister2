@@ -4127,3 +4127,28 @@ NFR Requirementsへ進む。
 
 ---
 
+## Per-Unit Loop - U7 NFR Requirements Plan（Planning）作成
+**Timestamp**: 2026-07-13T10:05:00Z
+**User Input**: (継続、ユーザ入力なし)
+**AI Response**:
+`aidlc-docs/construction/plans/u7-saved-query-execution-history-nfr-requirements-plan.md`を
+作成した。U7はexecution-plan.mdの規定によりNFR Requirements=EXECUTE。U1（監査ログ保持期間
+ポリシー先例）・U5（listRecordsページング検証方式、対象RDBMSクエリタイムアウト
+setQueryTimeout先例）・U6（JSqlParserライセンス確定、parse-max-length/parse-timeoutガード
+先例——ただしquerybuilderスコープのみでqueryexecutionには適用されない）を参照し、重複しない
+5問を構成した。
+- Q1: 実行履歴一覧（listHistory）のページングデフォルト・選択肢値
+  （`mm.app.query-history.default-page-size`/`page-size-options`、U5 Q1と同方式）
+- Q2: クエリ実行タイムアウト（`mm.app.query-execution.query-timeout`、キー名・既定値は
+  Functional Design Q11で確定済み）の実装方式・適用範囲（`setQueryTimeout`、U5 Q2と同方式）
+- Q3: GEN-13手入力SQLに対するJSqlParser解析のガード（`mm.app.query-execution.sql-max-length`/
+  `parse-timeout`新設、querybuilderとは別スコープ）
+- Q4: `SavedQuery.sql`・`QueryHistory.sql`/`params`のDBカラム型（`CLOB`/`@Lob`、上限なし）
+- Q5: `executionCount`アトミック更新の実装方式（`@Modifying @Query`によるUPDATE文、
+  楽観ロック不採用）
+リテンション（U1先例を適用、新規実装なし）・可用性・`getStatuses`キャッシュ不要の判断は
+「新規論点なし」として質問化せず記載した。全問に推奨回答（A）を事前記入済み。
+**Context**: Per-Unit Loop、U7 NFR Requirements Part 1（Planning）、ユーザ回答待ち。
+
+---
+
