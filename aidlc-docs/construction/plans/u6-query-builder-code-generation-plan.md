@@ -325,7 +325,7 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       N/Aのため`repository-layer-summary.md`は生成しない旨を冒頭に明記する。
 
 ### Step 16: デプロイ成果物生成
-- [ ] 16-1. `backend/src/main/resources/application.yml`（既存、ブラウンフィールド修正）に
+- [x] 16-1. `backend/src/main/resources/application.yml`（既存、ブラウンフィールド修正）に
       `mm.app.query-builder.parse-max-length`（既定`10000`）、
       `mm.app.query-builder.parse-timeout`（既定`5`秒）、
       `mm.app.query-builder.parse-executor-pool-size`（既定`4`）、

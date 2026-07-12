@@ -3938,3 +3938,20 @@ Step 15は単一item。
 
 ---
 
+## Per-Unit Loop - U6 Code Generation Part 2 - Step 16-1
+**Timestamp**: 2026-07-13T09:25:00Z
+**User Input**: "続行してください。"
+**AI Response**: `backend/src/main/resources/application.yml`（既存、ブラウンフィールド修正）の
+`mm.app.rdbms-connection`ブロックの直後に`mm.app.query-builder`ブロックを追記した。
+`parse-max-length: 10000`、`parse-timeout: 5s`、`parse-executor-pool-size: 4`、
+`max-select-items: 100`、`max-join-items: 10`、`max-where-conditions: 30`、
+`max-group-by-columns: 30`、`max-having-conditions: 20`、`max-order-by-items: 20`の9キー。
+追記前に`SqlGenerationService`/`SqlParsingService`の`@Value`デフォルト値（Step 2で確定済み）と
+突き合わせ、全キー・全デフォルト値が一致することを確認した。追記後
+`./gradlew compileJava test --tests "cherry.mastermeister.querybuilder.*"`を実行し、
+既存の全querybuilderテストがグリーンのままであることを確認した。
+**Context**: Per-Unit Loop、U6 Code Generation Part 2、Step 16-1
+（application.yml設定追加）完了。Step 16は単一item。これがCode Generation Part 2の最終ステップ。
+
+---
+
