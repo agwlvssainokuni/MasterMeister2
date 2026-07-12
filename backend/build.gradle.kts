@@ -44,6 +44,7 @@ dependencyManagement {
         dependency("com.mysql:mysql-connector-j:9.3.0")
         dependency("org.mariadb.jdbc:mariadb-java-client:3.5.3")
         dependency("org.postgresql:postgresql:42.7.7")
+        dependency("com.github.jsqlparser:jsqlparser:5.3")
     }
 }
 
@@ -56,6 +57,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-cache")
     implementation("com.github.ben-manes.caffeine:caffeine")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")
+    implementation("com.github.jsqlparser:jsqlparser")
     implementation("io.jsonwebtoken:jjwt-api")
     runtimeOnly("io.jsonwebtoken:jjwt-impl")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson")

@@ -122,7 +122,7 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
 ## ステップ一覧
 
 ### Step 1: プロジェクト構造セットアップ
-- [ ] 1-1. `backend/build.gradle.kts`（既存、ブラウンフィールド修正）の`dependencyManagement`
+- [x] 1-1. `backend/build.gradle.kts`（既存、ブラウンフィールド修正）の`dependencyManagement`
       ブロックに`dependency("com.github.jsqlparser:jsqlparser:5.3")`を追加し、`dependencies`
       ブロックに`implementation("com.github.jsqlparser:jsqlparser")`を追加する
       （バージョン番号は`dependencyManagement`側で一元管理、Gradleバージョン管理規約）。
