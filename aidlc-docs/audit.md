@@ -3416,3 +3416,21 @@ Code Generationへ進行する旨に更新。
 
 ---
 
+## U6: Query Builder Code Generation Part 1（Planning）— 計画作成・承認依頼
+**Timestamp**: 2026-07-12T17:45:00Z
+**User Input**: "Code Generationに進めてください。"
+**AI Response**: `functional-design`（`domain-entities.md`/`business-rules.md`/
+`business-logic-model.md`/`frontend-components.md`）・`nfr-requirements`
+（`tech-stack-decisions.md`）・`nfr-design`（`nfr-design-patterns.md`/`logical-components.md`）の
+全成果物、および既存バックエンドコード（`DialectStrategy`/`DialectStrategyFactory`/
+`EffectivePermissionResolver`/`SchemaQueryService`/`ConnectionPoolRegistry`/`SecurityConfig`/
+`build.gradle.kts`）を確認し、`aidlc-docs/construction/plans/
+u6-query-builder-code-generation-plan.md`を新規作成。全16ステップ（Step 1〜16、該当なし
+ステップ含む）で構成。Code Generation時点で確定する事項6件（RESTパス確定＝
+`/api/query-builder/{connectionId}/**`、JSqlParserバージョン5.3、Visitorクラス構成の具体化、
+parse側の件数上限超過・parse-max-length超過はいずれも例外化せずfullyParsed=falseで統一、
+Optional直列化の既存モジュールでの対応確認）を明記。
+**Context**: Per-Unit Loop、U6 Code Generation Part 1（Planning）。ユーザ承認待ち。
+
+---
+
