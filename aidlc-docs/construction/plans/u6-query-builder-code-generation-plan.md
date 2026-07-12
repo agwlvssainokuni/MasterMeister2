@@ -209,7 +209,7 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       **P5**（プレースホルダ/paramsキー一致Invariant）・**P6**（識別子クオートInvariant）・
       **P10**（LIMIT OFFSET句の有無Invariant）: `SqlGenerationServiceTest`に`@Property`テストを
       生成する。
-- [ ] 3-3. **P7**（非対応構文検出Invariant）・**P9**（parse側の権限フィルタInvariant）:
+- [x] 3-3. **P7**（非対応構文検出Invariant）・**P9**（parse側の権限フィルタInvariant）:
       `SqlParsingServiceTest`に`@Property`テストを生成する。
 - [ ] 3-4. **P8**（`generate`→`parse`ラウンドトリップInvariant）: `SqlParsingServiceTest`
       （`SqlGenerationService`と`SqlParsingService`の両方を利用するため同ファイルに追加、

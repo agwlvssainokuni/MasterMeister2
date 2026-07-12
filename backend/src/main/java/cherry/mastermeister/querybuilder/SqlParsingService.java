@@ -139,8 +139,7 @@ public class SqlParsingService {
         if (select.getWithItemsList() != null && !select.getWithItemsList().isEmpty()) {
             return notFullyParsed("対応していない構文です（WITH句）");
         }
-        PlainSelect plainSelect = select.getPlainSelect();
-        if (plainSelect == null) {
+        if (!(select instanceof PlainSelect plainSelect)) {
             return notFullyParsed("対応していない構文です（UNION/サブクエリ等）");
         }
 
