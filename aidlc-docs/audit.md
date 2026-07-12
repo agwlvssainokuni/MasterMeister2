@@ -3208,3 +3208,41 @@ Functional Design/NFR Designで決定＝Question 7 = C）を確認し、Function
 
 ---
 
+## U6: Query Builder Functional Design — 質問回答収集
+**Timestamp**: 2026-07-12T15:35:00Z
+**User Input**: "Q1=A" "Q3=A" "Q4=A" "Q5=A" "Q6=A" （以上、前セッションからの継続分）
+"Q2について。fromItemsはListなの？" "反映してください。" "Q7=A" "Q8=A" "Q9=A" "Q10=A"
+**AI Response**: `u6-query-builder-functional-design-plan.md`のQ1〜Q10全問について、ユーザから
+1問ずつチャットで提示された回答を`[Answer]:`タグに記録した。Q2回答の過程で、プラン内の
+`QueryBuilderModel`定義に矛盾（`FromItem`はコメントで「FROMタブは常に1件」としながら型は
+`List<FromItem> fromItems`になっていた）があるとユーザから指摘を受け、`FromItem fromItem`
+（単数）への修正を提案・承認を得て反映した上でQ2=A（修正版）として記録。全10問の回答:
+Q1=A（内部DBエンティティなし）、Q2=A（`QueryBuilderModel`集約モデル、`fromItem`単数に修正）、
+Q3=A（WHERE/HAVINGはAND結合のみ）、Q4=A（JoinTypeはINNER/LEFT/RIGHTのみ）、
+Q5=A（AggregateFunctionは6値、DISTINCT非対応）、Q6=A（UI組立系は例外なく権限フィルタ適用）、
+Q7=A（自前StringBuilder実装、外部SQL構築ライブラリ不使用）、
+Q8=A（JSqlParser導入、限定範囲の解析）、Q9=A（U6はSQL表示までが責務、保存/実行連携はU7で実装）、
+Q10=A（`QueryBuilderPage`+7タブ+2パネル構成）。曖昧・要確認の回答はなし。
+**Context**: Per-Unit Loop、U6 Functional Design Step 5（回答収集・分析）完了。
+
+---
+
+## U6: Query Builder Functional Design — 成果物生成
+**Timestamp**: 2026-07-12T16:05:00Z
+**User Input**: （直接指示なし、全問回答完了を受けてFunctional Design Step 6を実行）
+**AI Response**: U5（`u5-master-data-maintenance`）の既存成果物4ファイルを参照し、見出し階層・
+コード記法・PBTセクション構成等のスタイルを確認した上で、U6の確定回答（Q1〜Q10）に基づき
+`aidlc-docs/construction/u6-query-builder/functional-design/`配下に4ファイルを新規作成した:
+`domain-entities.md`（`TableRef`/`ColumnRef`/`QueryBuilderModel`一式/`GeneratedSql`/
+`ParseResult`等、内部DBエンティティなし）、`business-rules.md`（権限フィルタ・WHERE/HAVING
+のAND結合限定・JOIN種別・集計関数/GROUP BY制約・SQL生成/解析方式・GEN-8連携範囲・API認可の
+8トピック）、`business-logic-model.md`（フロー1〜3＋PBT-01テスト可能な性質セクション、
+P1〜P10）、`frontend-components.md`（`QueryBuilderPage`+7タブ+2パネル構成、api.ts、U7申し送り
+事項、AppRouter.tsxへの追加）。既存コード（`EffectivePermissionResolver`/`SchemaQueryService`/
+`DialectStrategy`/`ConnectionPoolRegistry`等）の実シグネチャを確認し、ドキュメント記述との
+整合を取った。プランファイルのStep 6チェックリストを全項目チェック済みに更新した。
+**Context**: Per-Unit Loop、U6 Functional Design Step 6（成果物生成）完了。次はStep 7
+（完了メッセージ提示）・Step 8（ユーザ承認待ち）。
+
+---
+
