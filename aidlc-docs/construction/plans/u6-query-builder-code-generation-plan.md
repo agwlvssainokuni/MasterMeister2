@@ -225,7 +225,7 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
 ### Step 5: APIレイヤ生成
 - [x] 5-1. `backend/src/main/java/cherry/mastermeister/querybuilder/SqlParseRequest.java`
       （record: `String rawSql`、リクエストボディ用）を生成する。
-- [ ] 5-2. `backend/src/main/java/cherry/mastermeister/querybuilder/QueryBuilderController.java`
+- [x] 5-2. `backend/src/main/java/cherry/mastermeister/querybuilder/QueryBuilderController.java`
       （`@RestController @RequestMapping("/api/query-builder/{connectionId}")`）: `GET
       "/schemas"`（`listSelectableSchemas`）、`GET "/schemas/{schema}/tables"`
       （`listSelectableTables`）、`GET "/schemas/{schema}/tables/{table}/columns"`
