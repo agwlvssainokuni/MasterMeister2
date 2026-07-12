@@ -240,7 +240,7 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       場所に追記する（`business-rules.md` 8節「認証済みユーザ全員」）。
 
 ### Step 6: APIレイヤ単体テスト
-- [ ] 6-1. `QueryBuilderControllerTest`（`@WebMvcTest` + `spring-security-test`）: 5エンドポイント
+- [x] 6-1. `QueryBuilderControllerTest`（`@WebMvcTest` + `spring-security-test`）: 5エンドポイント
       それぞれについて認証済みユーザ成功系・未認証401をexample-basedテストで検証する
       （U2〜U5のControllerTestパターンを踏襲、本ユニットは管理者ロール制約がないため403系
       テストは不要——`business-rules.md` 8節）。

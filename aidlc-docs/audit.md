@@ -3610,3 +3610,18 @@ Step 5（5-1〜5-3）全item完了。
 
 ---
 
+## Per-Unit Loop - U6 Code Generation Part 2 - Step 6-1
+**Timestamp**: 2026-07-12T19:30:00Z
+**User Input**: "続行してください。"
+**AI Response**: `backend/src/test/java/cherry/mastermeister/querybuilder/QueryBuilderControllerTest.java`
+を生成した（`@WebMvcTest(QueryBuilderController.class)` + `spring-security-test`、
+`MasterDataControllerTest`と同一パターン）。`GET /schemas`・`GET /schemas/{schema}/tables`・
+`GET /schemas/{schema}/tables/{table}/columns`・`POST /generate`・`POST /parse`の5エンドポイント
+それぞれについて認証済みユーザ成功系・未認証401のexample-basedテストを実装した
+（本ユニットは管理者ロール制約がないため403系テストは不要）。
+`./gradlew test --tests "cherry.mastermeister.querybuilder.QueryBuilderControllerTest"`で
+10件全てグリーンを確認した。Step 6は単一item（6-1）のためitem単位コミットはこの1件のみ。
+**Context**: Per-Unit Loop、U6 Code Generation Part 2、Step 6-1（QueryBuilderControllerTest.java）完了。
+
+---
+
