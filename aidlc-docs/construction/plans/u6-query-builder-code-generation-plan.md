@@ -260,7 +260,7 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       `OrderByItem`/`QueryBuilderModel`/`GeneratedSql`/`ParseResult`等）を定義する。
       `SortDirection`は`masterdata`/`schema`等と同様、本feature内にローカル再定義する
       （他feature非依存の方針、`frontend-components.md`）。
-- [ ] 11-2. `frontend/src/features/queryBuilder/api.ts`: `listSelectableSchemas`/
+- [x] 11-2. `frontend/src/features/queryBuilder/api.ts`: `listSelectableSchemas`/
       `listSelectableTables`/`listSelectableColumns`/`generateSql`/`parseSql`（Step 5-2確定の
       実パスに対応）を実装する。U1の`apiClient`を再利用する。
 - [ ] 11-3. `frontend/src/features/queryBuilder/QueryBuilderPage.tsx`・`FromJoinTab.tsx`:

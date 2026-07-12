@@ -3666,3 +3666,15 @@ itemごとにコミット・継続可否確認を行う運用をStep 11でも継
 
 ---
 
+## Per-Unit Loop - U6 Code Generation Part 2 - Step 11-2
+**Timestamp**: 2026-07-12T19:50:00Z
+**User Input**: "続行してください。"
+**AI Response**: `frontend/src/features/queryBuilder/api.ts`を生成した。
+`listSelectableSchemas`/`listSelectableTables`/`listSelectableColumns`/`generateSql`/
+`parseSql`の5関数を、Step 5-2で確定した実パス（`/api/query-builder/{connectionId}/...`）に
+対応する形で、U1既存の`apiFetch`（`masterData/api.ts`と同一パターン）を用いて実装した。
+`npx tsc --noEmit`・`npm run lint`で確認した。
+**Context**: Per-Unit Loop、U6 Code Generation Part 2、Step 11-2（api.ts）完了。
+
+---
+
