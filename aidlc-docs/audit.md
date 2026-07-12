@@ -3739,3 +3739,17 @@ BUILD SUCCESSFULを確認した。
 
 ---
 
+## Per-Unit Loop - U6 Code Generation Part 2 - Step 7-2
+**Timestamp**: 2026-07-12T20:15:00Z
+**User Input**: "続行してください。"
+**AI Response**: `api-layer-summary.md`に`GET /api/query-builder/connections`
+（item 2-9・5-4参照）を追記した。エンドポイント一覧表への追加、`GET /connections`詳細
+サブセクションの追加、クラスレベルマッピング変更に伴う既存4サブセクションの見出しパス更新
+（`{connectionId}`プレフィックス付与）、テストカバレッジ表を10件→12件に更新した
+（U5 item 7-2と同一の更新パターン）。冒頭に本追加の経緯（Step 11着手時発見、U5と同種の問題）を
+一文で明記した。
+**Context**: Per-Unit Loop、U6 Code Generation Part 2、Step 7-2（api-layer-summary.md更新）完了。
+これで接続一覧API欠落への対応（2-9/5-4/6-2/7-2）が完了し、Step 11-3の実装に戻る。
+
+---
+
