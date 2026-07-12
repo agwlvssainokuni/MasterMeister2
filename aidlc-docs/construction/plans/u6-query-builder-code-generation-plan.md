@@ -128,10 +128,10 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       （バージョン番号は`dependencyManagement`側で一元管理、Gradleバージョン管理規約）。
 
 ### Step 2: ビジネスロジック生成
-- [ ] 2-1. `backend/src/main/java/cherry/mastermeister/querybuilder/`にメタデータ参照系DTOを
+- [x] 2-1. `backend/src/main/java/cherry/mastermeister/querybuilder/`にメタデータ参照系DTOを
       生成する（`domain-entities.md`確定）: `TableRef`（record: `schema, table, comment`）、
       `ColumnRef`（record: `columnName, dataType, nullable`）。
-- [ ] 2-2. `backend/src/main/java/cherry/mastermeister/querybuilder/`にクエリモデル系DTO・enumを
+- [x] 2-2. `backend/src/main/java/cherry/mastermeister/querybuilder/`にクエリモデル系DTO・enumを
       生成する（`domain-entities.md`確定）: `JoinType`（enum: `INNER, LEFT, RIGHT`）、
       `AggregateFunction`（enum: `NONE, COUNT, SUM, AVG, MIN, MAX`）、`Operator`（enum: `EQ, NE,
       GT, LT, GE, LE, LIKE, IS_NULL, IS_NOT_NULL`）、`FromItem`（record: `schema, table,
@@ -145,11 +145,11 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       List<JoinItem> joinItems, List<Condition> whereConditions, List<String> groupByColumns,
       List<Condition> havingConditions, List<OrderByItem> orderByItems, Integer limit, Integer
       offset`）。
-- [ ] 2-3. `backend/src/main/java/cherry/mastermeister/querybuilder/`にAPI境界DTOを生成する
+- [x] 2-3. `backend/src/main/java/cherry/mastermeister/querybuilder/`にAPI境界DTOを生成する
       （`domain-entities.md`確定）: `GeneratedSql`（record: `String sql, Map<String, Object>
       params`）、`ParseResult`（record: `boolean fullyParsed, Optional<QueryBuilderModel>
       model, Optional<String> notice`）。
-- [ ] 2-4. `backend/src/main/java/cherry/mastermeister/querybuilder/QueryBuilderMetadataService.java`
+- [x] 2-4. `backend/src/main/java/cherry/mastermeister/querybuilder/QueryBuilderMetadataService.java`
       （`@Service`）: `List<String> listSelectableSchemas(Long userId, Long connectionId)`
       （`EffectivePermissionResolver.listAccessibleSchemas`へ委譲、`business-rules.md` 1.1）、
       `List<TableRef> listSelectableTables(Long userId, Long connectionId, String schema)`
@@ -159,7 +159,7 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       String table)`（`SchemaQueryService.getTableDetail`のカラム一覧を
       `resolveEffectiveColumnPermissions`が`READ`以上と判定したものだけ`ColumnRef`化）を実装する
       （`business-rules.md` 1.1、フロー1）。
-- [ ] 2-5. `backend/src/main/java/cherry/mastermeister/querybuilder/SqlGenerationService.java`
+- [x] 2-5. `backend/src/main/java/cherry/mastermeister/querybuilder/SqlGenerationService.java`
       （`@Service`）: `GeneratedSql generate(Long connectionId, QueryBuilderModel model)`を
       実装する（`business-rules.md` 5節、フロー2）。`RdbmsConnectionRepository`+
       `DialectStrategyFactory.resolve`でその接続の`DialectStrategy`を解決（`masterdata`と
@@ -170,18 +170,18 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       LIMIT OFFSET句（`DialectStrategy.buildPagingClause`）を`StringBuilder`で順に組み立て、
       識別子は`DialectStrategy.quoteIdentifier`でクオート、値は`:paramN`連番プレースホルダに
       置換して`Map<String, Object>`に集約する（`business-rules.md` 5.1-5.2）。
-- [ ] 2-6. `backend/src/main/java/cherry/mastermeister/querybuilder/AggregateExpressionVisitor.java`
+- [x] 2-6. `backend/src/main/java/cherry/mastermeister/querybuilder/AggregateExpressionVisitor.java`
       （`ExpressionVisitorAdapter`継承、上記「Code Generation時点で確定する事項」3）: 単一の
       `Column`または単一引数の集計関数`Function`（COUNT/SUM/AVG/MIN/MAX）式を`(tableAlias,
       columnName, AggregateFunction)`に変換する。それ以外の式形状（算術式・CASE式・
       サブクエリ等）に遭遇した場合は変換失敗フラグを立てる。
-- [ ] 2-7. `backend/src/main/java/cherry/mastermeister/querybuilder/WhereConditionVisitor.java`
+- [x] 2-7. `backend/src/main/java/cherry/mastermeister/querybuilder/WhereConditionVisitor.java`
       （`ExpressionVisitorAdapter`継承）: WHERE/HAVING共通の条件式木を`List<Condition>`に変換する。
       `AndExpression`は再帰的に両辺を展開、比較演算子（`EqualsTo`/`NotEqualsTo`/`GreaterThan`/
       `MinorThan`/`GreaterThanEquals`/`MinorThanEquals`/`LikeExpression`/`IsNullExpression`）の
       左辺は`AggregateExpressionVisitor`で変換する。`OrExpression`/`Parenthesis`/その他の式に
       遭遇した場合は変換失敗フラグを立て、以降の変換を打ち切る（`nfr-design-patterns.md` 1.2）。
-- [ ] 2-8. `backend/src/main/java/cherry/mastermeister/querybuilder/SqlParsingService.java`
+- [x] 2-8. `backend/src/main/java/cherry/mastermeister/querybuilder/SqlParsingService.java`
       （`@Service`）: `ParseResult parse(Long userId, Long connectionId, String rawSql)`を
       実装する（`business-rules.md` 6節、フロー3）。`mm.app.query-builder.parse-max-length`
       超過は`fullyParsed=false`（上記確定事項5）。固定サイズ共有`ExecutorService`
