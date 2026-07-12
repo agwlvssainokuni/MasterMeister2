@@ -15,6 +15,7 @@
  */
 
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { ApiError } from '../../api/apiClient'
 import { generateSql, listSelectableConnections, listSelectableSchemas } from './api'
 import { FromJoinTab } from './FromJoinTab'
@@ -22,6 +23,7 @@ import { GeneratedSqlPanel } from './GeneratedSqlPanel'
 import { GroupByOrderByTab } from './GroupByOrderByTab'
 import { LimitOffsetTab } from './LimitOffsetTab'
 import { SelectTab } from './SelectTab'
+import { SqlReverseParsePanel } from './SqlReverseParsePanel'
 import { WhereHavingTab } from './WhereHavingTab'
 import type {
   Condition,
@@ -47,6 +49,7 @@ const TABS: { key: TabKey; label: string }[] = [
 ]
 
 export function QueryBuilderPage() {
+  const [searchParams] = useSearchParams()
   const [connections, setConnections] = useState<ConnectionSummary[]>([])
   const [connectionId, setConnectionId] = useState<number | null>(null)
   const [schemas, setSchemas] = useState<string[]>([])
@@ -66,6 +69,12 @@ export function QueryBuilderPage() {
 
   useEffect(() => {
     listSelectableConnections().then(setConnections)
+    const urlConnectionId = searchParams.get('connectionId')
+    if (urlConnectionId != null) {
+      void handleSelectConnection(Number(urlConnectionId))
+    }
+    // マウント時のみ、URLクエリパラメータ経由の初期接続選択（GEN-9、U7からの遷移想定）を行う
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const handleSelectConnection = async (selectedConnectionId: number) => {
@@ -97,6 +106,25 @@ export function QueryBuilderPage() {
   const handleChangeFromJoin = (nextFromItem: FromItem, nextJoinItems: JoinItem[]) => {
     setFromItem(nextFromItem)
     setJoinItems(nextJoinItems)
+  }
+
+  const handleApplyParsedModel = async (model: QueryBuilderModel) => {
+    if (connectionId !== null && !schemas.includes(model.fromItem.schema)) {
+      setSchemas(await listSelectableSchemas(connectionId))
+    }
+    setSchema(model.fromItem.schema)
+    setFromItem(model.fromItem)
+    setJoinItems(model.joinItems)
+    setSelectItems(model.selectItems)
+    setWhereConditions(model.whereConditions)
+    setGroupByColumns(model.groupByColumns)
+    setHavingConditions(model.havingConditions)
+    setOrderByItems(model.orderByItems)
+    setLimit(model.limit)
+    setOffset(model.offset)
+    setGeneratedSql(null)
+    setGenerateError(null)
+    setActiveTab('fromJoin')
   }
 
   const handleGenerate = async () => {
@@ -161,6 +189,14 @@ export function QueryBuilderPage() {
             ))}
           </select>
         </label>
+      )}
+
+      {connectionId !== null && (
+        <SqlReverseParsePanel
+          connectionId={connectionId}
+          initialRawSql={searchParams.get('rawSql') ?? undefined}
+          onApply={handleApplyParsedModel}
+        />
       )}
 
       {connectionId !== null && schema !== null && (

@@ -298,7 +298,7 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       `generateSql`呼び出し→生成SQL・パラメータ表示・コピーボタン、`ValidationException`の
       エラー表示、「保存」「実行」ボタン（`onNavigateToSave`/`onNavigateToExecute`props、U6
       時点では未実装）を生成する（GEN-8、`business-rules.md` 7節、`frontend-components.md`）。
-- [ ] 11-7. `frontend/src/features/queryBuilder/SqlReverseParsePanel.tsx`: 手入力SQL貼り付け→
+- [x] 11-7. `frontend/src/features/queryBuilder/SqlReverseParsePanel.tsx`: 手入力SQL貼り付け→
       `parseSql`呼び出し→`fullyParsed=true`ならタブへ反映（`onApply`props）、`false`なら
       `notice`表示を生成する（GEN-9、`frontend-components.md`）。
 - [ ] 11-8. `frontend/src/routes/AppRouter.tsx`（既存、ブラウンフィールド修正）に
