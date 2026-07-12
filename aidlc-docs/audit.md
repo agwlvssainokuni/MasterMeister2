@@ -3406,3 +3406,13 @@ Patterns＝Q2 ExecutorService構成の詳細、3-5. Scalability/Security/Resilie
 
 ---
 
+## U6: Query Builder NFR Design — 承認
+**Timestamp**: 2026-07-12T17:30:00Z
+**User Input**: "レビュー完了。承認します。記録したらコミット。"
+**AI Response**: `nfr-design-patterns.md`・`logical-components.md`の承認を記録。
+`aidlc-state.md`のStage ProgressテーブルU6行のNFR Design列を承認済みに更新し、Current Stageを
+Code Generationへ進行する旨に更新。
+**Context**: Per-Unit Loop、U6 NFR Design完了。次はU6最終ステージ（Code Generation）。
+
+---
+
