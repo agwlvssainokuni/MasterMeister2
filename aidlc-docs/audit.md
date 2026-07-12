@@ -3697,3 +3697,18 @@ itemごとにコミット・継続可否確認を行う運用をStep 11でも継
 
 ---
 
+## Per-Unit Loop - U6 Code Generation Part 2 - Step 2-9
+**Timestamp**: 2026-07-12T20:00:00Z
+**AI Response**: `QueryBuilderMetadataService`（既存、ブラウンフィールド修正）に
+`List<ConnectionSummary> listSelectableConnections(Long userId)`を追加した。
+`RdbmsConnectionRepository`を新規注入し、`MasterDataQueryService.listAccessibleConnections`
+と同一パターン（全接続のうち`effectivePermissionResolver.listAccessibleSchemas(userId,
+connectionId)`が非空のものだけを`ConnectionSummary`へマッピング）で実装した。
+既存の`QueryBuilderMetadataServiceTest`はコンストラクタ引数が1つ増えたため
+`mock(RdbmsConnectionRepository.class)`を追加して修正した。`./gradlew compileJava
+compileTestJava`・`./gradlew test --tests "cherry.mastermeister.querybuilder.*"`で
+BUILD SUCCESSFULを確認した。
+**Context**: Per-Unit Loop、U6 Code Generation Part 2、Step 2-9（listSelectableConnections追加）完了。
+
+---
+

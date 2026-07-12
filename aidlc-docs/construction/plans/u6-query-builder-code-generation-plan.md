@@ -196,7 +196,7 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       （`business-rules.md` 6.2）はいずれも`fullyParsed=false`。変換成功後、参照する全
       テーブル/カラムについて`resolveEffectiveTablePermission`/`resolveEffectiveColumnPermissions`
       で`READ`以上か検証し、満たさない場合は`fullyParsed=false`（`business-rules.md` 1.2）。
-- [ ] 2-9. `backend/src/main/java/cherry/mastermeister/querybuilder/QueryBuilderMetadataService.java`
+- [x] 2-9. `backend/src/main/java/cherry/mastermeister/querybuilder/QueryBuilderMetadataService.java`
       （既存、ブラウンフィールド修正）に`List<ConnectionSummary>
       listSelectableConnections(Long userId)`を追加する（U5「ブラウンフィールド発見事項」5と
       同種の問題——`frontend-components.md`のQueryBuilderPageは接続選択を内包する設計だが、
