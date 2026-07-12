@@ -3,7 +3,7 @@
 ## Project Information
 - **Project Type**: Brownfield
 - **Start Date**: 2026-07-06T10:38:36Z
-- **Current Stage**: CONSTRUCTION - Per-Unit Loop - U5: Master Data Maintenance - Code Generation approved, U5 COMPLETE. U6: Query Builder start is on hold at user's request (paused, not started).
+- **Current Stage**: CONSTRUCTION - Per-Unit Loop - U5 COMPLETE. U6: Query Builder started — Functional Design plan presented, awaiting user answers.
 
 ## Execution Plan Summary
 - **Plan Document**: aidlc-docs/inception/plans/execution-plan.md

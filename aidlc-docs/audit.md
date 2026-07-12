@@ -3173,3 +3173,38 @@ Per-Unit Loopとは独立したクリーンアップ対応）。
 
 ---
 
+## テスト用内部DBのインメモリH2化
+**Timestamp**: 2026-07-12T15:12:00Z
+**User Input**: "テスト用途では内部DBをインメモリDBにしたい。テストで投入したデータが永続化される
+ことで、テストの冪等性に影響が出ることを懸念している"
+**AI Response**: `@DataJpaTest`は既定でSpring Bootの`@AutoConfigureTestDatabase`により自動的に
+インメモリDBへ差し替わるが、`@SpringBootTest`を使う3クラス（`MasterMeisterApplicationTests`/
+`PermissionCacheConsistencyTest`/`SchemaReimportCacheConsistencyTest`、うち後2つはjqwikの
+`@Property`ベーステスト）は差し替わらず、`application.yml`既定の`jdbc:h2:file:./data/mastermeister`
+（`bootRun`と共用のファイルDB）へ実際に読み書きしていることを`data/*.db`のmtime変化で確認した。
+`backend/src/test/resources/application-test.yml`に`spring.datasource.url: jdbc:h2:mem:
+mastermeister-test;DB_CLOSE_DELAY=-1`を追加（`test`プロファイルは`build.gradle.kts`の
+`systemProperty("spring.profiles.active", "test")`で全テストに固定適用済みのため自動適用される）。
+`./gradlew test`実行前後で`data/*.db`のmtimeが変化しないことを確認し、ファイルDBへの書き込みが
+発生しなくなったことを検証した。コミット`098c6a7`「テスト用内部DBをインメモリH2に変更」として
+反映。
+**Context**: テスト冪等性向上のための内部DB設定修正（U5完了後・U6着手前に実施した、
+Per-Unit Loopとは独立した対応）。
+
+---
+
+## U6: Query Builder 着手
+**Timestamp**: 2026-07-12T15:20:00Z
+**User Input**: "U6着手。"
+**AI Response**: ユーザ指示によりU6: Query Builderの着手を開始。`aidlc-state.md`の
+`Current Stage`をU6着手中に更新。`unit-of-work.md`（U6定義: バックエンドパッケージ
+`querybuilder`、フロントエンド`features/queryBuilder/`、対応ストーリーGEN-6〜GEN-9）、
+`stories.md`（GEN-6〜GEN-9の受け入れ基準）、`components.md`/`component-methods.md`/
+`component-dependency.md`（Application Designで確定済みの`QueryBuilderMetadataService`/
+`SqlGenerationService`/`SqlParsingService`の責務・メソッドシグネチャ、実装方式は
+Functional Design/NFR Designで決定＝Question 7 = C）を確認し、Functional Design Planを
+作成・提示した。
+**Context**: Per-Unit Loop、U6 Functional Design開始。
+
+---
+
