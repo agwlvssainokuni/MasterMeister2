@@ -202,7 +202,7 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
 実アクセスを伴うため、U3/U4/U5と同じ手法（`org.h2.tools.Server`によるH2 TCPサーバを対象RDBMS役と
 して起動、`@SpringBootTest` `@JqwikSpringSupport`）を用いる。`EffectivePermissionResolver`/
 `SchemaQueryService`はMockitoでモック化し、`querybuilder`固有ロジックを独立して検証する。
-- [ ] 3-1. **P1**（`listSelectableColumns`のREAD未満カラム除外Invariant）:
+- [x] 3-1. **P1**（`listSelectableColumns`のREAD未満カラム除外Invariant）:
       `QueryBuilderMetadataServiceTest`に`@Property`テストを生成する。
 - [ ] 3-2. **P2**（JOIN句キーワード限定Invariant）・**P3**（GROUP BY制約違反時の
       `ValidationException`Invariant）・**P4**（WHERE/HAVING句AND結合限定Invariant）・
