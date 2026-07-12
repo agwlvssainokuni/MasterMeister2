@@ -3,7 +3,7 @@
 ## Project Information
 - **Project Type**: Brownfield
 - **Start Date**: 2026-07-06T10:38:36Z
-- **Current Stage**: CONSTRUCTION - Per-Unit Loop - U6: Query Builder — NFR Design approved, proceeding to Code Generation.
+- **Current Stage**: CONSTRUCTION - Per-Unit Loop - U6: Query Builder — Code Generation Part 1 (Planning) approved, executing Part 2 (Generation).
 
 ## Execution Plan Summary
 - **Plan Document**: aidlc-docs/inception/plans/execution-plan.md

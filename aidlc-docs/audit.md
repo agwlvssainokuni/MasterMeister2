@@ -3434,3 +3434,14 @@ Optional直列化の既存モジュールでの対応確認）を明記。
 
 ---
 
+## U6: Query Builder Code Generation Part 1（Planning）— 承認
+**Timestamp**: 2026-07-12T18:00:00Z
+**User Input**: "Part 1承認。"
+**AI Response**: `u6-query-builder-code-generation-plan.md`の承認を記録。`aidlc-state.md`の
+Stage ProgressテーブルU6行はCode Generation列が未完了のまま維持し、Current StageをPart 2
+（Generation）実行中に更新。Part 2（Step 1〜16の逐次実行）を開始する。
+**Context**: Per-Unit Loop、U6 Code Generation Part 1（Planning）承認完了。次はPart 2
+（Generation）。
+
+---
+
