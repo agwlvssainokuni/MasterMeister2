@@ -3640,3 +3640,13 @@ Step 7は単一item。
 
 ---
 
+## Per-Unit Loop - U6 Code Generation Part 2 - Step 8-10チェックボックス補正
+**Timestamp**: 2026-07-12T19:40:00Z
+**User Input**: "Step 8-10 のチェックボックスのチェックはしておくべきでは？"
+**AI Response**: ユーザ指摘のとおり、`u6-query-builder-code-generation-plan.md`のitem
+8/9/10-1（該当なし/N/A）のチェックボックスが未チェックのまま残っていたため`[x]`に修正した。
+Step 14（N/A、まだ到達していない）は意図的に未チェックのまま残していることを確認した。
+**Context**: Per-Unit Loop、U6 Code Generation Part 2。plan完了基準の整合性維持のための補正。
+
+---
+
