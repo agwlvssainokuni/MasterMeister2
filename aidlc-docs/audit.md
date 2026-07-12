@@ -3912,3 +3912,29 @@ Step 13は単一item。
 
 ---
 
+## Per-Unit Loop - U6 Code Generation Part 2 - Step 14チェックボックス補正
+**Timestamp**: 2026-07-13T09:15:00Z
+**AI Response**: Step 8-10と同様の理由で未チェックのまま残っていたitem 14-1（該当なし/N/A、
+デプロイ成果物生成のうちDBマイグレーションスクリプトは内部DBエンティティなしのため対象外）の
+チェックボックスを`[x]`に修正した。
+**Context**: Per-Unit Loop、U6 Code Generation Part 2。plan完了基準の整合性維持のための補正。
+
+---
+
+## Per-Unit Loop - U6 Code Generation Part 2 - Step 15-1
+**Timestamp**: 2026-07-13T09:20:00Z
+**User Input**: "続行してください。"
+**AI Response**: `aidlc-docs/construction/u6-query-builder/code/testing-summary.md`を生成した
+（`U5`の同名ファイルと同一構成）。PBT-10遵守状況（PBTとexample-basedの分離方針、P8の独立クラス
+分離判断、Step 3で検出した2件の実装バグの回帰テスト化）、P1〜P10対応表最終版、
+example-basedテスト一覧（バックエンドAPI層12件、フロントエンド8ファイル41件）、実行確認状況を
+記載した。作成にあたり実測値を取得した:
+`./gradlew test --rerun`でバックエンド全体48テストクラス・255件成功（`build/test-results/test/`
+のJUnit XMLを集計、U6新規5クラス・22件、U1〜U5既存43クラス・233件は回帰なし）、
+`npm run test -- --run`でフロントエンド全体52ファイル・224件成功
+（U6新規8ファイル・41件）を確認した。
+**Context**: Per-Unit Loop、U6 Code Generation Part 2、Step 15-1（testing-summary.md）完了。
+Step 15は単一item。
+
+---
+

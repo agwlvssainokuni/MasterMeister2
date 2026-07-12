@@ -317,10 +317,10 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
 - [x] 13-1. `aidlc-docs/construction/u6-query-builder/code/frontend-summary.md`を生成する。
 
 ### Step 14: データベースマイグレーションスクリプト
-- [ ] 14-1. **該当なし（N/A）**: 本ユニットは内部DBエンティティを持たないため対象外。
+- [x] 14-1. **該当なし（N/A）**: 本ユニットは内部DBエンティティを持たないため対象外。
 
 ### Step 15: ドキュメント生成
-- [ ] 15-1. `aidlc-docs/construction/u6-query-builder/code/testing-summary.md`（P1〜P10と
+- [x] 15-1. `aidlc-docs/construction/u6-query-builder/code/testing-summary.md`（P1〜P10と
       テストクラスの対応表、example-basedテスト一覧、実行確認状況）を生成する。リポジトリ層が
       N/Aのため`repository-layer-summary.md`は生成しない旨を冒頭に明記する。
 
