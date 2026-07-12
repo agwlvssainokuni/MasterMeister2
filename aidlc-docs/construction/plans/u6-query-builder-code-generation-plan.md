@@ -218,7 +218,7 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       （`SqlParsingServiceTest`はparse単体の関心事に留める設計判断）。
 
 ### Step 4: ビジネスロジックサマリ
-- [ ] 4-1. `aidlc-docs/construction/u6-query-builder/code/business-logic-summary.md`を生成し、
+- [x] 4-1. `aidlc-docs/construction/u6-query-builder/code/business-logic-summary.md`を生成し、
       Step 2・Step 3で生成したクラス一覧とP1〜P10の対応関係を表形式で記載する
       （U1〜U5の`business-logic-summary.md`と同一構成）。
 

@@ -3561,3 +3561,15 @@ P8のようなクロスサービス往復性質テストの価値を示す事例
 
 ---
 
+## Per-Unit Loop - U6 Code Generation Part 2 - Step 4
+**Timestamp**: 2026-07-12T19:10:00Z
+**User Input**: "進めてください。"
+**AI Response**: `aidlc-docs/construction/u6-query-builder/code/business-logic-summary.md`を
+生成した（U1〜U5の同名ファイルと同一構成）。Step 2生成クラス一覧・Step 3生成テストクラス一覧・
+P1〜P10対応表に加え、Step 2時点の設計判断（`JoinItem.onCondition`の`"alias.column"`文字列
+表現、`resolveSchema`のCATALOG_BASED/一意アクセス可能スキーマ判定）と、Step 3で検出・修正した
+2件の実装バグ（UNION文の`ClassCastException`、クオート識別子の未対応）を補足として明記した。
+**Context**: Per-Unit Loop、U6 Code Generation Part 2、Step 4（ビジネスロジックサマリ）完了。
+
+---
+
