@@ -3712,3 +3712,17 @@ BUILD SUCCESSFULを確認した。
 
 ---
 
+## Per-Unit Loop - U6 Code Generation Part 2 - Step 5-4
+**Timestamp**: 2026-07-12T20:05:00Z
+**User Input**: "続行してください。"
+**AI Response**: `QueryBuilderController`（既存、ブラウンフィールド修正）に
+`GET "/connections"`（`listSelectableConnections`）を追加した。クラスレベルの
+`@RequestMapping`を`"/api/query-builder/{connectionId}"`から`"/api/query-builder"`へ変更し、
+`{connectionId}`を既存5メソッドの`@GetMapping`/`@PostMapping`側へ移した（解決後のURLは不変）。
+`./gradlew compileJava`成功、既存`QueryBuilderControllerTest`（10件）を無修正のまま
+`./gradlew test --tests "cherry.mastermeister.querybuilder.QueryBuilderControllerTest"`で
+全件成功を確認し、URL解決結果が不変であることを実証した（U5 item 5-4と同一の検証方法）。
+**Context**: Per-Unit Loop、U6 Code Generation Part 2、Step 5-4（GET /connections追加）完了。
+
+---
+

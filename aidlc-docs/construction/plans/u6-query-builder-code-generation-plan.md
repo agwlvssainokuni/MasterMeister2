@@ -247,7 +247,7 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       （既存、ブラウンフィールド修正）に`.requestMatchers("/api/query-builder/**")
       .authenticated()`を、`.requestMatchers("/api/master-data/**").authenticated()`と同様の
       場所に追記する（`business-rules.md` 8節「認証済みユーザ全員」）。
-- [ ] 5-4. `backend/src/main/java/cherry/mastermeister/querybuilder/QueryBuilderController.java`
+- [x] 5-4. `backend/src/main/java/cherry/mastermeister/querybuilder/QueryBuilderController.java`
       （既存、ブラウンフィールド修正）に`GET "/connections"`（`listSelectableConnections`）を
       追加する（U5「ブラウンフィールド発見事項」5と同種の対応、item 2-9参照）。クラスレベルの
       `@RequestMapping`を`"/api/query-builder/{connectionId}"`から`"/api/query-builder"`へ

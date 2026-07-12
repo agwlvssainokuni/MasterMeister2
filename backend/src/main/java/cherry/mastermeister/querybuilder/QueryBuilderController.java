@@ -26,8 +26,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import cherry.mastermeister.rdbmsconnection.ConnectionSummary;
+
 @RestController
-@RequestMapping("/api/query-builder/{connectionId}")
+@RequestMapping("/api/query-builder")
 public class QueryBuilderController {
 
     private final QueryBuilderMetadataService queryBuilderMetadataService;
@@ -43,20 +45,26 @@ public class QueryBuilderController {
         this.sqlParsingService = sqlParsingService;
     }
 
-    @GetMapping("/schemas")
+    @GetMapping("/connections")
+    public List<ConnectionSummary> listSelectableConnections(Authentication authentication) {
+        Long userId = (Long) authentication.getPrincipal();
+        return queryBuilderMetadataService.listSelectableConnections(userId);
+    }
+
+    @GetMapping("/{connectionId}/schemas")
     public List<String> listSelectableSchemas(@PathVariable Long connectionId, Authentication authentication) {
         Long userId = (Long) authentication.getPrincipal();
         return queryBuilderMetadataService.listSelectableSchemas(userId, connectionId);
     }
 
-    @GetMapping("/schemas/{schema}/tables")
+    @GetMapping("/{connectionId}/schemas/{schema}/tables")
     public List<TableRef> listSelectableTables(
             @PathVariable Long connectionId, @PathVariable String schema, Authentication authentication) {
         Long userId = (Long) authentication.getPrincipal();
         return queryBuilderMetadataService.listSelectableTables(userId, connectionId, schema);
     }
 
-    @GetMapping("/schemas/{schema}/tables/{table}/columns")
+    @GetMapping("/{connectionId}/schemas/{schema}/tables/{table}/columns")
     public List<ColumnRef> listSelectableColumns(
             @PathVariable Long connectionId, @PathVariable String schema, @PathVariable String table,
             Authentication authentication) {
@@ -64,12 +72,12 @@ public class QueryBuilderController {
         return queryBuilderMetadataService.listSelectableColumns(userId, connectionId, schema, table);
     }
 
-    @PostMapping("/generate")
+    @PostMapping("/{connectionId}/generate")
     public GeneratedSql generate(@PathVariable Long connectionId, @RequestBody QueryBuilderModel model) {
         return sqlGenerationService.generate(connectionId, model);
     }
 
-    @PostMapping("/parse")
+    @PostMapping("/{connectionId}/parse")
     public ParseResult parse(
             @PathVariable Long connectionId, @RequestBody SqlParseRequest request, Authentication authentication) {
         Long userId = (Long) authentication.getPrincipal();
