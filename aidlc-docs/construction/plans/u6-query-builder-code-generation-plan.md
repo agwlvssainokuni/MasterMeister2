@@ -254,7 +254,7 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       内部DBエンティティを一切持たない。リポジトリ生成・単体テスト・サマリのいずれも対象外。
 
 ### Step 11: フロントエンドコンポーネント生成
-- [ ] 11-1. `frontend/src/features/queryBuilder/types.ts`: `frontend-components.md`・
+- [x] 11-1. `frontend/src/features/queryBuilder/types.ts`: `frontend-components.md`・
       `domain-entities.md`のDTOに対応するTypeScript型（`TableRef`/`ColumnRef`/`FromItem`/
       `JoinItem`/`JoinType`/`SelectItem`/`AggregateFunction`/`Condition`/`Operator`/
       `OrderByItem`/`QueryBuilderModel`/`GeneratedSql`/`ParseResult`等）を定義する。
