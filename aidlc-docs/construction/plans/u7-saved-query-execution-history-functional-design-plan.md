@@ -166,7 +166,13 @@ GEN-14のACは「SQL・パラメータ・結果件数・実行時間・実行日
   動的に算出する（カウンタの整合性管理が不要になるが、履歴一覧のたびに集計コストが発生する）。
 - **C**: その他（自由記述）
 
-[Answer]: A
+[Answer]: A（Q5の廃止フラグ議論を受けて追補: `QueryHistory`に`savedQueryName:
+String（nullable）`（実行時点での保存クエリ名のスナップショット、手入力SQL実行時はnull）を
+追加する。理由: `SavedQuery`が廃止（Q5の`retired=true`）された後も、`savedQueryId`から
+`SavedQueryService.getQuery`経由で名前を引く設計だと名前解決ができなくなるため、実行時点の
+名前を`QueryHistory`側にも複製して保持する。`QueryHistory`本体の属性は
+`id, userId, connectionId, sql, params, resultCount, elapsedMillis, executedAt,
+savedQueryId（nullable）, savedQueryName（nullable）, executionCount（nullable）`となる）
 
 ---
 
@@ -207,23 +213,42 @@ GEN-13のACは「読み取り専用SQLのみ実行できる（更新系SQLは拒
 
 ---
 
-### Q5. Business Rules — 保存クエリの可視性・実行・編集・削除権限
+### Q5. Business Rules — 保存クエリの可視性・実行・編集・廃止（論理削除）権限
 
 GEN-10〜12のACを整理すると: 保存時にPublic/Privateを選択（GEN-10）、Publicは全ユーザ実行可・
 Privateは作成者のみ実行可（GEN-11）、編集は作成者のみ（GEN-12）。削除についてはいずれのACにも
-言及がない。
+言及がないが、ユーザ指摘により「物理削除は`QueryHistory.savedQueryId`の参照整合性を壊すため
+避けたい、廃止フラグによる論理削除としたい」という方針で確定する。
 
-- **A（推奨）**: `listQueries`はPublic全件＋自分が作成したPrivateのみを返す（他ユーザの
-  Privateは一覧にも現れない）。`getQuery`はPublicなら誰でも取得可、Privateは作成者のみ
-  （作成者以外は`PermissionDeniedException`）。`updateQuery`（名前・SQL・可視性の変更）は
-  作成者のみ（GEN-12のAC通り）。**削除機能はMVPスコープ外**とする（ACに明記がないため、
-  `business-rules.md`に「削除は本ユニットのスコープ外、将来的な拡張候補」と明記する）。
-  実行（GEN-11）は`getQuery`と同じ可視性チェックを`executeSavedQuery`内でも行う
-  （`SavedQueryService`経由でSQL取得時に検証、`QueryExecutionService`が直接可視性を判定しない
-  ——単一責任の原則、`SavedQueryService.getQuery`を内部的に再利用）。
-- **B**: 削除機能もこの時点でスコープに含める（作成者のみ削除可、実行履歴からの参照
-  （`QueryHistory.savedQueryId`）が残る場合の扱い——論理削除か物理削除かも合わせて確定が必要）。
-- **C**: その他（自由記述）
+- **A（推奨、ユーザ指摘を反映・訂正版）**: `SavedQuery`に`retired: boolean`（既定`false`）
+  フラグを追加する（物理削除は行わない）。`retireQuery(Long userId, Long savedQueryId)`
+  （作成者のみ、`updateQuery`と同じ権限チェック）で`true`に設定する一方向の操作とし、
+  **復元（un-retire）はMVPスコープ外**とする（要求されていないため）。
+  `retired=true`が影響するのは**`savedquery`パッケージが提供する保存クエリ自体の画面・API
+  のみ**であり、`queryhistory`（実行履歴）の見え方には一切影響しない（ユーザ指摘により訂正:
+  当初案では`retired`を実行履歴のマスキング条件にも含めていたが誤りだった。実行履歴の
+  可視性・マスキングはQ8で確定する可視性マトリクスのみに従い、`retired`とは独立した論点と
+  する）。具体的には:
+  - `listQueries(Long userId, Long connectionId, boolean includeRetired)`:
+    `includeRetired=false`（既定）では`retired=true`のクエリを除外する。`includeRetired=true`
+    を指定した場合は含める（画面側に「廃止済みも表示」トグルを用意する、GEN-10〜12のACには
+    明記がない拡張だがユーザ要望により追加）。いずれの場合も可視性（Public全件＋自分の
+    Private）のフィルタは従来どおり適用する。
+  - `getQuery(Long userId, Long savedQueryId)`: `retired`の値に関わらず、可視性
+    （Publicまたは作成者本人）を満たせば取得できる（`retired`単体を理由に`getQuery`を拒否
+    しない——一覧から除外されるだけで、IDが分かっていれば詳細は引き続き参照できる）。
+  - `updateQuery(Long userId, Long savedQueryId, ...)`: `retired=true`のクエリに対しては
+    作成者本人であっても**拒否**する（`SavedQueryRetiredException`等）。廃止は「以後の編集・
+    実行を止める」意思表示であるため、編集を許可すると廃止の意図と矛盾する。
+  - `executeSavedQuery(Long userId, Long connectionId, Long savedQueryId, ...)`: 同様に
+    `retired=true`の場合は可視性・所有者に関わらず**拒否**する（GEN-11の「新規実行」対象から
+    除外、既存の`QueryHistory`に残る過去の実行記録はQ8のとおり別途保持され影響を受けない）。
+  - まとめ: `retired=true`のクエリは「参照（`getQuery`、詳細画面での閲覧）のみ許可、
+    編集（`updateQuery`）・実行（`executeSavedQuery`）は作成者を含め全員拒否」とする。
+- **B**: 廃止機能を設けず、削除は引き続きMVPスコープ外のままとする（ACに明記がないため）。
+- **C**: 廃止済みクエリでも作成者のみは`getQuery`/`updateQuery`（復元含む）で参照・編集可能と
+  する（誤って廃止した場合の復旧手段を残す）。
+- **D**: その他（自由記述）
 
 [Answer]: A
 
@@ -293,7 +318,49 @@ GEN-14の実行結果表現の方式を確定する。
   追加しない）。
 - **C**: その他（自由記述）
 
-[Answer]: A
+[Answer]: A（ユーザ指摘を受けて追補・訂正版: 保存クエリの可視性が実行後にPublic→Privateへ
+変更された場合、他ユーザの`executorScope=ALL`一覧にその実行行のSQL本文が見え続けるのは
+望ましくない——「Privateに変更した以上、他人に見せたくないはず」という指摘のとおり。
+**（訂正）`retired`（Q5）はこのマスキングの条件には含めない**——ユーザ指摘により、`retired`は
+`savedquery`側の一覧・詳細画面の既定非表示にのみ影響し、実行履歴の見え方（マスキングの要否）
+とは無関係とする。実行履歴側では「廃止済みであることが分かるようにする」ためのバッジ表示のみ
+行い、内容のマスキングは行わない。
+`listHistory`の絞り込みクエリ自体（日時範囲・`sqlTextSearch`等）に可視性チェックを組み込むと
+複雑化するため、以下の2段階方式で分離する。
+(1) `listHistory`のページング・絞り込みは従来どおり`QueryHistory`単体に対する単純なクエリの
+ままとする（本Q8前段の設計を変更しない）。
+(2) 取得した**ページ内の行のみ**を対象に、`savedQueryId`が非nullかつ`row.userId != 閲覧者`の
+行についてのみ、`SavedQueryService`に新設する軽量なバッチ判定API
+`Map<Long, SavedQueryStatus> getStatuses(Long viewerId, Set<Long> savedQueryIds)`
+（`record SavedQueryStatus(boolean visibleToViewer, boolean retired)`、
+`visibleToViewer = (visibility==PUBLIC || ownerId==viewerId)`——`retired`は独立した別フィールド
+として返す）を1回呼び出す。`visibleToViewer=false`の行は`sql`/`savedQueryName`/`params`を
+「(非公開のため表示できません)」等のプレースホルダに差し替える（行自体は除外しない——
+実行日時・結果件数・実行時間・実行者等の非機微なメタデータはそのまま表示する）。
+`retired=true`の行は（マスキングとは独立に、`visibleToViewer`の値に関わらず）「廃止済み」
+バッジを付与する（マスキング中の行にもバッジ自体は表示してよい——バッジはSQL内容を漏らさない
+ため）。行を除外せずマスキングのみに留めることで、ページングの件数整合性（除外による
+再ページングの複雑化）を回避する。自分自身が実行した行（`row.userId == 閲覧者`）は、
+参照先`SavedQuery`の可視性状態に関わらず常に非マスキングで表示する（自分が実際に実行した
+記録であり、新たな情報漏洩には当たらないため）。この方式により`component-dependency.md`に
+`queryhistory → savedquery`という新規依存が1本追加される（既存の`queryexecution →
+savedquery`とは別方向、循環依存にはならない）。
+
+**可視性マトリクス（訂正版）**（`listHistory`が返す1行ごとの表示内容）:
+
+| 行の種別 | 実行者と閲覧者の関係 | 参照先`SavedQuery`の可視性 | 「廃止済み」バッジ | `executorScope=SELF` | `executorScope=ALL` |
+|---|---|---|---|---|---|
+| 手入力SQL実行（`savedQueryId=null`） | 閲覧者自身が実行 | （該当なし） | 付与しない | 表示（フル） | 表示（フル） |
+| 手入力SQL実行（`savedQueryId=null`） | 他ユーザが実行 | （該当なし） | 付与しない | 一覧に現れない | 表示（フル、可視性判定の対象外） |
+| 保存クエリ実行 | 閲覧者自身が実行 | 任意 | `retired`次第で付与 | 表示（フル） | 表示（フル、自分の実行記録は常にマスクなし） |
+| 保存クエリ実行 | 他ユーザが実行 | Public | `retired`次第で付与 | 一覧に現れない | 表示（フル） |
+| 保存クエリ実行 | 他ユーザが実行 | Private・閲覧者が所有者 | `retired`次第で付与 | 一覧に現れない | 表示（フル、所有者だから見える） |
+| 保存クエリ実行 | 他ユーザが実行 | Private・閲覧者は所有者でない | `retired`次第で付与 | 一覧に現れない | 表示（マスク——`sql`/`savedQueryName`/`params`をプレースホルダ化、バッジと他の列は表示） |
+
+`executorScope=SELF`は元々`row.userId == 閲覧者`のみを対象とするフィルタ（Q8前段で確定済み）
+のため、他ユーザの行はそもそも一覧に現れない——マスキングの論点は`executorScope=ALL`選択時
+のみ発生する。「廃止済み」バッジは可視性（Public/Private）とは独立した軸であり、上表の
+どの行にも（マスキングされていても）`retired=true`であれば付与され得る。)
 
 ---
 
@@ -355,15 +422,16 @@ U1〜U6の`frontend-components.md`と同様の粒度で、本ユニットの3フ
 存在しない。U5にはクエリタイムアウト（`mm.app.master-data.query-timeout`）や
 大量レコード監査閾値（`large-record-threshold`）の前例がある。
 
-- **A（推奨）**: U5と同様の設定キー体系を`queryexecution`にも導入する
-  （`mm.app.query-execution.query-timeout`（既定30秒）、
-  `mm.app.query-execution.large-record-threshold`（既定100件、超過時
-  `AuditLog`の`LARGE_RECORD_READ`相当イベントを記録するか、`QUERY_EXECUTED`のみで足りるかは
-  `business-rules.md`で確定）、ページング「なし」時の最大取得件数上限
-  `mm.app.query-execution.max-result-rows`（既定1000件、超過分は切り捨てて`QueryResult`に
-  「上限到達」フラグを含める））。具体的な既定値・キー名はNFR Requirements/NFR Designで
-  再確認するが、この時点で「タイムアウト・大量データ対策が必要」という設計判断自体は確定して
-  おく。
+- **A（推奨、ユーザ指摘を反映して修正）**: `queryexecution`には以下2つの設定キーのみを導入する。
+  - `mm.app.query-execution.query-timeout`（既定30秒）
+  - `mm.app.query-execution.max-result-rows`（既定1000件、**ページング「なし」時のみ**適用する
+    最大取得件数上限。超過分は切り捨てて`QueryResult`に「上限到達」フラグを含める）。
+    ページング「あり」の場合はリクエストごとのLIMIT自体が返却件数を1ページ分に制限するため、
+    この上限は適用しない（対象がそもそも無制限に一括取得されることはない）。
+  - `large-record-threshold`相当の大量レコード監査閾値は**導入しない**（ユーザ指摘により削除:
+    既存の`AuditLog`の`QUERY_EXECUTED`イベント記録（`AuditLog.summaryMessage`に結果件数を
+    含める）で足りるため、U5の`LARGE_RECORD_READ`のような専用イベント種別・専用閾値は不要と
+    判断する）。
 - **B**: MVPスコープでは特別な上限・タイムアウト対策を設けず、対象RDBMS・JDBCドライバの
   デフォルト挙動に委ねる（後続のNFR段階で必要に応じて追加する）。
 - **C**: その他（自由記述）

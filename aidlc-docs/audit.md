@@ -4009,3 +4009,43 @@ Part 1（Planning）。ユーザによる質問内容の確認・回答編集待
 
 ---
 
+## Per-Unit Loop - U7 Functional Design Plan - Q5〜Q11レビュー完了
+**Timestamp**: 2026-07-13T10:15:00Z
+**User Input**: Q5について「物理削除は`QueryHistory.savedQueryId`の参照整合性を壊すので避けたい。
+廃止フラグを設けたい。廃止したクエリは通常は見えない（履歴は実行した人には見えてOK）」→
+「実行履歴で見えるのは自分が実行したもののみと思い込んでいた。ALLスコープでの履歴表示はどこに
+書かれていたか」→（引用提示後）「ではAですね」→「Q8について。他ユーザが実行したPrivateの履歴は、
+SQLとクエリ名をマスクでOK（パラメータもですよね）。retired=trueの扱いに認識齟齬がある。
+retired=trueになっても実行履歴の見え方は変わらない（廃止済みであることがわかるようにする必要は
+ある）。retired=trueが見えなくなるのは保存済みクエリの画面（retired=trueも表示のオプションが
+あっても良い）」→「Q5のオープン論点について。廃止済みクエリの編集、実行は拒否。参照のみ許可」→
+「Q5, Q8はこれでOK」→「Q6=A」「Q7=A」「Q9=A」「Q10=A」→「Q11について。large_record_threshold
+は不要、既存の監査ログでOK。ページングなしの時の最大件数の設定項目＆既定値OK。念のため、
+ページングありの時は最大件数の縛りは儲けないですよね？」→（AI修正提示後）Q11本文中の
+「具体的な既定値・キー名はNFR Requirements/NFR Designで再確認するが…」の一文について
+「不要だと思う」との指摘→削除→「OKです」
+**AI Response**: Q5をユーザ指摘に基づき2度訂正した。(1) 物理削除ではなく`SavedQuery.retired`
+論理削除フラグを追加、`listQueries`に`includeRetired`オプションを追加。(2) 当初案では
+`retired`を実行履歴のマスキング条件にも含めていたが、ユーザ指摘により訂正——`retired`は
+`savedquery`側の一覧・詳細画面の既定非表示にのみ影響し、`queryhistory`の見え方には無関係と
+した（履歴側では「廃止済み」バッジ表示のみ行い、内容はマスクしない）。(3) オープン論点
+（廃止済みクエリへの編集・実行可否）をユーザ回答（編集・実行は作成者含め全員拒否、参照のみ許可）
+で確定した。Q8はユーザ指摘に基づき2度修正した。(1) マスキング対象に`params`を追加
+（`sql`/`savedQueryName`/`params`の3つ）。(2) `retired`をマスキング条件から除外し、
+`SavedQueryService`の新設バッチAPIを`Map<Long, SavedQueryStatus> getStatuses`
+（`visibleToViewer`と`retired`を独立フィールドとして返す）に変更、可視性マトリクスを訂正版に
+差し替えた。またALLスコープでの他ユーザ履歴閲覧が`REQUIREMENTS.md` 5.8・`stories.md` GEN-15の
+要件（実行者フィルタ「全ユーザ／自分のみ」）に明記されていることを引用して提示し、ユーザは
+Q8=A（誰でも使える）を再確認した。Q6（パラメータ自動検出）・Q7（ページング制御、サブクエリ
+ラップ方式）・Q9（U6↔U7連携、URLクエリパラメータ方式）・Q10（フロントエンド画面構成）は推奨案
+Aのまま確定した。Q11は、`large-record-threshold`相当の専用閾値・イベント種別を削除し（既存
+`AuditLog`の`QUERY_EXECUTED`で足りるため）、`query-timeout`・`max-result-rows`（ページング
+「なし」時のみ適用）の2キーのみに整理し、「ページングありの場合は上限を設けない」という
+ユーザ確認事項を明記した。ユーザ指摘により冗長な補足文（NFR段階での既定値再確認に言及する一文）
+を削除した。これでQ1〜Q11すべてが確定し、追加のあいまいさは残っていない。
+**Context**: Per-Unit Loop、U7 Functional Design Part 1（Planning）完了。Q1〜Q11全問確定。
+次はStep 6（成果物生成: domain-entities.md, business-rules.md, business-logic-model.md,
+frontend-components.md）への移行承認待ち。
+
+---
+
