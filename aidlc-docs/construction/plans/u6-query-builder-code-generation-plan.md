@@ -308,7 +308,7 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       （`frontend-components.md` AppRouter.tsxへの追加）。
 
 ### Step 12: フロントエンドコンポーネント単体テスト
-- [ ] 12-1. `QueryBuilderPage.test.tsx`・`FromJoinTab.test.tsx`・`SelectTab.test.tsx`・
+- [x] 12-1. `QueryBuilderPage.test.tsx`・`FromJoinTab.test.tsx`・`SelectTab.test.tsx`・
       `WhereHavingTab.test.tsx`・`GroupByOrderByTab.test.tsx`・`LimitOffsetTab.test.tsx`・
       `GeneratedSqlPanel.test.tsx`・`SqlReverseParsePanel.test.tsx`（vitest + Testing
       Library、U4/U5の各featureテストパターンを踏襲）を生成する。

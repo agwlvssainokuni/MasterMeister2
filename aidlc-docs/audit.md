@@ -3871,3 +3871,27 @@ UIを実装した（GEN-9）。`QueryBuilderPage.tsx`に以下を追加した:
 
 ---
 
+## Per-Unit Loop - U6 Code Generation Part 2 - Step 12-1
+**Timestamp**: 2026-07-13T09:00:00Z
+**User Input**: "Step 12の進め方について提案はありますか？"（AskUserQuestionで確認、ユーザ選択:
+「単一コミット」——plan上Step 12は8ファイルを束ねた単一item(12-1)として定義されているため、
+Step 11のような per-component item化はせず1コミットで完了させる方針とした）
+**AI Response**: `QueryBuilderPage.test.tsx`・`FromJoinTab.test.tsx`・`SelectTab.test.tsx`・
+`WhereHavingTab.test.tsx`・`GroupByOrderByTab.test.tsx`・`LimitOffsetTab.test.tsx`・
+`GeneratedSqlPanel.test.tsx`・`SqlReverseParsePanel.test.tsx`の8ファイルを生成した
+（vitest + Testing Library、`masterData`の`FilterPanel.test.tsx`/`SchemaTableListPage.test.tsx`と
+同一パターン——API呼び出しは`vi.mock('./api', ...)`でモック化、コンテナ系コンポーネントは
+`MemoryRouter`でラップ、単純な制御コンポーネントは`useState`を使ったControlledラッパーで
+`onChange`の反映を検証）。`GeneratedSqlPanel.test.tsx`ではコピーボタン検証のため
+`navigator.clipboard.writeText`を`Object.assign(navigator, {clipboard: {writeText: vi.fn()}})`で
+スタブした（jsdom既定では`navigator.clipboard`が未実装のため）。
+`QueryBuilderPage.test.tsx`は接続/スキーマ選択→タブ切り替え→`FromJoinTab`でのベーステーブル
+選択→`GeneratedSqlPanel`出現→SQL生成、という統合的なフローを検証した。
+`npx tsc --noEmit`・`npm run lint`（oxlint）・`npx vitest run src/features/queryBuilder/`
+（8ファイル41件）で全件成功を確認し、さらに`npm run test -- --run`
+（フロントエンド全体、52ファイル224件）でリグレッションがないことを確認した。
+**Context**: Per-Unit Loop、U6 Code Generation Part 2、Step 12-1（フロントエンド単体テスト8件）
+完了。Step 12は単一item。
+
+---
+
