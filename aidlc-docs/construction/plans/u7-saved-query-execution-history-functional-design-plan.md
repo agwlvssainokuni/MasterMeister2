@@ -177,15 +177,20 @@ GEN-13のACは「読み取り専用SQLのみ実行できる（更新系SQLは拒
 「セキュリティ上の論点として…改めて要否を確認することを推奨する」という未解決の申し送りが
 残っている。
 
-- **A（推奨、確定済み設計を踏襲）**: 読み取り専用検証は、SQL文の先頭キーワードが`SELECT`
-  （空白・コメントを除去した上で大文字小文字を無視して判定）であることのみを確認する軽量な
-  キーワード検証とする。JSqlParser（U6で導入済み）を`queryexecution`からも利用し、パース結果の
-  文の種類（`net.sf.jsqlparser.statement.select.Select`かどうか）で判定することで、コメント内
-  キーワードの誤検知やセミコロン区切りの複数文（例: `SELECT ...; DROP TABLE ...`）を確実に
-  拒否する（正規表現ベースの単純なキーワード検査より安全）。この際`component-dependency.md`に
-  `queryexecution → querybuilder`の依存を追記する（JSqlParserライブラリ自体への直接依存でも
-  良いが、U6で確立済みの解析ロジックとの重複を避けるため`querybuilder`の`SqlParsingService`が
-  提供する解析結果を再利用する方が一貫性がある）。
+- **A（推奨、ユーザ指摘を反映して修正）**: 読み取り専用検証はJSqlParserライブラリを
+  `queryexecution`から**直接**利用し（`CCJSqlParserUtil.parse(sql)`）、得られた
+  `Statement`の型が`net.sf.jsqlparser.statement.select.Select`かどうかのみで判定する。
+  **U6の`SqlParsingService.parse`（GEN-9用、`QueryBuilderModel`で表現できる範囲に解析可否が
+  限定される）は経由しない**——GEN-13は「クエリビルダーが組み立てられる範囲を超えた複雑な
+  読み取り専用SQL」も手入力実行の対象であるべきであり（ユーザ指摘のとおり）、
+  `SqlParsingService`を検証に流用するとサブクエリ・UNION・CTE・ウィンドウ関数・OR条件等を
+  含むSELECT文が実行不能になってしまう。したがって`component-dependency.md`には
+  `queryexecution → querybuilder`という**パッケージ依存は追加しない**——JSqlParser
+  ライブラリ（U6のbuild.gradle.ktsで導入済み）への直接依存のみとする。単一SQL文であり
+  `Select`型であることが確認できればコメント内キーワードの誤検知やセミコロン区切りの複数文
+  （例: `SELECT ...; DROP TABLE ...`）も安全に排除できる（正規表現ベースの単純な
+  キーワード検査より安全）。JSqlParser自体がパースに失敗した場合（対応外の方言固有構文等）は、
+  安全側に倒して実行を拒否する（読み取り専用であることを確認できないSQLは実行を許可しない）。
   U4（テーブル/カラム単位の読み取り権限フィルタ）には**引き続き依存させない**——
   `component-dependency.md`の申し送りどおり要件上明示されていないためMVPスコープ外とし、
   この設計判断（対象RDBMSの任意のテーブル/カラムを権限に関わらず読み取れる）を

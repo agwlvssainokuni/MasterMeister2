@@ -3989,3 +3989,23 @@ Part 1（Planning）。ユーザによる質問内容の確認・回答編集待
 
 ---
 
+## Per-Unit Loop - U7 Functional Design Plan - Q1〜Q4レビュー
+**Timestamp**: 2026-07-13T09:45:00Z
+**User Input**: "Q1=A" / "Q2=A" / "Q3=A" / （Q4について）"クエリビルダーがサポートする範囲を
+超えたSQLを手入力して実行できるようにしたい。SqlParsingServiceによる解析はこの要件に合わない。"
+/ "Q4=A"
+**AI Response**: Q1（内部DBエンティティ一覧）・Q2（`SavedQuery`構造・保存対象）・Q3
+（`QueryHistory`構造・実行回数記録方式）は推奨案Aのまま確定。Q4（読み取り専用SQL検証方式）は
+ユーザ指摘により当初案の欠陥（U6の`SqlParsingService.parse`をGEN-13の検証に流用すると、
+`QueryBuilderModel`が表現できない複雑なSELECT文——サブクエリ・UNION・CTE・ウィンドウ関数等——が
+実行不能になってしまう）を修正した。修正版Aは、JSqlParserライブラリを`SqlParsingService`を
+経由せず`queryexecution`から直接利用し（`CCJSqlParserUtil.parse`）、`Statement`の型が
+`Select`かどうかのみで読み取り専用性を判定する方式とし、`component-dependency.md`への
+`queryexecution → querybuilder`パッケージ依存追加は行わない（JSqlParserライブラリへの直接
+依存のみ）よう変更した。JSqlParserのパース自体が失敗した場合は安全側に倒し実行を拒否する旨も
+明記した。修正後、ユーザはQ4=Aで確定した。
+**Context**: Per-Unit Loop、U7 Functional Design Part 1（Planning）。Q1〜Q4確定、Q5〜Q11は
+レビュー継続中。ユーザ指示により、この時点でコミットを実施する。
+
+---
+
