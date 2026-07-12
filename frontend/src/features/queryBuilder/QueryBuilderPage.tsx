@@ -17,7 +17,8 @@
 import { useEffect, useState } from 'react'
 import { listSelectableConnections, listSelectableSchemas } from './api'
 import { FromJoinTab } from './FromJoinTab'
-import type { ConnectionSummary, FromItem, JoinItem } from './types'
+import { SelectTab } from './SelectTab'
+import type { ConnectionSummary, FromItem, JoinItem, SelectItem } from './types'
 
 type TabKey = 'fromJoin' | 'select' | 'where' | 'groupBy' | 'having' | 'orderBy' | 'limitOffset'
 
@@ -39,6 +40,7 @@ export function QueryBuilderPage() {
   const [activeTab, setActiveTab] = useState<TabKey>('fromJoin')
   const [fromItem, setFromItem] = useState<FromItem | null>(null)
   const [joinItems, setJoinItems] = useState<JoinItem[]>([])
+  const [selectItems, setSelectItems] = useState<SelectItem[]>([])
 
   useEffect(() => {
     listSelectableConnections().then(setConnections)
@@ -49,6 +51,7 @@ export function QueryBuilderPage() {
     setSchema(null)
     setFromItem(null)
     setJoinItems([])
+    setSelectItems([])
     setSchemas(await listSelectableSchemas(selectedConnectionId))
   }
 
@@ -56,6 +59,7 @@ export function QueryBuilderPage() {
     setSchema(selectedSchema)
     setFromItem(null)
     setJoinItems([])
+    setSelectItems([])
   }
 
   const handleChangeFromJoin = (nextFromItem: FromItem, nextJoinItems: JoinItem[]) => {
@@ -128,7 +132,17 @@ export function QueryBuilderPage() {
               onChange={handleChangeFromJoin}
             />
           )}
-          {activeTab !== 'fromJoin' && <p>このタブは未実装です。</p>}
+          {activeTab === 'select' && (
+            <SelectTab
+              connectionId={connectionId}
+              schema={schema}
+              fromItem={fromItem}
+              joinItems={joinItems}
+              selectItems={selectItems}
+              onChange={setSelectItems}
+            />
+          )}
+          {activeTab !== 'fromJoin' && activeTab !== 'select' && <p>このタブは未実装です。</p>}
         </>
       )}
     </div>

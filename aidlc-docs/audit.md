@@ -3776,3 +3776,21 @@ FromJoinTab.tsx）完了。
 
 ---
 
+## Per-Unit Loop - U6 Code Generation Part 2 - Step 11-4
+**Timestamp**: 2026-07-12T20:25:00Z
+**User Input**: "続行してください。"
+**AI Response**: `frontend/src/features/queryBuilder/SelectTab.tsx`を生成した。
+`fromItem`・`joinItems`の各テーブル/エイリアスについて`listSelectableColumns`で取得した
+権限フィルタ済みカラムのみを選択肢とし、カラムごとに集計関数（`NONE/COUNT/SUM/AVG/MIN/MAX`）と
+出力エイリアスを指定できるUIを実装した（GEN-7 AC）。テーブルごとの「全カラムを追加」ボタン
+（重複除外、バックエンドAPI呼び出しなしでフロントエンド側の`columnsByAlias`を一括適用）と、
+単一項目の「項目を追加」ボタンの両方を用意した。追加後の件数が`maxSelectItems`props
+（既定100、`mm.app.query-builder.max-select-items`に対応、Step 16で実際の設定値を注入予定）を
+超える場合はボタン押下時に追加を行わずエラーメッセージを表示する設計とした。
+`QueryBuilderPage.tsx`に`SelectTab`を組み込み、`selectItems`状態と`select`タブの
+プレースホルダを置き換えた（`fromJoin`同様の段階的実装、接続/スキーマ変更時は
+`selectItems`もリセット）。`npx tsc --noEmit`・`npm run lint`で確認した。
+**Context**: Per-Unit Loop、U6 Code Generation Part 2、Step 11-4（SelectTab.tsx）完了。
+
+---
+

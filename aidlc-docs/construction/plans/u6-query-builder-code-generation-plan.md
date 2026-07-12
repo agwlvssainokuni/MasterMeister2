@@ -286,7 +286,7 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       接続・スキーマ選択、タブ切り替えコンテナ（`QueryBuilderPage`、`model`状態管理）と、
       アクセス可能テーブルのみを選択肢とするベーステーブル/JOINテーブル・エイリアス指定UI
       （`FromJoinTab`、GEN-6 AC）を生成する（`frontend-components.md`、フロー1手順1・3）。
-- [ ] 11-4. `frontend/src/features/queryBuilder/SelectTab.tsx`: アクセス可能カラムのみを
+- [x] 11-4. `frontend/src/features/queryBuilder/SelectTab.tsx`: アクセス可能カラムのみを
       選択肢とするSELECT項目（カラム・集計関数・出力エイリアス）指定UI、および
       「このテーブルの全カラムを追加」一括追加ボタン（`mm.app.query-builder.max-select-items`
       超過時はフロントエンド側でエラー表示）を生成する（GEN-7 AC、`frontend-components.md`）。
