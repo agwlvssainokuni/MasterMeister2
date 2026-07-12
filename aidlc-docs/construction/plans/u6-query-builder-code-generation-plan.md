@@ -282,7 +282,7 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
 - [x] 11-2. `frontend/src/features/queryBuilder/api.ts`: `listSelectableSchemas`/
       `listSelectableTables`/`listSelectableColumns`/`generateSql`/`parseSql`（Step 5-2確定の
       実パスに対応）を実装する。U1の`apiClient`を再利用する。
-- [ ] 11-3. `frontend/src/features/queryBuilder/QueryBuilderPage.tsx`・`FromJoinTab.tsx`:
+- [x] 11-3. `frontend/src/features/queryBuilder/QueryBuilderPage.tsx`・`FromJoinTab.tsx`:
       接続・スキーマ選択、タブ切り替えコンテナ（`QueryBuilderPage`、`model`状態管理）と、
       アクセス可能テーブルのみを選択肢とするベーステーブル/JOINテーブル・エイリアス指定UI
       （`FromJoinTab`、GEN-6 AC）を生成する（`frontend-components.md`、フロー1手順1・3）。

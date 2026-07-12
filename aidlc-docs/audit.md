@@ -3753,3 +3753,26 @@ BUILD SUCCESSFULを確認した。
 
 ---
 
+## Per-Unit Loop - U6 Code Generation Part 2 - Step 11-3
+**Timestamp**: 2026-07-12T20:20:00Z
+**User Input**: "続行してください。"
+**AI Response**: `frontend/src/features/queryBuilder/FromJoinTab.tsx`・`QueryBuilderPage.tsx`を
+生成した。`FromJoinTab`は`listSelectableTables`でアクセス可能テーブルのみを選択肢とする
+ベーステーブル（テーブル選択＋エイリアス入力）とJOINテーブルリスト（種別`INNER`/`LEFT`/`RIGHT`・
+テーブル・エイリアス・ON条件）の追加/削除UIを実装した（GEN-6 AC）。ON条件の右辺エイリアス・
+カラムは`Condition.value`の`"alias.column"`文字列表現（Step 2-2確定）をUI側で分解/再構成する形で
+扱った。カラム名自体は`FromJoinTab`が任意テーブルのカラム一覧を持たない設計のため、テキスト
+入力とした（`frontend-components.md`の状態定義上、`FromJoinTab`に`selectableColumns`state は
+定義されていないことと整合）。`QueryBuilderPage`は接続・スキーマ選択、タブ切り替えナビゲーション
+（7タブ、`fromJoin`のみ実装済み、他タブはStep 11-4/11-5/11-6/11-7で順次実装予定のため
+「未実装」プレースホルダ表示）、`fromItem`/`joinItems`状態管理を実装した。
+接続一覧取得のため、`types.ts`（item 11-1）に`ConnectionSummary`/`RdbmsType`
+（`masterData/types.ts`と同一shapeのローカル再定義）を追加し、`api.ts`（item 11-2）に
+`listSelectableConnections`（item 5-4で新設した`GET /api/query-builder/connections`に対応）を
+追加した（Step 11-3着手に伴う小規模な追補、実装メモとして記録）。
+`npx tsc --noEmit`・`npm run lint`で確認した。
+**Context**: Per-Unit Loop、U6 Code Generation Part 2、Step 11-3（QueryBuilderPage.tsx・
+FromJoinTab.tsx）完了。
+
+---
+

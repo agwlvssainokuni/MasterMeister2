@@ -15,7 +15,11 @@
  */
 
 import { apiFetch } from '../../api/apiClient'
-import type { ColumnRef, GeneratedSql, ParseResult, QueryBuilderModel, TableRef } from './types'
+import type { ColumnRef, ConnectionSummary, GeneratedSql, ParseResult, QueryBuilderModel, TableRef } from './types'
+
+export function listSelectableConnections(): Promise<ConnectionSummary[]> {
+  return apiFetch<ConnectionSummary[]>('/api/query-builder/connections')
+}
 
 export function listSelectableSchemas(connectionId: number): Promise<string[]> {
   return apiFetch<string[]>(`/api/query-builder/${connectionId}/schemas`)

@@ -14,6 +14,16 @@
  * limitations under the License.
  */
 
+export type RdbmsType = 'MYSQL' | 'MARIADB' | 'POSTGRESQL' | 'H2'
+
+export interface ConnectionSummary {
+  id: number
+  name: string
+  rdbmsType: RdbmsType
+  host: string
+  databaseName: string
+}
+
 export interface TableRef {
   schema: string
   table: string
