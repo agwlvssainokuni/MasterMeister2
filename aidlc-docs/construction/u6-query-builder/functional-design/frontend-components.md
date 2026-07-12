@@ -45,10 +45,18 @@ QueryBuilderPage
 ### SelectTab
 
 - **状態**: `selectableColumns: ColumnRef[]`
-- **Props**: `selectItems: SelectItem[]`, `onChange(items: SelectItem[]): void`
+- **Props**: `fromItem: FromItem | null`, `joinItems: JoinItem[]`, `selectItems: SelectItem[]`,
+  `onChange(items: SelectItem[]): void`
 - **責務**: 選択済みテーブル/エイリアスに対し`listSelectableColumns`（フロー1手順4）で
   アクセス可能なカラムのみ提示する（GEN-7 AC）。カラムごとに集計関数
-  （`NONE, COUNT, SUM, AVG, MIN, MAX`）と出力エイリアスを指定できる。
+  （`NONE, COUNT, SUM, AVG, MIN, MAX`）と出力エイリアスを指定できる。`fromItem`・
+  `joinItems`の各テーブル/エイリアスごとに「このテーブルの全カラムを追加」ボタンを配置し、
+  押下すると対応する`selectableColumns`（権限フィルタ済み）を一括で`selectItems`に
+  `aggregateFunction = NONE`として追加する（既に追加済みのカラムは重複除外）。バックエンドAPI
+  呼び出しは不要（`listSelectableColumns`が既に取得済みの一覧をフロントエンド側で一括適用する
+  のみ）。追加後の`selectItems`件数が`mm.app.query-builder.max-select-items`（既定`100`、
+  U6 NFR Requirements Q4-2）を超える場合は、ボタン押下時にフロントエンド側で追加を行わず
+  エラーメッセージを表示する。
 
 ### WhereHavingTab
 

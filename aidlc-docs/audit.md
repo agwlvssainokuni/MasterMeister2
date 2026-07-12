@@ -3299,6 +3299,39 @@ Q4（`QueryBuilderModel`各リストの件数上限、Scalability/Reliability）
 
 ---
 
+## U6: Query Builder NFR Requirements — 質問回答収集・追加確認・成果物生成
+**Timestamp**: 2026-07-12T16:45:00Z
+**User Input**: "Q1=A, Q2=A, Q3=A" → "Q4について。項目ごとに上限値は変えた方が良いと思う。
+SELECT句は多めに欲しい。一方でJOIN句はSELECT句ほどは不要。" → "Q4-2=A。"
+**AI Response**: Q1〜Q3は推奨案どおりA。Q4はユーザからB（リストごとに個別の上限値、SELECT句
+多め・JOIN句少なめ）への変更希望を受け、具体的な数値案（Question 4-2）を追加提示：
+`selectItems=100`/`joinItems=10`/`whereConditions=30`/`groupByColumns=30`/
+`havingConditions=20`/`orderByItems=20`。Q4-2=Aで確定。全問（Q1〜Q4、Q4-2）回答完了、曖昧な
+回答なし。`u6-query-builder-nfr-requirements-plan.md`のチェックリストを更新し、NFR
+Requirements成果物2件を新規作成：`nfr-requirements.md`（JSqlParser導入・SQL解析APIの入力
+サイズ/処理時間ガード・メタデータキャッシュ非新設・リスト件数上限）、
+`tech-stack-decisions.md`（依存関係追加はJSqlParserのみ）。
+**Context**: Per-Unit Loop、U6 NFR Requirements Step 5-6（回答収集・成果物生成）完了。次は
+Step 7（完了メッセージ提示）。
+
+---
+
+## U6: Query Builder Functional Design — frontend-components.md追加修正（SELECT句一括追加機能）
+**Timestamp**: 2026-07-12T16:50:00Z
+**User Input**: "Q4-2=A。あと、追加で確認。frontendの機能に関する相談ですが、SELECT句について
+FROM句, JOIN句に指定したテーブルの全項目を追加する、といった機能は欲しい。" → 提案提示後
+"反映してください。"
+**AI Response**: 承認済みの`frontend-components.md`のSelectTab節を更新。`fromItem`/`joinItems`
+Propsを追加し、テーブル/エイリアスごとの「全カラム追加」ボタン（`selectableColumns`を一括で
+`selectItems`に`aggregateFunction = NONE`として追加、重複除外、バックエンドAPI呼び出し不要）と、
+U6 NFR Requirements Q4-2で確定した`max-select-items`（既定100）超過時のフロントエンド側
+エラー表示を追記した。domain-entities.md/business-rules.md/business-logic-model.mdへの影響は
+なし（新規APIなし、既存`SelectItem`/`ColumnRef`型のまま）。
+**Context**: Per-Unit Loop、既承認のU6 Functional Design成果物への追加修正
+（frontend-components.mdのみ）。NFR Requirementsステージの承認確認は別途継続。
+
+---
+
 ## U6: Query Builder Functional Design — business-logic-model.md レビュー承認
 **Timestamp**: 2026-07-12T16:25:00Z
 **User Input**: "business-logic-model.md レビュー完了。承認。"
