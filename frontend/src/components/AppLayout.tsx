@@ -36,6 +36,11 @@ export function AppLayout({ children }: AppLayoutProps) {
               マスタデータ
             </a>
           )}
+          {isAuthenticated && (
+            <a href="/query-builder" data-testid="app-layout-nav-query-builder">
+              クエリビルダー
+            </a>
+          )}
           {isAuthenticated && currentUser?.role === 'ADMIN' && (
             <a href="/admin/pending-users" data-testid="app-layout-nav-pending-users">
               承認待ちユーザー

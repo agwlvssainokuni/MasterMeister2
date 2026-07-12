@@ -3855,3 +3855,19 @@ UIを実装した（GEN-9）。`QueryBuilderPage.tsx`に以下を追加した:
 
 ---
 
+## Per-Unit Loop - U6 Code Generation Part 2 - Step 11-8
+**Timestamp**: 2026-07-12T20:45:00Z
+**User Input**: "続行してください。"
+**AI Response**: `frontend/src/routes/AppRouter.tsx`（既存、ブラウンフィールド修正）に
+`/query-builder`ルート（`QueryBuilderPage`、`ProtectedRoute`の`requiredRole`指定なし、認証済み
+ユーザ全員）を追加した。`frontend/src/components/AppLayout.tsx`（既存、ブラウンフィールド修正）に
+「クエリビルダー」ナビゲーションリンク（`/master-data`リンクの直後、管理者限定ではなく
+全ユーザ表示）を追加した。これでStep 11（フロントエンドコンポーネント生成、11-1〜11-8）が
+全item完了した。`npx tsc --noEmit`・`npm run lint`（oxlint）に加え、`npm run test -- --run`
+（vitest、既存44ファイル183件）で全件成功を確認し、`AppLayout.test.tsx`等へのリグレッションが
+ないことを実証した。
+**Context**: Per-Unit Loop、U6 Code Generation Part 2、Step 11-8（AppRouter.tsx・AppLayout.tsx）
+完了。Step 11全item完了。
+
+---
+

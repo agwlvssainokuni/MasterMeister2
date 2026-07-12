@@ -301,7 +301,7 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
 - [x] 11-7. `frontend/src/features/queryBuilder/SqlReverseParsePanel.tsx`: 手入力SQL貼り付け→
       `parseSql`呼び出し→`fullyParsed=true`ならタブへ反映（`onApply`props）、`false`なら
       `notice`表示を生成する（GEN-9、`frontend-components.md`）。
-- [ ] 11-8. `frontend/src/routes/AppRouter.tsx`（既存、ブラウンフィールド修正）に
+- [x] 11-8. `frontend/src/routes/AppRouter.tsx`（既存、ブラウンフィールド修正）に
       `/query-builder`（`QueryBuilderPage`、`ProtectedRoute`・`requiredRole`指定なし）を追加する。
       `frontend/src/components/AppLayout.tsx`（既存、ブラウンフィールド修正）に
       「クエリビルダー」ナビゲーションリンクを全ユーザ表示で追加する

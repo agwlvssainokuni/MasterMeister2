@@ -23,6 +23,7 @@ import { GroupListPage } from '../features/group/GroupListPage'
 import { RecordListPage } from '../features/masterData/RecordListPage'
 import { SchemaTableListPage } from '../features/masterData/SchemaTableListPage'
 import { PermissionAssignmentPage } from '../features/permission/PermissionAssignmentPage'
+import { QueryBuilderPage } from '../features/queryBuilder/QueryBuilderPage'
 import { ConnectionFormPage } from '../features/rdbmsConnection/ConnectionFormPage'
 import { ConnectionListPage } from '../features/rdbmsConnection/ConnectionListPage'
 import { SchemaBrowserPage } from '../features/schema/SchemaBrowserPage'
@@ -120,6 +121,14 @@ function AuthenticatedRoutes() {
           element={
             <ProtectedRoute>
               <RecordListPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/query-builder"
+          element={
+            <ProtectedRoute>
+              <QueryBuilderPage />
             </ProtectedRoute>
           }
         />
