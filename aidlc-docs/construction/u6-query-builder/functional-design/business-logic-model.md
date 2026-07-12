@@ -84,7 +84,7 @@ Generation計画時に確定する。
 | P3 | `SqlGenerationService.generate`のGROUP BY制約検証（フロー2） | Invariant（境界値） | `groupByColumns`が非空かつSELECT/ORDER BYに`groupByColumns`未含有の非集計カラムが1件でも存在する場合、常に`ValidationException`となる | `business-rules.md` 4.2 |
 | P4 | `SqlGenerationService.generate`のWHERE/HAVING句組み立て（フロー2） | Invariant | 生成SQLのWHERE/HAVING句に`OR`キーワードや条件の括弧グルーピングが一切出現しない（`whereConditions`/`havingConditions`は常にAND結合として組み立てられる） | `business-rules.md` 2.1, Q3 |
 | P5 | `SqlGenerationService.generate`のパラメータ化（フロー2） | Invariant | `GeneratedSql.sql`中の`:paramN`プレースホルダ集合と`GeneratedSql.params`のキー集合は常に一致する（一方にしか存在するプレースホルダ/キーは生じない） | `business-rules.md` 5.2 |
-| P6 | `SqlGenerationService.generate`の識別子クオート（フロー2） | Invariant | 生成SQLに含まれるスキーマ名・テーブル名・カラム名・エイリアスは常に`DialectStrategy.quoteIdentifier`でクオートされた形で出現する（未クオートの識別子は一切出現しない） | `business-rules.md` 5.1 |
+| P6 | `SqlGenerationService.generate`の識別子クオート（フロー2） | Invariant | 生成SQLに含まれるテーブル名・カラム名・エイリアスは常に`DialectStrategy.quoteIdentifier`でクオートされた形で出現する（未クオートの識別子は一切出現しない）。スキーマ名は方言によらず生成SQLに一切出現しない（U7 Functional Design着手時の訂正、環境間でのSQL再利用性を優先） | `business-rules.md` 5.1 |
 | P7 | `SqlParsingService.parse`の非対応構文検出（フロー3） | Invariant | サブクエリ・UNION・CTE・ウィンドウ関数・OR条件・括弧グルーピングのいずれかを含む構文的に正しいSQLを入力した場合、常に`fullyParsed = false`となる（誤って`model`を返すことはない） | `business-rules.md` 6.1, 6.2 |
 | P8 | `SqlParsingService.parse`と`SqlGenerationService.generate`の往復（フロー2→3） | Invariant（状態遷移） | `generate`が受理する任意の`QueryBuilderModel`について、`generate(model)`の結果を`parse`した`ParseResult`は`fullyParsed = true`であり、その`model`は元の`model`と（フィールド順・値の集合として）等価である | ラウンドトリップ性質、GEN-8/GEN-9連携 |
 | P9 | `SqlParsingService.parse`の権限フィルタ（フロー3） | Invariant | 解析対象SQLが呼び出しユーザにとって`READ`未満のテーブル/カラムを1件でも参照する場合、構文的に完全に解析可能であっても常に`fullyParsed = false`となる | `business-rules.md` 1.2、U4 P1系との連携 |

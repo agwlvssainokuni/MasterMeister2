@@ -52,9 +52,17 @@ Step 8専用リポジトリスタブは存在しない。また、`QueryBuilderM
 `domain-entities.md`は`Condition`型のみ確定しており値の意味は未確定だったため、
 `value`フィールドに`"alias.column"`形式の文字列を格納する設計をCode Generation時点で追加した。
 item 2-8（`SqlParsingService.parse`）では、スキーマ非修飾のテーブル参照の解決基準
-（明示スキーマがあればそれを使用、なければ`CATALOG_BASED`方言かつアクセス可能スキーマが一意の
-場合のみそれを使用、それ以外は非対応）を、`generate`側の`qualifiedTableName`のスキーマ省略基準
-との往復整合性（P8）のためにCode Generation時点で追加した。item 2-6/2-7のVisitorクラスは
+（明示スキーマがあればそれを使用、なければアクセス可能スキーマが一意の場合のみそれを使用、
+それ以外は非対応）を、`generate`側のスキーマ省略基準との往復整合性（P8）のためにCode
+Generation時点で追加した。**U7 Functional Design着手時（環境間でのSQL再利用性を優先したい
+というユーザ指摘）に伴う訂正**: 当初`generate`側のスキーマ省略は`CATALOG_BASED`方言
+（MySQL/MariaDB）限定で、`SCHEMA_BASED`方言（PostgreSQL/H2）はスキーマ修飾付きSQLを生成して
+いたが、全方言でスキーマ修飾を一切行わない設計に変更した（`SqlGenerationService.
+qualifiedTableName`を廃止し、`dialect.quoteIdentifier(table)`のみに単純化）。これに伴い
+`SqlParsingService.resolveSchema`の「アクセス可能スキーマが一意の場合のみ推定」ルールも
+`CATALOG_BASED`限定条件を外し全方言で有効化し、往復整合性（P8）を維持した。対象スキーマが
+接続の既定スキーマ（`search_path`等）と異なる場合に解決失敗し得るリスクはユーザが許容済み。
+item 2-6/2-7のVisitorクラスは
 JSqlParser 5.3の実際のAPI（`ExpressionVisitorAdapter<T>`が`<S> T visit(Expression, S)`という
 文脈引数付きジェネリックシグネチャを持つこと）をjarの`javap`確認により検証した上で設計した。
 

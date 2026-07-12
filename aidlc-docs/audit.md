@@ -4049,3 +4049,37 @@ frontend-components.md）への移行承認待ち。
 
 ---
 
+## U6 Query Builder - 承認済みユニットへの差し戻し修正（スキーマ修飾の廃止）
+**Timestamp**: 2026-07-13T10:30:00Z
+**User Input**: 「U6の話だけど良いですか？」→「U6で生成したSQLにはスキーマ名って含まれていました
+っけ？生成したSQLには他のDBでも実行でき得る汎用性を持たせたいので、できればスキーマ名は入れたく
+ないです。」→（AI調査結果提示・AskUserQuestion提示後）想定シナリオ「同一スキーマ構成の別環境
+（dev/stg/prod等）」、対応方針「許容する（推奨しない）」を選択→（AI変更計画提示後）「続行して
+ください。」
+**AI Response**: U6は既に承認・完了済みのユニットだが、ユーザ指摘を受けて次の差し戻し修正を実施
+した。調査の結果、`SqlGenerationService.qualifiedTableName`は`SchemaResolutionMode.
+CATALOG_BASED`方言（MySQL/MariaDB）ではスキーマ名を省略する一方、`SCHEMA_BASED`方言
+（PostgreSQL/H2）ではスキーマ修飾（`"public"."employees"`等）を付与していたことが判明。
+ユーザは全方言でスキーマ修飾を廃止する方針（環境間でのSQL再利用性優先、対象スキーマが接続の
+既定スキーマと異なる場合の解決失敗リスクは許容）を選択した。
+実施内容: (1) `SqlGenerationService.qualifiedTableName`メソッドを削除し、FROM/JOIN句の
+テーブル参照を`dialect.quoteIdentifier(table)`のみに単純化（`SchemaResolutionMode`関連の
+分岐・未使用importを除去）。(2) `SqlParsingService.resolveSchema`の「スキーマ非修飾テーブル名を
+アクセス可能スキーマから推定する」ロジックが`CATALOG_BASED`方言限定だった条件を撤廃し、全方言で
+有効化（P8のラウンドトリップ整合性維持のため必須、`SchemaResolutionMode`・
+`DialectStrategyFactory`依存も不要になったため削除）。(3) `SqlGenerationServiceTest`のP6性質
+テストを「スキーマ名は生成SQLに一切出現しない」に書き換え。(4) `SqlParsingServiceTest`に、
+SCHEMA_BASED方言（H2）でのスキーマ非修飾FROM解決の新規テストケースを追加（従来
+CATALOG_BASED限定だったためカバレッジがなかった箇所）。(5) `QueryBuilderRoundTripTest`の
+`SqlParsingService`コンストラクタ呼び出しを更新。(6) フロントエンドのテストフィクスチャ2箇所
+（`GeneratedSqlPanel.test.tsx`, `QueryBuilderPage.test.tsx`）から`"public".`プレフィックスを
+除去。(7) `business-logic-summary.md`・`business-logic-model.md`（P6性質定義）・
+`business-rules.md`（5.1節）を新設計に合わせて訂正。
+検証: バックエンド全体`./gradlew test`成功（回帰なし）、フロントエンド`npx tsc --noEmit`・
+`npm run test -- --run`（52ファイル・224件）・`npm run lint`（oxlint）すべて成功。
+**Context**: U6は既にCode Generation・Build and Test相当の承認を経て完了済みだが、U7
+Functional Design中にユーザが発見した設計上の問題点について、承認済みユニットへの差し戻し
+修正として対応した（U6のStage Progress自体は変更なし、コード・テスト・ドキュメントの訂正のみ）。
+
+---
+

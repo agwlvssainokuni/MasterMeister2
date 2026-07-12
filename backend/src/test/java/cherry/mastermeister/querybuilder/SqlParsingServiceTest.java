@@ -36,12 +36,6 @@ import net.jqwik.api.ForAll;
 import net.jqwik.api.Property;
 import net.jqwik.api.Provide;
 
-import cherry.mastermeister.common.dialect.DialectStrategy;
-import cherry.mastermeister.common.dialect.DialectStrategyFactory;
-import cherry.mastermeister.common.dialect.H2DialectStrategy;
-import cherry.mastermeister.common.dialect.MariaDbDialectStrategy;
-import cherry.mastermeister.common.dialect.MySqlDialectStrategy;
-import cherry.mastermeister.common.dialect.PostgreSqlDialectStrategy;
 import cherry.mastermeister.common.dialect.RdbmsType;
 import cherry.mastermeister.permission.EffectivePermissionResolver;
 import cherry.mastermeister.permission.Permission;
@@ -98,6 +92,32 @@ class SqlParsingServiceTest {
         }
     }
 
+    // スキーマ非修飾のテーブル参照（例: "FROM tbl a"）は、SCHEMA_BASED方言（H2/PostgreSQL）でも
+    // アクセス可能スキーマが一意であれば解決できる（generate側のスキーマ省略との往復整合性、
+    // U6 SqlGenerationService修正に伴う回帰確認。従来はCATALOG_BASED方言限定だった）。
+    @Property(tries = 1)
+    void parseResolvesUnqualifiedTableViaSingleAccessibleSchemaForSchemaBasedDialect() {
+        String sql = "SELECT a.col0 FROM tbl a";
+
+        EffectivePermissionResolver permissionResolver = mock(EffectivePermissionResolver.class);
+        when(permissionResolver.listAccessibleSchemas(1L, 1L)).thenReturn(List.of("s1"));
+        when(permissionResolver.resolveEffectiveTablePermission(1L, 1L, "s1", "tbl"))
+                .thenReturn(Permission.READ);
+        when(permissionResolver.resolveEffectiveColumnPermissions(1L, 1L, "s1", "tbl"))
+                .thenReturn(Map.of("col0", Permission.READ));
+
+        SqlParsingService service = newService(RdbmsType.H2, permissionResolver);
+        try {
+            ParseResult result = service.parse(1L, 1L, sql);
+            assertThat(result.fullyParsed()).isTrue();
+            assertThat(result.model()).isPresent();
+            assertThat(result.model().get().fromItem().schema()).isEqualTo("s1");
+            assertThat(result.model().get().fromItem().table()).isEqualTo("tbl");
+        } finally {
+            service.shutdown();
+        }
+    }
+
     @Provide
     Arbitrary<String> unsupportedSqlSamples() {
         return Arbitraries.of(
@@ -132,14 +152,8 @@ class SqlParsingServiceTest {
         when(connectionRepository.findById(1L)).thenReturn(Optional.of(new RdbmsConnection(
                 "test", rdbmsType, "localhost", 1234, "db", "sa", "sa", null, now, now)));
         return new SqlParsingService(
-                connectionRepository, new DialectStrategyFactory(allDialectStrategies()), permissionResolver,
+                connectionRepository, permissionResolver,
                 10000, Duration.ofSeconds(5), 2, 100, 10, 30, 30, 20, 20);
-    }
-
-    private List<DialectStrategy> allDialectStrategies() {
-        return List.of(
-                new H2DialectStrategy(), new MySqlDialectStrategy(),
-                new MariaDbDialectStrategy(), new PostgreSqlDialectStrategy());
     }
 
 }

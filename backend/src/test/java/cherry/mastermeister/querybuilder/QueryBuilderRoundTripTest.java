@@ -181,7 +181,7 @@ class QueryBuilderRoundTripTest {
 
     private SqlParsingService newParsingService(EffectivePermissionResolver permissionResolver) {
         return new SqlParsingService(
-                newConnectionRepository(), new DialectStrategyFactory(allDialectStrategies()), permissionResolver,
+                newConnectionRepository(), permissionResolver,
                 10000, Duration.ofSeconds(5), 2, 100, 10, 30, 30, 20, 20);
     }
 

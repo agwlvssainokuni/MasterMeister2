@@ -55,21 +55,16 @@ import net.sf.jsqlparser.statement.select.OrderByElement;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 
-import cherry.mastermeister.common.dialect.DialectStrategy;
-import cherry.mastermeister.common.dialect.DialectStrategyFactory;
-import cherry.mastermeister.common.dialect.SchemaResolutionMode;
 import cherry.mastermeister.common.dialect.SortDirection;
 import cherry.mastermeister.common.exception.EntityNotFoundException;
 import cherry.mastermeister.permission.EffectivePermissionResolver;
 import cherry.mastermeister.permission.Permission;
-import cherry.mastermeister.rdbmsconnection.RdbmsConnection;
 import cherry.mastermeister.rdbmsconnection.RdbmsConnectionRepository;
 
 @Service
 public class SqlParsingService {
 
     private final RdbmsConnectionRepository rdbmsConnectionRepository;
-    private final DialectStrategyFactory dialectStrategyFactory;
     private final EffectivePermissionResolver effectivePermissionResolver;
     private final ExecutorService executor;
     private final int parseMaxLength;
@@ -83,7 +78,6 @@ public class SqlParsingService {
 
     public SqlParsingService(
             RdbmsConnectionRepository rdbmsConnectionRepository,
-            DialectStrategyFactory dialectStrategyFactory,
             EffectivePermissionResolver effectivePermissionResolver,
             @Value("${mm.app.query-builder.parse-max-length:10000}") int parseMaxLength,
             @Value("${mm.app.query-builder.parse-timeout:5s}") Duration parseTimeout,
@@ -96,7 +90,6 @@ public class SqlParsingService {
             @Value("${mm.app.query-builder.max-order-by-items:20}") int maxOrderByItems
     ) {
         this.rdbmsConnectionRepository = rdbmsConnectionRepository;
-        this.dialectStrategyFactory = dialectStrategyFactory;
         this.effectivePermissionResolver = effectivePermissionResolver;
         this.parseMaxLength = parseMaxLength;
         this.parseTimeout = parseTimeout;
@@ -143,23 +136,21 @@ public class SqlParsingService {
             return notFullyParsed("対応していない構文です（UNION/サブクエリ等）");
         }
 
-        RdbmsConnection connection = rdbmsConnectionRepository.findById(connectionId)
+        rdbmsConnectionRepository.findById(connectionId)
                 .orElseThrow(() -> new EntityNotFoundException("RdbmsConnection not found: " + connectionId));
-        DialectStrategy dialect = dialectStrategyFactory.resolve(connection.getRdbmsType());
-        boolean catalogBased = dialect.getSchemaResolutionMode() == SchemaResolutionMode.CATALOG_BASED;
         List<String> accessibleSchemas = effectivePermissionResolver.listAccessibleSchemas(userId, connectionId);
 
         if (!(plainSelect.getFromItem() instanceof Table fromTable)) {
             return notFullyParsed("対応していない構文です（FROM句にサブクエリ）");
         }
-        Optional<FromItem> fromItem = resolveFromItem(fromTable, catalogBased, accessibleSchemas);
+        Optional<FromItem> fromItem = resolveFromItem(fromTable, accessibleSchemas);
         if (fromItem.isEmpty()) {
             return notFullyParsed("対応していない構文です（FROM句の解決に失敗）");
         }
 
         List<JoinItem> joinItems = new ArrayList<>();
         for (Join join : Optional.ofNullable(plainSelect.getJoins()).orElseGet(List::of)) {
-            Optional<JoinItem> joinItem = resolveJoinItem(join, catalogBased, accessibleSchemas);
+            Optional<JoinItem> joinItem = resolveJoinItem(join, accessibleSchemas);
             if (joinItem.isEmpty()) {
                 return notFullyParsed("対応していない構文です（JOIN句）");
             }
@@ -269,15 +260,15 @@ public class SqlParsingService {
         return new ParseResult(false, Optional.empty(), Optional.of(notice));
     }
 
-    private Optional<FromItem> resolveFromItem(Table table, boolean catalogBased, List<String> accessibleSchemas) {
+    private Optional<FromItem> resolveFromItem(Table table, List<String> accessibleSchemas) {
         if (table.getAlias() == null || table.getAlias().getUnquotedName() == null) {
             return Optional.empty();
         }
-        return resolveSchema(table.getUnquotedSchemaName(), catalogBased, accessibleSchemas)
+        return resolveSchema(table.getUnquotedSchemaName(), accessibleSchemas)
                 .map(schema -> new FromItem(schema, table.getUnquotedName(), table.getAlias().getUnquotedName()));
     }
 
-    private Optional<JoinItem> resolveJoinItem(Join join, boolean catalogBased, List<String> accessibleSchemas) {
+    private Optional<JoinItem> resolveJoinItem(Join join, List<String> accessibleSchemas) {
         JoinType type;
         if (join.isInner()) {
             type = JoinType.INNER;
@@ -292,7 +283,7 @@ public class SqlParsingService {
                 || table.getAlias() == null || table.getAlias().getUnquotedName() == null) {
             return Optional.empty();
         }
-        Optional<String> schema = resolveSchema(table.getUnquotedSchemaName(), catalogBased, accessibleSchemas);
+        Optional<String> schema = resolveSchema(table.getUnquotedSchemaName(), accessibleSchemas);
         if (schema.isEmpty()) {
             return Optional.empty();
         }
@@ -353,11 +344,11 @@ public class SqlParsingService {
                 new Condition(left.tableAlias(), left.columnName(), left.aggregateFunction(), operator, value));
     }
 
-    private Optional<String> resolveSchema(String explicitSchema, boolean catalogBased, List<String> accessibleSchemas) {
+    private Optional<String> resolveSchema(String explicitSchema, List<String> accessibleSchemas) {
         if (explicitSchema != null) {
             return Optional.of(explicitSchema);
         }
-        if (catalogBased && accessibleSchemas.size() == 1) {
+        if (accessibleSchemas.size() == 1) {
             return Optional.of(accessibleSchemas.get(0));
         }
         return Optional.empty();

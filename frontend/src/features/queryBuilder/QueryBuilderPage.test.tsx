@@ -121,7 +121,7 @@ describe('QueryBuilderPage', () => {
   })
 
   it('generates SQL and displays it when the generate button is clicked', async () => {
-    const generated: GeneratedSql = { sql: 'SELECT "t0"."id" FROM "public"."employees" AS "t0"', params: {} }
+    const generated: GeneratedSql = { sql: 'SELECT "t0"."id" FROM "employees" AS "t0"', params: {} }
     generateSqlMock.mockResolvedValue(generated)
     renderPage()
     await selectConnectionAndSchema()

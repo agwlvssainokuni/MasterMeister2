@@ -32,7 +32,7 @@ const model: QueryBuilderModel = {
 }
 
 const generatedSql: GeneratedSql = {
-  sql: 'SELECT "t0"."id" FROM "public"."employees" AS "t0" WHERE "t0"."id" = :param1',
+  sql: 'SELECT "t0"."id" FROM "employees" AS "t0" WHERE "t0"."id" = :param1',
   params: { param1: 42 },
 }
 

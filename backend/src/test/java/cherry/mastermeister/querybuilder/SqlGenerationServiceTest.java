@@ -44,7 +44,6 @@ import cherry.mastermeister.common.dialect.MariaDbDialectStrategy;
 import cherry.mastermeister.common.dialect.MySqlDialectStrategy;
 import cherry.mastermeister.common.dialect.PostgreSqlDialectStrategy;
 import cherry.mastermeister.common.dialect.RdbmsType;
-import cherry.mastermeister.common.dialect.SchemaResolutionMode;
 import cherry.mastermeister.common.dialect.SortDirection;
 import cherry.mastermeister.common.exception.ValidationException;
 import cherry.mastermeister.rdbmsconnection.RdbmsConnection;
@@ -153,8 +152,9 @@ class SqlGenerationServiceTest {
         assertThat(placeholders).isEqualTo(result.params().keySet());
     }
 
-    // P6: 生成SQLに含まれるスキーマ名・テーブル名・カラム名・エイリアスは常に
-    //     DialectStrategy.quoteIdentifierでクオートされた形で出現する。
+    // P6: 生成SQLに含まれるテーブル名・カラム名・エイリアスは常にDialectStrategy.quoteIdentifierで
+    //     クオートされた形で出現する。スキーマ名は方言によらず一切出現しない（環境間でのSQL
+    //     再利用性を優先し、対象RDBMS接続の既定スキーマ解決に委ねる設計判断）。
     @Property(tries = 20)
     void generateAlwaysQuotesIdentifiers(@ForAll("rdbmsTypes") RdbmsType rdbmsType) {
         FromItem fromItem = new FromItem("myschema", "mytable", "t0");
@@ -174,9 +174,7 @@ class SqlGenerationServiceTest {
         assertThat(result.sql()).contains(dialect.quoteIdentifier("myalias"));
         assertThat(result.sql()).contains(dialect.quoteIdentifier("j0"));
         assertThat(result.sql()).contains(dialect.quoteIdentifier("jointable"));
-        if (dialect.getSchemaResolutionMode() == SchemaResolutionMode.SCHEMA_BASED) {
-            assertThat(result.sql()).contains(dialect.quoteIdentifier("myschema"));
-        }
+        assertThat(result.sql()).doesNotContain(dialect.quoteIdentifier("myschema"));
     }
 
     // P10: limit/offsetがnullの場合は常にLIMIT OFFSET句を含まないSQLが生成され、非nullの場合は

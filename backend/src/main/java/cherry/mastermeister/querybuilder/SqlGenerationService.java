@@ -29,7 +29,6 @@ import org.springframework.stereotype.Service;
 import cherry.mastermeister.common.dialect.DialectStrategy;
 import cherry.mastermeister.common.dialect.DialectStrategyFactory;
 import cherry.mastermeister.common.dialect.NullsOrder;
-import cherry.mastermeister.common.dialect.SchemaResolutionMode;
 import cherry.mastermeister.common.exception.EntityNotFoundException;
 import cherry.mastermeister.common.exception.ValidationException;
 import cherry.mastermeister.rdbmsconnection.RdbmsConnection;
@@ -161,11 +160,11 @@ public class SqlGenerationService {
     private String buildFromJoinClause(DialectStrategy dialect, QueryBuilderModel model) {
         StringBuilder clause = new StringBuilder();
         FromItem fromItem = model.fromItem();
-        clause.append(" FROM ").append(qualifiedTableName(dialect, fromItem.schema(), fromItem.table()))
+        clause.append(" FROM ").append(dialect.quoteIdentifier(fromItem.table()))
                 .append(" AS ").append(dialect.quoteIdentifier(fromItem.alias()));
         for (JoinItem joinItem : model.joinItems()) {
             clause.append(" ").append(joinKeyword(joinItem.type())).append(" ")
-                    .append(qualifiedTableName(dialect, joinItem.schema(), joinItem.table()))
+                    .append(dialect.quoteIdentifier(joinItem.table()))
                     .append(" AS ").append(dialect.quoteIdentifier(joinItem.alias()))
                     .append(" ON ").append(renderOnCondition(dialect, joinItem.onCondition()));
         }
@@ -253,13 +252,6 @@ public class SqlGenerationService {
 
     private String renderColumnRef(DialectStrategy dialect, String tableAlias, String columnName) {
         return dialect.quoteIdentifier(tableAlias) + "." + dialect.quoteIdentifier(columnName);
-    }
-
-    private String qualifiedTableName(DialectStrategy dialect, String schema, String table) {
-        if (dialect.getSchemaResolutionMode() == SchemaResolutionMode.CATALOG_BASED) {
-            return dialect.quoteIdentifier(table);
-        }
-        return dialect.quoteIdentifier(schema) + "." + dialect.quoteIdentifier(table);
     }
 
 }
