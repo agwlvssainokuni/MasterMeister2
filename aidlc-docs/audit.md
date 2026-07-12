@@ -4247,3 +4247,31 @@ Step 6（成果物生成）を実行した。
 
 ---
 
+## Per-Unit Loop - U7 Code Generation Plan（Part 1: Planning）作成
+**Timestamp**: 2026-07-13T10:40:00Z
+**User Input**: (継続、ユーザ入力なし)
+**AI Response**:
+`aidlc-docs/construction/plans/u7-saved-query-execution-history-code-generation-plan.md`を
+作成した。GEN-10〜16対応、`savedquery`/`queryexecution`/`queryhistory`の3パッケージ構成。
+Code Generation時点で確定する事項6件（REST APIパス、`QueryHistory.params`の
+`JsonMapConverter`によるJSON永続化、`SavedQueryService.getExecutableQuery`/
+`incrementExecutionCount`の追加、既存`GlobalExceptionHandler`の再利用、`SqlParamDetector`の
+スキャナ方式実装、`PagingSqlBuilder`とページなし時の`max-result-rows`打ち切り方式）を明記。
+Step 1〜16（U6と同じ16ステップ構成、リポジトリレイヤ含む——U6と異なり本ユニットは
+`SavedQuery`/`QueryHistory`の2エンティティを持つため）。P1〜P10はStep 3で
+`SavedQueryServiceTest`/`ReadOnlySqlValidatorTest`/`SqlParamDetectorTest`/
+`QueryExecutionServiceTest`/`QueryHistoryServiceTest`へ対応付け。
+**Context**: Per-Unit Loop、U7 Code Generation Part 1（Planning）完了、ユーザ承認待ち。
+
+---
+
+## Per-Unit Loop - U7 Code Generation Plan 承認プロンプト
+**Timestamp**: 2026-07-13T10:41:00Z
+**User Input**: (承認依頼)
+**AI Response**: ユーザに対し
+`u7-saved-query-execution-history-code-generation-plan.md`全体の承認を依頼した
+（code-generation.md Step 6）。
+**Context**: Per-Unit Loop、U7 Code Generation Part 1（Planning）、承認待ち。
+
+---
+
