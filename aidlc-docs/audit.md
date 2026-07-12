@@ -4186,3 +4186,29 @@ setQueryTimeout先例）・U6（JSqlParserライセンス確定、parse-max-leng
 
 ---
 
+## Per-Unit Loop - U7 NFR Design Plan（Planning）作成
+**Timestamp**: 2026-07-13T10:20:00Z
+**User Input**: (継続、ユーザ入力なし)
+**AI Response**:
+`aidlc-docs/construction/plans/u7-saved-query-execution-history-nfr-design-plan.md`を作成した。
+U7はexecution-plan.mdの規定によりNFR Design=EXECUTE。U1（AuditLogServiceのREQUIRES_NEW＋
+非伝播パターン、AuditLogの複合インデックスパターン）・U2/U4（インデックス実装判断基準）・
+U5（ステートメント単位タイムアウト、Resilience非該当の判断基準）・U6（サービス分割判断基準、
+JSqlParserタイムアウト実装パターン）を参照し、重複しない4問を構成した。
+- Q1: `queryexecution`内部のクラス構成（`ReadOnlySqlValidator`/`SqlParamDetector`/
+  `PagingSqlBuilder`への分割、U6 Q1と同種）
+- Q2: GEN-13手入力SQLに対するJSqlParserタイムアウト制御の実装パターン（U6 Q2と同種だが、
+  タイムアウト超過時は「notice表示」ではなく「ValidationExceptionで拒否」——GEN-13には
+  部分解析結果を返す概念がないため）
+- Q3: `QueryHistoryService.recordExecution`の失敗時の扱い（`AuditLogService`と同じ
+  REQUIRES_NEW＋非伝播パターンを踏襲するか、履歴の完全性を優先し伝播させるか）
+- Q4: `SavedQuery`/`QueryHistory`のインデックス実装方針（`QueryHistory`は無期限保持で
+  唯一無制限増加するエンティティのため`(connectionId, executedAt)`・`savedQueryId`の
+  明示的インデックスを追加、`SavedQuery`は小規模想定のため追加インデックスなしという
+  非対称な判断を提案）
+Resilience（対象RDBMS実行は主機能そのもの、新規パターンなし）・Security
+（security-baseline無効、新規検討なし）は質問化せず記載。全問に推奨回答（A）を事前記入済み。
+**Context**: Per-Unit Loop、U7 NFR Design Part 1（Planning）、ユーザ回答待ち。
+
+---
+
