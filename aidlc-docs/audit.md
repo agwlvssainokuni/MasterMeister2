@@ -3814,3 +3814,22 @@ GroupByOrderByTab.tsx・LimitOffsetTab.tsx）完了。
 
 ---
 
+## Per-Unit Loop - U6 Code Generation Part 2 - Step 11-6
+**Timestamp**: 2026-07-12T20:35:00Z
+**User Input**: "続行してください。"
+**AI Response**: `frontend/src/features/queryBuilder/GeneratedSqlPanel.tsx`を生成した。
+「SQL生成」ボタン・生成SQL/パラメータ表示・コピーボタン・エラー表示・「保存」「実行」ボタン
+（`onNavigateToSave`/`onNavigateToExecute`props、U6時点では未実装のためprops未指定時は
+disabled）を実装した（GEN-8）。`frontend-components.md`のprops定義（`model`/`generatedSql`/
+`onGenerate`）だけでは`ValidationException`のエラー表示先が不明瞭だったため、実装時の判断として
+`error?: string | null`propsを追加した（実際のAPI呼び出し・エラーハンドリングは呼び出し元の
+`QueryBuilderPage`側で行い、本パネルは表示に徹する設計）。`QueryBuilderPage.tsx`に
+`generatedSql`/`generateError`状態と`handleGenerate`（`generateSql` API呼び出し、
+`ApiError`捕捉時は`error.message`を表示）を追加し、タブ切り替えの下に常時表示のセクションとして
+`GeneratedSqlPanel`を組み込んだ（`fromItem`確定後のみ表示、`QueryBuilderModel.fromItem`が
+非null必須のため）。`resetModel`に`generatedSql`/`generateError`クリアも追加した。
+`npx tsc --noEmit`・`npm run lint`で確認した。
+**Context**: Per-Unit Loop、U6 Code Generation Part 2、Step 11-6（GeneratedSqlPanel.tsx）完了。
+
+---
+

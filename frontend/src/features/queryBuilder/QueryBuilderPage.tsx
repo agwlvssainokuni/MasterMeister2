@@ -15,13 +15,24 @@
  */
 
 import { useEffect, useState } from 'react'
-import { listSelectableConnections, listSelectableSchemas } from './api'
+import { ApiError } from '../../api/apiClient'
+import { generateSql, listSelectableConnections, listSelectableSchemas } from './api'
 import { FromJoinTab } from './FromJoinTab'
+import { GeneratedSqlPanel } from './GeneratedSqlPanel'
 import { GroupByOrderByTab } from './GroupByOrderByTab'
 import { LimitOffsetTab } from './LimitOffsetTab'
 import { SelectTab } from './SelectTab'
 import { WhereHavingTab } from './WhereHavingTab'
-import type { Condition, ConnectionSummary, FromItem, JoinItem, OrderByItem, SelectItem } from './types'
+import type {
+  Condition,
+  ConnectionSummary,
+  FromItem,
+  GeneratedSql,
+  JoinItem,
+  OrderByItem,
+  QueryBuilderModel,
+  SelectItem,
+} from './types'
 
 type TabKey = 'fromJoin' | 'select' | 'where' | 'groupBy' | 'having' | 'orderBy' | 'limitOffset'
 
@@ -50,6 +61,8 @@ export function QueryBuilderPage() {
   const [orderByItems, setOrderByItems] = useState<OrderByItem[]>([])
   const [limit, setLimit] = useState<number | null>(null)
   const [offset, setOffset] = useState<number | null>(null)
+  const [generatedSql, setGeneratedSql] = useState<GeneratedSql | null>(null)
+  const [generateError, setGenerateError] = useState<string | null>(null)
 
   useEffect(() => {
     listSelectableConnections().then(setConnections)
@@ -77,11 +90,37 @@ export function QueryBuilderPage() {
     setOrderByItems([])
     setLimit(null)
     setOffset(null)
+    setGeneratedSql(null)
+    setGenerateError(null)
   }
 
   const handleChangeFromJoin = (nextFromItem: FromItem, nextJoinItems: JoinItem[]) => {
     setFromItem(nextFromItem)
     setJoinItems(nextJoinItems)
+  }
+
+  const handleGenerate = async () => {
+    if (connectionId === null || fromItem === null) {
+      return
+    }
+    const model: QueryBuilderModel = {
+      selectItems,
+      fromItem,
+      joinItems,
+      whereConditions,
+      groupByColumns,
+      havingConditions,
+      orderByItems,
+      limit,
+      offset,
+    }
+    try {
+      setGeneratedSql(await generateSql(connectionId, model))
+      setGenerateError(null)
+    } catch (e) {
+      setGeneratedSql(null)
+      setGenerateError(e instanceof ApiError ? e.message : 'SQL生成に失敗しました。')
+    }
   }
 
   return (
@@ -211,6 +250,25 @@ export function QueryBuilderPage() {
                 setLimit(nextLimit)
                 setOffset(nextOffset)
               }}
+            />
+          )}
+
+          {fromItem !== null && (
+            <GeneratedSqlPanel
+              model={{
+                selectItems,
+                fromItem,
+                joinItems,
+                whereConditions,
+                groupByColumns,
+                havingConditions,
+                orderByItems,
+                limit,
+                offset,
+              }}
+              generatedSql={generatedSql}
+              error={generateError}
+              onGenerate={handleGenerate}
             />
           )}
         </>
