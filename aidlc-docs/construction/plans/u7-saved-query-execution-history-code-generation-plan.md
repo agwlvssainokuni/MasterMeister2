@@ -136,24 +136,24 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
 ## ステップ一覧
 
 ### Step 1: プロジェクト構造セットアップ
-- [ ] 1-1. **該当なし（N/A）**: JSqlParserはU6で`backend/build.gradle.kts`に導入済み
+- [x] 1-1. **該当なし（N/A）**: JSqlParserはU6で`backend/build.gradle.kts`に導入済み
       （`tech-stack-decisions.md`確定）。新規依存追加はない。
 
 ### Step 2: ビジネスロジック生成
-- [ ] 2-1. `backend/src/main/java/cherry/mastermeister/savedquery/Visibility.java`（enum:
+- [x] 2-1. `backend/src/main/java/cherry/mastermeister/savedquery/Visibility.java`（enum:
       `PUBLIC, PRIVATE`）を生成する（`domain-entities.md`確定）。
-- [ ] 2-2. `backend/src/main/java/cherry/mastermeister/savedquery/SavedQuery.java`
+- [x] 2-2. `backend/src/main/java/cherry/mastermeister/savedquery/SavedQuery.java`
       （`@Entity @Table(name = "saved_query")`）: `id, ownerId, connectionId, name,
       sql（@Lob）, visibility（@Enumerated(EnumType.STRING)）, retired（既定false）,
       executionCount（既定0）, createdAt, updatedAt`を生成する（`domain-entities.md`確定、
       `@ManyToOne`等の関係アノテーションは使用せず素の`Long`型FKフィールド、U1〜U6踏襲の
       JPA規約）。
-- [ ] 2-3. `backend/src/main/java/cherry/mastermeister/savedquery/`にAPI境界DTOを生成する
+- [x] 2-3. `backend/src/main/java/cherry/mastermeister/savedquery/`にAPI境界DTOを生成する
       （`domain-entities.md`確定）: `SavedQuerySummary`（record: `id, name, visibility,
       retired, ownerId`）、`SavedQueryDetail`（record: `id, ownerId, connectionId, name, sql,
       visibility, retired, executionCount, createdAt, updatedAt`）、`SavedQueryStatus`
       （record: `visibleToViewer, retired`）。
-- [ ] 2-4. `backend/src/main/java/cherry/mastermeister/savedquery/SavedQueryRepository.java`
+- [x] 2-4. `backend/src/main/java/cherry/mastermeister/savedquery/SavedQueryRepository.java`
       （`JpaRepository<SavedQuery, Long>`）: `listQueries`（`business-rules.md` 1.1）に必要な
       検索メソッド（`connectionId`＋可視性/所有者条件）、`getStatuses`（5.2）に必要な
       `findAllById`相当、`incrementExecutionCount`用の`@Modifying @Query("UPDATE SavedQuery s
@@ -161,7 +161,7 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       （`clearAutomatically = true`、`nfr-requirements.md` 2.2）を定義する。具体的なクエリ
       メソッドシグネチャはStep 2-5実装時の呼び出し箇所に合わせて確定する（U3/U4 Step 8と
       同様、Service先行実装との整合を優先）。
-- [ ] 2-5. `backend/src/main/java/cherry/mastermeister/savedquery/SavedQueryService.java`
+- [x] 2-5. `backend/src/main/java/cherry/mastermeister/savedquery/SavedQueryService.java`
       （`@Service`）: `Long saveQuery(Long userId, Long connectionId, String name, String sql,
       Visibility visibility)`、`SavedQueryDetail getQuery(Long userId, Long savedQueryId)`
       （`business-rules.md` 1.1、`retired`は無視）、`SavedQueryDetail
@@ -176,11 +176,11 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       `int incrementExecutionCount(Long savedQueryId)`（`queryexecution`から呼ばれる）を
       実装する。可視性チェック（Public/Private＋所有者判定）はprivateメソッドへ切り出し
       `getQuery`/`getExecutableQuery`/`updateQuery`/`retireQuery`間で共通化する。
-- [ ] 2-6. `backend/src/main/java/cherry/mastermeister/queryexecution/`にAPI境界DTOを生成する
+- [x] 2-6. `backend/src/main/java/cherry/mastermeister/queryexecution/`にAPI境界DTOを生成する
       （`domain-entities.md`確定）: `QueryResult`（record: `columns, rows, totalRows,
       truncated`）、`ResultColumn`（record: `columnName, dataType`）、`DetectedParam`
       （record: `name`）、`PagingOption`（record: `enabled, page, pageSize`）。
-- [ ] 2-7. `backend/src/main/java/cherry/mastermeister/queryexecution/ReadOnlySqlValidator.java`
+- [x] 2-7. `backend/src/main/java/cherry/mastermeister/queryexecution/ReadOnlySqlValidator.java`
       （`nfr-design-patterns.md` 1.1、1.2）: `void validate(String sql)`
       （`business-rules.md` 2.1、失敗時`ValidationException`）を実装する。固定サイズ共有
       `ExecutorService`（`@PreDestroy`で`shutdown`、`mm.app.query-execution.
@@ -190,15 +190,15 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       超過は呼び出し前に`ValidationException`。パース失敗・タイムアウト・`Select`型でない
       場合はいずれも`ValidationException`（U6と異なりnotice応答はない、
       `nfr-design-patterns.md` 1.2）。
-- [ ] 2-8. `backend/src/main/java/cherry/mastermeister/queryexecution/SqlParamDetector.java`
+- [x] 2-8. `backend/src/main/java/cherry/mastermeister/queryexecution/SqlParamDetector.java`
       （`nfr-design-patterns.md` 1.1）: `List<DetectedParam> detect(String sql)`
       （`business-rules.md` 3節、上記「Code Generation時点で確定する事項」5のスキャナ方式）を
       実装する。
-- [ ] 2-9. `backend/src/main/java/cherry/mastermeister/queryexecution/PagingSqlBuilder.java`
+- [x] 2-9. `backend/src/main/java/cherry/mastermeister/queryexecution/PagingSqlBuilder.java`
       （`nfr-design-patterns.md` 1.1）: `String wrapWithPaging(String sql, DialectStrategy
       dialect, int limit, int offset)`（`business-rules.md` 4節、`SELECT * FROM (<sql>) AS
       subquery`＋`DialectStrategy.buildPagingClause`）を実装する。
-- [ ] 2-10. `backend/src/main/java/cherry/mastermeister/queryexecution/QueryExecutionService.java`
+- [x] 2-10. `backend/src/main/java/cherry/mastermeister/queryexecution/QueryExecutionService.java`
       （`@Service`）: `QueryResult executeAdhocSql(Long userId, Long connectionId, String sql,
       Map<String, Object> params, PagingOption paging)`、`QueryResult
       executeSavedQuery(Long userId, Long connectionId, Long savedQueryId, Map<String,
@@ -213,17 +213,17 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       `SavedQueryService.incrementExecutionCount`→`QueryHistoryService.recordExecution`・
       `AuditLogService.record`（`EventType.QUERY_EXECUTED`）を呼び出し（いずれも失敗非伝播、
       `nfr-design-patterns.md` 1.3）→`QueryResult`を返す。
-- [ ] 2-11. `backend/src/main/java/cherry/mastermeister/queryhistory/JsonMapConverter.java`
+- [x] 2-11. `backend/src/main/java/cherry/mastermeister/queryhistory/JsonMapConverter.java`
       （`AttributeConverter<Map<String, Object>, String>` `@Converter`、上記「Code
       Generation時点で確定する事項」2）を実装する。
-- [ ] 2-12. `backend/src/main/java/cherry/mastermeister/queryhistory/QueryHistory.java`
+- [x] 2-12. `backend/src/main/java/cherry/mastermeister/queryhistory/QueryHistory.java`
       （`@Entity @Table(name = "query_history", indexes = {@Index(columnList = "connectionId,
       executedAt"), @Index(columnList = "savedQueryId")})`）: `id, userId, connectionId,
       sql（@Lob）, params（@Convert(converter = JsonMapConverter.class) @Lob）, resultCount,
       elapsedMillis, executedAt, savedQueryId（nullable）, savedQueryName（nullable）,
       executionCount（nullable Integer）`を生成する（`domain-entities.md`確定、
       `nfr-design-patterns.md` 2）。
-- [ ] 2-13. `backend/src/main/java/cherry/mastermeister/queryhistory/`にDTO・enumを生成する
+- [x] 2-13. `backend/src/main/java/cherry/mastermeister/queryhistory/`にDTO・enumを生成する
       （`domain-entities.md`確定）: `ExecutorScope`（enum: `ALL, SELF`）、
       `HistoryFilterCriteria`（record: `executedAtFrom, executedAtTo, executorScope,
       sqlTextSearch`）、`HistoryEntry`（record: `id, userId, connectionId, sql, params,
@@ -234,11 +234,11 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       （record: `userId, connectionId, sql, params, resultCount, elapsedMillis, executedAt,
       savedQueryId, savedQueryName, executionCount`——`recordExecution`の引数型、
       `component-methods.md`草案を踏襲）。
-- [ ] 2-14. `backend/src/main/java/cherry/mastermeister/queryhistory/QueryHistoryRepository.java`
+- [x] 2-14. `backend/src/main/java/cherry/mastermeister/queryhistory/QueryHistoryRepository.java`
       （`JpaRepository<QueryHistory, Long>`）: `listHistory`の絞り込み・ページングに必要な
       `@Query`（`connectionId`＋日時範囲＋`executorScope`（`userId`条件）＋`sqlTextSearch`
       （LIKE））を定義する。具体的なクエリメソッドシグネチャはStep 2-15実装時に確定する。
-- [ ] 2-15. `backend/src/main/java/cherry/mastermeister/queryhistory/QueryHistoryService.java`
+- [x] 2-15. `backend/src/main/java/cherry/mastermeister/queryhistory/QueryHistoryService.java`
       （`@Service`）: `void recordExecution(ExecutionRecord record)`
       （`@Transactional(propagation = Propagation.REQUIRES_NEW)`＋`try-catch`でログ出力のみ、
       `nfr-design-patterns.md` 1.3）、`PageResult<HistoryEntry> listHistory(Long userId, Long

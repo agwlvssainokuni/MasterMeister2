@@ -3,7 +3,7 @@
 ## Project Information
 - **Project Type**: Brownfield
 - **Start Date**: 2026-07-06T10:38:36Z
-- **Current Stage**: CONSTRUCTION - Per-Unit Loop - U7: Saved Query / Execution / History — Code Generation Part 2 (Generation) in progress, Step 1.
+- **Current Stage**: CONSTRUCTION - Per-Unit Loop - U7: Saved Query / Execution / History — Code Generation Part 2 (Generation) in progress, Step 2 done, starting Step 3.
 
 ## Execution Plan Summary
 - **Plan Document**: aidlc-docs/inception/plans/execution-plan.md
