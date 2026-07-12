@@ -3678,3 +3678,22 @@ itemごとにコミット・継続可否確認を行う運用をStep 11でも継
 
 ---
 
+## Per-Unit Loop - U6 Code Generation Part 2 - Step 11-3着手時の発見事項（接続一覧API欠落）
+**Timestamp**: 2026-07-12T19:55:00Z
+**User Input**: "続行してください。"（Step 11-3実装着手時、`QueryBuilderPage`の設計を確認する
+中で発見した問題への対応方針をAskUserQuestionで確認。ユーザ選択: "U5方式を踏襲してAPI新設"）
+**AI Response**: `frontend-components.md`のQueryBuilderPageは接続・スキーマ選択を内包する設計
+だが、`querybuilder`パッケージには接続一覧を列挙するAPIが存在しない（`listSelectableSchemas`
+以下は全て`connectionId`確定済みが前提）ことが判明した。これはU5「ブラウンフィールド発見事項」5
+と同種の問題（`u5-master-data-maintenance-code-generation-plan.md` 2-7/5-4/6-2/7-2で対応済み）
+であるため、AskUserQuestionで対応方針を確認したところ「U5方式を踏襲してAPI新設」が選択された。
+`u6-query-builder-code-generation-plan.md`に、U5と同一パターンの4item
+（2-9: `QueryBuilderMetadataService.listSelectableConnections`追加、5-4:
+`QueryBuilderController`のクラスレベルマッピング再構成＋`GET /connections`追加、6-2:
+`QueryBuilderControllerTest`へのテスト追加、7-2: `api-layer-summary.md`更新）を追加した
+（Step 2/5/6/7は既にコミット済みのため差し戻しではなく追加item扱い）。
+**Context**: Per-Unit Loop、U6 Code Generation Part 2。Step 11-3着手前のブロッカー解消。
+これよりitem 2-9から着手する。
+
+---
+

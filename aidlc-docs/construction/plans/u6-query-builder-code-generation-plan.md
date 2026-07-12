@@ -196,6 +196,15 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       （`business-rules.md` 6.2）はいずれも`fullyParsed=false`。変換成功後、参照する全
       テーブル/カラムについて`resolveEffectiveTablePermission`/`resolveEffectiveColumnPermissions`
       で`READ`以上か検証し、満たさない場合は`fullyParsed=false`（`business-rules.md` 1.2）。
+- [ ] 2-9. `backend/src/main/java/cherry/mastermeister/querybuilder/QueryBuilderMetadataService.java`
+      （既存、ブラウンフィールド修正）に`List<ConnectionSummary>
+      listSelectableConnections(Long userId)`を追加する（U5「ブラウンフィールド発見事項」5と
+      同種の問題——`frontend-components.md`のQueryBuilderPageは接続選択を内包する設計だが、
+      `querybuilder`パッケージには接続一覧を列挙する手段がない——Step 11着手時に判明、
+      ユーザ指示によりU5と同一パターンで解決する）。`RdbmsConnectionRepository`を新規注入し、
+      全接続のうち`effectivePermissionResolver.listAccessibleSchemas(userId, connectionId)`が
+      非空のものだけを`ConnectionSummary`（`rdbmsconnection`パッケージ既存、新規DTOなし）へ
+      マッピングして返す。
 
 ### Step 3: ビジネスロジック単体テスト（PBT-01〜PBT-08, PBT-10）
 `business-logic-model.md`のP1〜P10に対応する`@Property`テストをjqwikで生成する。対象RDBMSへの
@@ -238,16 +247,26 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       （既存、ブラウンフィールド修正）に`.requestMatchers("/api/query-builder/**")
       .authenticated()`を、`.requestMatchers("/api/master-data/**").authenticated()`と同様の
       場所に追記する（`business-rules.md` 8節「認証済みユーザ全員」）。
+- [ ] 5-4. `backend/src/main/java/cherry/mastermeister/querybuilder/QueryBuilderController.java`
+      （既存、ブラウンフィールド修正）に`GET "/connections"`（`listSelectableConnections`）を
+      追加する（U5「ブラウンフィールド発見事項」5と同種の対応、item 2-9参照）。クラスレベルの
+      `@RequestMapping`を`"/api/query-builder/{connectionId}"`から`"/api/query-builder"`へ
+      変更し、`{connectionId}`を既存5メソッドの`@GetMapping`/`@PostMapping`側へ移す
+      （解決後のURLは不変）。
 
 ### Step 6: APIレイヤ単体テスト
 - [x] 6-1. `QueryBuilderControllerTest`（`@WebMvcTest` + `spring-security-test`）: 5エンドポイント
       それぞれについて認証済みユーザ成功系・未認証401をexample-basedテストで検証する
       （U2〜U5のControllerTestパターンを踏襲、本ユニットは管理者ロール制約がないため403系
       テストは不要——`business-rules.md` 8節）。
+- [ ] 6-2. `QueryBuilderControllerTest`に`GET /connections`の成功系・未認証401テストを追加する
+      （item 2-9・5-4参照）。
 
 ### Step 7: APIレイヤサマリ
 - [x] 7-1. `aidlc-docs/construction/u6-query-builder/code/api-layer-summary.md`を生成し、
       エンドポイント一覧（パス・メソッド・認可要件・リクエスト/レスポンス形状）を記載する。
+- [ ] 7-2. `api-layer-summary.md`に`GET /api/query-builder/connections`（item 2-9・5-4参照）を
+      追記する。
 
 ### Step 8〜10: リポジトリレイヤ
 - [x] 8/9/10-1. **該当なし（N/A）**: `domain-entities.md`確定（Q1 = A）のとおり本ユニットは
