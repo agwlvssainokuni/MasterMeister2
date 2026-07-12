@@ -33,7 +33,7 @@ backend/
     │   │   ├── common/           # 共通例外, 共通レスポンス, ページング等のユーティリティ
     │   │   │   └── dialect/      # 対象RDBMS方言吸収 (DialectStrategy, DB種別ごとの実装)
     │   │   ├── security/         # JWT認証 (SecurityConfig, JwtAuthenticationFilter, JwtTokenValidator,
-    │   │   │                     #  RestAuthenticationEntryPoint, RestAccessDeniedHandler, WebConfig)
+    │   │   │                     #  RestAuthenticationEntryPoint, RestAccessDeniedHandler)
     │   │   │                     #  U1 NFR Design（logical-components.md）で確定した専用パッケージ
     │   │   ├── auth/             # 5.3 ユーザ認証（ログイン/セッション or JWT）
     │   │   ├── userregistration/ # 5.1 ユーザ登録（申請→メール→承認/却下）
@@ -53,7 +53,6 @@ backend/
     │   │   └── mail/             # メール送信（登録確認, 承認結果通知）
     │   └── resources/
     │       ├── application.yml
-    │       ├── application-dev.yml
     │       ├── logback-spring.xml
     │       └── static/           # frontendビルド成果物の組込先（実行可能WAR化）
     │       # 内部DB(H2)のスキーマ管理はFlyway/Liquibase等のマイグレーションツールを

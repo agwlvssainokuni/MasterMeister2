@@ -3144,3 +3144,32 @@ MySQLボリュームを再作成後、`department_name`が正しく`開発部`/`
 
 ---
 
+## devプロファイル設定ファイルの点検・削除
+**Timestamp**: 2026-07-12T15:05:00Z
+**User Input**: "devプロファイルの設定ファイルを設けている意義がなくなっているかも。点検して。" →
+"ポイントを整理しましょう。まず、メールサーバの接続先の切り替えについてはdevプロファイルを
+設ける意義がないことが確定ですね。次にCORS設定についてですが、設定ファイルではなくWebConfigに
+設定しています。ただし、実は開発用ではviteのプロキシ機能を使っているため、CORS設定は不要に
+なっていました。他の論点はありますか？" → "削除してください。"
+**AI Response**: `dev`プロファイル関連の2ファイルを点検し、いずれも実効性を失っていることを
+確認した。(1) `application-dev.yml`（U1 Code Generation Step 16-3で新規作成、MailPit接続先
+`SPRING_MAIL_HOST`/`SPRING_MAIL_PORT`のデフォルトを保持）は、その後U3対応でベースの
+`application.yml`に同一デフォルト値（`localhost`/`1025`）が追加されたため内容が完全に重複し
+無意味化していた。(2) `WebConfig.java`（`@Profile("dev")`、`http://localhost:5173`向けCORS
+設定）はユーザ確認により、開発時は`frontend/vite.config.ts`のvite proxy機能（`/api`を
+`http://localhost:8080`へプロキシ）でブラウザから見て同一オリジン扱いとなるためCORS自体が
+そもそも不要と判明。加えて、リポジトリ全体を検索した結果`spring.profiles.active=dev`を設定する
+箇所が`build.gradle.kts`のbootRunにもdevenv側にもドキュメントにも一切存在せず、`dev`
+プロファイル自体が実行時に有効化される経路が無いことも確認した（対照的にtestプロファイルは
+`build.gradle.kts`の`systemProperty("spring.profiles.active", "test")`で明示的に有効化
+されている）。`@Profile`アノテーションの使用箇所も`WebConfig.java`のみであることを`grep`で
+確認済み。ユーザ承認により`backend/src/main/resources/application-dev.yml`と
+`backend/src/main/java/cherry/mastermeister/security/WebConfig.java`を`git rm`で削除し、
+`docs/PROJECT_STRUCTURE.md`の該当記載（`application-dev.yml`の行、securityパッケージ
+コメント内の`WebConfig`言及）を追随修正した。`./gradlew build`で全テスト・`bootWar`含め
+`BUILD SUCCESSFUL`を確認、リグレッションなし。
+**Context**: devenv/設定ファイルの陳腐化点検・削除（U5完了後・U6保留中に実施した、
+Per-Unit Loopとは独立したクリーンアップ対応）。
+
+---
+
