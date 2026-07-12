@@ -314,7 +314,7 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       Library、U4/U5の各featureテストパターンを踏襲）を生成する。
 
 ### Step 13: フロントエンドコンポーネントサマリ
-- [ ] 13-1. `aidlc-docs/construction/u6-query-builder/code/frontend-summary.md`を生成する。
+- [x] 13-1. `aidlc-docs/construction/u6-query-builder/code/frontend-summary.md`を生成する。
 
 ### Step 14: データベースマイグレーションスクリプト
 - [ ] 14-1. **該当なし（N/A）**: 本ユニットは内部DBエンティティを持たないため対象外。
