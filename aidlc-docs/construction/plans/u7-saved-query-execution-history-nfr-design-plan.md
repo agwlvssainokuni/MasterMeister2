@@ -67,8 +67,8 @@
 U1〜U6の先例（`nfr-design-patterns.md`／`logical-components.md`の2ファイルを常に生成）に
 倣い、本ユニットも同様とする。
 
-- [ ] `aidlc-docs/construction/u7-saved-query-execution-history/nfr-design/nfr-design-patterns.md`
-- [ ] `aidlc-docs/construction/u7-saved-query-execution-history/nfr-design/logical-components.md`
+- [x] `aidlc-docs/construction/u7-saved-query-execution-history/nfr-design/nfr-design-patterns.md`
+- [x] `aidlc-docs/construction/u7-saved-query-execution-history/nfr-design/logical-components.md`
 
 ---
 

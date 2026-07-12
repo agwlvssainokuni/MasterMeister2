@@ -3,7 +3,7 @@
 ## Project Information
 - **Project Type**: Brownfield
 - **Start Date**: 2026-07-06T10:38:36Z
-- **Current Stage**: CONSTRUCTION - Per-Unit Loop - U7: Saved Query / Execution / History — NFR Requirements approved, starting NFR Design.
+- **Current Stage**: CONSTRUCTION - Per-Unit Loop - U7: Saved Query / Execution / History — NFR Design artifacts created, awaiting user review/approval.
 
 ## Execution Plan Summary
 - **Plan Document**: aidlc-docs/inception/plans/execution-plan.md
