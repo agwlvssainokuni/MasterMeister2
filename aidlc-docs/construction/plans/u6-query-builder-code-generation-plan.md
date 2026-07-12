@@ -234,7 +234,7 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       `ParseResult`）を生成する（上記「Code Generation時点で確定する事項」1、
       `business-rules.md` 8節）。`userId`は`Authentication#getPrincipal()`キャスト取得
       （U2〜U5のコントローラと同一パターン）。
-- [ ] 5-3. `backend/src/main/java/cherry/mastermeister/security/SecurityConfig.java`
+- [x] 5-3. `backend/src/main/java/cherry/mastermeister/security/SecurityConfig.java`
       （既存、ブラウンフィールド修正）に`.requestMatchers("/api/query-builder/**")
       .authenticated()`を、`.requestMatchers("/api/master-data/**").authenticated()`と同様の
       場所に追記する（`business-rules.md` 8節「認証済みユーザ全員」）。

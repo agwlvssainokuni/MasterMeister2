@@ -54,6 +54,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/rdbms-connections/**").hasRole("ADMIN")
                         .requestMatchers("/api/groups/**").hasRole("ADMIN")
                         .requestMatchers("/api/master-data/**").authenticated()
+                        .requestMatchers("/api/query-builder/**").authenticated()
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(restAuthenticationEntryPoint)
