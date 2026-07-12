@@ -4115,3 +4115,15 @@ Part 2（Generation）完了。標準2択完了メッセージ提示・ユーザ
 
 ---
 
+## Per-Unit Loop - U7 Functional Design 承認
+**Timestamp**: 2026-07-13T10:00:00Z
+**User Input**: "承認します。"
+**AI Response**: U7: Saved Query / Execution / HistoryのFunctional Designを承認済みとして
+`aidlc-docs/aidlc-state.md`のStage Progressテーブルを更新した
+（`[x] approved 2026-07-13T10:00:00Z`）。Current Stage行を更新。execution-plan.md記載の
+とおり全ユニット共通でNFR Requirements/NFR Design（ともにEXECUTE）が続くため、次はU7の
+NFR Requirementsへ進む。
+**Context**: Per-Unit Loop、U7 Functional Design完了・承認、NFR Requirements開始準備。
+
+---
+
