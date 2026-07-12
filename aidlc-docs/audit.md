@@ -4236,3 +4236,14 @@ Step 6（成果物生成）を実行した。
 
 ---
 
+## Per-Unit Loop - U7 NFR Design 承認
+**Timestamp**: 2026-07-13T10:30:00Z
+**User Input**: "Continue to Next Stage"
+**AI Response**: U7: Saved Query / Execution / HistoryのNFR Designを承認済みとして
+`aidlc-docs/aidlc-state.md`のStage Progressテーブルを更新した
+（`[x] approved 2026-07-13T10:30:00Z`）。Current Stage行を更新。execution-plan.md記載の
+とおりInfrastructure DesignはSKIP（全ユニット共通）のため、次はU7のCode Generationへ進む。
+**Context**: Per-Unit Loop、U7 NFR Design完了・承認、Code Generation開始準備。
+
+---
+
