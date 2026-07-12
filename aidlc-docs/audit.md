@@ -3726,3 +3726,16 @@ BUILD SUCCESSFULを確認した。
 
 ---
 
+## Per-Unit Loop - U6 Code Generation Part 2 - Step 6-2
+**Timestamp**: 2026-07-12T20:10:00Z
+**User Input**: "続行してください。"
+**AI Response**: `QueryBuilderControllerTest`に`listSelectableConnectionsReturnsOkForAuthenticatedUser`/
+`listSelectableConnectionsReturnsUnauthorizedWhenNotAuthenticated`の2件を追加した
+（既存10件と同じ`.with(authentication(...))`/`@WithAnonymousUser`パターン）。クラスJavadocも
+5エンドポイント→6エンドポイントの記述に更新した。
+`./gradlew test --tests "cherry.mastermeister.querybuilder.QueryBuilderControllerTest"`で
+計12件全成功を確認した。
+**Context**: Per-Unit Loop、U6 Code Generation Part 2、Step 6-2（GET /connectionsテスト追加）完了。
+
+---
+
