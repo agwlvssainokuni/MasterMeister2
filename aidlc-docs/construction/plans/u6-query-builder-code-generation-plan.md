@@ -290,7 +290,7 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       選択肢とするSELECT項目（カラム・集計関数・出力エイリアス）指定UI、および
       「このテーブルの全カラムを追加」一括追加ボタン（`mm.app.query-builder.max-select-items`
       超過時はフロントエンド側でエラー表示）を生成する（GEN-7 AC、`frontend-components.md`）。
-- [ ] 11-5. `frontend/src/features/queryBuilder/WhereHavingTab.tsx`・`GroupByOrderByTab.tsx`・
+- [x] 11-5. `frontend/src/features/queryBuilder/WhereHavingTab.tsx`・`GroupByOrderByTab.tsx`・
       `LimitOffsetTab.tsx`: AND結合のみの条件リスト組み立てUI（WHERE/HAVING共通、`target`
       propsで切替）、GROUP BY/ORDER BY選択UI（`target`propsで切替）、LIMIT/OFFSET数値入力を
       生成する（GEN-7 AC、`frontend-components.md`）。

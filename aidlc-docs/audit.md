@@ -3794,3 +3794,23 @@ FromJoinTab.tsx）完了。
 
 ---
 
+## Per-Unit Loop - U6 Code Generation Part 2 - Step 11-5
+**Timestamp**: 2026-07-12T20:30:00Z
+**User Input**: "続行してください。"
+**AI Response**: `WhereHavingTab.tsx`・`GroupByOrderByTab.tsx`・`LimitOffsetTab.tsx`を生成した。
+`WhereHavingTab`は`target`（`where`/`having`）propsで切替、AND結合のみの条件リスト組み立てUI
+（OR・括弧グルーピングはMVPスコープ外）とし、`having`時のみ集計関数選択を表示した
+（`SelectTab`と同じ`columnsByAlias`取得パターンを再利用）。`GroupByOrderByTab`は
+`target`（`groupBy`/`orderBy`）propsで切替、`groupBy`時は`groupByColumns`
+（`"alias.column"`文字列、`SqlGenerationService.buildGroupByClause`が解釈する形式と同一）の
+選択UI、`orderBy`時は`OrderByItem`（カラム・集計関数・ASC/DESC）の選択UIを実装した。
+`LimitOffsetTab`は状態を持たず、`limit`/`offset`の数値入力のみのシンプルなコンポーネントとした。
+`QueryBuilderPage.tsx`に3コンポーネント全てを組み込み、`whereConditions`/`groupByColumns`/
+`havingConditions`/`orderByItems`/`limit`/`offset`状態を追加、7タブ全てが実装済みとなったため
+「このタブは未実装です」プレースホルダを削除した。接続/スキーマ変更時のリセット処理は
+`resetModel`関数へ集約した。`npx tsc --noEmit`・`npm run lint`で確認した。
+**Context**: Per-Unit Loop、U6 Code Generation Part 2、Step 11-5（WhereHavingTab.tsx・
+GroupByOrderByTab.tsx・LimitOffsetTab.tsx）完了。
+
+---
+

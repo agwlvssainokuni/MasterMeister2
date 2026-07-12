@@ -17,8 +17,11 @@
 import { useEffect, useState } from 'react'
 import { listSelectableConnections, listSelectableSchemas } from './api'
 import { FromJoinTab } from './FromJoinTab'
+import { GroupByOrderByTab } from './GroupByOrderByTab'
+import { LimitOffsetTab } from './LimitOffsetTab'
 import { SelectTab } from './SelectTab'
-import type { ConnectionSummary, FromItem, JoinItem, SelectItem } from './types'
+import { WhereHavingTab } from './WhereHavingTab'
+import type { Condition, ConnectionSummary, FromItem, JoinItem, OrderByItem, SelectItem } from './types'
 
 type TabKey = 'fromJoin' | 'select' | 'where' | 'groupBy' | 'having' | 'orderBy' | 'limitOffset'
 
@@ -41,6 +44,12 @@ export function QueryBuilderPage() {
   const [fromItem, setFromItem] = useState<FromItem | null>(null)
   const [joinItems, setJoinItems] = useState<JoinItem[]>([])
   const [selectItems, setSelectItems] = useState<SelectItem[]>([])
+  const [whereConditions, setWhereConditions] = useState<Condition[]>([])
+  const [groupByColumns, setGroupByColumns] = useState<string[]>([])
+  const [havingConditions, setHavingConditions] = useState<Condition[]>([])
+  const [orderByItems, setOrderByItems] = useState<OrderByItem[]>([])
+  const [limit, setLimit] = useState<number | null>(null)
+  const [offset, setOffset] = useState<number | null>(null)
 
   useEffect(() => {
     listSelectableConnections().then(setConnections)
@@ -49,17 +58,25 @@ export function QueryBuilderPage() {
   const handleSelectConnection = async (selectedConnectionId: number) => {
     setConnectionId(selectedConnectionId)
     setSchema(null)
-    setFromItem(null)
-    setJoinItems([])
-    setSelectItems([])
+    resetModel()
     setSchemas(await listSelectableSchemas(selectedConnectionId))
   }
 
   const handleSelectSchema = (selectedSchema: string) => {
     setSchema(selectedSchema)
+    resetModel()
+  }
+
+  const resetModel = () => {
     setFromItem(null)
     setJoinItems([])
     setSelectItems([])
+    setWhereConditions([])
+    setGroupByColumns([])
+    setHavingConditions([])
+    setOrderByItems([])
+    setLimit(null)
+    setOffset(null)
   }
 
   const handleChangeFromJoin = (nextFromItem: FromItem, nextJoinItems: JoinItem[]) => {
@@ -142,7 +159,60 @@ export function QueryBuilderPage() {
               onChange={setSelectItems}
             />
           )}
-          {activeTab !== 'fromJoin' && activeTab !== 'select' && <p>このタブは未実装です。</p>}
+          {activeTab === 'where' && (
+            <WhereHavingTab
+              connectionId={connectionId}
+              schema={schema}
+              fromItem={fromItem}
+              joinItems={joinItems}
+              target="where"
+              conditions={whereConditions}
+              onChange={setWhereConditions}
+            />
+          )}
+          {activeTab === 'having' && (
+            <WhereHavingTab
+              connectionId={connectionId}
+              schema={schema}
+              fromItem={fromItem}
+              joinItems={joinItems}
+              target="having"
+              conditions={havingConditions}
+              onChange={setHavingConditions}
+            />
+          )}
+          {activeTab === 'groupBy' && (
+            <GroupByOrderByTab
+              connectionId={connectionId}
+              schema={schema}
+              fromItem={fromItem}
+              joinItems={joinItems}
+              target="groupBy"
+              groupByColumns={groupByColumns}
+              onChange={(value) => setGroupByColumns(value as string[])}
+            />
+          )}
+          {activeTab === 'orderBy' && (
+            <GroupByOrderByTab
+              connectionId={connectionId}
+              schema={schema}
+              fromItem={fromItem}
+              joinItems={joinItems}
+              target="orderBy"
+              orderByItems={orderByItems}
+              onChange={(value) => setOrderByItems(value as OrderByItem[])}
+            />
+          )}
+          {activeTab === 'limitOffset' && (
+            <LimitOffsetTab
+              limit={limit}
+              offset={offset}
+              onChange={(nextLimit, nextOffset) => {
+                setLimit(nextLimit)
+                setOffset(nextOffset)
+              }}
+            />
+          )}
         </>
       )}
     </div>
