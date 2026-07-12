@@ -3625,3 +3625,18 @@ Step 5（5-1〜5-3）全item完了。
 
 ---
 
+## Per-Unit Loop - U6 Code Generation Part 2 - Step 7-1
+**Timestamp**: 2026-07-12T19:35:00Z
+**User Input**: "続行してください。"
+**AI Response**: `aidlc-docs/construction/u6-query-builder/code/api-layer-summary.md`を生成した
+（`U5`の同名ファイルと同一構成）。5エンドポイント一覧、リクエスト/レスポンスのJSON例
+（`generate`のP2〜P6・P10、`parse`のP7〜P9との対応）、`ParseResult`の`Optional`フィールドが
+JacksonのJDK8モジュールにより`present`ラッパーなしで直接値/`null`にシリアライズされる旨、
+`GlobalExceptionHandler`によるエラーマッピング表、`PermissionDeniedException`を本ユニットが
+使用しない設計判断（権限不足は`listSelectableColumns`の静かな絞り込みと`parse`の
+`ParseResult(fullyParsed=false)`で表現）を記載した。
+**Context**: Per-Unit Loop、U6 Code Generation Part 2、Step 7-1（api-layer-summary.md）完了。
+Step 7は単一item。
+
+---
+

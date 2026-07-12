@@ -246,7 +246,7 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       テストは不要——`business-rules.md` 8節）。
 
 ### Step 7: APIレイヤサマリ
-- [ ] 7-1. `aidlc-docs/construction/u6-query-builder/code/api-layer-summary.md`を生成し、
+- [x] 7-1. `aidlc-docs/construction/u6-query-builder/code/api-layer-summary.md`を生成し、
       エンドポイント一覧（パス・メソッド・認可要件・リクエスト/レスポンス形状）を記載する。
 
 ### Step 8〜10: リポジトリレイヤ
