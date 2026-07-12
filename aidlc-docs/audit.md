@@ -3573,3 +3573,14 @@ P1〜P10対応表に加え、Step 2時点の設計判断（`JoinItem.onCondition
 
 ---
 
+## Per-Unit Loop - U6 Code Generation Part 2 - Step 5-1
+**Timestamp**: 2026-07-12T19:15:00Z
+**User Input**: "Step 5をitem単位で進めてください。"
+**AI Response**: `backend/src/main/java/cherry/mastermeister/querybuilder/SqlParseRequest.java`
+（`record SqlParseRequest(String rawSql)`）を生成した。`POST /parse`のリクエストボディ用DTO。
+`./gradlew compileJava`で成功を確認した。
+**Context**: Per-Unit Loop、U6 Code Generation Part 2、Step 5-1（SqlParseRequest.java）完了。
+itemごとにコミット・継続可否確認を行う運用（前セッションのユーザ指示）を本ステップでも継続する。
+
+---
+
