@@ -211,10 +211,11 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       生成する。
 - [x] 3-3. **P7**（非対応構文検出Invariant）・**P9**（parse側の権限フィルタInvariant）:
       `SqlParsingServiceTest`に`@Property`テストを生成する。
-- [ ] 3-4. **P8**（`generate`→`parse`ラウンドトリップInvariant）: `SqlParsingServiceTest`
+- [x] 3-4. **P8**（`generate`→`parse`ラウンドトリップInvariant）: `SqlParsingServiceTest`
       （`SqlGenerationService`と`SqlParsingService`の両方を利用するため同ファイルに追加、
       または`QueryBuilderRoundTripTest`として独立させるかはStep 3-4実装時に判断する）に
-      `@Property`テストを生成する。
+      `@Property`テストを生成する。→ `QueryBuilderRoundTripTest`として独立させた
+      （`SqlParsingServiceTest`はparse単体の関心事に留める設計判断）。
 
 ### Step 4: ビジネスロジックサマリ
 - [ ] 4-1. `aidlc-docs/construction/u6-query-builder/code/business-logic-summary.md`を生成し、

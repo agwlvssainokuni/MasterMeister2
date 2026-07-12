@@ -3533,3 +3533,31 @@ if (plainSelect == null)`から`if (!(select instanceof PlainSelect plainSelect)
 
 ---
 
+## Per-Unit Loop - U6 Code Generation Part 2 - Step 3-4
+**Timestamp**: 2026-07-12T19:05:00Z
+**User Input**: "進めてください。"
+**AI Response**: P8（`generate`→`parse`ラウンドトリップInvariant）の`@Property`テストを
+`QueryBuilderRoundTripTest`として独立クラスに実装した（`SqlGenerationService`と
+`SqlParsingService`の両方を利用するため、parse単体の関心事に留める`SqlParsingServiceTest`とは
+分離する設計判断、計画書の保留事項を確定）。`generate`の結果は`:paramN`プレースホルダを含む
+ため、テスト内で`GeneratedSql.params`の値をSQLリテラルとして埋め戻した文字列を`parse`に渡す
+方式で往復検証した。実行の結果、H2方言でクオートされた識別子（`"t0"."c0"`等）を含むSQLを
+`parse`すると常にfullyParsed=falseになる実装バグを検出した。原因調査のため
+jsqlparser-5.3-sourcesを展開して確認したところ、JSqlParser 5.3の`Table.getName()`/
+`Column.getColumnName()`/`Alias.getName()`はいずれもクオート文字を含む生の文字列を返し、
+クオートなし文字列を得るには別途`getUnquotedName()`/`getUnquotedColumnName()`/
+`getUnquotedTableName()`/`getUnquotedSchemaName()`を呼ぶ必要があることが判明した（Step 2-8/
+2-6実装時点ではクオートなしSQLの手動テストのみで検証しており、この差異は見過ごされていた）。
+`SqlParsingService.java`（`resolveFromItem`/`resolveJoinItem`/`parseOnCondition`/GROUP BY抽出/
+SELECT出力エイリアス抽出）と`AggregateExpressionVisitor.java`（`visit(Column, S)`/
+`visit(Function, S)`）の該当箇所を全てUnquoted系アクセサに置換した。修正後
+`./gradlew test --tests "cherry.mastermeister.querybuilder.*"`および`./gradlew test`
+（バックエンド全体）でBUILD SUCCESSFULを確認。
+**Context**: Per-Unit Loop、U6 Code Generation Part 2、Step 3（ビジネスロジック単体テスト）
+3-4完了、Step 3全体完了（P1〜P10全て対応）。ラウンドトリップテストにより、
+`SqlParsingService`/`AggregateExpressionVisitor`（いずれもStep 2生成物）のクオート識別子
+未対応バグを検出・修正した——単体でのハンドライトSQL検証だけでは見逃されていた欠陥であり、
+P8のようなクロスサービス往復性質テストの価値を示す事例となった。
+
+---
+

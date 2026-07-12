@@ -175,7 +175,7 @@ public class SqlParsingService {
             if (!visitor.isSupported()) {
                 return notFullyParsed("対応していない構文です（SELECT句）");
             }
-            String outputAlias = item.getAlias() != null ? item.getAlias().getName() : null;
+            String outputAlias = item.getAlias() != null ? item.getAlias().getUnquotedName() : null;
             selectItems.add(new SelectItem(
                     visitor.tableAlias(), visitor.columnName(), visitor.aggregateFunction(), outputAlias));
         }
@@ -200,10 +200,10 @@ public class SqlParsingService {
         if (groupByElement != null) {
             for (Object exprObj : groupByElement.getGroupByExpressionList()) {
                 if (!(exprObj instanceof Column column) || column.getTable() == null
-                        || column.getTable().getName() == null) {
+                        || column.getUnquotedTableName() == null) {
                     return notFullyParsed("対応していない構文です（GROUP BY句）");
                 }
-                groupByColumns.add(column.getTable().getName() + "." + column.getColumnName());
+                groupByColumns.add(column.getUnquotedTableName() + "." + column.getUnquotedColumnName());
             }
         }
         if (groupByColumns.size() > maxGroupByColumns) {
@@ -270,11 +270,11 @@ public class SqlParsingService {
     }
 
     private Optional<FromItem> resolveFromItem(Table table, boolean catalogBased, List<String> accessibleSchemas) {
-        if (table.getAlias() == null || table.getAlias().getName() == null) {
+        if (table.getAlias() == null || table.getAlias().getUnquotedName() == null) {
             return Optional.empty();
         }
-        return resolveSchema(table.getSchemaName(), catalogBased, accessibleSchemas)
-                .map(schema -> new FromItem(schema, table.getName(), table.getAlias().getName()));
+        return resolveSchema(table.getUnquotedSchemaName(), catalogBased, accessibleSchemas)
+                .map(schema -> new FromItem(schema, table.getUnquotedName(), table.getAlias().getUnquotedName()));
     }
 
     private Optional<JoinItem> resolveJoinItem(Join join, boolean catalogBased, List<String> accessibleSchemas) {
@@ -289,10 +289,10 @@ public class SqlParsingService {
             return Optional.empty();
         }
         if (!(join.getRightItem() instanceof Table table)
-                || table.getAlias() == null || table.getAlias().getName() == null) {
+                || table.getAlias() == null || table.getAlias().getUnquotedName() == null) {
             return Optional.empty();
         }
-        Optional<String> schema = resolveSchema(table.getSchemaName(), catalogBased, accessibleSchemas);
+        Optional<String> schema = resolveSchema(table.getUnquotedSchemaName(), catalogBased, accessibleSchemas);
         if (schema.isEmpty()) {
             return Optional.empty();
         }
@@ -305,7 +305,7 @@ public class SqlParsingService {
             return Optional.empty();
         }
         return Optional.of(new JoinItem(
-                type, schema.get(), table.getName(), table.getAlias().getName(), onCondition.get()));
+                type, schema.get(), table.getUnquotedName(), table.getAlias().getUnquotedName(), onCondition.get()));
     }
 
     private Optional<Condition> parseOnCondition(Expression onExpr) {
@@ -345,10 +345,10 @@ public class SqlParsingService {
             return Optional.empty();
         }
         if (!(rightExpr instanceof Column rightColumn) || rightColumn.getTable() == null
-                || rightColumn.getTable().getName() == null) {
+                || rightColumn.getUnquotedTableName() == null) {
             return Optional.empty();
         }
-        String value = rightColumn.getTable().getName() + "." + rightColumn.getColumnName();
+        String value = rightColumn.getUnquotedTableName() + "." + rightColumn.getUnquotedColumnName();
         return Optional.of(
                 new Condition(left.tableAlias(), left.columnName(), left.aggregateFunction(), operator, value));
     }

@@ -58,11 +58,11 @@ public class AggregateExpressionVisitor extends ExpressionVisitorAdapter<Void> {
 
     @Override
     public <S> Void visit(Column column, S context) {
-        if (column.getTable() == null || column.getTable().getName() == null) {
+        if (column.getTable() == null || column.getUnquotedTableName() == null) {
             return null;
         }
-        this.tableAlias = column.getTable().getName();
-        this.columnName = column.getColumnName();
+        this.tableAlias = column.getUnquotedTableName();
+        this.columnName = column.getUnquotedColumnName();
         this.aggregateFunction = AggregateFunction.NONE;
         this.supported = true;
         return null;
@@ -90,11 +90,11 @@ public class AggregateExpressionVisitor extends ExpressionVisitorAdapter<Void> {
         if (!(singleParam instanceof Column column)) {
             return null;
         }
-        if (column.getTable() == null || column.getTable().getName() == null) {
+        if (column.getTable() == null || column.getUnquotedTableName() == null) {
             return null;
         }
-        this.tableAlias = column.getTable().getName();
-        this.columnName = column.getColumnName();
+        this.tableAlias = column.getUnquotedTableName();
+        this.columnName = column.getUnquotedColumnName();
         this.aggregateFunction = fn;
         this.supported = true;
         return null;
