@@ -3,7 +3,7 @@
 ## Project Information
 - **Project Type**: Brownfield
 - **Start Date**: 2026-07-06T10:38:36Z
-- **Current Stage**: CONSTRUCTION - Per-Unit Loop - U6: Query Builder — Code Generation Part 1 (Planning) approved, executing Part 2 (Generation).
+- **Current Stage**: CONSTRUCTION - Per-Unit Loop - U6: Query Builder — Code Generation approved, complete. Next: U7: Saved Query / Execution / History.
 
 ## Execution Plan Summary
 - **Plan Document**: aidlc-docs/inception/plans/execution-plan.md
@@ -58,7 +58,7 @@ Infrastructure Design is SKIP for all units (execution-plan.md: no new infra bey
 | U3: RDBMS Connection & Schema Import | [x] approved 2026-07-10T02:00:00Z | [x] approved 2026-07-10T03:25:00Z | [x] approved 2026-07-10T12:45:00Z | SKIP | [x] approved 2026-07-10T21:00:00Z |
 | U4: Permission Management | [x] approved 2026-07-11T09:30:00Z | [x] approved 2026-07-11T11:00:00Z | [x] approved 2026-07-11T09:25:00Z | SKIP | [x] approved 2026-07-11T09:10:00Z |
 | U5: Master Data Maintenance | [x] approved 2026-07-11T20:20:00Z | [x] approved 2026-07-11T20:40:00Z | [x] approved 2026-07-11T21:20:00Z | SKIP | [x] approved 2026-07-12T01:06:00Z |
-| U6: Query Builder | [x] approved 2026-07-12T16:30:00Z | [x] approved 2026-07-12T17:00:00Z | [x] approved 2026-07-12T17:30:00Z | SKIP | [ ] |
+| U6: Query Builder | [x] approved 2026-07-12T16:30:00Z | [x] approved 2026-07-12T17:00:00Z | [x] approved 2026-07-12T17:30:00Z | SKIP | [x] approved 2026-07-13T09:30:00Z |
 | U7: Saved Query / Execution / History | [ ] | [ ] | [ ] | SKIP | [ ] |
 
 ### Build and Test (after all units complete)

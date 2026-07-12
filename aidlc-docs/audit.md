@@ -3955,3 +3955,18 @@ Step 15は単一item。
 
 ---
 
+## Per-Unit Loop - U6 Code Generation - Stage Completion Approval
+**Timestamp**: 2026-07-13T09:30:00Z
+**User Input**: "Continue to Next Stage"
+**AI Response**: 完了基準（全ステップの生成物・単体テストがワークスペースルート配下に存在、
+P1〜P10全てjqwik `@Property`テストで検証済み、`aidlc-docs/construction/u6-query-builder/code/`配下に
+4サマリドキュメント生成済みかつ`repository-layer-summary.md`は想定通り不在）を確認したうえで
+標準2択完了メッセージを提示し、ユーザは「Continue to Next Stage」を選択した。
+`aidlc-state.md`のU6 Code Generation列を承認済み（2026-07-13T09:30:00Z）に更新し、
+Current Stageを次ユニット（U7: Saved Query / Execution / History）着手待ちに更新した。
+**Context**: Per-Unit Loop、U6: Query Builder — Code Generationステージ完了・承認。
+承認済みビルド順序（U1 → U2 → U3 → U4 → {U5, U6} → U7）により、次はU7の
+Per-Unit Loop（Functional Design等）に進む。
+
+---
+
