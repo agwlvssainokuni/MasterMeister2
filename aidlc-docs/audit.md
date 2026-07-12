@@ -3493,3 +3493,20 @@ Mockitoでモック化（対象RDBMSへの実アクセスは不要——`QueryBu
 
 ---
 
+## Per-Unit Loop - U6 Code Generation Part 2 - Step 3-2
+**Timestamp**: 2026-07-12T18:55:00Z
+**User Input**: "進めてください。"
+**AI Response**: `SqlGenerationServiceTest`を新規作成し、P2（JOINキーワードはINNER/LEFT/RIGHT
+JOINのいずれかでFULLは出現しない）・P3（GROUP BY制約違反時は常にValidationException）・
+P4（WHERE/HAVING句はOR・括弧を含まずAND結合のみ）・P5（:paramNプレースホルダ集合とparamsの
+キー集合が一致）・P6（識別子は常にDialectStrategy.quoteIdentifierでクオートされる、4方言
+全てで検証）・P10（limit/offsetのnull有無とLIMIT OFFSET句出現の対応）を検証するjqwik
+`@Property`テストを実装。`RdbmsConnectionRepository`はMockitoでモック化、`DialectStrategy`は
+H2/MySQL/MariaDB/PostgreSQLの実装を直接束ねた`DialectStrategyFactory`を使用（`generate`は
+JDBC接続を一切開かないため、対象RDBMSへの実アクセスは不要——3-1と同じ理由）。`./gradlew test
+--tests "cherry.mastermeister.querybuilder.SqlGenerationServiceTest"`でBUILD SUCCESSFULを確認。
+**Context**: Per-Unit Loop、U6 Code Generation Part 2、Step 3（ビジネスロジック単体テスト）
+3-2完了。
+
+---
+

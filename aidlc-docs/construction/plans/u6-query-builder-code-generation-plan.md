@@ -204,7 +204,7 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
 `SchemaQueryService`はMockitoでモック化し、`querybuilder`固有ロジックを独立して検証する。
 - [x] 3-1. **P1**（`listSelectableColumns`のREAD未満カラム除外Invariant）:
       `QueryBuilderMetadataServiceTest`に`@Property`テストを生成する。
-- [ ] 3-2. **P2**（JOIN句キーワード限定Invariant）・**P3**（GROUP BY制約違反時の
+- [x] 3-2. **P2**（JOIN句キーワード限定Invariant）・**P3**（GROUP BY制約違反時の
       `ValidationException`Invariant）・**P4**（WHERE/HAVING句AND結合限定Invariant）・
       **P5**（プレースホルダ/paramsキー一致Invariant）・**P6**（識別子クオートInvariant）・
       **P10**（LIMIT OFFSET句の有無Invariant）: `SqlGenerationServiceTest`に`@Property`テストを
