@@ -47,8 +47,8 @@ Requirements/NFR DesignはEXECUTE）。
 
 ## 成果物生成タスク（`construction/nfr-requirements.md` Step 6）
 
-- [ ] `aidlc-docs/construction/u7-saved-query-execution-history/nfr-requirements/nfr-requirements.md`
-- [ ] `aidlc-docs/construction/u7-saved-query-execution-history/nfr-requirements/tech-stack-decisions.md`
+- [x] `aidlc-docs/construction/u7-saved-query-execution-history/nfr-requirements/nfr-requirements.md`
+- [x] `aidlc-docs/construction/u7-saved-query-execution-history/nfr-requirements/tech-stack-decisions.md`
 
 ---
 

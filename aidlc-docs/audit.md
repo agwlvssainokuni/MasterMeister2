@@ -4152,3 +4152,26 @@ setQueryTimeout先例）・U6（JSqlParserライセンス確定、parse-max-leng
 
 ---
 
+## Per-Unit Loop - U7 NFR Requirements Q1-Q5 回答・成果物生成
+**Timestamp**: 2026-07-13T10:10:00Z
+**User Input**: "すべてAとします。"
+**AI Response**: Q1〜Q5すべて推奨案（A）で確定。曖昧な回答なし、追加質問不要と判断し
+そのままStep 6（成果物生成）を実行した。
+`aidlc-docs/construction/u7-saved-query-execution-history/nfr-requirements/`配下に
+`nfr-requirements.md`・`tech-stack-decisions.md`を生成。
+- `mm.app.query-history.default-page-size`（既定`50`）/`page-size-options`（既定`50,100,200`）
+  を新設（U5 Q1と同方式）
+- `mm.app.query-execution.query-timeout`（既定`30`秒、キー名・既定値はFunctional Design Q11で
+  確定済み）の実装機構を`setQueryTimeout`（U5と同機構だが別スコープ）と確定
+- `mm.app.query-execution.sql-max-length`（既定`10000`文字）/`parse-timeout`（既定`5`秒）を
+  新設（U6の`querybuilder`スコープとは独立）
+- `SavedQuery.sql`・`QueryHistory.sql`/`params`は`@Lob`（上限なし）
+- `executionCount`は`@Modifying @Query`によるUPDATE文でアトミック更新（楽観ロック不採用）
+リテンション（U1先例適用、新規実装なし）等は「新規論点なし」として記載。
+`u7-saved-query-execution-history-nfr-requirements-plan.md`のStep 6チェックリスト2項目を
+`[x]`に更新した。
+**Context**: Per-Unit Loop、U7 NFR Requirements Part（Generation）完了。標準2択完了メッセージ
+提示・ユーザ承認待ち。
+
+---
+
