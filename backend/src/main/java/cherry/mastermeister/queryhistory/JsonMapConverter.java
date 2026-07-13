@@ -35,7 +35,7 @@ import jakarta.persistence.Converter;
 @Converter
 public class JsonMapConverter implements AttributeConverter<Map<String, Object>, String> {
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public String convertToDatabaseColumn(Map<String, Object> attribute) {
@@ -43,7 +43,7 @@ public class JsonMapConverter implements AttributeConverter<Map<String, Object>,
             return null;
         }
         try {
-            return OBJECT_MAPPER.writeValueAsString(attribute);
+            return objectMapper.writeValueAsString(attribute);
         } catch (JsonProcessingException e) {
             throw new IllegalStateException("Failed to serialize params", e);
         }
@@ -55,7 +55,7 @@ public class JsonMapConverter implements AttributeConverter<Map<String, Object>,
             return null;
         }
         try {
-            return OBJECT_MAPPER.readValue(dbData, new TypeReference<Map<String, Object>>() {
+            return objectMapper.readValue(dbData, new TypeReference<Map<String, Object>>() {
             });
         } catch (JsonProcessingException e) {
             throw new IllegalStateException("Failed to deserialize params", e);
