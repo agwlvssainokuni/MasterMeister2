@@ -4608,3 +4608,15 @@ getQuery`でSQLを取得する判断、ページング再実行時のstale closu
 
 ---
 
+## Per-Unit Loop - U7 Code Generation Step 14 実行
+**Timestamp**: 2026-07-14T00:20:00Z
+**User Input**: "続行してください。"
+**AI Response**: Step 14（項目14-1）を確認した。計画書記載のとおり本プロジェクトは
+`ddl-auto: update`方式（U1〜U6踏襲）のため専用マイグレーションスクリプトは生成しない
+（該当なし）。`SavedQuery`/`QueryHistory`エンティティ追加により起動時に自動でテーブル・
+インデックスが作成される。`u7-saved-query-execution-history-code-generation-plan.md`のStep 14
+チェックリスト（14-1）を`[x]`に更新した。
+**Context**: Per-Unit Loop、U7 Code Generation Part 2、Step 14完了（該当なし）。
+
+---
+

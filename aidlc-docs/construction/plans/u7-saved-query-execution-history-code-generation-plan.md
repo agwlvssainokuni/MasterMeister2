@@ -376,7 +376,7 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       frontend-summary.md`を生成する。
 
 ### Step 14: データベースマイグレーションスクリプト
-- [ ] 14-1. **該当なし（N/A）**: 本プロジェクトは`ddl-auto: update`方式（U1〜U6踏襲）のため、
+- [x] 14-1. **該当なし（N/A）**: 本プロジェクトは`ddl-auto: update`方式（U1〜U6踏襲）のため、
       専用マイグレーションスクリプトは生成しない。`SavedQuery`/`QueryHistory`エンティティの
       追加により起動時に自動でテーブル・インデックスが作成される。
 
