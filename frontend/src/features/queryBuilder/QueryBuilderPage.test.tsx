@@ -15,7 +15,7 @@
  */
 
 import { fireEvent, render, screen } from '@testing-library/react'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter, Route, Routes, useSearchParams } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   generateSql,
@@ -49,10 +49,23 @@ const connection: ConnectionSummary = {
 }
 const table: TableRef = { schema: 'public', table: 'employees', comment: null }
 
+function DestinationStub({ testId }: { testId: string }) {
+  const [searchParams] = useSearchParams()
+  return (
+    <div data-testid={testId}>
+      connectionId={searchParams.get('connectionId')}, rawSql={searchParams.get('rawSql')}
+    </div>
+  )
+}
+
 function renderPage(initialEntry = '/query-builder') {
   return render(
     <MemoryRouter initialEntries={[initialEntry]}>
-      <QueryBuilderPage />
+      <Routes>
+        <Route path="/query-builder" element={<QueryBuilderPage />} />
+        <Route path="/saved-queries/new" element={<DestinationStub testId="saved-query-save-form-stub" />} />
+        <Route path="/query-execution" element={<DestinationStub testId="query-execution-page-stub" />} />
+      </Routes>
     </MemoryRouter>,
   )
 }
@@ -131,5 +144,39 @@ describe('QueryBuilderPage', () => {
     fireEvent.click(screen.getByTestId('generated-sql-panel-generate-button'))
 
     expect(await screen.findByTestId('generated-sql-panel-sql')).toHaveTextContent(generated.sql)
+  })
+
+  it('navigates to the saved-query save form with connectionId/rawSql when "保存" is clicked', async () => {
+    const generated: GeneratedSql = { sql: 'SELECT "t0"."id" FROM "employees" AS "t0"', params: {} }
+    generateSqlMock.mockResolvedValue(generated)
+    renderPage()
+    await selectConnectionAndSchema()
+    await screen.findByText('employees')
+    fireEvent.change(screen.getByTestId('from-join-tab-base-table-select'), { target: { value: 'employees' } })
+    fireEvent.click(screen.getByTestId('generated-sql-panel-generate-button'))
+    await screen.findByTestId('generated-sql-panel-sql')
+
+    fireEvent.click(screen.getByText('保存'))
+
+    expect(await screen.findByTestId('saved-query-save-form-stub')).toHaveTextContent(
+      `connectionId=1, rawSql=${generated.sql}`,
+    )
+  })
+
+  it('navigates to the query execution page with connectionId/rawSql when "実行" is clicked', async () => {
+    const generated: GeneratedSql = { sql: 'SELECT "t0"."id" FROM "employees" AS "t0"', params: {} }
+    generateSqlMock.mockResolvedValue(generated)
+    renderPage()
+    await selectConnectionAndSchema()
+    await screen.findByText('employees')
+    fireEvent.change(screen.getByTestId('from-join-tab-base-table-select'), { target: { value: 'employees' } })
+    fireEvent.click(screen.getByTestId('generated-sql-panel-generate-button'))
+    await screen.findByTestId('generated-sql-panel-sql')
+
+    fireEvent.click(screen.getByText('実行'))
+
+    expect(await screen.findByTestId('query-execution-page-stub')).toHaveTextContent(
+      `connectionId=1, rawSql=${generated.sql}`,
+    )
   })
 })

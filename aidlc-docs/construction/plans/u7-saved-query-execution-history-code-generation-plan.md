@@ -364,11 +364,11 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       （`frontend-components.md` AppRouter.tsxへの追加）。
 
 ### Step 12: フロントエンドコンポーネント単体テスト
-- [ ] 12-1. `SavedQueryListPage.test.tsx`・`SavedQuerySaveForm.test.tsx`・
+- [x] 12-1. `SavedQueryListPage.test.tsx`・`SavedQuerySaveForm.test.tsx`・
       `SavedQueryDetailPage.test.tsx`・`QueryExecutionPage.test.tsx`・
       `QueryHistoryListPage.test.tsx`（vitest + Testing Library、U4〜U6の各featureテスト
       パターンを踏襲）を生成する。
-- [ ] 12-2. `GeneratedSqlPanel.test.tsx`（既存、ブラウンフィールド修正）に`onNavigateToSave`/
+- [x] 12-2. `GeneratedSqlPanel.test.tsx`（既存、ブラウンフィールド修正）に`onNavigateToSave`/
       `onNavigateToExecute`実装（item 11-7）のテストケースを追加する。
 
 ### Step 13: フロントエンドコンポーネントサマリ
