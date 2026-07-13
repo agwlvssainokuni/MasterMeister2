@@ -4620,3 +4620,24 @@ getQuery`でSQLを取得する判断、ページング再実行時のstale closu
 
 ---
 
+## Per-Unit Loop - U7 Code Generation Step 15 実行
+**Timestamp**: 2026-07-14T00:25:00Z
+**User Input**: "続行してください。"
+**AI Response**: Step 15（項目15-1）を実行した。U4の`testing-summary.md`と同一構成
+（PBT-10遵守状況／P1〜P10対応表／example-basedテスト一覧／実行確認状況／既知の課題）で
+`aidlc-docs/construction/u7-saved-query-execution-history/code/testing-summary.md`を生成した。
+作成にあたり`./gradlew test`を実行し、JUnit XML（`build/test-results/test/`）を集計して
+実測値を採用した：バックエンド全体58テストクラス・299/299件成功（うちU7新規10クラス・43件
+——`SavedQueryServiceTest`3、`ReadOnlySqlValidatorTest`3、`SqlParamDetectorTest`3、
+`QueryExecutionServiceTest`4、`QueryHistoryServiceTest`1、`SavedQueryControllerTest`10、
+`QueryExecutionControllerTest`5、`QueryHistoryControllerTest`2、`SavedQueryRepositoryTest`5、
+`QueryHistoryRepositoryTest`7、既存48クラス・256件は回帰なし）。フロントエンドは
+`npx vitest run`で57ファイル・254/254件成功を再確認した。P1〜P10全性質にjqwik `@Property`が
+対応済みであることを最終確認し、Step 3で発見した3件の実装バグがいずれも解消済みであることを
+再記録した。
+`u7-saved-query-execution-history-code-generation-plan.md`のStep 15チェックリスト（15-1）を
+`[x]`に更新した。
+**Context**: Per-Unit Loop、U7 Code Generation Part 2、Step 15完了。
+
+---
+

@@ -381,7 +381,7 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       追加により起動時に自動でテーブル・インデックスが作成される。
 
 ### Step 15: ドキュメント生成
-- [ ] 15-1. `aidlc-docs/construction/u7-saved-query-execution-history/code/
+- [x] 15-1. `aidlc-docs/construction/u7-saved-query-execution-history/code/
       testing-summary.md`（P1〜P10とテストクラスの対応表、example-basedテスト一覧、実行
       確認状況）を生成する。
 
