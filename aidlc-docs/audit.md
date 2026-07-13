@@ -4456,3 +4456,19 @@ OBJECT_MAPPERという名前は他とのバランスが悪いと思います。s
 
 ---
 
+## Per-Unit Loop - U7 Code Generation Step 7 実行
+**Timestamp**: 2026-07-13T13:20:00Z
+**User Input**: "続行してください。"
+**AI Response**: Step 7（項目7-1）を実行した。U6の`api-layer-summary.md`と同一構成
+（エンドポイント一覧／Controller別の詳細（リクエスト/レスポンスJSON例）／エラーレスポンス表／
+テストカバレッジ表）で
+`aidlc-docs/construction/u7-saved-query-execution-history/code/api-layer-summary.md`を生成した。
+8エンドポイント全件を記載し、`connectionId`をリソースパスに含めない設計判断（Code Generation
+時点で確定する事項1）、`executeSavedQuery`の`connectionId`二重チェック、`listHistory`の
+マスキング/バッジ仕様（P9/P10）を明記した。
+`u7-saved-query-execution-history-code-generation-plan.md`のStep 7チェックリスト（7-1）を
+`[x]`に更新した。
+**Context**: Per-Unit Loop、U7 Code Generation Part 2、Step 7完了。
+
+---
+

@@ -306,7 +306,7 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
 - [x] 6-3. `QueryHistoryControllerTest`（同上）: 1エンドポイントの成功系・未認証401をテストする。
 
 ### Step 7: APIレイヤサマリ
-- [ ] 7-1. `aidlc-docs/construction/u7-saved-query-execution-history/code/
+- [x] 7-1. `aidlc-docs/construction/u7-saved-query-execution-history/code/
       api-layer-summary.md`を生成し、8エンドポイント一覧（パス・メソッド・認可要件・
       リクエスト/レスポンス形状）を記載する。
 
