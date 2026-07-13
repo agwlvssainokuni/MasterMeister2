@@ -4435,3 +4435,24 @@ OBJECT_MAPPERという名前は他とのバランスが悪いと思います。s
 
 ---
 
+## Per-Unit Loop - U7 Code Generation Step 6 実行
+**Timestamp**: 2026-07-13T13:15:00Z
+**User Input**: "続行してください。"
+**AI Response**: Step 6（項目6-1〜6-3）を実行した。`QueryBuilderControllerTest`/
+`PermissionControllerTest`の`@WebMvcTest`＋`spring-security-test`パターン
+（`@Import({SecurityConfig, RestAuthenticationEntryPoint, RestAccessDeniedHandler})`、
+`JwtTokenValidator`を`@MockitoBean`、`authentication(userAuthentication())`による認証済み
+リクエスト、`@WithAnonymousUser`による401検証）を踏襲して3クラスを生成した。
+- `SavedQueryControllerTest`: 5エンドポイント（一覧・保存・取得・更新・廃止）の成功系・
+  未認証401。管理者ロール制約がないため403系テストは無し。
+- `QueryExecutionControllerTest`: 2エンドポイント（手入力SQL実行・保存済みクエリ実行）の
+  成功系・未認証401に加え、`ValidationException`を`thenThrow`させて`GlobalExceptionHandler`
+  既存マッピング（400、`error=VALIDATION_ERROR`）を検証するテストを追加。
+- `QueryHistoryControllerTest`: 1エンドポイント（履歴一覧）の成功系・未認証401。
+`./gradlew test`で全体（U1〜U7既存テスト含む）が成功することを確認した。
+`u7-saved-query-execution-history-code-generation-plan.md`のStep 6チェックリスト
+（6-1〜6-3）を`[x]`に更新した。
+**Context**: Per-Unit Loop、U7 Code Generation Part 2、Step 6完了。
+
+---
+

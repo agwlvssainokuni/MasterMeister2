@@ -297,13 +297,13 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       と同様の場所に追記する（`business-rules.md` 8節「認証済みユーザ全員」）。
 
 ### Step 6: APIレイヤ単体テスト
-- [ ] 6-1. `SavedQueryControllerTest`（`@WebMvcTest` + `spring-security-test`）: 5エンドポイント
+- [x] 6-1. `SavedQueryControllerTest`（`@WebMvcTest` + `spring-security-test`）: 5エンドポイント
       それぞれについて認証済みユーザ成功系・未認証401をexample-basedテストで検証する
       （U2〜U6のControllerTestパターンを踏襲、管理者ロール制約がないため403系テストは
       不要）。
-- [ ] 6-2. `QueryExecutionControllerTest`（同上）: 2エンドポイントの成功系・未認証401、
+- [x] 6-2. `QueryExecutionControllerTest`（同上）: 2エンドポイントの成功系・未認証401、
       読み取り専用違反SQLでの400（`ValidationException`）をテストする。
-- [ ] 6-3. `QueryHistoryControllerTest`（同上）: 1エンドポイントの成功系・未認証401をテストする。
+- [x] 6-3. `QueryHistoryControllerTest`（同上）: 1エンドポイントの成功系・未認証401をテストする。
 
 ### Step 7: APIレイヤサマリ
 - [ ] 7-1. `aidlc-docs/construction/u7-saved-query-execution-history/code/
