@@ -4510,3 +4510,19 @@ OBJECT_MAPPERという名前は他とのバランスが悪いと思います。s
 
 ---
 
+## Per-Unit Loop - U7 Code Generation Step 10 実行
+**Timestamp**: 2026-07-13T13:28:00Z
+**User Input**: "続行してください。"
+**AI Response**: Step 10（項目10-1）を実行した。U4の`repository-layer-summary.md`と同一構成
+（リポジトリ別メソッド一覧／インデックス設計／テストカバレッジ）で
+`aidlc-docs/construction/u7-saved-query-execution-history/code/repository-layer-summary.md`を
+生成した。`SavedQuery`は追加インデックスなし（小規模想定）、`QueryHistory`は
+`(connectionId, executedAt)`・`savedQueryId`の2インデックス（リテンションなしで無制限に
+増加するテーブルであるため、U1監査ログと同じ設計判断）と明記し、Step 9で発見した
+`TransactionRequiredException`の経緯も記載した。
+`u7-saved-query-execution-history-code-generation-plan.md`のStep 10チェックリスト（10-1）を
+`[x]`に更新した。
+**Context**: Per-Unit Loop、U7 Code Generation Part 2、Step 10完了。
+
+---
+

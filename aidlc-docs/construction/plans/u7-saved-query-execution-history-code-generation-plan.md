@@ -328,7 +328,7 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       （絞り込み・ページング・日時範囲）をexample-basedテストで検証する。
 
 ### Step 10: リポジトリレイヤサマリ
-- [ ] 10-1. `aidlc-docs/construction/u7-saved-query-execution-history/code/
+- [x] 10-1. `aidlc-docs/construction/u7-saved-query-execution-history/code/
       repository-layer-summary.md`を生成し、2リポジトリのクエリメソッド一覧とインデックス
       設計（`nfr-design-patterns.md` 2）を記載する。
 
