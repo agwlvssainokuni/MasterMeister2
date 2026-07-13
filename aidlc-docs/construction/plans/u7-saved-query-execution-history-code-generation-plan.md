@@ -275,22 +275,22 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       対応関係を表形式で記載する（U1〜U6の`business-logic-summary.md`と同一構成）。
 
 ### Step 5: APIレイヤ生成
-- [ ] 5-1. `backend/src/main/java/cherry/mastermeister/savedquery/SavedQueryController.java`
+- [x] 5-1. `backend/src/main/java/cherry/mastermeister/savedquery/SavedQueryController.java`
       （`@RestController @RequestMapping("/api/saved-queries")`）: `GET ""`
       （`connectionId`/`includeRetired`クエリパラメータ、`listQueries`）、`POST ""`
       （`saveQuery`）、`GET "/{savedQueryId}"`（`getQuery`）、`PUT "/{savedQueryId}"`
       （`updateQuery`）、`POST "/{savedQueryId}/retire"`（`retireQuery`）を生成する
       （`business-rules.md` 8節、上記「Code Generation時点で確定する事項」1）。`userId`は
       `Authentication#getPrincipal()`キャスト取得（U2〜U6のコントローラと同一パターン）。
-- [ ] 5-2. `backend/src/main/java/cherry/mastermeister/queryexecution/QueryExecutionController.java`
+- [x] 5-2. `backend/src/main/java/cherry/mastermeister/queryexecution/QueryExecutionController.java`
       （`@RestController @RequestMapping("/api/query-execution")`）: `POST "/adhoc"`
       （`executeAdhocSql`）、`POST "/saved/{savedQueryId}"`（`executeSavedQuery`）を生成する
       （`business-rules.md` 8節）。
-- [ ] 5-3. `backend/src/main/java/cherry/mastermeister/queryhistory/QueryHistoryController.java`
+- [x] 5-3. `backend/src/main/java/cherry/mastermeister/queryhistory/QueryHistoryController.java`
       （`@RestController @RequestMapping("/api/query-history")`）: `GET ""`
       （`connectionId`/日時範囲/`executorScope`/`sqlTextSearch`/ページングクエリパラメータ、
       `listHistory`）を生成する（`business-rules.md` 8節）。
-- [ ] 5-4. `backend/src/main/java/cherry/mastermeister/security/SecurityConfig.java`
+- [x] 5-4. `backend/src/main/java/cherry/mastermeister/security/SecurityConfig.java`
       （既存、ブラウンフィールド修正）に`.requestMatchers("/api/saved-queries/**")
       .authenticated()`、`.requestMatchers("/api/query-execution/**").authenticated()`、
       `.requestMatchers("/api/query-history/**").authenticated()`を、`/api/query-builder/**`

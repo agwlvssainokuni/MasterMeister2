@@ -4408,3 +4408,30 @@ OBJECT_MAPPERという名前は他とのバランスが悪いと思います。s
 
 ---
 
+## Per-Unit Loop - U7 Code Generation Step 5 実行
+**Timestamp**: 2026-07-13T13:10:00Z
+**User Input**: "続行してください。"
+**AI Response**: Step 5（項目5-1〜5-4）を実行した。`RdbmsConnectionController`
+（作成は`@ResponseStatus(HttpStatus.CREATED)`＋bare `Long`返却、更新は`ResponseEntity<Void>`＋
+`noContent()`）・`QueryBuilderController`（サービスDTOをそのまま返却、リクエストボディは
+個別recordファイル）・`AuditLogController`（`@RequestParam`によるページング/フィルタ
+クエリパラメータ）の既存パターンを踏襲した。
+- `savedquery.SavedQueryController`（`/api/saved-queries`）: `SaveQueryRequest`/
+  `UpdateQueryRequest`を新規作成し、`GET`/`POST`/`GET "/{id}"`/`PUT "/{id}"`/
+  `POST "/{id}/retire"`を生成。
+- `queryexecution.QueryExecutionController`（`/api/query-execution`）: `AdhocExecutionRequest`/
+  `SavedExecutionRequest`（`connectionId`を含み`QueryExecutionService`内で
+  `SavedQuery.connectionId`との一致を検証する防御的二重チェック、Code Generation時点で確定する
+  事項1）を新規作成し、`POST "/adhoc"`/`POST "/saved/{savedQueryId}"`を生成。
+- `queryhistory.QueryHistoryController`（`/api/query-history`）: `GET`で日時範囲/
+  `executorScope`/`sqlTextSearch`/ページングをクエリパラメータで受け取り生成。
+- `security.SecurityConfig`（ブラウンフィールド修正）: `/api/query-builder/**`の直後に
+  `/api/saved-queries/**`・`/api/query-execution/**`・`/api/query-history/**`の
+  `authenticated()`マッチャを追記した。
+`./gradlew compileJava`で成功を確認。
+`u7-saved-query-execution-history-code-generation-plan.md`のStep 5チェックリスト
+（5-1〜5-4）を`[x]`に更新した。
+**Context**: Per-Unit Loop、U7 Code Generation Part 2、Step 5完了。
+
+---
+

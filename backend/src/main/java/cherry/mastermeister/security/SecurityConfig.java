@@ -55,6 +55,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/groups/**").hasRole("ADMIN")
                         .requestMatchers("/api/master-data/**").authenticated()
                         .requestMatchers("/api/query-builder/**").authenticated()
+                        .requestMatchers("/api/saved-queries/**").authenticated()
+                        .requestMatchers("/api/query-execution/**").authenticated()
+                        .requestMatchers("/api/query-history/**").authenticated()
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(restAuthenticationEntryPoint)
