@@ -333,30 +333,30 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       設計（`nfr-design-patterns.md` 2）を記載する。
 
 ### Step 11: フロントエンドコンポーネント生成
-- [ ] 11-1. `frontend/src/features/savedQuery/types.ts`・`api.ts`:
+- [x] 11-1. `frontend/src/features/savedQuery/types.ts`・`api.ts`:
       `frontend-components.md`・`domain-entities.md`のDTOに対応するTypeScript型
       （`Visibility`/`SavedQuerySummary`/`SavedQueryDetail`）と`listQueries`/`saveQuery`/
       `getQuery`/`updateQuery`/`retireQuery`（Step 5-1確定の実パスに対応）を実装する。
-- [ ] 11-2. `frontend/src/features/savedQuery/SavedQueryListPage.tsx`・
+- [x] 11-2. `frontend/src/features/savedQuery/SavedQueryListPage.tsx`・
       `SavedQuerySaveForm.tsx`・`SavedQueryDetailPage.tsx`: `frontend-components.md`確定の
       3ページを生成する（GEN-10〜12）。
-- [ ] 11-3. `frontend/src/features/queryExecution/types.ts`・`api.ts`:
+- [x] 11-3. `frontend/src/features/queryExecution/types.ts`・`api.ts`:
       `QueryResult`/`ResultColumn`/`DetectedParam`/`PagingOption`型と`detectParams`
       （フロントエンド内正規表現処理）/`executeAdhocSql`/`executeSavedQuery`を実装する。
-- [ ] 11-4. `frontend/src/features/queryExecution/QueryExecutionPage.tsx`:
+- [x] 11-4. `frontend/src/features/queryExecution/QueryExecutionPage.tsx`:
       `frontend-components.md`確定のSQL実行画面を生成する（GEN-11, GEN-13, GEN-14）。
-- [ ] 11-5. `frontend/src/features/queryHistory/types.ts`・`api.ts`: `HistoryEntry`/
+- [x] 11-5. `frontend/src/features/queryHistory/types.ts`・`api.ts`: `HistoryEntry`/
       `HistoryFilterCriteria`/`ExecutorScope`型と`listHistory`を実装する。
-- [ ] 11-6. `frontend/src/features/queryHistory/QueryHistoryListPage.tsx`:
+- [x] 11-6. `frontend/src/features/queryHistory/QueryHistoryListPage.tsx`:
       `frontend-components.md`確定の履歴一覧画面（絞り込みフォーム、マスキング表示、
       「廃止済み」バッジ、「再実行」「保存」「ビルダーで編集」ボタン）を生成する
       （GEN-15, GEN-16）。
-- [ ] 11-7. `frontend/src/features/queryBuilder/GeneratedSqlPanel.tsx`（既存、ブラウンフィールド
+- [x] 11-7. `frontend/src/features/queryBuilder/GeneratedSqlPanel.tsx`（既存、ブラウンフィールド
       修正）: `onNavigateToSave`/`onNavigateToExecute`propsのデフォルト実装（`useNavigate`で
       `rawSql`クエリパラメータ付き`/saved-queries/new`・`/query-execution`への遷移）を
       `QueryBuilderPage.tsx`（既存、ブラウンフィールド修正）から渡すよう配線する
       （`frontend-components.md`「U6との連携」節）。
-- [ ] 11-8. `frontend/src/routes/AppRouter.tsx`（既存、ブラウンフィールド修正）に
+- [x] 11-8. `frontend/src/routes/AppRouter.tsx`（既存、ブラウンフィールド修正）に
       `/saved-queries`・`/saved-queries/new`・`/saved-queries/{id}`・`/query-execution`・
       `/query-history`（いずれも`ProtectedRoute`・`requiredRole`指定なし）を追加する。
       `frontend/src/components/AppLayout.tsx`（既存、ブラウンフィールド修正）に「保存クエリ」

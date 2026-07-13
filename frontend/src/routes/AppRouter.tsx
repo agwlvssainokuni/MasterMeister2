@@ -24,8 +24,13 @@ import { RecordListPage } from '../features/masterData/RecordListPage'
 import { SchemaTableListPage } from '../features/masterData/SchemaTableListPage'
 import { PermissionAssignmentPage } from '../features/permission/PermissionAssignmentPage'
 import { QueryBuilderPage } from '../features/queryBuilder/QueryBuilderPage'
+import { QueryExecutionPage } from '../features/queryExecution/QueryExecutionPage'
+import { QueryHistoryListPage } from '../features/queryHistory/QueryHistoryListPage'
 import { ConnectionFormPage } from '../features/rdbmsConnection/ConnectionFormPage'
 import { ConnectionListPage } from '../features/rdbmsConnection/ConnectionListPage'
+import { SavedQueryDetailPage } from '../features/savedQuery/SavedQueryDetailPage'
+import { SavedQueryListPage } from '../features/savedQuery/SavedQueryListPage'
+import { SavedQuerySaveForm } from '../features/savedQuery/SavedQuerySaveForm'
 import { SchemaBrowserPage } from '../features/schema/SchemaBrowserPage'
 import { PasswordSetupPage } from '../features/userRegistration/PasswordSetupPage'
 import { PendingUsersPage } from '../features/userRegistration/PendingUsersPage'
@@ -129,6 +134,46 @@ function AuthenticatedRoutes() {
           element={
             <ProtectedRoute>
               <QueryBuilderPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/saved-queries"
+          element={
+            <ProtectedRoute>
+              <SavedQueryListPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/saved-queries/new"
+          element={
+            <ProtectedRoute>
+              <SavedQuerySaveForm />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/saved-queries/:id"
+          element={
+            <ProtectedRoute>
+              <SavedQueryDetailPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/query-execution"
+          element={
+            <ProtectedRoute>
+              <QueryExecutionPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/query-history"
+          element={
+            <ProtectedRoute>
+              <QueryHistoryListPage />
             </ProtectedRoute>
           }
         />

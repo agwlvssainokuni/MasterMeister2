@@ -15,7 +15,7 @@
  */
 
 import { useEffect, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { ApiError } from '../../api/apiClient'
 import { generateSql, listSelectableConnections, listSelectableSchemas } from './api'
 import { FromJoinTab } from './FromJoinTab'
@@ -49,6 +49,7 @@ const TABS: { key: TabKey; label: string }[] = [
 ]
 
 export function QueryBuilderPage() {
+  const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const [connections, setConnections] = useState<ConnectionSummary[]>([])
   const [connectionId, setConnectionId] = useState<number | null>(null)
@@ -149,6 +150,17 @@ export function QueryBuilderPage() {
       setGeneratedSql(null)
       setGenerateError(e instanceof ApiError ? e.message : 'SQL生成に失敗しました。')
     }
+  }
+
+  // GeneratedSql.paramsは値ではなく構造の引き継ぎ方針のため渡さない（business-rules.md 6節）。
+  // connectionIdは遷移先（savedQuery/queryExecution）が保存・実行のために必須とするため、
+  // このページが既に保持している選択中の接続をあわせて引き継ぐ（Code Generation時点の判断）。
+  const handleNavigateToSave = (sql: GeneratedSql) => {
+    navigate(`/saved-queries/new?connectionId=${connectionId}&rawSql=${encodeURIComponent(sql.sql)}`)
+  }
+
+  const handleNavigateToExecute = (sql: GeneratedSql) => {
+    navigate(`/query-execution?connectionId=${connectionId}&rawSql=${encodeURIComponent(sql.sql)}`)
   }
 
   return (
@@ -305,6 +317,8 @@ export function QueryBuilderPage() {
               generatedSql={generatedSql}
               error={generateError}
               onGenerate={handleGenerate}
+              onNavigateToSave={handleNavigateToSave}
+              onNavigateToExecute={handleNavigateToExecute}
             />
           )}
         </>

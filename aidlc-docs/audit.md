@@ -4526,3 +4526,38 @@ OBJECT_MAPPERという名前は他とのバランスが悪いと思います。s
 
 ---
 
+## Per-Unit Loop - U7 Code Generation Step 11 実行
+**Timestamp**: 2026-07-13T14:10:00Z
+**User Input**: "続行してください。"
+**AI Response**: Step 11（項目11-1〜11-8）を実行した。`frontend-components.md`確定の3
+feature（`features/savedQuery/`・`features/queryExecution/`・`features/queryHistory/`）を
+U5/U6の既存feature実装（`types.ts`/`api.ts`分離、`DataTable`/`Pagination`/`ConfirmDialog`
+共有コンポーネント再利用、`useNavigate`によるボタン式画面遷移）に倣って生成した。
+`savedQuery`: `SavedQueryListPage`/`SavedQuerySaveForm`/`SavedQueryDetailPage`の3独立ページ。
+`queryExecution`: `QueryExecutionPage`が`savedQueryId`指定時は`savedQuery/api.getQuery`で
+SQLを取得し読み取り専用表示する（`queryexecution → savedquery`の依存方向は
+`logical-components.md`確定どおり）。パラメータ自動検出はバックエンド`SqlParamDetector`と
+同一アルゴリズムをTypeScriptで再実装（API呼び出しなし）。`queryHistory`:
+`QueryHistoryListPage`が絞り込みフォーム・マスキング表示（バックエンドが既に置換済みの値を
+そのまま表示）・「廃止済み」バッジ・3操作ボタンを実装。
+
+実装時判断（`frontend-components.md`に明記のない事項）: (1) `savedQuery`/`queryExecution`/
+`queryHistory`はいずれも他featureのAPIに依存できない制約（`component-dependency.md`）のため
+接続選択UIを持たず、`connectionId`は常にURLクエリパラメータ経由で受け取る方式とし、未指定
+時は「接続が指定されていません」と表示する。(2) `business-rules.md` 6節の遷移表は
+`queryHistory`起点の「保存」「再実行」に`connectionId`の引き継ぎを明記していないが、遷移先
+（`SavedQuerySaveForm`/`QueryExecutionPage`）の動作上`connectionId`が必須のため、実務上
+`rawSql`とあわせて引き継ぐ実装とした。同じ理由でU6`GeneratedSqlPanel`の
+`onNavigateToSave`/`onNavigateToExecute`（item 11-7、`QueryBuilderPage.tsx`から配線）でも
+選択中の`connectionId`を付与する。
+
+`AppRouter.tsx`に5ルート（`/saved-queries`・`/saved-queries/new`・`/saved-queries/:id`・
+`/query-execution`・`/query-history`、いずれも`ProtectedRoute`・`requiredRole`指定なし）を、
+`AppLayout.tsx`に3ナビゲーションリンク（全ユーザ表示）を追加した。
+`npm run build`（`tsc -b && vite build`）・`npm run lint`（oxlint）がいずれも成功することを
+確認した。`u7-saved-query-execution-history-code-generation-plan.md`のStep 11チェックリスト
+（11-1〜11-8）を`[x]`に更新した。
+**Context**: Per-Unit Loop、U7 Code Generation Part 2、Step 11完了。
+
+---
+

@@ -41,6 +41,21 @@ export function AppLayout({ children }: AppLayoutProps) {
               クエリビルダー
             </a>
           )}
+          {isAuthenticated && (
+            <a href="/saved-queries" data-testid="app-layout-nav-saved-queries">
+              保存クエリ
+            </a>
+          )}
+          {isAuthenticated && (
+            <a href="/query-execution" data-testid="app-layout-nav-query-execution">
+              クエリ実行
+            </a>
+          )}
+          {isAuthenticated && (
+            <a href="/query-history" data-testid="app-layout-nav-query-history">
+              クエリ履歴
+            </a>
+          )}
           {isAuthenticated && currentUser?.role === 'ADMIN' && (
             <a href="/admin/pending-users" data-testid="app-layout-nav-pending-users">
               承認待ちユーザー
