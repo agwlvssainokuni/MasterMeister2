@@ -4486,3 +4486,27 @@ OBJECT_MAPPERという名前は他とのバランスが悪いと思います。s
 
 ---
 
+## Per-Unit Loop - U7 Code Generation Step 9 実行
+**Timestamp**: 2026-07-13T13:25:00Z
+**User Input**: "続行してください。"
+**AI Response**: Step 9（項目9-1〜9-2）を実行した。`RdbmsConnectionRepositoryTest`/
+`AuditLogRepositoryTest`のexample-based`@DataJpaTest`パターンを踏襲して2クラスを生成した。
+- `SavedQueryRepositoryTest`: 基本CRUD、`findVisible`（可視性/`retired`フィルタ）に加え、
+  `incrementExecutionCount`の並行実行整合性テストを追加。
+- `QueryHistoryRepositoryTest`: 基本CRUD、`params`の`JsonMapConverter`往復、`search`
+  （日時範囲・実行者・SQL部分一致・大文字小文字非依存・ページング）を検証。
+
+`incrementExecutionCount`並行テスト実装中に判明した問題: `@Modifying`付きカスタムクエリ
+メソッドは`SimpleJpaRepository`標準CRUDメソッドと異なりリポジトリ呼び出し自体が自動で
+トランザクションを開始しないため（本番では`SavedQueryService.incrementExecutionCount`の
+`@Transactional`が担う）、複数スレッドから直接呼び出すと`TransactionRequiredException`と
+なった。`SchemaImportServiceTest`の`RollbackRoundTrip`と同じ`Propagation.NOT_SUPPORTED`で
+`@DataJpaTest`既定の外側トランザクションを無効化した上で、各スレッドの呼び出しを
+`TransactionTemplate`で個別の実トランザクションとして包む方式に修正し解消した。
+`./gradlew test`で全体（U1〜U7既存テスト含む）が成功することを確認した。
+`u7-saved-query-execution-history-code-generation-plan.md`のStep 9チェックリスト
+（9-1〜9-2）を`[x]`に更新した。
+**Context**: Per-Unit Loop、U7 Code Generation Part 2、Step 9完了。
+
+---
+

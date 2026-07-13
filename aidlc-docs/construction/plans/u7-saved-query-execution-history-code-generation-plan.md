@@ -320,11 +320,11 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       `executorScope`＋`sqlTextSearch`の複合`@Query`、ページング対応）。
 
 ### Step 9: リポジトリレイヤ単体テスト
-- [ ] 9-1. `SavedQueryRepositoryTest`（`@DataJpaTest`、組み込みH2）: 基本CRUD、
+- [x] 9-1. `SavedQueryRepositoryTest`（`@DataJpaTest`、組み込みH2）: 基本CRUD、
       `incrementExecutionCount`の並行実行時の整合性（複数スレッドからの同時呼び出しで
       加算漏れが発生しないこと）、`listQueries`相当のクエリメソッドをexample-basedテストで
       検証する。
-- [ ] 9-2. `QueryHistoryRepositoryTest`（同上）: 基本CRUD、`listHistory`相当のクエリメソッド
+- [x] 9-2. `QueryHistoryRepositoryTest`（同上）: 基本CRUD、`listHistory`相当のクエリメソッド
       （絞り込み・ページング・日時範囲）をexample-basedテストで検証する。
 
 ### Step 10: リポジトリレイヤサマリ
