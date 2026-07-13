@@ -372,7 +372,7 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       `onNavigateToExecute`実装（item 11-7）のテストケースを追加する。
 
 ### Step 13: フロントエンドコンポーネントサマリ
-- [ ] 13-1. `aidlc-docs/construction/u7-saved-query-execution-history/code/
+- [x] 13-1. `aidlc-docs/construction/u7-saved-query-execution-history/code/
       frontend-summary.md`を生成する。
 
 ### Step 14: データベースマイグレーションスクリプト
