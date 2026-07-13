@@ -311,11 +311,11 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       リクエスト/レスポンス形状）を記載する。
 
 ### Step 8: リポジトリレイヤ生成
-- [ ] 8-1. （item 2-4の直後に暫定実装として先行実施、U3/U4と同じ実行順序変更）
+- [x] 8-1. （item 2-4の直後に暫定実装として先行実施、U3/U4と同じ実行順序変更）
       `SavedQueryRepository`の最終的なクエリメソッドシグネチャを確定する（`listQueries`用の
       `connectionId`＋可視性/所有者/`retired`条件、`incrementExecutionCount`の
       `@Modifying @Query`）。
-- [ ] 8-2. （item 2-14の直後に暫定実装として先行実施）`QueryHistoryRepository`の最終的な
+- [x] 8-2. （item 2-14の直後に暫定実装として先行実施）`QueryHistoryRepository`の最終的な
       クエリメソッドシグネチャを確定する（`listHistory`用の`connectionId`＋日時範囲＋
       `executorScope`＋`sqlTextSearch`の複合`@Query`、ページング対応）。
 

@@ -4472,3 +4472,17 @@ OBJECT_MAPPERという名前は他とのバランスが悪いと思います。s
 
 ---
 
+## Per-Unit Loop - U7 Code Generation Step 8 実行
+**Timestamp**: 2026-07-13T13:22:00Z
+**User Input**: "続行してください。"
+**AI Response**: Step 8（項目8-1〜8-2）を実行した。計画記載どおり、U3/U4と同じ実行順序変更に
+従い`SavedQueryRepository`（item 2-4）・`QueryHistoryRepository`（item 2-14）はStep 2の時点で
+既に最終的なクエリメソッドシグネチャ（`findVisible`/`incrementExecutionCount`、`search`）で
+生成済みであることを確認した（Step 3のStep 6実行時に発覚した`LOWER(CAST(h.sql AS string))`
+修正も反映済み）。新規コード生成は無く、計画のチェックリストのみ更新する。
+`u7-saved-query-execution-history-code-generation-plan.md`のStep 8チェックリスト（8-1〜8-2）を
+`[x]`に更新した。
+**Context**: Per-Unit Loop、U7 Code Generation Part 2、Step 8完了（実体はStep 2で先行実施済み）。
+
+---
+
