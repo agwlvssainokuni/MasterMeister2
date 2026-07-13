@@ -270,7 +270,7 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       Invariant）: `QueryHistoryServiceTest`に`@Property`テストを生成する。
 
 ### Step 4: ビジネスロジックサマリ
-- [ ] 4-1. `aidlc-docs/construction/u7-saved-query-execution-history/code/
+- [x] 4-1. `aidlc-docs/construction/u7-saved-query-execution-history/code/
       business-logic-summary.md`を生成し、Step 2・Step 3で生成したクラス一覧とP1〜P10の
       対応関係を表形式で記載する（U1〜U6の`business-logic-summary.md`と同一構成）。
 
