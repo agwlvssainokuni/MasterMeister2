@@ -386,7 +386,7 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
       確認状況）を生成する。
 
 ### Step 16: デプロイ成果物生成
-- [ ] 16-1. `backend/src/main/resources/application.yml`（既存、ブラウンフィールド修正）に
+- [x] 16-1. `backend/src/main/resources/application.yml`（既存、ブラウンフィールド修正）に
       `mm.app.query-history.default-page-size`（既定`50`）、
       `mm.app.query-history.page-size-options`（既定`50,100,200`）、
       `mm.app.query-execution.query-timeout`（既定`30`秒）、

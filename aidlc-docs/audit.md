@@ -4641,3 +4641,21 @@ getQuery`でSQLを取得する判断、ページング再実行時のstale closu
 
 ---
 
+## Per-Unit Loop - U7 Code Generation Step 16 実行
+**Timestamp**: 2026-07-14T00:30:00Z
+**User Input**: "続行してください。"
+**AI Response**: Step 16（項目16-1、U7 Code Generation最終ステップ）を実行した。
+`backend/src/main/resources/application.yml`の`mm.app.query-builder`セクションの直後に
+`mm.app.query-history`（`default-page-size: 50`、`page-size-options: 50,100,200`）・
+`mm.app.query-execution`（`query-timeout: 30s`、`sql-max-length: 10000`、
+`parse-timeout: 5s`、`parse-executor-pool-size: 4`、`max-result-rows: 1000`）の2セクションを
+追記した。両セクションの値は`QueryHistoryService`/`ReadOnlySqlValidator`/
+`QueryExecutionService`が既にStep 2で`@Value`アノテーションのデフォルト値として実装済みの
+値と完全一致させ、`query-builder`セクション同様に明示化した。`./gradlew compileJava`・
+`MasterMeisterApplicationTests`（ApplicationContext起動確認）がいずれも成功することを確認した。
+`u7-saved-query-execution-history-code-generation-plan.md`のStep 16チェックリスト（16-1）を
+`[x]`に更新した。これでU7 Code Generation（Step 1〜16）が全て完了した。
+**Context**: Per-Unit Loop、U7 Code Generation Part 2、Step 16完了。U7 Code Generation全体完了。
+
+---
+

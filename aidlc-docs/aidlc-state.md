@@ -3,7 +3,7 @@
 ## Project Information
 - **Project Type**: Brownfield
 - **Start Date**: 2026-07-06T10:38:36Z
-- **Current Stage**: CONSTRUCTION - Per-Unit Loop - U7: Saved Query / Execution / History — Code Generation Part 2 (Generation) in progress, Step 15 done, starting Step 16 (final step).
+- **Current Stage**: CONSTRUCTION - Per-Unit Loop - U7: Saved Query / Execution / History — Code Generation Part 2 (Generation) complete (Steps 1-16 done). Awaiting user approval to mark U7 Code Generation approved, then proceed to Build and Test.
 
 ## Execution Plan Summary
 - **Plan Document**: aidlc-docs/inception/plans/execution-plan.md
