@@ -28,7 +28,7 @@ import org.springframework.stereotype.Component;
 
 import jakarta.annotation.PreDestroy;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
-import net.sf.jsqlparser.statement.Statement;
+import net.sf.jsqlparser.statement.Statements;
 import net.sf.jsqlparser.statement.select.Select;
 
 import cherry.mastermeister.common.exception.ValidationException;
@@ -65,10 +65,10 @@ public class ReadOnlySqlValidator {
             throw new ValidationException("SQLが長すぎるため実行できません");
         }
 
-        Statement statement;
-        Future<Statement> future = executor.submit(() -> CCJSqlParserUtil.parse(sql));
+        Statements statements;
+        Future<Statements> future = executor.submit(() -> CCJSqlParserUtil.parseStatements(sql));
         try {
-            statement = future.get(parseTimeout.toSeconds(), TimeUnit.SECONDS);
+            statements = future.get(parseTimeout.toSeconds(), TimeUnit.SECONDS);
         } catch (TimeoutException e) {
             future.cancel(true);
             throw new ValidationException("SQLの解析がタイムアウトしたため実行できません");
@@ -79,8 +79,10 @@ public class ReadOnlySqlValidator {
             throw new ValidationException("SQLを解析できないため実行できません");
         }
 
-        if (!(statement instanceof Select)) {
-            throw new ValidationException("読み取り専用SQL（SELECT文）のみ実行できます");
+        // parseStatements()はセミコロンで区切られた複数文を許容するため、常にちょうど1文で
+        // あることも検証する（末尾に追加SQLを連結するスタックドクエリ形式の注入を防ぐため）。
+        if (statements.size() != 1 || !(statements.get(0) instanceof Select)) {
+            throw new ValidationException("読み取り専用SQL（SELECT文）1件のみ実行できます");
         }
     }
 

@@ -25,17 +25,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-import org.springframework.stereotype.Component;
-
-@Component
+/**
+ * {@code params}はREST APIのJSONリクエストボディ由来（String/Number/Boolean/null/List/Mapのみ）で
+ * あり外部設定（暗号鍵等）に依存しないため、{@code EncryptedStringConverter}と異なりSpring管理Bean
+ * にはしない。{@code @DataJpaTest}スライスにはJacksonの{@code ObjectMapper}Beanが含まれず、Spring
+ * 管理Beanにすると全エンティティを走査する{@code @DataJpaTest}系テストのコンテキスト起動が失敗する
+ * ため。
+ */
 @Converter
 public class JsonMapConverter implements AttributeConverter<Map<String, Object>, String> {
 
-    private final ObjectMapper objectMapper;
-
-    public JsonMapConverter(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
-    }
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     @Override
     public String convertToDatabaseColumn(Map<String, Object> attribute) {
@@ -43,7 +43,7 @@ public class JsonMapConverter implements AttributeConverter<Map<String, Object>,
             return null;
         }
         try {
-            return objectMapper.writeValueAsString(attribute);
+            return OBJECT_MAPPER.writeValueAsString(attribute);
         } catch (JsonProcessingException e) {
             throw new IllegalStateException("Failed to serialize params", e);
         }
@@ -55,7 +55,7 @@ public class JsonMapConverter implements AttributeConverter<Map<String, Object>,
             return null;
         }
         try {
-            return objectMapper.readValue(dbData, new TypeReference<Map<String, Object>>() {
+            return OBJECT_MAPPER.readValue(dbData, new TypeReference<Map<String, Object>>() {
             });
         } catch (JsonProcessingException e) {
             throw new IllegalStateException("Failed to deserialize params", e);

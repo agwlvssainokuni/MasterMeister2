@@ -32,7 +32,7 @@ public interface QueryHistoryRepository extends JpaRepository<QueryHistory, Long
               AND (:executedAtFrom IS NULL OR h.executedAt >= :executedAtFrom)
               AND (:executedAtTo IS NULL OR h.executedAt <= :executedAtTo)
               AND (:userId IS NULL OR h.userId = :userId)
-              AND (:sqlTextSearch IS NULL OR LOWER(h.sql) LIKE LOWER(CONCAT('%', :sqlTextSearch, '%')))
+              AND (:sqlTextSearch IS NULL OR LOWER(CAST(h.sql AS string)) LIKE LOWER(CONCAT('%', :sqlTextSearch, '%')))
             """)
     Page<QueryHistory> search(
             @Param("connectionId") Long connectionId,

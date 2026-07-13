@@ -256,17 +256,17 @@ P1〜P10（`business-logic-model.md`「テスト可能な性質」表）。Step 
 （`org.h2.tools.Server`によるH2 TCPサーバを対象RDBMS役として起動、`@SpringBootTest`
 `@JqwikSpringSupport`）を用いる。`savedquery`/`queryhistory`は内部DB（JPA）のみで完結するため
 `@SpringBootTest`（組み込みH2内部DB）で足りる。
-- [ ] 3-1. **P1**（`listQueries`の可視性フィルタInvariant）・**P2**（`retired`状態遷移
+- [x] 3-1. **P1**（`listQueries`の可視性フィルタInvariant）・**P2**（`retired`状態遷移
       Invariant）・**P3**（`retireQuery`一方向性Invariant）: `SavedQueryServiceTest`に
       `@Property`テストを生成する。
-- [ ] 3-2. **P4**（読み取り専用検証Invariant）: `ReadOnlySqlValidatorTest`に`@Property`テストを
+- [x] 3-2. **P4**（読み取り専用検証Invariant）: `ReadOnlySqlValidatorTest`に`@Property`テストを
       生成する。
-- [ ] 3-3. **P5**（パラメータ検出round-tripInvariant）: `SqlParamDetectorTest`に`@Property`
+- [x] 3-3. **P5**（パラメータ検出round-tripInvariant）: `SqlParamDetectorTest`に`@Property`
       テストを生成する。
-- [ ] 3-4. **P6**（ページング件数上限Invariant）・**P7**（QueryHistory・AuditLog二重記録
+- [x] 3-4. **P6**（ページング件数上限Invariant）・**P7**（QueryHistory・AuditLog二重記録
       Invariant）・**P8**（`executionCount`インクリメント整合性Invariant）:
       `QueryExecutionServiceTest`（H2 TCPサーバ経由）に`@Property`テストを生成する。
-- [ ] 3-5. **P9**（実行履歴マスキングInvariant）・**P10**（「廃止済み」バッジ独立性
+- [x] 3-5. **P9**（実行履歴マスキングInvariant）・**P10**（「廃止済み」バッジ独立性
       Invariant）: `QueryHistoryServiceTest`に`@Property`テストを生成する。
 
 ### Step 4: ビジネスロジックサマリ
