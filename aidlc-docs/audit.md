@@ -4981,3 +4981,18 @@ Part 2 Generation着手前に中断。
 
 ---
 
+## U3 Functional Design（変更要求）Part 2 Generation
+**Timestamp**: 2026-07-15T11:35:00Z
+**User Input**: "進めてください。"
+**AI Response**: プランのStep A〜Dを実行した。`business-rules.md`に「1.7 アクセス可能な接続
+一覧の取得」（`ConnectionAccessService`のフィルタ基準・対象RDBMSへのライブ接続なし等）を追加し、
+4章のAPI認可表に`GET /api/rdbms-connections/accessible`（`isAuthenticated()`のみ、
+`hasRole("ADMIN")`不要という本ユニット唯一の例外）を追加した。`business-logic-model.md`に
+新規フロー6「アクセス可能な接続一覧の取得」とPBT性質P12（Invariant: 返される接続は必ず
+`listAccessibleSchemas`が空でない接続のみ）を追加した。`frontend-components.md`のapi.ts表に
+`listAccessibleConnections()`を追加し、呼び出し元がU1の`AppLayout`である旨を明記した。
+プランのStep A〜Dを`[x]`に更新した。
+**Context**: U3 Functional Design（変更要求）Part 2 Generation完了。ユーザーレビュー待ち。
+
+---
+

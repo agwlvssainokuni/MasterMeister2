@@ -101,6 +101,24 @@
 
 ---
 
+## フロー6: アクセス可能な接続一覧の取得（CHG-1、2026-07-15変更要求）
+
+**関与コンポーネント**: フロントエンド`AppLayout`（U1所有） → `ConnectionAccessService` →
+`EffectivePermissionResolver`（U4/permission）
+
+1. `AppLayout`（U1）が、セッション中まだグローバル接続コンテキストが未取得の場合、
+   `listAccessibleConnections()`（`features/rdbmsConnection/api.ts`）を呼び出す。
+2. `ConnectionAccessService.listAccessibleConnections(userId)`は登録済み全接続を走査し、
+   各接続について`EffectivePermissionResolver.listAccessibleSchemas(userId, connectionId)`
+   の結果が空でないもののみをフィルタする（`business-rules.md` 1.7）。
+3. フィルタ後の`ConnectionSummary`一覧をフロントエンドへ返し、`AppLayout`の常設接続
+   セレクタに表示する（管理者専用ルート`/admin/rdbms-connections`とは別の、認証済み
+   全ユーザー向けの参照系フロー）。
+4. 本フローは`SchemaImportService`（フロー4）が取り込み済みのメタデータに対する権限判定のみを
+   行い、対象RDBMSへのライブ接続は発生しない。
+
+---
+
 ## テスト可能な性質（Testable Properties, PBT-01）
 
 `property-based-testing`拡張（enabled）のRule PBT-01に基づき、本ユニットの業務ロジック
@@ -120,3 +138,4 @@ Generation計画時に確定する。
 | P9 | `SchemaImportService.importSchema`（フロー4） | Idempotence | 対象RDBMS側の状態が変化しない限り、`importSchema`を連続して複数回実行しても、`stale = false`の`SchemaTable`/`SchemaColumn`集合（id・属性含む）は1回実行時と同一である | フロー4 手順3 |
 | P10 | `SchemaImportService.importSchema`（フロー4、失敗時） | Round-trip（トランザクション原子性） | 取り込み処理の途中で例外が発生した場合、処理後の内部DB状態（`SchemaTable`/`SchemaColumn`の全行）は処理開始前の状態と完全に一致する | Question 7 = A、`business-rules.md` 2.3 |
 | P11 | `SchemaImportService.importSchema`（ビュー取り込み、フロー4） | Invariant | `tableType = VIEW`として取り込まれた`SchemaTable`配下の`SchemaColumn`は、`primaryKeySequence`が常に`null`である | Question 5 = A |
+| P12 | `ConnectionAccessService.listAccessibleConnections`（フロー6、2026-07-15変更要求） | Invariant | 任意のユーザー・任意の接続集合に対し、返される`ConnectionSummary`一覧に含まれる各接続は、必ず`EffectivePermissionResolver.listAccessibleSchemas(userId, connectionId)`が空でない結果を返す接続のみである（1件でもアクセス可能スキーマがない接続は含まれない） | `business-rules.md` 1.7 |

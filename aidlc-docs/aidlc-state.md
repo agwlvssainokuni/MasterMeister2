@@ -84,8 +84,9 @@ opt → Application Design amendment) then re-enters CONSTRUCTION PHASE for the 
   table updated). `personas.md` unchanged (reused). Awaiting user review/approval.
 - [x] User Stories (change request) — approved 2026-07-15T10:40:00Z
 - [x] Application Design (change request) — approved 2026-07-15T11:10:00Z
-- [ ] U3 Functional Design amendment / Code Generation — order: U3 first (new
-  `ConnectionAccessService` is a prerequisite for U1/U5/U6/U7)
+- [x] U3 Functional Design amendment — generated 2026-07-15T11:35:00Z (business-rules.md 1.7 +
+  §4 auth table, business-logic-model.md flow 6 + P12, frontend-components.md api.ts), awaiting
+  user review. Code Generation not yet started.
 - [ ] U1 Functional Design amendment / Code Generation — `AppLayout` global connection selector
   (added 2026-07-15T11:20:00Z after scope gap found: `AppLayout` is U1-owned per
   `u1-platform-foundation/functional-design/frontend-components.md`; depends on U3's new endpoint)
