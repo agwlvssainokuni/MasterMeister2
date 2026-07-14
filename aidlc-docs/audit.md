@@ -4918,3 +4918,25 @@ Q4で「schema」としていたが実際は`permission.EffectivePermissionResol
 
 ---
 
+## Application Design（変更要求）Part 2 Generation
+**Timestamp**: 2026-07-15T11:00:00Z
+**User Input**: "進めてください。"
+**AI Response**: 承認済みのPart 1 Planning（Q1=B, Q2=A, Q3=A）に基づき、既存の
+`aidlc-docs/inception/application-design/`配下4ドキュメント+統合サマリを更新した:
+`components.md`（新規`rdbmsconnection.ConnectionAccessService`追加、`QueryExecutionService`に
+スキーマ検証・`SET search_path`発行の責務追加、`SavedQueryService`のスキーマ非保存、
+`QueryHistoryService`のスキーマ記録、パッケージ横断の設計方針まとめに新規決定を追記）、
+`component-methods.md`（`ConnectionAccessService.listAccessibleConnections`シグネチャ追加、
+`QueryExecutionService`の2メソッドに`schema`パラメータ追加、`QueryHistoryService.ExecutionRecord`
+に`schema`フィールド追加）、`services.md`（フロー6にスキーマ検証・`SET search_path`ステップ追加、
+新規フロー8「グローバル接続コンテキストの解決」追加、サービス間依存の原則に
+`ConnectionAccessService`を追記）、`component-dependency.md`（マトリクスに
+`rdbmsconnection → permission`・`queryexecution → permission`の新規エッジ追加、注記1・注記2を
+追加、通信パターンに新規エンドポイント`GET /api/rdbms-connections/accessible`の説明を追加、
+データフロー図1にノード・エッジを追加）、`application-design.md`（変更要求セクションを追加、
+未解決論点の記述を更新）。`application-design-plan-connection-schema.md`のStep A〜Eを`[x]`に
+更新した。
+**Context**: Application Design（変更要求）Part 2 Generation完了。ユーザーレビュー待ち。
+
+---
+

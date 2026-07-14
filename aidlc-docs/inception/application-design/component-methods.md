@@ -89,6 +89,13 @@ NamedParameterJdbcTemplate getJdbcTemplate(Long connectionId)
 void invalidate(Long connectionId)   // 接続設定変更時にプールを再構築
 ```
 
+### `ConnectionAccessService`（2026-07-15変更要求で追加）
+```
+List<ConnectionSummary> listAccessibleConnections(Long userId)
+   // 全接続のうち、EffectivePermissionResolver.listAccessibleSchemas(userId, connectionId)が
+   // 1件以上返す接続のみを返す（masterdata/querybuilderが個別に重複実装していたロジックを移設）
+```
+
 ---
 
 ## schema
@@ -221,6 +228,8 @@ List<SavedQuerySummary> listQueries(Long userId, Long connectionId)
 SavedQueryDetail getQuery(Long userId, Long savedQueryId)
    // Private かつ作成者以外の場合: PermissionDeniedException
 ```
+（2026-07-15変更要求: スキーマは保存対象に含まない。SQLはスキーマ非依存で再利用可能という
+設計を維持するため）
 
 ---
 
@@ -228,13 +237,20 @@ SavedQueryDetail getQuery(Long userId, Long savedQueryId)
 
 ### `QueryExecutionService`
 ```
-QueryResult executeAdhocSql(Long userId, Long connectionId, String sql, Map<String, Object> params, PagingOption paging)
+QueryResult executeAdhocSql(Long userId, Long connectionId, String schema, String sql, Map<String, Object> params, PagingOption paging)
    // 読み取り専用チェックに失敗した場合: ReadOnlyViolationException
-QueryResult executeSavedQuery(Long userId, Long connectionId, Long savedQueryId, Map<String, Object> params, PagingOption paging)
+   // schemaがEffectivePermissionResolver.listAccessibleSchemas(userId, connectionId)に
+   // 含まれない場合: PermissionDeniedException（2026-07-15変更要求）
+QueryResult executeSavedQuery(Long userId, Long connectionId, String schema, Long savedQueryId, Map<String, Object> params, PagingOption paging)
    // 実行時はSQL編集不可（GEN-11）。SavedQueryService経由でSQL本体を取得する
+   // schemaの検証はexecuteAdhocSqlと同様（2026-07-15変更要求）
 ```
 両メソッドとも内部で `QueryHistoryService.recordExecution(...)` と
 `AuditLogService.record(...)` を明示的に呼び出す。
+（2026-07-15変更要求）`schema`検証後、`SCHEMA_BASED`方言（PostgreSQL/H2）の場合のみ、
+検証済みスキーマ名を用いて実行直前に`SET search_path`を発行してからSQLを実行する。
+`CATALOG_BASED`方言（MySQL/MariaDB）はスキーマが`databaseName`で既に固定されているため
+`SET`は発行しない。
 
 ---
 
@@ -243,10 +259,12 @@ QueryResult executeSavedQuery(Long userId, Long connectionId, Long savedQueryId,
 ### `QueryHistoryService`
 ```
 void recordExecution(ExecutionRecord record)
-   // ExecutionRecord = { userId, connectionId, sql, params, resultCount, elapsedMillis,
+   // ExecutionRecord = { userId, connectionId, schema, sql, params, resultCount, elapsedMillis,
    //                      executedAt, Optional<savedQueryId>, Optional<executionCount> }
+   // schema: 2026-07-15変更要求で追加（NOT NULL、実行時に実際に対象としたスキーマを記録）
 PageResult<HistoryEntry> listHistory(Long userId, Long connectionId, HistoryFilterCriteria criteria, PageRequest page)
    // HistoryFilterCriteria = { dateRange, executorScope[ALL|SELF], sqlTextSearch }
+   // HistoryEntry には schema フィールドを含む（2026-07-15変更要求）
 ```
 
 ---

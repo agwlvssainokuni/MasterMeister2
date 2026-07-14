@@ -99,18 +99,25 @@
 
 ---
 
-## フロー6: クエリ実行・履歴（GEN-13〜GEN-16）
+## フロー6: クエリ実行・履歴（GEN-13〜GEN-16、CHG-4・CHG-5）
 
 1. `QueryExecutionService.executeAdhocSql(...)` または `executeSavedQuery(...)`
+   - **（2026-07-15変更要求）** `EffectivePermissionResolver.listAccessibleSchemas(userId, connectionId)`
+     でリクエストの`schema`を許可リスト検証する（含まれない場合は`PermissionDeniedException`）
    - 読み取り専用チェック（DML/DDLキーワード検知等の簡易検証）
    - `:param` 形式パラメータの自動検出、`NamedParameterJdbcTemplate` へのバインド
+   - **（2026-07-15変更要求）** `DialectStrategy.getSchemaResolutionMode()`が`SCHEMA_BASED`
+     （PostgreSQL/H2）の場合のみ、検証済み`schema`で`SET search_path`を実行直前に発行する
    - `ConnectionPoolRegistry` から取得したJdbcTemplateで実行
 2. 実行完了後、同一トランザクション外で以下を明示的に呼び出す（順不同）:
-   - `QueryHistoryService.recordExecution(...)`（履歴機能向け、GEN-14のAC）
+   - `QueryHistoryService.recordExecution(...)`（履歴機能向け、GEN-14のAC。
+     **（2026-07-15変更要求）** `schema`も記録する）
    - `AuditLogService.record(...)`（監査ログ向け、6.1のAC）
-3. `QueryHistoryService.listHistory(...)` で履歴一覧・絞り込みを提供（GEN-15）
+3. `QueryHistoryService.listHistory(...)` で履歴一覧・絞り込みを提供（GEN-15、履歴には
+   `schema`が含まれる）
 4. 履歴の1件から `QueryExecutionService` / `SavedQueryService` / クエリビルダー（`SqlParsingService`
-   経由）への遷移をフロントエンドが行う（GEN-16、SQL・パラメータを引き継ぐ）
+   経由）への遷移をフロントエンドが行う（GEN-16、SQL・パラメータ・**（2026-07-15変更要求）
+   スキーマ**を引き継ぐ）
 
 ---
 
@@ -123,12 +130,29 @@
 
 ---
 
+## フロー8: グローバル接続コンテキストの解決（CHG-1〜CHG-3、2026-07-15変更要求）
+
+1. フロントエンドは、`AppLayout`初回描画時（またはセッション中に未取得の場合）に
+   `ConnectionAccessService.listAccessibleConnections(userId)` を1回呼び出し、常設の
+   グローバル接続セレクタに一覧表示する。
+2. ユーザーが接続を選択すると、フロントエンドの共有ストア（`sessionStorage`）に選択中の
+   `connectionId`を保持する。以降、`masterdata`/`querybuilder`/`savedquery`/`queryexecution`/
+   `queryhistory`の各APIリクエストは、この値をリクエストへ明示的に含める（バックエンドは
+   引き続き`connectionId`をリクエストで受け取るステートレス設計のまま、`requirements.md` 3.3）。
+3. 接続を切り替えた際、フロントエンドは詳細な作業状態（テーブル詳細画面、クエリビルダー編集中の
+   モデル等）を持つ画面にいる場合、各機能のトップページへ遷移する（バックエンドAPIの変更なし、
+   フロントエンドのみの挙動）。
+4. `/saved-queries`・`/query-execution`・`/query-history`へナビゲーションから直接アクセスした
+   場合も、グローバル接続コンテキストの選択中`connectionId`を用いて各APIを呼び出す（CHG-3）。
+
+---
+
 ## サービス間依存の原則
 
 - 各機能サービスは、他パッケージの機能に対しては原則として当該パッケージの
   Facade的サービス（`EffectivePermissionResolver`, `SchemaQueryService`,
-  `ConnectionPoolRegistry`, `AuditLogService`, `MailService` 等）のみを呼び出す。
-  他パッケージのRepository/Entityへ直接アクセスしない。
+  `ConnectionPoolRegistry`, `ConnectionAccessService`, `AuditLogService`, `MailService` 等）
+  のみを呼び出す。他パッケージのRepository/Entityへ直接アクセスしない。
 - トランザクション境界は各サービスのpublicメソッド単位（Spring `@Transactional`）を
   基本とする。ただし `MasterDataMutationService.applyChanges` は対象RDBMS側のトランザクションを
   明示的に制御する（内部DBのJPAトランザクションとは別管理）。
