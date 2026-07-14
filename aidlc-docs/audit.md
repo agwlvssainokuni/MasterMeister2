@@ -4953,3 +4953,16 @@ Generation再実施へ進む。既存の`unit-of-work-dependency.md`のビルド
 
 ---
 
+## 影響範囲の見落とし修正（U1追加）
+**Timestamp**: 2026-07-15T11:20:00Z
+**User Input**: "承認します。"
+**AI Response**: U3のFunctional Design着手前に、グローバル接続セレクタの設置先`AppLayout`が
+U1（Platform Foundation）の所有物（`u1-platform-foundation/functional-design/frontend-
+components.md`で確認）であり、`requirements.md` §9.3の影響範囲リストに含まれていなかった
+ことに気づいた。`requirements.md` §9.3にU1を追加し、`aidlc-state.md`のChange Requestの
+ユニット順序を「U3 → U1 → {U5, U6} → U7」に修正した（U1はU3が新設する
+`ConnectionAccessService`のエンドポイントに依存するためU3の後）。ユーザーが承認。
+**Context**: CONSTRUCTION PHASE再入場、影響範囲修正完了。U3のFunctional Designへ進む。
+
+---
+

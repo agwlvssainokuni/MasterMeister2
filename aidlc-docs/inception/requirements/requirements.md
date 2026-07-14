@@ -198,6 +198,10 @@ U5 Master Data Maintenance、U6 Query Builder、U7 Saved Query / Execution / His
   （Q4=A、`component-dependency.md`のマトリクス更新: `queryexecution → schema`追加）。
 
 ### 9.3 影響範囲
+- **U1 Platform Foundation**: `AppLayout`（U1所有）にグローバル接続セレクタを追加する
+  （U3で新設する`ConnectionAccessService`のエンドポイントに依存するため、U3の後に着手する）。
+  当初の影響範囲リストから漏れていたため、Application Design承認後のCONSTRUCTION PHASE
+  再入場時に追加した（`aidlc-docs/audit.md`参照）。
 - **U3 RDBMS Connection & Schema Import**: `rdbmsconnection`パッケージへの接続一覧取得
   共通サービス/エンドポイントの新設。
 - **U5 Master Data Maintenance**: `SchemaTableListPage`のページ内接続セレクタを廃止し、

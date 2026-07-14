@@ -85,7 +85,10 @@ opt → Application Design amendment) then re-enters CONSTRUCTION PHASE for the 
 - [x] User Stories (change request) — approved 2026-07-15T10:40:00Z
 - [x] Application Design (change request) — approved 2026-07-15T11:10:00Z
 - [ ] U3 Functional Design amendment / Code Generation — order: U3 first (new
-  `ConnectionAccessService` is a prerequisite for U5/U6/U7)
+  `ConnectionAccessService` is a prerequisite for U1/U5/U6/U7)
+- [ ] U1 Functional Design amendment / Code Generation — `AppLayout` global connection selector
+  (added 2026-07-15T11:20:00Z after scope gap found: `AppLayout` is U1-owned per
+  `u1-platform-foundation/functional-design/frontend-components.md`; depends on U3's new endpoint)
 - [ ] U5 Functional Design amendment / Code Generation
 - [ ] U6 Functional Design amendment / Code Generation
 - [ ] U7 Functional Design amendment / Code Generation (largest change: schema param, history
