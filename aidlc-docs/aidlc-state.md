@@ -82,8 +82,11 @@ opt → Application Design amendment) then re-enters CONSTRUCTION PHASE for the 
   2026-07-15T10:30:00Z: `stories.md` updated (10 existing stories revised: MVP-10, ADM-3, GEN-6,
   GEN-8, GEN-9, GEN-10, GEN-11, GEN-13, GEN-15, GEN-16; new Part 4 CHG-1..CHG-5 added; coverage
   table updated). `personas.md` unchanged (reused). Awaiting user review/approval.
-- [ ] Application Design (change request) — not yet started (`component-dependency.md` amendment:
-  `queryexecution → schema`, connections-listing consolidation into `rdbmsconnection`)
+- [x] User Stories (change request) — approved 2026-07-15T10:40:00Z
+- [ ] Application Design (change request) — Part 1 Planning: `application-design-plan-connection-
+  schema.md` created 2026-07-15T10:40:00Z (Q1: connections-listing component placement, Q2:
+  correction of queryexecution's new dependency target from `schema` to `permission`, Q3: new
+  endpoint path), awaiting user answers
 - [ ] U3 Functional Design amendment / Code Generation
 - [ ] U5 Functional Design amendment / Code Generation
 - [ ] U6 Functional Design amendment / Code Generation

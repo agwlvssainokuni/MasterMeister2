@@ -4890,3 +4890,18 @@ Generationへ進んだ。`aidlc-docs/inception/user-stories/stories.md`を更新
 
 ---
 
+## User Stories（変更要求）承認、Application Design開始
+**Timestamp**: 2026-07-15T10:40:00Z
+**User Input**: "Approve & Continue"
+**AI Response**: User Stories（変更要求）を承認済みとして記録。Application Designステージへ
+進んだ。既存の`aidlc-docs/inception/application-design/`（components.md, component-methods.md,
+services.md, component-dependency.md, application-design.md）の全面再生成は行わず、
+新規セクション追記・該当箇所の改訂という形で更新する方針とし、
+`aidlc-docs/inception/plans/application-design-plan-connection-schema.md`に3問の確認質問
+（接続一覧取得ロジックの配置、`queryexecution`の依存先の訂正確認——Requirements Analysis
+Q4で「schema」としていたが実際は`permission.EffectivePermissionResolver`が正しい提供元、
+新規エンドポイントのパス）を作成した。
+**Context**: Application Design（変更要求）Part 1 Planning。ユーザー回答待ち。
+
+---
+
