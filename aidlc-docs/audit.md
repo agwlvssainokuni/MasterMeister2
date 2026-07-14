@@ -4712,3 +4712,106 @@ OPERATIONS PHASEは`.claude/CLAUDE.md`記載のとおり現時点ではプレー
 
 ---
 
+## 不具合報告〜あるべき仕様の議論（変更要求としてのRequirements Analysis再入場）
+**Timestamp**: 2026-07-15T09:00:00Z
+**User Input**: "不具合。/saved-queries にアクセスしても「接続が指定されていません。」が表示されるだけ。"
+**AI Response**: Exploreエージェントで調査。`AppLayout.tsx`のナビリンク（保存済みクエリ／クエリ実行／
+クエリ履歴）が`connectionId`なしの裸のパスを指しており、`SavedQueryListPage`等3画面は
+`connectionId`をURLクエリパラメータからのみ取得する実装（U7実装時の判断、他画面からの遷移が
+前提）のため、ナビ経由で直接アクセスすると必ず「接続が指定されていません」で行き止まりになる
+ことを確認した。修正方針として「画面内に接続選択UIを追加する」「LocalStorageで最後に使った
+接続を記憶する」の2案を提示。
+**Context**: バグ調査。修正方針の選定へ。
+
+---
+**Timestamp**: 2026-07-15T09:05:00Z
+**User Input**: AskUserQuestion回答: "画面内に接続選択UIを追加する（推奨）"
+**AI Response**: `SchemaTableListPage`/`QueryBuilderPage`と同じ接続選択`<select>`パターンを
+savedQuery/queryExecution/queryHistoryの3画面に追加する実装に着手。接続一覧取得APIとして
+既存の`/api/master-data/connections`を流用する実装を書き始めた。
+**Context**: 実装着手（後にユーザーから設計上の懸念が入り中断）。
+
+---
+**Timestamp**: 2026-07-15T09:10:00Z
+**User Input**: "他ユニットの /connections を呼び出しても良いものか？"
+**AI Response**: 調査の結果、`component-dependency.md`はバックエンドのJavaサービス層依存のみを
+規定しており、フロントエンドが他ユニット所有のREST APIを呼ぶこと自体は文言上禁止されていない
+が、`masterdata`/`querybuilder`が同じロジックをそれぞれ専用エンドポイントとして重複実装している
+既存の流儀（フィーチャー独立性を優先）には反することを指摘。実装方針として
+「各ユニットに専用エンドポイントを複製する（既存流儀踏襲）」「rdbmsconnectionパッケージに
+共通サービスを切り出す（重複解消だがスコープ大）」の2案を提示。
+**Context**: 設計方針の再検討。
+
+---
+**Timestamp**: 2026-07-15T09:15:00Z
+**User Input**: AskUserQuestion回答: "あるべき仕様を議論したい。そもそも一般ユーザ向けの全画面で
+connectionを選択するのであれば、それを前提としたUIとして全体を見直した方が良いかも。"
+**AI Response**: 接続選択はページ単位ではなくユーザーセッション単位の関心事であるという分析を
+提示。`AppLayout`に常設の接続セレクタを置き共有ストアで保持する「グローバル接続コンテキスト」案
+を提案（バックエンドはconnectionIdを全API明示のステートレス設計のまま維持でき矛盾しないことを
+確認）。接続一覧取得は`rdbmsconnection`への一本化が自然で、`component-dependency.md`の
+マトリクス更新（savedquery/queryhistory→rdbmsconnection追加）が必要になる点も明記。
+**Context**: グローバル接続コンテキスト化の方向性を提案。
+
+---
+**Timestamp**: 2026-07-15T09:20:00Z
+**User Input**: AskUserQuestion回答: "方向性としては1でOK。スキーマの選択についても議論しておきたい。"
+**AI Response**: グローバル接続コンテキスト化の方向性を承認として記録。スキーマについては、
+masterData（テーブルドリルダウン）とqueryBuilder（FROM句テーブル所属）で意味が異なり、
+savedQuery/queryExecution/queryHistoryはそもそもスキーマ概念を持たない（SQL自体がスキーマを
+横断しうる）ため、スキーマは機能ローカルな作業状態のまま維持し、接続変更時にリセットする方針を
+提案。
+**Context**: スキーマの扱いに関する初期分析（この後ユーザーから重要な追加要件が提示され前提が
+変わる）。
+
+---
+**Timestamp**: 2026-07-15T09:25:00Z
+**User Input**: "クエリビルダではスキーマ名を含めずにSQLを組み立ててもらった。これは再利用しやすく
+することを意図したもの。これは維持したい。一方で、スキーマ名無しのSQLを実行する場合、どの
+スキーマに対して実行するのかは重要であり、これを指定する手段はあるべきだと思われる。同様に、
+実行履歴にもどのスキーマに対して実行したかを記録しておくべきと思われる。"
+**AI Response**: Exploreエージェントでスキーマ解決の実態を調査。`ConnectionPoolRegistry`は
+JDBC URL構築時にスキーマを固定しない（PostgreSQL/H2はsearch_path任せで実質publicに解決される
+だけ）ことが判明し、U6 `business-rules.md`にも「スキーマ不一致時の解決失敗リスクを許容する」
+旨の記述はあるが、U7でこのリスクへの対処が一切行われていないことを確認した。設計として
+「SavedQueryにはスキーマを保存しない（再利用性を維持）」「実行API（adhoc/saved）に
+schemaを必須パラメータとして新規追加」「QueryHistoryにschema列を追加して実行の事実として記録」
+「PostgreSQL/H2は実行直前に検証済みschema名で`SET search_path`、MySQL/MariaDBは元々1スキーマ
+固定のため対応不要」という方針を提示。DBマイグレーションと`queryexecution`→`schema`
+(または`permission`)への新規依存が必要になることも明記。
+**Context**: スキーマの実行時指定・履歴記録という新要件が確定。
+
+---
+**Timestamp**: 2026-07-15T09:30:00Z
+**User Input**: "考え方はOKです。が、UI/UXの観点でもう少し議論したい。将来的にはグローバルな
+「現在の接続」の概念を導入した方が良いだろうか？"
+**AI Response**: 接続は粗粒度でセッション全体を通じて一貫させたい文脈（グローバル化に適する）、
+スキーマは接続にネストした細粒度な値で、しかも今回のqueryExecutionのユースケース自体が
+「同じ再利用可能なSQLを複数スキーマに向けて実行し比較する」ことを想定しているため実行のたびに
+変わりうるパラメータである、という性質の違いを説明。「接続＝グローバル（ナビバー常設セレクタ）、
+スキーマ＝各機能のローカル状態のまま」という結論を提示。
+**Context**: 接続とスキーマのスコープに関する設計方針が確定。
+
+---
+**Timestamp**: 2026-07-15T09:35:00Z
+**User Input**: "方針OKです。この修正はAI-DLCのプロセスに従って新規のユニットとして実行した方が
+良いだろうか？"
+**AI Response**: 今回の変更は新しいドメインの追加ではなく、既存4ユニット（U3/U5/U6/U7）の
+承認済み設計・実装を横断的に改修するものであり、AI-DLCのユニット分割（ドメイン領域ごと）の
+枠組みには馴染まないことを説明。「新規ユニットとしてではなく、既存ユニットへの変更要求として
+扱い、Requirements Analysis（標準深度）→ User Stories要否判定 → Application Design
+（component-dependency.md改訂）→ 影響ユニット（U3/U5/U6/U7）のFunctional Design改訂・
+Code Generation再実施 → Build and Test再実行」という軽量な再入場ルートを提案。
+**Context**: 進め方の方針提示。
+
+---
+**Timestamp**: 2026-07-15T09:40:00Z
+**User Input**: "OKです。承認します。"
+**AI Response**: 変更要求としてのRequirements Analysisステージ（既存INCEPTION PHASEステージへの
+再入場）を開始する。`.aidlc-rule-details/inception/requirements-analysis.md`の手順に従い、
+残存する曖昧点を`aidlc-docs/inception/requirements/requirement-verification-questions.md`に
+整理してユーザーに提示する。
+**Context**: Requirements Analysis（変更要求）ステージ開始。
+
+---
+
