@@ -3,7 +3,7 @@
 ## Project Information
 - **Project Type**: Brownfield
 - **Start Date**: 2026-07-06T10:38:36Z
-- **Current Stage**: CONSTRUCTION PHASE COMPLETE (Build and Test approved). OPERATIONS PHASE is a placeholder — no further stages defined at this time.
+- **Current Stage**: Change Request (connection context globalization + execution-time schema) — Requirements Analysis drafted, awaiting approval. Re-entered INCEPTION PHASE for a cross-cutting change touching existing units U3/U5/U6/U7 (see aidlc-docs/inception/requirements/requirements.md §9).
 
 ## Execution Plan Summary
 - **Plan Document**: aidlc-docs/inception/plans/execution-plan.md
@@ -67,3 +67,23 @@ Infrastructure Design is SKIP for all units (execution-plan.md: no new infra bey
 
 ### OPERATIONS PHASE
 - [ ] Operations - PLACEHOLDER (no further action taken; awaiting future scope definition)
+
+---
+
+## Change Request: Connection Context Globalization + Execution-Time Schema Targeting
+Cross-cutting change touching existing units U3/U5/U6/U7 (not a new unit — see
+`aidlc-docs/inception/requirements/requirements.md` §9 and `aidlc-docs/audit.md` for full
+background/decisions). Re-enters INCEPTION PHASE lightly (Requirements Analysis → User Stories
+opt → Application Design amendment) then re-enters CONSTRUCTION PHASE for the affected units only.
+
+- [x] Requirements Analysis (change request) — drafted 2026-07-15T10:15:00Z, `requirements.md` §9
+  + `requirement-verification-questions-connection-schema.md` (Q1–Q8 all answered, no
+  contradictions). Awaiting user approval.
+- [ ] User Stories (change request) — not yet assessed
+- [ ] Application Design (change request) — not yet started (`component-dependency.md` amendment:
+  `queryexecution → schema`, connections-listing consolidation into `rdbmsconnection`)
+- [ ] U3 Functional Design amendment / Code Generation
+- [ ] U5 Functional Design amendment / Code Generation
+- [ ] U6 Functional Design amendment / Code Generation
+- [ ] U7 Functional Design amendment / Code Generation
+- [ ] Build and Test (re-run)

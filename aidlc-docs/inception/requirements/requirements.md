@@ -131,3 +131,88 @@ MailPit/SMTP）。加えて：
 - ~~複数RDBMS接続を跨いだ管理UI/UXの詳細（3.3）~~ →
   **APIレベルは Application Design で確定**（`connectionId` を全APIパスで明示するステートレス
   設計）。画面遷移・UI詳細はUser Stories/Functional Designで具体化する
+
+## 9. 変更要求: 接続コンテキストのグローバル化 + クエリ実行時スキーマ指定（2026-07-15）
+
+CONSTRUCTION PHASE完了後、`/saved-queries`等へのナビゲーション直接アクセス時に接続を指定する
+手段がない不具合報告を発端に、既存4ユニット（U3 RDBMS Connection & Schema Import、
+U5 Master Data Maintenance、U6 Query Builder、U7 Saved Query / Execution / History）を横断する
+変更要求として以下を確定した。新しいドメインの追加ではないため、新規ユニットは起こさず
+既存ユニットへの変更として扱う（詳細な経緯は`aidlc-docs/audit.md`の該当エントリを参照）。
+
+### 9.1 背景・動機
+- `savedQuery`/`queryExecution`/`queryHistory`の3フロントエンド機能は、`connectionId`を
+  URLクエリパラメータ経由でのみ受け取る実装だった（U7実装時の判断）。`AppLayout`のナビ
+  リンクはこれらへ`connectionId`なしの裸のパスを指すため、ナビ経由で直接アクセスすると
+  「接続が指定されていません」で行き止まりになっていた。
+- 調査の結果、`masterData`（`/master-data`）と`queryBuilder`（`/query-builder`）は各ページ内に
+  独立した接続選択UIを持つことで同じ制約（`connectionId`が全API必須というステートレス設計、
+  3.3参照）に対応していたが、この2機能だけがそのパターンを踏襲していなかったことが
+  根本原因と判明した。
+- 議論の過程で、接続選択はページ単位ではなくユーザーセッション単位の関心事であるという分析に
+  至り、「グローバル接続コンテキスト」の導入を決定した。
+- 並行して、クエリビルダーが意図的にスキーマ非修飾のSQL（例: `SELECT * FROM customers`、
+  再利用性を高めるための設計）を生成する一方、クエリ実行時にどのスキーマに対して実行するかを
+  指定する手段がなく、対象RDBMSの接続プール設定（PostgreSQL/H2は`search_path`任せで実質
+  `public`固定）に暗黙に依存してしまっていた問題も発見された（U6 `business-rules.md`で
+  「リスクを許容する」と記載されていたが、U7で対処されていなかった）。これも本変更要求に
+  含める。
+
+### 9.2 決定事項
+
+**接続コンテキストのグローバル化**:
+- 接続選択は`AppLayout`に常設するグローバルセレクタで行う。値の永続化は`sessionStorage`
+  （既存の`authStore`と同じ流儀、ログインセッション中のみ有効）とする（Q1=A）。
+- グローバル接続を切り替えた際、詳細な作業状態（テーブル詳細画面、クエリビルダー編集中の
+  モデル等）を持つ画面にいる場合は、各機能のトップページへ自動的に戻す（Q2=A）。
+- 接続一覧取得APIは`rdbmsconnection`パッケージに1本化する。現状`masterdata`と`querybuilder`が
+  同一ロジックをそれぞれ専用エンドポイントとして重複実装しているが、グローバル化により
+  接続一覧を取得する箇所は実質グローバルセレクタ1箇所のみになるため、この機会に重複を解消する
+  （Q3=B）。`aidlc-docs/inception/application-design/component-dependency.md`のマトリクス
+  更新が必要。
+- 既存の`/master-data`・`/query-builder`のページ内接続セレクタは廃止し、グローバルセレクタの
+  みで操作する（ページ側は選択済みの`connectionId`を表示するのみ）（Q8=B）。U5/U6の
+  Functional Design時点では接続選択のグローバル化までは見通せておらず、アプリ全体としての
+  整合性を優先してページ内セレクタを廃止する判断とした。
+
+**クエリ実行時のスキーマ指定・履歴記録**:
+- `SavedQuery`エンティティにはスキーマを保存しない（SQLがスキーマ非依存で再利用可能という
+  クエリビルダーの設計意図を維持するため）。
+- 実行API（`POST /api/query-execution/adhoc`、`POST /api/query-execution/saved/{id}`）に
+  `schema`を必須パラメータとして新規追加する。同じ保存クエリ・同じ手入力SQLを、実行のたびに
+  異なるスキーマへ向けて実行できるようにする。
+- `QueryHistory`エンティティに`schema`列を追加し、実行時に実際にどのスキーマへ向けて実行
+  したかを記録する。本プロジェクトは未リリースで実データがないため、`NOT NULL`列として追加し、
+  マイグレーション互換は考慮しない（Q7=A）。
+- スキーマ選択UIは、クエリ実行画面に接続選択と同様の`<select>`を追加する。MySQL/MariaDB等
+  スキーマが実質1つしかない接続（`CATALOG_BASED`）でも、選択肢が1件のセレクタを表示し
+  ダイアレクトによるUI分岐は行わない（Q5=A、既存の`schema`/`masterData`/`queryBuilder`と
+  同じ流儀）。
+- クエリビルダーで選択中のスキーマは、実行画面・保存フォームへの遷移時にURLクエリパラメータで
+  プリフィルし、遷移先で上書き可能にする（`connectionId`と同じ扱い）（Q6=A）。
+- バックエンドの実行時解決: PostgreSQL/H2（`SCHEMA_BASED`）は実行直前に検証済みスキーマ名で
+  `SET search_path`を発行する。MySQL/MariaDB（`CATALOG_BASED`）はスキーマが接続の
+  `databaseName`で既に固定されているため対応不要。スキーマ名は識別子でありバインド
+  パラメータ化できないため、`queryexecution`パッケージが`schema`パッケージの既存サービスに
+  新規依存し、実行前にアクセス可能なスキーマの許可リストと突き合わせて検証する
+  （Q4=A、`component-dependency.md`のマトリクス更新: `queryexecution → schema`追加）。
+
+### 9.3 影響範囲
+- **U3 RDBMS Connection & Schema Import**: `rdbmsconnection`パッケージへの接続一覧取得
+  共通サービス/エンドポイントの新設。
+- **U5 Master Data Maintenance**: `SchemaTableListPage`のページ内接続セレクタを廃止し、
+  グローバルコンテキストから`connectionId`を取得する形に変更。
+- **U6 Query Builder**: `QueryBuilderPage`のページ内接続セレクタを廃止（同上）。実行/保存への
+  遷移時にスキーマもURLパラメータで引き継ぐよう変更。
+- **U7 Saved Query / Execution / History**: `SavedQueryListPage`/`QueryExecutionPage`/
+  `QueryHistoryListPage`をグローバル接続コンテキスト参照に変更。`QueryExecutionPage`に
+  スキーマ選択UIを追加。`QueryHistory`エンティティへの`schema`列追加（DBスキーマ変更）。
+  実行APIへの`schema`パラメータ追加。`QueryHistoryListPage`にスキーマ列を追加。
+- **`aidlc-docs/inception/application-design/component-dependency.md`**: マトリクス更新
+  （`queryexecution → schema`追加、接続一覧取得の依存関係整理）。
+
+### 9.4 進め方
+新規ユニットは起こさず、既存ユニット（U3/U5/U6/U7）への変更要求として、Requirements
+Analysis（本節）→ User Stories要否判定 → Application Design（component-dependency.md改訂）
+→ 影響ユニットのFunctional Design改訂・Code Generation再実施 → Build and Test再実行、という
+軽量な再入場ルートで進める。
