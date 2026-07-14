@@ -77,9 +77,11 @@ background/decisions). Re-enters INCEPTION PHASE lightly (Requirements Analysis 
 opt → Application Design amendment) then re-enters CONSTRUCTION PHASE for the affected units only.
 
 - [x] Requirements Analysis (change request) — drafted 2026-07-15T10:15:00Z, approved 2026-07-15T10:20:00Z
-- [x] User Stories (change request) — assessed as needed (High Priority: User Experience Changes),
-  Part 1 Planning: `story-generation-plan-connection-schema.md` created 2026-07-15T10:20:00Z,
-  awaiting user answers (Q1-Q3)
+- [x] User Stories (change request) — Part 1 Planning approved 2026-07-15T10:30:00Z (Q1=B CHG-
+  prefix, Q2=A direct rewrite, Q3=B screen-level granularity); Part 2 Generation complete
+  2026-07-15T10:30:00Z: `stories.md` updated (10 existing stories revised: MVP-10, ADM-3, GEN-6,
+  GEN-8, GEN-9, GEN-10, GEN-11, GEN-13, GEN-15, GEN-16; new Part 4 CHG-1..CHG-5 added; coverage
+  table updated). `personas.md` unchanged (reused). Awaiting user review/approval.
 - [ ] Application Design (change request) — not yet started (`component-dependency.md` amendment:
   `queryexecution → schema`, connections-listing consolidation into `rdbmsconnection`)
 - [ ] U3 Functional Design amendment / Code Generation
