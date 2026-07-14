@@ -83,13 +83,11 @@ opt → Application Design amendment) then re-enters CONSTRUCTION PHASE for the 
   GEN-8, GEN-9, GEN-10, GEN-11, GEN-13, GEN-15, GEN-16; new Part 4 CHG-1..CHG-5 added; coverage
   table updated). `personas.md` unchanged (reused). Awaiting user review/approval.
 - [x] User Stories (change request) — approved 2026-07-15T10:40:00Z
-- [x] Application Design (change request) — Part 1 Planning approved 2026-07-15T10:50:00Z (Q1=B
-  new `ConnectionAccessService`, Q2=A dependency corrected to `permission`, Q3=A
-  `/api/rdbms-connections/accessible`); Part 2 Generation complete 2026-07-15T11:00:00Z:
-  `components.md`, `component-methods.md`, `services.md`, `component-dependency.md`,
-  `application-design.md` all amended in place. Awaiting user review/approval.
-- [ ] U3 Functional Design amendment / Code Generation
+- [x] Application Design (change request) — approved 2026-07-15T11:10:00Z
+- [ ] U3 Functional Design amendment / Code Generation — order: U3 first (new
+  `ConnectionAccessService` is a prerequisite for U5/U6/U7)
 - [ ] U5 Functional Design amendment / Code Generation
 - [ ] U6 Functional Design amendment / Code Generation
-- [ ] U7 Functional Design amendment / Code Generation
+- [ ] U7 Functional Design amendment / Code Generation (largest change: schema param, history
+  column/migration, new permission dependency)
 - [ ] Build and Test (re-run)

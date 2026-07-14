@@ -4940,3 +4940,16 @@ Q4で「schema」としていたが実際は`permission.EffectivePermissionResol
 
 ---
 
+## Application Design（変更要求）承認、CONSTRUCTION PHASE再入場
+**Timestamp**: 2026-07-15T11:10:00Z
+**User Input**: "Approve & Continue"
+**AI Response**: Application Design（変更要求）を承認済みとして記録。当初合意した進め方
+（`requirements.md` §9.4）に従い、影響ユニット（U3/U5/U6/U7）のFunctional Design改訂・Code
+Generation再実施へ進む。既存の`unit-of-work-dependency.md`のビルド順（U1→U2→U3→U4→
+{U5, U6}→U7）を踏まえ、U3（ConnectionAccessServiceの新設が他ユニットの前提となる）→
+{U5, U6}（ページ内接続セレクタ廃止・グローバルコンテキスト採用）→ U7（スキーマ指定・履歴記録、
+最も変更量が大きい）の順で進めることとした。
+**Context**: CONSTRUCTION PHASE再入場、U3から着手。
+
+---
+
