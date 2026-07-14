@@ -76,10 +76,10 @@ Cross-cutting change touching existing units U3/U5/U6/U7 (not a new unit — see
 background/decisions). Re-enters INCEPTION PHASE lightly (Requirements Analysis → User Stories
 opt → Application Design amendment) then re-enters CONSTRUCTION PHASE for the affected units only.
 
-- [x] Requirements Analysis (change request) — drafted 2026-07-15T10:15:00Z, `requirements.md` §9
-  + `requirement-verification-questions-connection-schema.md` (Q1–Q8 all answered, no
-  contradictions). Awaiting user approval.
-- [ ] User Stories (change request) — not yet assessed
+- [x] Requirements Analysis (change request) — drafted 2026-07-15T10:15:00Z, approved 2026-07-15T10:20:00Z
+- [x] User Stories (change request) — assessed as needed (High Priority: User Experience Changes),
+  Part 1 Planning: `story-generation-plan-connection-schema.md` created 2026-07-15T10:20:00Z,
+  awaiting user answers (Q1-Q3)
 - [ ] Application Design (change request) — not yet started (`component-dependency.md` amendment:
   `queryexecution → schema`, connections-listing consolidation into `rdbmsconnection`)
 - [ ] U3 Functional Design amendment / Code Generation
