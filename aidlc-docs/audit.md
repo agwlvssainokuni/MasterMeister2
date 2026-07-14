@@ -4905,3 +4905,16 @@ Q4で「schema」としていたが実際は`permission.EffectivePermissionResol
 
 ---
 
+## Application Design（変更要求）Part 1 Planning 承認
+**Timestamp**: 2026-07-15T10:50:00Z
+**User Input**: "推奨は？" / "全て推奨の通りとします。"
+**AI Response**: Q1〜Q3の推奨（Q1=B: 新規`ConnectionAccessService`として切り出す、Q2=A:
+`queryexecution`の依存先を`permission`パッケージへ訂正、Q3=A:
+`GET /api/rdbms-connections/accessible`を新設し既存2エンドポイントは廃止）を提示し、
+ユーザーが全て承認したため`application-design-plan-connection-schema.md`に理由とともに
+記録した。
+**Context**: Application Design（変更要求）Part 1 Planning完了。Part 2 Generation
+（components.md等の更新）へ進む前にユーザーからコミット指示があり中断。
+
+---
+
