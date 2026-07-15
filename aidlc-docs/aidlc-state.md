@@ -85,8 +85,10 @@ opt → Application Design amendment) then re-enters CONSTRUCTION PHASE for the 
 - [x] User Stories (change request) — approved 2026-07-15T10:40:00Z
 - [x] Application Design (change request) — approved 2026-07-15T11:10:00Z
 - [x] U3 Functional Design amendment — approved 2026-07-15T11:40:00Z
-- [ ] U3 Code Generation — Part 1 Planning: `u3-rdbms-connection-schema-import-code-generation-
-  plan-connection-schema.md` created 2026-07-15T11:40:00Z (7 steps), awaiting user approval
+- [x] U3 Code Generation — Part 1 Planning approved 2026-07-15T11:45:00Z; Part 2 Generation
+  complete 2026-07-15T11:50:00Z (backend: `ConnectionAccessService` + test, controller endpoint +
+  `SecurityConfig` + test; frontend: `api.ts` + test; docs updated). All tests green, build/tsc/
+  oxlint clean. Awaiting user review.
 - [ ] U1 Functional Design amendment / Code Generation — `AppLayout` global connection selector
   (added 2026-07-15T11:20:00Z after scope gap found: `AppLayout` is U1-owned per
   `u1-platform-foundation/functional-design/frontend-components.md`; depends on U3's new endpoint)

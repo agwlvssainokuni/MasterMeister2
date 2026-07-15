@@ -35,9 +35,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class RdbmsConnectionController {
 
     private final RdbmsConnectionService rdbmsConnectionService;
+    private final ConnectionAccessService connectionAccessService;
 
-    public RdbmsConnectionController(RdbmsConnectionService rdbmsConnectionService) {
+    public RdbmsConnectionController(
+            RdbmsConnectionService rdbmsConnectionService, ConnectionAccessService connectionAccessService) {
         this.rdbmsConnectionService = rdbmsConnectionService;
+        this.connectionAccessService = connectionAccessService;
     }
 
     @PostMapping
@@ -73,6 +76,12 @@ public class RdbmsConnectionController {
     @PostMapping("/{id}/test")
     public ConnectionTestResult testConnection(@PathVariable Long id) {
         return rdbmsConnectionService.testConnection(id);
+    }
+
+    @GetMapping("/accessible")
+    public List<ConnectionSummary> listAccessibleConnections(Authentication authentication) {
+        Long userId = (Long) authentication.getPrincipal();
+        return connectionAccessService.listAccessibleConnections(userId);
     }
 
 }

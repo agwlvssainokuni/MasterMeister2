@@ -117,3 +117,17 @@ Step 3時点で`business-logic-summary.md`に記録されていた「`compileJav
 3リポジトリの未解決参照により失敗し続ける」既知事象は、Step 8（8-1〜8-3、3リポジトリの正式生成）
 完了時点で解消済みである（本Step時点の`./gradlew test`が全体ビルド経由で成功していることで
 再確認済み）。
+
+---
+
+## 2026-07-15変更要求（接続コンテキストのグローバル化）による追加
+
+- **バックエンド**: `ConnectionAccessServiceTest`（新規、jqwik `@Property`、PBT性質P13）と
+  `RdbmsConnectionControllerTest`への2件追加（一般ユーザーでの200確認、未認証401確認）を
+  `./gradlew test --tests "cherry.mastermeister.rdbmsconnection.*"`で実行し、全件成功を確認した。
+- **フロントエンド**: `features/rdbmsConnection/api.test.ts`への1件追加（`listAccessibleConnections`
+  のリクエストURL確認）を`npx vitest run src/features/rdbmsConnection/api.test.ts`で実行し、
+  7件全件成功を確認した。
+- 全体テスト件数（バックエンド`./gradlew test`・フロントエンド`npx vitest run`）の再集計は、
+  影響ユニット（U1/U5/U6/U7）すべてのCode Generation完了後、Build and Testステージで
+  まとめて行う。

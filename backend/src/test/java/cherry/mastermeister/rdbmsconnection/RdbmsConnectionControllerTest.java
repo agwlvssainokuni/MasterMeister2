@@ -76,6 +76,9 @@ class RdbmsConnectionControllerTest {
     private RdbmsConnectionService rdbmsConnectionService;
 
     @MockitoBean
+    private ConnectionAccessService connectionAccessService;
+
+    @MockitoBean
     private JwtTokenValidator jwtTokenValidator;
 
     @BeforeEach
@@ -258,6 +261,25 @@ class RdbmsConnectionControllerTest {
     @WithAnonymousUser
     void testConnectionByIdReturnsUnauthorizedWhenNotAuthenticated() throws Exception {
         mockMvc.perform(post("/api/rdbms-connections/{id}/test", 42L)).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    void listAccessibleConnectionsReturnsOkForNonAdminUser() throws Exception {
+        Authentication userAuthentication = new UsernamePasswordAuthenticationToken(
+                7L, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
+        when(connectionAccessService.listAccessibleConnections(7L))
+                .thenReturn(List.of(new ConnectionSummary(42L, "test", RdbmsType.MYSQL, "localhost", "mastermeister")));
+
+        mockMvc.perform(get("/api/rdbms-connections/accessible").with(authentication(userAuthentication)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(42));
+    }
+
+    @Test
+    @WithAnonymousUser
+    void listAccessibleConnectionsReturnsUnauthorizedWhenNotAuthenticated() throws Exception {
+        mockMvc.perform(get("/api/rdbms-connections/accessible")).andExpect(status().isUnauthorized());
     }
 
 }

@@ -43,3 +43,9 @@ export function testConnection(target: ConnectionConfig | number): Promise<Conne
   }
   return apiFetch<ConnectionTestResult>('/api/rdbms-connections/test', { method: 'POST', body: target })
 }
+
+// 呼び出し元はU1所有のAppLayout（グローバル接続セレクタ）。認証済みであれば一般ユーザーも呼び出せる、
+// 本フィーチャー唯一の非管理者向けAPI（2026-07-15変更要求、frontend-components.md参照）。
+export function listAccessibleConnections(): Promise<ConnectionSummary[]> {
+  return apiFetch<ConnectionSummary[]>('/api/rdbms-connections/accessible')
+}

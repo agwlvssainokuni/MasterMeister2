@@ -15,7 +15,14 @@
  */
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { createConnection, getConnection, listConnections, testConnection, updateConnection } from './api'
+import {
+  createConnection,
+  getConnection,
+  listAccessibleConnections,
+  listConnections,
+  testConnection,
+  updateConnection,
+} from './api'
 import type { ConnectionConfig } from './types'
 
 const config: ConnectionConfig = {
@@ -109,5 +116,17 @@ describe('connectionApi', () => {
 
     expect(fetchSpy).toHaveBeenCalledWith('/api/rdbms-connections/42/test', expect.objectContaining({ method: 'POST' }))
     expect(result).toEqual({ success: false, message: 'timeout' })
+  })
+
+  it('listAccessibleConnections gets /api/rdbms-connections/accessible', async () => {
+    const summaries = [{ id: 1, name: 'test-connection', rdbmsType: 'MYSQL', host: 'localhost', databaseName: 'db' }]
+    const fetchSpy = vi
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValue(new Response(JSON.stringify(summaries), { status: 200 }))
+
+    const result = await listAccessibleConnections()
+
+    expect(fetchSpy.mock.calls[0][0]).toBe('/api/rdbms-connections/accessible')
+    expect(result).toEqual(summaries)
   })
 })

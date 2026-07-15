@@ -97,3 +97,14 @@ API・ルーティングの一覧。設計は`functional-design/frontend-compone
 テストは合計**43件**。U1・U2既存分と合わせ、フロントエンド全体は**30ファイル・114件、
 全テスト成功**（`npx vitest run`）。`npx tsc -b`（型チェック）・`npx oxlint`（Lint）も
 エラーなしで完了している（詳細は`testing-summary.md`参照）。
+
+---
+
+## 2026-07-15変更要求（接続コンテキストのグローバル化）による追加
+
+`features/rdbmsConnection/api.ts`に`listAccessibleConnections()` → `GET
+/api/rdbms-connections/accessible`を追加した。呼び出し元は本ユニットの画面（すべて`/admin`配下・
+管理者専用）ではなく、**U1所有の`AppLayout`**（常設グローバル接続セレクタ）——U1側のCode
+Generationで実際の呼び出し配線を行う（本ステップではapi.ts関数の追加のみ）。
+
+テストは`features/rdbmsConnection/api.test.ts`に1件追加（リクエストURL確認）。

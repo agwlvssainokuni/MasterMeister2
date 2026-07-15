@@ -5012,3 +5012,27 @@ schema.md`を作成した（7ステップ: `ConnectionAccessService`実装・単
 
 ---
 
+## U3 Code Generation（変更要求）Part 2 Generation
+**Timestamp**: 2026-07-15T11:50:00Z
+**User Input**: "承認します。コミットしてから進めてください。"（計画承認）→ "進めてください。"
+**AI Response**: 計画のStep 1〜7を実行した。バックエンド: `ConnectionAccessService.java`新規作成
+（`masterdata.MasterDataQueryService.listAccessibleConnections`と同一ロジック）、
+`ConnectionAccessServiceTest.java`新規作成（jqwik `@Property`、`@JqwikSpringSupport @DataJpaTest`、
+実`RdbmsConnectionRepository`＋モック化`EffectivePermissionResolver`）。PBT性質は当初P12として
+`business-logic-model.md`に記載していたが、`business-logic-summary.md`に既存のP12
+（`SchemaQueryService`のstale除外Invariant、Code Generation時に新規識別・未back-fill）との
+番号衝突を発見し、P13に訂正した（`business-logic-model.md`・テストファイル・関連プランを
+統一的に修正）。`RdbmsConnectionController`に`GET /accessible`を追加、`SecurityConfig`に
+`requestMatchers(HttpMethod.GET, "/api/rdbms-connections/accessible").authenticated()`を
+既存の`hasRole("ADMIN")`ルールより前に追加（順序依存）。`RdbmsConnectionControllerTest`に
+2件（一般ユーザー200、未認証401）追加。フロントエンド: `features/rdbmsConnection/api.ts`に
+`listAccessibleConnections()`追加、`api.test.ts`に1件追加。ドキュメント: `business-logic-
+summary.md`・`api-layer-summary.md`・`frontend-summary.md`・`testing-summary.md`を更新。
+`./gradlew test --tests "cherry.mastermeister.rdbmsconnection.*"`（20件成功）、
+`npx vitest run src/features/rdbmsConnection/api.test.ts`（7件成功）、
+`./gradlew build -x test`・`npx tsc -b`・`npx oxlint`（いずれもエラーなし）で確認した。
+計画のStep 1〜7を`[x]`に更新した。
+**Context**: U3 Code Generation（変更要求）Part 2 Generation完了。ユーザーレビュー待ち。
+
+---
+

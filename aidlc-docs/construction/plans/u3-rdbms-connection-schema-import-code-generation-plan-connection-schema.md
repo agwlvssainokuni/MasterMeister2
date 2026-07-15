@@ -8,25 +8,18 @@
 
 ## ステップ
 
-- [ ] Step 1: Business Logic Generation — `backend/src/main/java/cherry/mastermeister/
-      rdbmsconnection/ConnectionAccessService.java`を新規作成する。`EffectivePermissionResolver`
-      （`permission`パッケージ）と`RdbmsConnectionRepository`に依存し、`listAccessibleConnections
-      (Long userId)`を実装する（`masterdata.MasterDataQueryService.listAccessibleConnections`と
-      同一ロジック）。
-- [ ] Step 2: Business Logic Unit Testing — `backend/src/test/java/cherry/mastermeister/
-      rdbmsconnection/ConnectionAccessServiceTest.java`を新規作成する（PBT性質P12の検証を含む）。
-- [ ] Step 3: API Layer Generation — `RdbmsConnectionController.java`に`GET /accessible`
-      （`listAccessibleConnections`）を追加する。`SecurityConfig.java`に
-      `requestMatchers("/api/rdbms-connections/accessible").authenticated()`を、既存の
-      `requestMatchers("/api/rdbms-connections/**").hasRole("ADMIN")`より前に追加する
-      （Spring Securityは最初にマッチしたルールを採用するため順序が重要）。
-- [ ] Step 4: API Layer Unit Testing — `RdbmsConnectionControllerTest.java`に、一般ユーザーの
-      認証情報でも200が返ること・管理者ロール不要であることを検証するテストケースを追加する。
-- [ ] Step 5: Frontend Components Generation — `frontend/src/features/rdbmsConnection/api.ts`に
-      `listAccessibleConnections(): Promise<ConnectionSummary[]>`を追加する
-      （`GET /api/rdbms-connections/accessible`）。
-- [ ] Step 6: Frontend Components Unit Testing — `frontend/src/features/rdbmsConnection/
-      api.test.ts`にテストケースを追加する。
-- [ ] Step 7: Documentation Generation — `aidlc-docs/construction/u3-rdbms-connection-schema-
-      import/code/backend-summary.md`・`frontend-summary.md`に本変更（新規ファイル・変更ファイル）
-      を追記する。
+- [x] Step 1: Business Logic Generation — `ConnectionAccessService.java`を新規作成した。
+- [x] Step 2: Business Logic Unit Testing — `ConnectionAccessServiceTest.java`を新規作成した
+      （PBT性質P13、既存P12との番号衝突を避けて採番）。テスト成功を確認済み。
+- [x] Step 3: API Layer Generation — `RdbmsConnectionController.java`に`GET /accessible`を
+      追加した。`SecurityConfig.java`に`requestMatchers(HttpMethod.GET,
+      "/api/rdbms-connections/accessible").authenticated()`を、既存の
+      `hasRole("ADMIN")`ルールより前に追加した。
+- [x] Step 4: API Layer Unit Testing — `RdbmsConnectionControllerTest.java`に2件追加した
+      （一般ユーザー200、未認証401）。テスト成功を確認済み（計20件）。
+- [x] Step 5: Frontend Components Generation — `frontend/src/features/rdbmsConnection/api.ts`に
+      `listAccessibleConnections()`を追加した。
+- [x] Step 6: Frontend Components Unit Testing — `api.test.ts`に1件追加した。テスト成功を
+      確認済み（計7件）。
+- [x] Step 7: Documentation Generation — `business-logic-summary.md`・`api-layer-summary.md`・
+      `frontend-summary.md`・`testing-summary.md`に本変更を追記した。
