@@ -5246,3 +5246,26 @@ U5と同様に削除対象に含めることとした。
 
 ---
 
+## U6 Code Generation（変更要求）Part 2 Generation
+**Timestamp**: 2026-07-15T14:45:00Z
+**AI Response**: 計画のStep 1〜8を実行した。バックエンド: `QueryBuilderController.java`・
+`QueryBuilderMetadataService.java`から`listSelectableConnections`・`GET /connections`を削除
+（`rdbmsConnectionRepository`フィールドは他メソッドで未使用だったため削除、`QueryBuilderMetadataServiceTest`の
+コンストラクタ呼び出しも修正）。`QueryBuilderControllerTest.java`から対応2テストケースと
+不要import削除。`./gradlew test --tests "cherry.mastermeister.querybuilder.*"`で成功確認。
+フロントエンド: `QueryBuilderPage.tsx`を`useConnection()`参照に改修し接続選択UIを削除。
+`connectionId`変化時（初回マウント後のみ、`useRef`で判定）に`schema`/`model`/`generatedSql`を
+リセットする`useEffect`を実装。`schema`のURLパラメータプリフィル（受信）と
+`handleNavigateToSave`/`handleNavigateToExecute`への`schema`追加（送信）を実装。
+`queryBuilder/api.ts`/`types.ts`から`listSelectableConnections`/`ConnectionSummary`/
+`RdbmsType`を削除。`QueryBuilderPage.test.tsx`を改訂（6件→11件、接続切替リセット・
+URLプリフィル・スキーマ引き継ぎのテストケース追加、当初「schema select要素が消える」という
+誤った想定でテストが1件失敗し、実際の挙動（selectは残りvalueがリセットされる）に合わせて
+修正）。`api-layer-summary.md`・`frontend-summary.md`・`testing-summary.md`を更新
+（エンドポイント数6→5、テスト件数12→10等）。`npx vitest run`（274件）・
+`./gradlew build -x test`・`npx tsc -b`・`npx oxlint`いずれもエラーなしを確認した。
+計画のStep 1〜8を`[x]`に更新した。
+**Context**: U6 Code Generation（変更要求）Part 2 Generation完了。ユーザーレビュー待ち。
+
+---
+

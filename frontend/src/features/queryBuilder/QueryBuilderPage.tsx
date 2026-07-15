@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { ApiError } from '../../api/apiClient'
-import { generateSql, listSelectableConnections, listSelectableSchemas } from './api'
+import { useConnection } from '../../hooks/useConnection'
+import { generateSql, listSelectableSchemas } from './api'
 import { FromJoinTab } from './FromJoinTab'
 import { GeneratedSqlPanel } from './GeneratedSqlPanel'
 import { GroupByOrderByTab } from './GroupByOrderByTab'
@@ -27,7 +28,6 @@ import { SqlReverseParsePanel } from './SqlReverseParsePanel'
 import { WhereHavingTab } from './WhereHavingTab'
 import type {
   Condition,
-  ConnectionSummary,
   FromItem,
   GeneratedSql,
   JoinItem,
@@ -51,8 +51,7 @@ const TABS: { key: TabKey; label: string }[] = [
 export function QueryBuilderPage() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const [connections, setConnections] = useState<ConnectionSummary[]>([])
-  const [connectionId, setConnectionId] = useState<number | null>(null)
+  const { connectionId } = useConnection()
   const [schemas, setSchemas] = useState<string[]>([])
   const [schema, setSchema] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<TabKey>('fromJoin')
@@ -67,23 +66,27 @@ export function QueryBuilderPage() {
   const [offset, setOffset] = useState<number | null>(null)
   const [generatedSql, setGeneratedSql] = useState<GeneratedSql | null>(null)
   const [generateError, setGenerateError] = useState<string | null>(null)
+  const hasInitializedConnection = useRef(false)
 
   useEffect(() => {
-    listSelectableConnections().then(setConnections)
-    const urlConnectionId = searchParams.get('connectionId')
-    if (urlConnectionId != null) {
-      void handleSelectConnection(Number(urlConnectionId))
+    if (connectionId === null) {
+      setSchemas([])
+      return
     }
-    // マウント時のみ、URLクエリパラメータ経由の初期接続選択（GEN-9、U7からの遷移想定）を行う
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  const handleSelectConnection = async (selectedConnectionId: number) => {
-    setConnectionId(selectedConnectionId)
+    listSelectableSchemas(connectionId).then(setSchemas)
+    if (!hasInitializedConnection.current) {
+      hasInitializedConnection.current = true
+      const urlSchema = searchParams.get('schema')
+      if (urlSchema !== null) {
+        setSchema(urlSchema)
+      }
+      return
+    }
     setSchema(null)
     resetModel()
-    setSchemas(await listSelectableSchemas(selectedConnectionId))
-  }
+    // 接続切替時のスキーマ/組み立て中モデルのリセット（stories.md CHG-2、U1から委譲された責務）
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [connectionId])
 
   const handleSelectSchema = (selectedSchema: string) => {
     setSchema(selectedSchema)
@@ -153,67 +156,51 @@ export function QueryBuilderPage() {
   }
 
   // GeneratedSql.paramsは値ではなく構造の引き継ぎ方針のため渡さない（business-rules.md 6節）。
-  // connectionIdは遷移先（savedQuery/queryExecution）が保存・実行のために必須とするため、
-  // このページが既に保持している選択中の接続をあわせて引き継ぐ（Code Generation時点の判断）。
+  // connectionId（グローバル接続コンテキスト）とschema（画面内選択中の値）は遷移先
+  // （savedQuery/queryExecution）が保存・実行のために必須とするため、あわせて引き継ぐ
+  // （2026-07-15変更要求、GEN-8改訂AC）。
   const handleNavigateToSave = (sql: GeneratedSql) => {
-    navigate(`/saved-queries/new?connectionId=${connectionId}&rawSql=${encodeURIComponent(sql.sql)}`)
+    navigate(`/saved-queries/new?connectionId=${connectionId}&schema=${schema}&rawSql=${encodeURIComponent(sql.sql)}`)
   }
 
   const handleNavigateToExecute = (sql: GeneratedSql) => {
-    navigate(`/query-execution?connectionId=${connectionId}&rawSql=${encodeURIComponent(sql.sql)}`)
+    navigate(`/query-execution?connectionId=${connectionId}&schema=${schema}&rawSql=${encodeURIComponent(sql.sql)}`)
   }
 
   return (
     <div className="query-builder-page" data-testid="query-builder-page">
       <h1>クエリビルダー</h1>
-      <label>
-        対象接続
-        <select
-          data-testid="query-builder-page-connection-select"
-          value={connectionId ?? ''}
-          onChange={(e) => handleSelectConnection(Number(e.target.value))}
-        >
-          <option value="" disabled>
-            選択してください
-          </option>
-          {connections.map((connection) => (
-            <option key={connection.id} value={connection.id}>
-              {connection.name}
-            </option>
-          ))}
-        </select>
-      </label>
-      {connectionId !== null && (
-        <label>
-          スキーマ
-          <select
-            data-testid="query-builder-page-schema-select"
-            value={schema ?? ''}
-            onChange={(e) => handleSelectSchema(e.target.value)}
-          >
-            <option value="" disabled>
-              選択してください
-            </option>
-            {schemas.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </select>
-        </label>
-      )}
-
-      {connectionId !== null && (
-        <SqlReverseParsePanel
-          connectionId={connectionId}
-          initialRawSql={searchParams.get('rawSql') ?? undefined}
-          onApply={handleApplyParsedModel}
-        />
-      )}
-
-      {connectionId !== null && schema !== null && (
+      {connectionId === null ? (
+        <p>接続が指定されていません。</p>
+      ) : (
         <>
-          <nav className="query-builder-page-tabs">
+          <label>
+            スキーマ
+            <select
+              data-testid="query-builder-page-schema-select"
+              value={schema ?? ''}
+              onChange={(e) => handleSelectSchema(e.target.value)}
+            >
+              <option value="" disabled>
+                選択してください
+              </option>
+              {schemas.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <SqlReverseParsePanel
+            connectionId={connectionId}
+            initialRawSql={searchParams.get('rawSql') ?? undefined}
+            onApply={handleApplyParsedModel}
+          />
+
+          {schema !== null && (
+            <>
+              <nav className="query-builder-page-tabs">
             {TABS.map((tab) => (
               <button
                 key={tab.key}
@@ -320,6 +307,8 @@ export function QueryBuilderPage() {
               onNavigateToSave={handleNavigateToSave}
               onNavigateToExecute={handleNavigateToExecute}
             />
+          )}
+            </>
           )}
         </>
       )}

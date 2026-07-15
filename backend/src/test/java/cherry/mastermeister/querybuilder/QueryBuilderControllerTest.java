@@ -45,15 +45,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import cherry.mastermeister.common.dialect.RdbmsType;
-import cherry.mastermeister.rdbmsconnection.ConnectionSummary;
 import cherry.mastermeister.security.JwtTokenValidator;
 import cherry.mastermeister.security.RestAccessDeniedHandler;
 import cherry.mastermeister.security.RestAuthenticationEntryPoint;
 import cherry.mastermeister.security.SecurityConfig;
 
 /**
- * example-basedテスト: 6エンドポイント（接続一覧・スキーマ一覧・テーブル一覧・カラム一覧・
+ * example-basedテスト: 5エンドポイント（スキーマ一覧・テーブル一覧・カラム一覧・
  * SQL生成・SQL解析）それぞれについて認証済みユーザ成功系・未認証401を検証する。
  * 本ユニットは管理者ロール制約を
  * 持たないため（{@code business-rules.md} 8節「認証済みユーザ全員」）403系テストは不要。
@@ -92,24 +90,6 @@ class QueryBuilderControllerTest {
     private static Authentication userAuthentication() {
         return new UsernamePasswordAuthenticationToken(
                 1L, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
-    }
-
-    @Test
-    void listSelectableConnectionsReturnsOkForAuthenticatedUser() throws Exception {
-        when(queryBuilderMetadataService.listSelectableConnections(1L)).thenReturn(List.of(
-                new ConnectionSummary(42L, "conn1", RdbmsType.POSTGRESQL, "localhost", "db1")));
-
-        mockMvc.perform(get("/api/query-builder/connections")
-                        .with(authentication(userAuthentication())))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].name").value("conn1"));
-    }
-
-    @Test
-    @WithAnonymousUser
-    void listSelectableConnectionsReturnsUnauthorizedWhenNotAuthenticated() throws Exception {
-        mockMvc.perform(get("/api/query-builder/connections"))
-                .andExpect(status().isUnauthorized());
     }
 
     @Test

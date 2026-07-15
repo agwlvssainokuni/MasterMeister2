@@ -90,10 +90,12 @@ opt → Application Design amendment) then re-enters CONSTRUCTION PHASE for the 
 - [x] U1 Code Generation — approved 2026-07-15T12:55:00Z. U1 change-request work COMPLETE.
 - [x] U5 Functional Design amendment — approved 2026-07-15T13:05:00Z
 - [x] U5 Code Generation — approved 2026-07-15T13:30:00Z. U5 change-request work COMPLETE.
-- [x] U6 Functional Design amendment — generated 2026-07-15T13:35:00Z (frontend-components.md:
-  `QueryBuilderPage` global connection context + schema URL prefill + reset-on-change
-  responsibility, `GeneratedSqlPanel` schema handoff note), awaiting user review. Code Generation
-  not yet started.
+- [x] U6 Functional Design amendment — approved 2026-07-15T13:56:00Z
+- [x] U6 Code Generation — Part 1 Planning approved 2026-07-15T14:00:00Z; Part 2 Generation
+  complete 2026-07-15T14:45:00Z (backend: removed `listSelectableConnections` + field + 2 tests;
+  frontend: `QueryBuilderPage` global connection context + reset-on-change + schema URL
+  handoff). All tests green (274 frontend, backend querybuilder green), build/tsc/oxlint clean.
+  Awaiting user review.
 - [ ] U7 Functional Design amendment / Code Generation (largest change: schema param, history
   column/migration, new permission dependency)
 - [ ] Build and Test (re-run)

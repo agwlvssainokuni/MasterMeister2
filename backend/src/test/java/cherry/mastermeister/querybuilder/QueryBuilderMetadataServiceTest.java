@@ -33,7 +33,6 @@ import net.jqwik.api.Provide;
 
 import cherry.mastermeister.permission.EffectivePermissionResolver;
 import cherry.mastermeister.permission.Permission;
-import cherry.mastermeister.rdbmsconnection.RdbmsConnectionRepository;
 import cherry.mastermeister.schema.ColumnDetail;
 import cherry.mastermeister.schema.SchemaQueryService;
 import cherry.mastermeister.schema.TableDetail;
@@ -71,8 +70,7 @@ class QueryBuilderMetadataServiceTest {
         when(permissionResolver.resolveEffectiveColumnPermissions(1L, 1L, TEST_SCHEMA, "T1"))
                 .thenReturn(columnPermissions);
 
-        QueryBuilderMetadataService service = new QueryBuilderMetadataService(
-                schemaQueryService, permissionResolver, mock(RdbmsConnectionRepository.class));
+        QueryBuilderMetadataService service = new QueryBuilderMetadataService(schemaQueryService, permissionResolver);
         List<ColumnRef> result = service.listSelectableColumns(1L, 1L, TEST_SCHEMA, "T1");
 
         assertThat(result).extracting(ColumnRef::columnName).containsExactlyElementsOf(expectedSelectable);

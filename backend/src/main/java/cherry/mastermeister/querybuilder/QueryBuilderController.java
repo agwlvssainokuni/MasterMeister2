@@ -26,8 +26,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import cherry.mastermeister.rdbmsconnection.ConnectionSummary;
-
 @RestController
 @RequestMapping("/api/query-builder")
 public class QueryBuilderController {
@@ -43,12 +41,6 @@ public class QueryBuilderController {
         this.queryBuilderMetadataService = queryBuilderMetadataService;
         this.sqlGenerationService = sqlGenerationService;
         this.sqlParsingService = sqlParsingService;
-    }
-
-    @GetMapping("/connections")
-    public List<ConnectionSummary> listSelectableConnections(Authentication authentication) {
-        Long userId = (Long) authentication.getPrincipal();
-        return queryBuilderMetadataService.listSelectableConnections(userId);
     }
 
     @GetMapping("/{connectionId}/schemas")

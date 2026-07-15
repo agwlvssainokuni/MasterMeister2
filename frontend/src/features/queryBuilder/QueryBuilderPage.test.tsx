@@ -14,22 +14,15 @@
  * limitations under the License.
  */
 
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes, useSearchParams } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import {
-  generateSql,
-  listSelectableColumns,
-  listSelectableConnections,
-  listSelectableSchemas,
-  listSelectableTables,
-  parseSql,
-} from './api'
+import { useConnectionStore } from '../../store/connectionStore'
+import { generateSql, listSelectableColumns, listSelectableSchemas, listSelectableTables, parseSql } from './api'
 import { QueryBuilderPage } from './QueryBuilderPage'
-import type { ConnectionSummary, GeneratedSql, TableRef } from './types'
+import type { GeneratedSql, TableRef } from './types'
 
 vi.mock('./api', () => ({
-  listSelectableConnections: vi.fn(),
   listSelectableSchemas: vi.fn(),
   listSelectableTables: vi.fn(),
   listSelectableColumns: vi.fn(),
@@ -37,23 +30,20 @@ vi.mock('./api', () => ({
   parseSql: vi.fn(),
 }))
 
-const listSelectableConnectionsMock = vi.mocked(listSelectableConnections)
 const listSelectableSchemasMock = vi.mocked(listSelectableSchemas)
 const listSelectableTablesMock = vi.mocked(listSelectableTables)
 const listSelectableColumnsMock = vi.mocked(listSelectableColumns)
 const generateSqlMock = vi.mocked(generateSql)
 const parseSqlMock = vi.mocked(parseSql)
 
-const connection: ConnectionSummary = {
-  id: 1, name: 'conn-1', rdbmsType: 'POSTGRESQL', host: 'localhost', databaseName: 'db1',
-}
 const table: TableRef = { schema: 'public', table: 'employees', comment: null }
 
 function DestinationStub({ testId }: { testId: string }) {
   const [searchParams] = useSearchParams()
   return (
     <div data-testid={testId}>
-      connectionId={searchParams.get('connectionId')}, rawSql={searchParams.get('rawSql')}
+      connectionId={searchParams.get('connectionId')}, schema={searchParams.get('schema')},
+      rawSql={searchParams.get('rawSql')}
     </div>
   )
 }
@@ -70,45 +60,77 @@ function renderPage(initialEntry = '/query-builder') {
   )
 }
 
-async function selectConnectionAndSchema() {
-  await screen.findByText('conn-1')
-  fireEvent.change(screen.getByTestId('query-builder-page-connection-select'), { target: { value: '1' } })
+async function selectSchema() {
   await screen.findByTestId('query-builder-page-schema-select')
   fireEvent.change(screen.getByTestId('query-builder-page-schema-select'), { target: { value: 'public' } })
 }
 
 describe('QueryBuilderPage', () => {
   beforeEach(() => {
-    listSelectableConnectionsMock.mockReset()
     listSelectableSchemasMock.mockReset()
     listSelectableTablesMock.mockReset()
     listSelectableColumnsMock.mockReset()
     generateSqlMock.mockReset()
     parseSqlMock.mockReset()
-    listSelectableConnectionsMock.mockResolvedValue([connection])
     listSelectableSchemasMock.mockResolvedValue(['public'])
     listSelectableTablesMock.mockResolvedValue([table])
     listSelectableColumnsMock.mockResolvedValue([])
+    useConnectionStore.setState({ connectionId: null, connections: [] })
   })
 
-  it('lists accessible connections and hides the schema select until one is chosen', async () => {
+  it('shows a message when connectionId is not set in the global connection context', () => {
     renderPage()
 
-    await screen.findByText('conn-1')
-    expect(screen.queryByTestId('query-builder-page-schema-select')).not.toBeInTheDocument()
+    expect(screen.getByText('接続が指定されていません。')).toBeInTheDocument()
+    expect(listSelectableSchemasMock).not.toHaveBeenCalled()
   })
 
-  it('shows the tab navigation and the FromJoin tab by default once a connection/schema are chosen', async () => {
+  it('loads schemas for the connectionId from the global connection context and hides the tabs until a schema is chosen', async () => {
+    useConnectionStore.setState({ connectionId: 1, connections: [] })
+
     renderPage()
 
-    await selectConnectionAndSchema()
+    expect(await screen.findByTestId('query-builder-page-schema-select')).toBeInTheDocument()
+    expect(listSelectableSchemasMock).toHaveBeenCalledWith(1)
+    expect(screen.queryByTestId('from-join-tab')).not.toBeInTheDocument()
+  })
+
+  it('prefills the schema from the schema URL query parameter on initial mount', async () => {
+    useConnectionStore.setState({ connectionId: 1, connections: [] })
+
+    renderPage('/query-builder?schema=public')
+
+    expect(await screen.findByTestId('from-join-tab')).toBeInTheDocument()
+  })
+
+  it('resets the schema and in-progress model when the global connectionId changes after mount', async () => {
+    useConnectionStore.setState({ connectionId: 1, connections: [] })
+    renderPage()
+    await selectSchema()
+    await screen.findByText('employees')
+    fireEvent.change(screen.getByTestId('from-join-tab-base-table-select'), { target: { value: 'employees' } })
+    expect(screen.getByTestId('generated-sql-panel')).toBeInTheDocument()
+
+    useConnectionStore.setState({ connectionId: 2, connections: [] })
+
+    await waitFor(() => expect(listSelectableSchemasMock).toHaveBeenCalledWith(2))
+    expect(screen.queryByTestId('from-join-tab')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('generated-sql-panel')).not.toBeInTheDocument()
+  })
+
+  it('shows the tab navigation and the FromJoin tab by default once a schema is chosen', async () => {
+    useConnectionStore.setState({ connectionId: 1, connections: [] })
+    renderPage()
+
+    await selectSchema()
 
     expect(screen.getByTestId('from-join-tab')).toBeInTheDocument()
   })
 
   it('switches to the SELECT tab content when its nav button is clicked', async () => {
+    useConnectionStore.setState({ connectionId: 1, connections: [] })
     renderPage()
-    await selectConnectionAndSchema()
+    await selectSchema()
 
     fireEvent.click(screen.getByTestId('query-builder-page-tab-select'))
 
@@ -117,15 +139,17 @@ describe('QueryBuilderPage', () => {
   })
 
   it('does not show the generated SQL panel until a base table has been selected', async () => {
+    useConnectionStore.setState({ connectionId: 1, connections: [] })
     renderPage()
-    await selectConnectionAndSchema()
+    await selectSchema()
 
     expect(screen.queryByTestId('generated-sql-panel')).not.toBeInTheDocument()
   })
 
   it('shows the generated SQL panel once a base table is selected in FromJoinTab', async () => {
+    useConnectionStore.setState({ connectionId: 1, connections: [] })
     renderPage()
-    await selectConnectionAndSchema()
+    await selectSchema()
     await screen.findByText('employees')
 
     fireEvent.change(screen.getByTestId('from-join-tab-base-table-select'), { target: { value: 'employees' } })
@@ -134,10 +158,11 @@ describe('QueryBuilderPage', () => {
   })
 
   it('generates SQL and displays it when the generate button is clicked', async () => {
+    useConnectionStore.setState({ connectionId: 1, connections: [] })
     const generated: GeneratedSql = { sql: 'SELECT "t0"."id" FROM "employees" AS "t0"', params: {} }
     generateSqlMock.mockResolvedValue(generated)
     renderPage()
-    await selectConnectionAndSchema()
+    await selectSchema()
     await screen.findByText('employees')
     fireEvent.change(screen.getByTestId('from-join-tab-base-table-select'), { target: { value: 'employees' } })
 
@@ -146,11 +171,12 @@ describe('QueryBuilderPage', () => {
     expect(await screen.findByTestId('generated-sql-panel-sql')).toHaveTextContent(generated.sql)
   })
 
-  it('navigates to the saved-query save form with connectionId/rawSql when "保存" is clicked', async () => {
+  it('navigates to the saved-query save form with connectionId/schema/rawSql when "保存" is clicked', async () => {
+    useConnectionStore.setState({ connectionId: 1, connections: [] })
     const generated: GeneratedSql = { sql: 'SELECT "t0"."id" FROM "employees" AS "t0"', params: {} }
     generateSqlMock.mockResolvedValue(generated)
     renderPage()
-    await selectConnectionAndSchema()
+    await selectSchema()
     await screen.findByText('employees')
     fireEvent.change(screen.getByTestId('from-join-tab-base-table-select'), { target: { value: 'employees' } })
     fireEvent.click(screen.getByTestId('generated-sql-panel-generate-button'))
@@ -159,15 +185,16 @@ describe('QueryBuilderPage', () => {
     fireEvent.click(screen.getByText('保存'))
 
     expect(await screen.findByTestId('saved-query-save-form-stub')).toHaveTextContent(
-      `connectionId=1, rawSql=${generated.sql}`,
+      `connectionId=1, schema=public, rawSql=${generated.sql}`,
     )
   })
 
-  it('navigates to the query execution page with connectionId/rawSql when "実行" is clicked', async () => {
+  it('navigates to the query execution page with connectionId/schema/rawSql when "実行" is clicked', async () => {
+    useConnectionStore.setState({ connectionId: 1, connections: [] })
     const generated: GeneratedSql = { sql: 'SELECT "t0"."id" FROM "employees" AS "t0"', params: {} }
     generateSqlMock.mockResolvedValue(generated)
     renderPage()
-    await selectConnectionAndSchema()
+    await selectSchema()
     await screen.findByText('employees')
     fireEvent.change(screen.getByTestId('from-join-tab-base-table-select'), { target: { value: 'employees' } })
     fireEvent.click(screen.getByTestId('generated-sql-panel-generate-button'))
@@ -176,7 +203,7 @@ describe('QueryBuilderPage', () => {
     fireEvent.click(screen.getByText('実行'))
 
     expect(await screen.findByTestId('query-execution-page-stub')).toHaveTextContent(
-      `connectionId=1, rawSql=${generated.sql}`,
+      `connectionId=1, schema=public, rawSql=${generated.sql}`,
     )
   })
 })

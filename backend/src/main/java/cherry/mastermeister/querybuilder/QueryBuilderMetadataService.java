@@ -24,8 +24,6 @@ import org.springframework.stereotype.Service;
 
 import cherry.mastermeister.permission.EffectivePermissionResolver;
 import cherry.mastermeister.permission.Permission;
-import cherry.mastermeister.rdbmsconnection.ConnectionSummary;
-import cherry.mastermeister.rdbmsconnection.RdbmsConnectionRepository;
 import cherry.mastermeister.schema.ColumnDetail;
 import cherry.mastermeister.schema.SchemaQueryService;
 import cherry.mastermeister.schema.TableMetadata;
@@ -35,23 +33,13 @@ public class QueryBuilderMetadataService {
 
     private final SchemaQueryService schemaQueryService;
     private final EffectivePermissionResolver effectivePermissionResolver;
-    private final RdbmsConnectionRepository rdbmsConnectionRepository;
 
     public QueryBuilderMetadataService(
             SchemaQueryService schemaQueryService,
-            EffectivePermissionResolver effectivePermissionResolver,
-            RdbmsConnectionRepository rdbmsConnectionRepository
+            EffectivePermissionResolver effectivePermissionResolver
     ) {
         this.schemaQueryService = schemaQueryService;
         this.effectivePermissionResolver = effectivePermissionResolver;
-        this.rdbmsConnectionRepository = rdbmsConnectionRepository;
-    }
-
-    public List<ConnectionSummary> listSelectableConnections(Long userId) {
-        return rdbmsConnectionRepository.findAll().stream()
-                .filter(c -> !effectivePermissionResolver.listAccessibleSchemas(userId, c.getId()).isEmpty())
-                .map(c -> new ConnectionSummary(c.getId(), c.getName(), c.getRdbmsType(), c.getHost(), c.getDatabaseName()))
-                .toList();
     }
 
     public List<String> listSelectableSchemas(Long userId, Long connectionId) {

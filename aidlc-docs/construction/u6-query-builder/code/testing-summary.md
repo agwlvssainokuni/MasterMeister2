@@ -63,7 +63,7 @@ P1〜P10全10性質にjqwik `@Property`テストが対応済み（PBT-02〜PBT-0
 
 | テストクラス | 検証内容 | 件数 |
 |---|---|---|
-| `QueryBuilderControllerTest` | 6エンドポイント（`listSelectableConnections`/`listSelectableSchemas`/`listSelectableTables`/`listSelectableColumns`/`generate`/`parse`）それぞれについて認証済みユーザ成功系・未認証401を検証（本ユニットは管理者ロール制約を持たないため403系テストは対象外） | 12 |
+| `QueryBuilderControllerTest` | 5エンドポイント（`listSelectableSchemas`/`listSelectableTables`/`listSelectableColumns`/`generate`/`parse`）それぞれについて認証済みユーザ成功系・未認証401を検証（本ユニットは管理者ロール制約を持たないため403系テストは対象外、2026-07-15変更要求で`listSelectableConnections`関連2件を削除） | 10 |
 
 本ユニットはリポジトリ層が存在しない（内部DBエンティティを持たないため対象外、Step 8相当は
 N/A）ため、バックエンドexample-based合計はAPI層の12件のみ。`api-layer-summary.md`（Step 7）
@@ -107,4 +107,21 @@ N/A）ため、バックエンドexample-based合計はAPI層の12件のみ。`a
 `./gradlew compileJava`/`compileTestJava`はStep 2・Step 3のいずれの時点でも成功しており、
 全4ビジネスロジックテストクラスも独立して実行・成功することを都度確認済み
 （`business-logic-summary.md`参照）。Step 11-3着手時に発見した接続一覧API欠落（U5と同種の問題）は
-item 2-9/5-4/6-2/7-2として解決済みであり、本Step時点で未解決の課題として残っていない。
+item 2-9/5-4/6-2/7-2として解決済みであり、本Step時点で未解決の課題として残っていない
+（2026-07-15変更要求で当時のこの対応自体を撤回・削除した、下記参照）。
+
+---
+
+## 2026-07-15変更要求（接続コンテキストのグローバル化）による追加
+
+- `QueryBuilderController.java`/`QueryBuilderMetadataService.java`から`listSelectableConnections`
+  （Step 11-3で新設していたもの）を削除し、`QueryBuilderControllerTest.java`から対応2
+  テストケースを削除した。`QueryBuilderMetadataServiceTest.java`のコンストラクタ呼び出しも
+  `rdbmsConnectionRepository`引数削除に合わせて修正した。
+  `./gradlew test --tests "cherry.mastermeister.querybuilder.*"`で全件成功を確認した。
+- `QueryBuilderPage.tsx`をグローバル接続コンテキスト参照に改修し、`api.ts`/`types.ts`から
+  `listSelectableConnections`/`ConnectionSummary`/`RdbmsType`を削除した。
+  `QueryBuilderPage.test.tsx`を改訂（6件→11件、接続切替リセット・スキーマURL引き継ぎの
+  テストケースを追加）。
+- `npx vitest run`（フロントエンド全体）274/274件成功、`npx tsc -b`・`npx oxlint`・
+  `./gradlew build -x test`いずれもエラーなしを確認した。
