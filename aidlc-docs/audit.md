@@ -4996,3 +4996,19 @@ Part 2 Generation着手前に中断。
 
 ---
 
+## U3 Functional Design（変更要求）承認、Code Generation Part 1 Planning
+**Timestamp**: 2026-07-15T11:40:00Z
+**User Input**: "Continue to Next Stage"
+**AI Response**: U3 Functional Design（変更要求）を承認済みとして記録。Code Generationへ進み、
+`aidlc-docs/construction/plans/u3-rdbms-connection-schema-import-code-generation-plan-connection-
+schema.md`を作成した（7ステップ: `ConnectionAccessService`実装・単体テスト、Controller
+エンドポイント追加・`SecurityConfig`更新・単体テスト、フロントエンド`api.ts`追加・単体テスト、
+ドキュメント更新）。既存コードを調査し、`RdbmsConnectionController`/`RdbmsConnectionService`
+（パッケージ直下フラット構成）、`SecurityConfig`の`requestMatchers`順序依存（最初にマッチした
+ルール採用）、`masterdata.MasterDataQueryService.listAccessibleConnections`の既存実装
+（移設元の参考実装）を確認した上でプランを作成した。`masterdata`/`querybuilder`の重複コード
+削除はそれぞれのユニットのCode Generationで行うこととし、本プランのスコープ外と明記した。
+**Context**: U3 Code Generation（変更要求）Part 1 Planning。ユーザー承認待ち。
+
+---
+
