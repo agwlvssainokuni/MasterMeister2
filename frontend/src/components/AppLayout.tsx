@@ -15,14 +15,47 @@
  */
 
 import type { ReactNode } from 'react'
+import { useEffect, useRef } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { listAccessibleConnections } from '../features/rdbmsConnection/api'
 import { useAuth } from '../hooks/useAuth'
+import { useConnection } from '../hooks/useConnection'
 
 interface AppLayoutProps {
   children: ReactNode
 }
 
+const MASTER_DATA_DETAIL_PATTERN = /^\/master-data\/[^/]+\/[^/]+\/[^/]+$/
+
 export function AppLayout({ children }: AppLayoutProps) {
   const { currentUser, isAuthenticated, logout } = useAuth()
+  const { connectionId, connections, setConnectionId, setConnections, clearConnection } = useConnection()
+  const navigate = useNavigate()
+  const location = useLocation()
+  const hasMountedWithConnection = useRef(false)
+
+  useEffect(() => {
+    if (isAuthenticated && connections.length === 0) {
+      listAccessibleConnections().then(setConnections)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated])
+
+  useEffect(() => {
+    if (!hasMountedWithConnection.current) {
+      hasMountedWithConnection.current = true
+      return
+    }
+    if (MASTER_DATA_DETAIL_PATTERN.test(location.pathname)) {
+      navigate('/master-data')
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [connectionId])
+
+  const handleLogout = () => {
+    logout()
+    clearConnection()
+  }
 
   return (
     <div className="app-layout">
@@ -82,7 +115,26 @@ export function AppLayout({ children }: AppLayoutProps) {
             </a>
           )}
           {isAuthenticated && (
-            <button type="button" data-testid="app-layout-nav-logout" onClick={logout}>
+            <label>
+              対象接続
+              <select
+                data-testid="app-layout-connection-select"
+                value={connectionId ?? ''}
+                onChange={(e) => setConnectionId(Number(e.target.value))}
+              >
+                <option value="" disabled>
+                  選択してください
+                </option>
+                {connections.map((connection) => (
+                  <option key={connection.id} value={connection.id}>
+                    {connection.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+          {isAuthenticated && (
+            <button type="button" data-testid="app-layout-nav-logout" onClick={handleLogout}>
               ログアウト
             </button>
           )}

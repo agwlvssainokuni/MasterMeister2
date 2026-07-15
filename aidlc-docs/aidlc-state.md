@@ -86,9 +86,11 @@ opt → Application Design amendment) then re-enters CONSTRUCTION PHASE for the 
 - [x] Application Design (change request) — approved 2026-07-15T11:10:00Z
 - [x] U3 Functional Design amendment — approved 2026-07-15T11:40:00Z
 - [x] U3 Code Generation — approved 2026-07-15T11:55:00Z. U3 change-request work COMPLETE.
-- [x] U1 Functional Design amendment — generated 2026-07-15T12:05:00Z (frontend-components.md:
-  `connectionStore`, `useConnection`, `AppLayout` responsibilities; business-logic-model.md: flow
-  5 + P10/P11), awaiting user review. Code Generation not yet started.
+- [x] U1 Functional Design amendment — approved 2026-07-15T12:10:00Z
+- [x] U1 Code Generation — Part 1 Planning approved 2026-07-15T12:15:00Z; Part 2 Generation
+  complete 2026-07-15T12:35:00Z (`connectionStore`, `useConnection`, `AppLayout` amendment + 7
+  new/extended test files). PBT properties renumbered P13/P14 (collision with existing
+  DialectStrategy P10-P12). All tests green (271), tsc/oxlint clean. Awaiting user review.
 - [ ] U5 Functional Design amendment / Code Generation
 - [ ] U6 Functional Design amendment / Code Generation
 - [ ] U7 Functional Design amendment / Code Generation (largest change: schema param, history

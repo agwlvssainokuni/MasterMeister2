@@ -15,9 +15,17 @@
  */
 
 import { render, screen } from '@testing-library/react'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { listAccessibleConnections } from '../features/rdbmsConnection/api'
 import { useAuthStore } from '../store/authStore'
+import { useConnectionStore } from '../store/connectionStore'
 import { AppRouter } from './AppRouter'
+
+vi.mock('../features/rdbmsConnection/api', () => ({
+  listAccessibleConnections: vi.fn(),
+}))
+
+const listAccessibleConnectionsMock = vi.mocked(listAccessibleConnections)
 
 function renderAt(path: string) {
   window.history.pushState({}, '', path)
@@ -27,6 +35,9 @@ function renderAt(path: string) {
 describe('AppRouter', () => {
   beforeEach(() => {
     useAuthStore.setState({ currentUser: null, token: null, refreshToken: null })
+    useConnectionStore.setState({ connectionId: null, connections: [] })
+    listAccessibleConnectionsMock.mockReset()
+    listAccessibleConnectionsMock.mockResolvedValue([])
   })
 
   it('renders the login page without the AppLayout navigation on a public route', () => {

@@ -74,3 +74,28 @@ Step 11（フロントエンドコンポーネント生成）・Step 12（フロ
 | `src/features/auditLog/AuditLogPage.test.tsx` | 初期表示時の検索呼び出しと結果反映、フィルタ送信による再検索（2件、`./api`をモック化）。 |
 
 全12ファイル・39テスト（`npm run test`でグリーン確認済み）。`npm run build`（`tsc -b && vite build`）・`npm run lint`（oxlint）も併せてエラーなし。
+
+---
+
+## 2026-07-15変更要求（接続コンテキストのグローバル化）による追加
+
+| ファイル | 内容 |
+|---|---|
+| `store/connectionStore.ts`（新規） | `authStore`と同じzustand + `persist`（`sessionStorage`、キー`connection-storage`）パターン。`connectionId: number \| null`, `connections: ConnectionSummary[]`。`ConnectionSummary`型は`features/rdbmsConnection/types.ts`から再利用（重複定義しない） |
+| `hooks/useConnection.ts`（新規） | `connectionStore`の値と`setConnectionId`/`setConnections`/`clearConnection`を提供する薄いラッパーフック（`useAuth`と同型） |
+| `components/AppLayout.tsx`（変更） | マウント時、認証済みかつ`connections.length === 0`なら`listAccessibleConnections()`（U3所有API）を呼び出す。常設の接続選択`<select>`（`app-layout-connection-select`）を追加。ログアウト時は`logout()`に加え`clearConnection()`も呼ぶ（`handleLogout`）。接続切替時、現在のパスが`/master-data/:connectionId/:schema/:table`パターン（`MASTER_DATA_DETAIL_PATTERN`正規表現）に一致する場合のみ`/master-data`へ`navigate`する。初回マウント時は`useRef`でこの判定をスキップし、誤ってナビゲーションが発火しないようにしている |
+
+`data-testid`追加分: `app-layout-connection-select`
+
+## テストカバレッジ（2026-07-15変更要求）
+
+| テストファイル | 件数 | 検証内容 |
+|---|---|---|
+| `store/connectionStore.test.ts` | 6 | 初期状態、`setConnections`/`setConnectionId`/`clearConnection`、`sessionStorage`への永続化・クリア |
+| `hooks/useConnection.test.ts` | 3 | 初期状態、`setConnections`/`setConnectionId`の反映、`clearConnection` |
+| `components/AppLayout.test.tsx`（拡張、既存3件→10件） | 7件追加 | 未認証時にセレクタ非表示・API未呼び出し、マウント時の接続一覧取得・表示、選択変更時の`connectionStore`更新、詳細画面パターンでのナビゲーション発火、無関係な画面での非発火、初回マウント時の非発火（sessionStorage復元シナリオ）、ログアウト時の`connectionStore`クリア |
+
+上記9件（新規2ファイル・9件＋既存拡張7件）を追加。`routes/AppRouter.test.tsx`は
+`listAccessibleConnections`を新たにモック化する必要が生じたため対応した（新規テストケース
+追加なし、既存4件のまま）。`npx vitest run`で全271件成功、`npx tsc -b`・`npx oxlint`も
+エラーなしを確認済み（バックエンドとは独立にフロントエンド全体を再実行して確認）。

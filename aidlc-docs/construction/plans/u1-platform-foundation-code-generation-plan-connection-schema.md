@@ -7,23 +7,18 @@ U1になし（U3で完了済み）。
 
 ## ステップ
 
-- [ ] Step 1: `frontend/src/store/connectionStore.ts`を新規作成する。`authStore.ts`と同じ
-      zustand + `persist`（`sessionStorage`）パターン。`ConnectionSummary`型は
-      `features/rdbmsConnection/types.ts`からimportする（重複定義しない）。
-- [ ] Step 2: `frontend/src/hooks/useConnection.ts`を新規作成する（`useAuth.ts`と同じ形の
-      薄いラッパーフック）。
-- [ ] Step 3: `frontend/src/components/AppLayout.tsx`を改修する。マウント時、
-      `connections.length === 0`かつ認証済みなら`listAccessibleConnections()`
-      （`features/rdbmsConnection/api.ts`、U3で追加済み）を呼び出し`setConnections`する。
-      常設の接続選択`<select>`をナビゲーション内に追加する。接続選択変更時は
-      `setConnectionId`を呼び出す。ログアウト時は`connectionStore`もクリアする。
-- [ ] Step 4: `AppLayout.tsx`に、接続切替時のナビゲーション（現在のパスが
-      `/master-data/:connectionId/:schema/:table`パターンに一致する場合のみ`/master-data`へ
-      遷移）を実装する。初回マウント時（ページリロード等でsessionStorageから復元された場合）は
-      発火しないよう、`useRef`でスキップする。
-- [ ] Step 5: `AppLayout.test.tsx`にテストケースを追加する（接続一覧のマウント時取得・表示、
-      選択変更、詳細画面パターンでのナビゲーション発火・非発火、ログアウト時クリア）。
-- [ ] Step 6: `connectionStore.test.ts`・`useConnection.test.ts`を新規作成する
-      （`authStore`/`useAuth`の既存テストパターンに準拠）。
-- [ ] Step 7: Documentation Generation — `aidlc-docs/construction/u1-platform-foundation/code/`
-      配下の該当ドキュメントに本変更を追記する。
+- [x] Step 1: `frontend/src/store/connectionStore.ts`を新規作成した。
+- [x] Step 2: `frontend/src/hooks/useConnection.ts`を新規作成した。
+- [x] Step 3: `AppLayout.tsx`を改修した（マウント時取得、接続選択`<select>`、
+      `handleLogout`での`clearConnection`呼び出し）。
+- [x] Step 4: 接続切替時のナビゲーション（`MASTER_DATA_DETAIL_PATTERN`正規表現、
+      `useRef`による初回マウント時のスキップ）を実装した。
+- [x] Step 5: `AppLayout.test.tsx`に7件追加した（既存3件→10件）。
+      `AppRouter.test.tsx`も`listAccessibleConnections`のモック化に対応した。
+- [x] Step 6: `connectionStore.test.ts`（6件）・`useConnection.test.ts`（3件）を新規作成した。
+- [x] Step 7: `business-logic-summary.md`・`frontend-summary.md`・`testing-summary.md`に
+      本変更を追記した。PBT性質はP10・P11として計画したが、既存の`DialectStrategy`系
+      （Code Generation時新規識別）と衝突するためP13・P14に訂正した。
+
+全テスト実行確認: `npx vitest run`（フロントエンド全体）271/271件成功、`npx tsc -b`・
+`npx oxlint`ともエラーなし。
