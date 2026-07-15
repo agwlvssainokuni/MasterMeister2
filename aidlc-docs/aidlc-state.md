@@ -3,7 +3,7 @@
 ## Project Information
 - **Project Type**: Brownfield
 - **Start Date**: 2026-07-06T10:38:36Z
-- **Current Stage**: Change Request (connection context globalization + execution-time schema) — all 5 affected units (U3/U1/U5/U6/U7) Functional Design + Code Generation complete; Build and Test re-run is the only remaining step (see aidlc-docs/inception/requirements/requirements.md §9).
+- **Current Stage**: Change Request (connection context globalization + execution-time schema) — COMPLETE. All 5 affected units (U3/U1/U5/U6/U7) Functional Design + Code Generation done, Build and Test re-run passed (579/579 tests) 2026-07-16T08:30:00Z (see aidlc-docs/inception/requirements/requirements.md §9).
 
 ## Execution Plan Summary
 - **Plan Document**: aidlc-docs/inception/plans/execution-plan.md
@@ -118,4 +118,9 @@ opt → Application Design amendment) then re-enters CONSTRUCTION PHASE for the 
   test files rewritten. Frontend: 59 files, 276 tests, all green (`npx vitest run`); `tsc -b`
   and `npm run lint` clean. Documentation (`code/*.md`) updated for all 5 U7 summary files.
   U7 change-request work COMPLETE.
-- [ ] Build and Test (re-run, across all 5 affected units U1/U3/U5/U6/U7)
+- [x] Build and Test (re-run, across all 5 affected units U1/U3/U5/U6/U7) — re-executed
+  2026-07-16T08:30:00Z. Backend `./gradlew clean build`: success (~43.5s), 303 tests (59
+  classes), 0 failures. Frontend `npm run build`/`npm run lint`/`npx vitest run`: success,
+  276 tests (59 files), 0 failures, tsc/oxlint clean. `build-and-test-summary.md` updated
+  with re-run totals (579 tests total, +26 vs. the pre-change-request baseline of 553).
+  **CHANGE REQUEST COMPLETE.**

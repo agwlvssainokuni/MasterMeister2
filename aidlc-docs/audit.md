@@ -5433,3 +5433,21 @@ Build and Testの再実行のみとなった。
 
 ---
 
+## Build and Test Stage（変更要求: 接続コンテキストのグローバル化 + クエリ実行時スキーマ指定、再実行）
+**Timestamp**: 2026-07-16T08:30:00Z
+**User Input**: "Continue to Next Stage"
+**Build Status**: Success
+**Test Status**: Pass
+**AI Response**: バックエンド`./gradlew clean build`（約43.5秒、303テスト・59クラス・
+0失敗・0エラー）とフロントエンド`npm run build`/`npm run lint`/`npx vitest run`
+（276テスト・59ファイル・0失敗、`tsc -b`・oxlintともにエラー・警告なし）を実行し、
+いずれも成功を確認した。変更要求前のベースライン（553件）から+26件（バックエンド+4、
+フロントエンド+22）。`build-and-test-summary.md`を再実行結果で更新し、`aidlc-state.md`の
+Current Stageおよび変更要求セクションのBuild and Test行を完了としてマークした。
+**Files Generated**: なし（既存の`build-and-test/*.md`一式を更新、新規ファイルなし）
+**Context**: 接続コンテキストのグローバル化 + クエリ実行時スキーマ指定の変更要求は、本ステージの
+成功をもって完了（U3/U1/U5/U6/U7全5ユニットのFunctional Design改訂・Code Generation・
+Build and Test再実行がすべて完了）。
+
+---
+
