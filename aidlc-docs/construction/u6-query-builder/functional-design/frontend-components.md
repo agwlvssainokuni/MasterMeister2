@@ -24,14 +24,22 @@ QueryBuilderPage
 
 ### QueryBuilderPage
 
-- **状態**: `connectionId: number | null`, `schema: string | null`,
+- **状態**: `schema: string | null`,
   `activeTab: 'fromJoin' | 'select' | 'where' | 'groupBy' | 'having' | 'orderBy' | 'limitOffset'`,
   `model: QueryBuilderModel`, `generatedSql: GeneratedSql | null`,
-  `selectableSchemas: string[]`
-- **責務**: 接続・スキーマ選択、タブ切り替えコンテナ。`listSelectableSchemas`（フロー1手順1）を
-  呼び出し選択肢を取得する。子タブコンポーネントに`model`とその更新関数を配布し、
-  `GeneratedSqlPanel`に現在の`model`を渡す。URLクエリパラメータで`rawSql`を受け取った場合
-  （U7からの遷移、GEN-9）、`SqlReverseParsePanel`に自動的に解析させる（フロー3手順1）。
+  `selectableSchemas: string[]`（**2026-07-15変更要求**: `connectionId`はページ内stateではなく
+  U1の`useConnection()`からグローバル接続コンテキストとして取得する。ページ内に接続選択UIは
+  持たない）
+- **責務**: スキーマ選択、タブ切り替えコンテナ。`connectionId`（グローバルコンテキスト）が
+  変化するたびに`listSelectableSchemas`（フロー1手順1）を呼び出し選択肢を取得する。
+  子タブコンポーネントに`model`とその更新関数を配布し、`GeneratedSqlPanel`に現在の`model`を
+  渡す。URLクエリパラメータで`rawSql`を受け取った場合（U7からの遷移、GEN-9）、
+  `SqlReverseParsePanel`に自動的に解析させる（フロー3手順1）。**（2026-07-15変更要求）**
+  同様にURLクエリパラメータ`schema`を受け取った場合、初回のスキーマ選択肢取得後に
+  `schema`の初期値としてプリフィルする（画面内で上書き可能）。`connectionId`が
+  （初回マウント後に）変化した場合、選択中の`schema`・組み立て中の`model`・`generatedSql`を
+  リセットする（`stories.md` CHG-2、U1`business-logic-model.md`フロー5手順4でU1から
+  委譲された責務）。`connectionId`が`null`の場合は「接続が指定されていません。」を表示する。
 
 ### FromJoinTab
 
@@ -92,6 +100,9 @@ QueryBuilderPage
   `ValidationException`はエラーメッセージとして表示する。「保存」「実行」ボタンは配置するが、
   クリックハンドラは`onNavigateToSave`/`onNavigateToExecute`のprops経由とし、U6時点では
   未実装（U7のFunctional Design/Code Generationで実装を差し込む、`business-rules.md` 7）。
+  **（2026-07-15変更要求）** U7側の実装では、遷移先（`savedQuery`/`queryExecution`）URLに
+  `connectionId`（グローバルコンテキストの値）に加え、`QueryBuilderPage`で選択中の`schema`も
+  URLクエリパラメータとして引き継ぐ（GEN-8改訂AC）。
 
 ### SqlReverseParsePanel
 
