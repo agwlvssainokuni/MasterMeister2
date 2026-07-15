@@ -9,25 +9,16 @@ Application Design Q3=B）。
 
 ## ステップ
 
-- [ ] Step 1: バックエンド削除 — `MasterDataController.java`から`listAccessibleConnections`
-      メソッドと`GET /connections`エンドポイントを削除する。`MasterDataQueryService.java`から
-      `listAccessibleConnections`メソッドと、それに伴い不要になる`ConnectionSummary`のimportを
-      削除する（`rdbmsConnectionRepository`/`effectivePermissionResolver`フィールド自体は
-      他メソッドで使用中のため維持）。
-- [ ] Step 2: バックエンドテスト削除 — `MasterDataControllerTest.java`から
-      `listAccessibleConnectionsReturnsOkForAuthenticatedUser`・
-      `listAccessibleConnectionsReturnsUnauthorizedWhenNotAuthenticated`の2テストケースと、
-      不要になった`ConnectionSummary`/`RdbmsType`のimportを削除する。
-- [ ] Step 3: フロントエンド改修 — `SchemaTableListPage.tsx`を改修する。`connectionId`/
-      `connections`のページ内stateと接続選択`<select>`を削除し、`useConnection()`
-      （U1）から`connectionId`を取得する。`connectionId`が`null`の場合は
-      「接続が指定されていません。」を表示する。`connectionId`変化時に`schema`/`tables`を
-      リセットして`listAccessibleSchemas`を呼び出す`useEffect`を追加する。
-- [ ] Step 4: フロントエンドAPI/型削除 — `masterData/api.ts`から`listAccessibleConnections`を、
-      `masterData/types.ts`から`ConnectionSummary`/`RdbmsType`（他で未使用）を削除する。
-- [ ] Step 5: フロントエンドテスト改修 — `SchemaTableListPage.test.tsx`を改修する。
-      `listAccessibleConnections`のモックを削除し、`useConnectionStore.setState(...)`で
-      `connectionId`を直接設定する形に変更する。「`connectionId`が`null`の場合のメッセージ
-      表示」テストケースを追加する。
-- [ ] Step 6: Documentation Generation — `aidlc-docs/construction/u5-master-data-maintenance/
-      code/`配下の該当ドキュメントに本変更を追記する。
+- [x] Step 1: バックエンド削除 — `MasterDataController.java`・`MasterDataQueryService.java`から
+      `listAccessibleConnections`/`GET /connections`を削除した。
+- [x] Step 2: バックエンドテスト削除 — `MasterDataControllerTest.java`から2テストケースと
+      不要importを削除した。`./gradlew test --tests "cherry.mastermeister.masterdata.*"`成功。
+- [x] Step 3: フロントエンド改修 — `SchemaTableListPage.tsx`を`useConnection()`参照に改修した。
+- [x] Step 4: フロントエンドAPI/型削除 — `api.ts`/`types.ts`から該当項目を削除した。
+- [x] Step 5: フロントエンドテスト改修 — `SchemaTableListPage.test.tsx`を改訂した（4件）。
+- [x] Step 6: Documentation Generation — `api-layer-summary.md`・`frontend-summary.md`・
+      `testing-summary.md`を更新した。
+
+全テスト実行確認: `npx vitest run`（フロントエンド全体）271/271件成功、
+`./gradlew test --tests "cherry.mastermeister.masterdata.*"`成功、
+`./gradlew build -x test`・`npx tsc -b`・`npx oxlint`いずれもエラーなし。

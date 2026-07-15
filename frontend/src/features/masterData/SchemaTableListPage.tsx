@@ -18,34 +18,31 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { DataTable } from '../../components/DataTable'
 import type { DataTableColumn } from '../../components/DataTable'
-import { listAccessibleConnections, listAccessibleSchemas, listAccessibleTables } from './api'
-import type { ConnectionSummary, TableSummary } from './types'
+import { useConnection } from '../../hooks/useConnection'
+import { listAccessibleSchemas, listAccessibleTables } from './api'
+import type { TableSummary } from './types'
 
 export function SchemaTableListPage() {
   const navigate = useNavigate()
+  const { connectionId } = useConnection()
 
-  const [connections, setConnections] = useState<ConnectionSummary[]>([])
-  const [connectionId, setConnectionId] = useState<number | null>(null)
   const [schemas, setSchemas] = useState<string[]>([])
   const [schema, setSchema] = useState<string | null>(null)
   const [tables, setTables] = useState<TableSummary[]>([])
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    listAccessibleConnections().then(setConnections)
-  }, [])
-
-  const handleSelectConnection = async (selectedConnectionId: number) => {
-    setConnectionId(selectedConnectionId)
     setSchema(null)
     setTables([])
-    setLoading(true)
-    try {
-      setSchemas(await listAccessibleSchemas(selectedConnectionId))
-    } finally {
-      setLoading(false)
+    if (connectionId === null) {
+      setSchemas([])
+      return
     }
-  }
+    setLoading(true)
+    listAccessibleSchemas(connectionId)
+      .then(setSchemas)
+      .finally(() => setLoading(false))
+  }, [connectionId])
 
   const handleSelectSchema = async (selectedSchema: string) => {
     if (connectionId === null) {
@@ -86,48 +83,35 @@ export function SchemaTableListPage() {
   return (
     <div className="schema-table-list-page" data-testid="schema-table-list-page">
       <h1>マスタデータ</h1>
-      <label>
-        対象接続
-        <select
-          data-testid="schema-table-list-page-connection-select"
-          value={connectionId ?? ''}
-          onChange={(e) => handleSelectConnection(Number(e.target.value))}
-        >
-          <option value="" disabled>
-            選択してください
-          </option>
-          {connections.map((connection) => (
-            <option key={connection.id} value={connection.id}>
-              {connection.name}
-            </option>
-          ))}
-        </select>
-      </label>
-      {connectionId !== null && (
-        <label>
-          スキーマ
-          <select
-            data-testid="schema-table-list-page-schema-select"
-            value={schema ?? ''}
-            onChange={(e) => handleSelectSchema(e.target.value)}
-          >
-            <option value="" disabled>
-              選択してください
-            </option>
-            {schemas.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </select>
-        </label>
-      )}
-      {loading ? (
-        <p>読み込み中...</p>
+      {connectionId === null ? (
+        <p>接続が指定されていません。</p>
       ) : (
-        schema !== null && (
-          <DataTable columns={columns} rows={tables} getRowKey={(row) => `${row.schemaName}.${row.tableName}`} />
-        )
+        <>
+          <label>
+            スキーマ
+            <select
+              data-testid="schema-table-list-page-schema-select"
+              value={schema ?? ''}
+              onChange={(e) => handleSelectSchema(e.target.value)}
+            >
+              <option value="" disabled>
+                選択してください
+              </option>
+              {schemas.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          </label>
+          {loading ? (
+            <p>読み込み中...</p>
+          ) : (
+            schema !== null && (
+              <DataTable columns={columns} rows={tables} getRowKey={(row) => `${row.schemaName}.${row.tableName}`} />
+            )
+          )}
+        </>
       )}
     </div>
   )

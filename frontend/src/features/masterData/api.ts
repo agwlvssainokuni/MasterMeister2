@@ -16,18 +16,7 @@
 
 import { apiFetch } from '../../api/apiClient'
 import type { PageRequest } from '../../types/api'
-import type {
-  ConnectionSummary,
-  FilterCriteria,
-  MutationRequest,
-  MutationResult,
-  RecordListResult,
-  TableSummary,
-} from './types'
-
-export function listAccessibleConnections(): Promise<ConnectionSummary[]> {
-  return apiFetch<ConnectionSummary[]>('/api/master-data/connections')
-}
+import type { FilterCriteria, MutationRequest, MutationResult, RecordListResult, TableSummary } from './types'
 
 export function listAccessibleSchemas(connectionId: number): Promise<string[]> {
   return apiFetch<string[]>(`/api/master-data/${connectionId}/schemas`)

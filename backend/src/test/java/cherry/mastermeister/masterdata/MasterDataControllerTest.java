@@ -30,9 +30,7 @@ import java.util.Map;
 
 import cherry.mastermeister.common.PageRequest;
 import cherry.mastermeister.common.PageResult;
-import cherry.mastermeister.common.dialect.RdbmsType;
 import cherry.mastermeister.permission.Permission;
-import cherry.mastermeister.rdbmsconnection.ConnectionSummary;
 import cherry.mastermeister.schema.TableType;
 import cherry.mastermeister.security.JwtTokenValidator;
 import cherry.mastermeister.security.RestAccessDeniedHandler;
@@ -88,24 +86,6 @@ class MasterDataControllerTest {
     private static Authentication userAuthentication() {
         return new UsernamePasswordAuthenticationToken(
                 1L, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
-    }
-
-    @Test
-    void listAccessibleConnectionsReturnsOkForAuthenticatedUser() throws Exception {
-        when(masterDataQueryService.listAccessibleConnections(1L)).thenReturn(List.of(
-                new ConnectionSummary(42L, "conn1", RdbmsType.POSTGRESQL, "localhost", "db1")));
-
-        mockMvc.perform(get("/api/master-data/connections")
-                        .with(authentication(userAuthentication())))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].name").value("conn1"));
-    }
-
-    @Test
-    @WithAnonymousUser
-    void listAccessibleConnectionsReturnsUnauthorizedWhenNotAuthenticated() throws Exception {
-        mockMvc.perform(get("/api/master-data/connections"))
-                .andExpect(status().isUnauthorized());
     }
 
     @Test

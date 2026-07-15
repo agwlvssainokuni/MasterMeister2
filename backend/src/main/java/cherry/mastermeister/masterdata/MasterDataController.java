@@ -27,7 +27,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import cherry.mastermeister.common.PageRequest;
-import cherry.mastermeister.rdbmsconnection.ConnectionSummary;
 
 @RestController
 @RequestMapping("/api/master-data")
@@ -40,12 +39,6 @@ public class MasterDataController {
             MasterDataQueryService masterDataQueryService, MasterDataMutationService masterDataMutationService) {
         this.masterDataQueryService = masterDataQueryService;
         this.masterDataMutationService = masterDataMutationService;
-    }
-
-    @GetMapping("/connections")
-    public List<ConnectionSummary> listAccessibleConnections(Authentication authentication) {
-        Long userId = (Long) authentication.getPrincipal();
-        return masterDataQueryService.listAccessibleConnections(userId);
     }
 
     @GetMapping("/{connectionId}/schemas")

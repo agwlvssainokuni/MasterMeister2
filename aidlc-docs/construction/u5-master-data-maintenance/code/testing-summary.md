@@ -62,10 +62,11 @@ P1〜P10全10性質にjqwik `@Property`テストが対応済み（PBT-02〜PBT-0
 
 | テストクラス | 検証内容 | 件数 |
 |---|---|---|
-| `MasterDataControllerTest` | 5エンドポイント（`listAccessibleConnections`/`listAccessibleSchemas`/`listAccessibleTables`/`listRecords`/`applyChanges`）それぞれについて認証済みユーザ成功系・未認証401を検証（本ユニットは管理者ロール制約を持たないため403系テストは対象外） | 10 |
+| `MasterDataControllerTest` | 4エンドポイント（`listAccessibleSchemas`/`listAccessibleTables`/`listRecords`/`applyChanges`）それぞれについて認証済みユーザ成功系・未認証401を検証（本ユニットは管理者ロール制約を持たないため403系テストは対象外、2026-07-15変更要求で`listAccessibleConnections`関連2件を削除） | 8 |
 
 本ユニットはリポジトリ層が存在しない（内部DBエンティティを持たないため対象外、Step 8相当は
-N/A）ため、バックエンドexample-based合計はAPI層の10件のみ。`api-layer-summary.md`（Step 7）
+N/A）ため、バックエンドexample-based合計はAPI層の8件のみ（2026-07-15変更要求前は10件、
+`listAccessibleConnections`関連2件削除後の件数）。`api-layer-summary.md`（Step 7）
 作成時点の記載と、本Step時点の実テスト実行結果を突き合わせ、件数が正確であることを確認した。
 
 ### フロントエンド（Step 12、全てexample-based）
@@ -108,3 +109,16 @@ N/A）ため、バックエンドexample-based合計はAPI層の10件のみ。`a
 両ビジネスロジックテストクラスも独立して実行・成功することを都度確認済み
 （`business-logic-summary.md`参照）。上記「実行確認状況」に記載したbootRunプロセスとの
 H2ファイルロック競合は環境要因であり、コード上の既知課題ではない。
+
+---
+
+## 2026-07-15変更要求（接続コンテキストのグローバル化）による追加
+
+- `MasterDataController.java`/`MasterDataQueryService.java`から`listAccessibleConnections`を
+  削除し、`MasterDataControllerTest.java`から対応する2テストケースを削除した。
+  `./gradlew test --tests "cherry.mastermeister.masterdata.*"`で全件成功を確認した。
+- `SchemaTableListPage.tsx`をグローバル接続コンテキスト参照に改修し、`api.ts`/`types.ts`から
+  `listAccessibleConnections`/`ConnectionSummary`/`RdbmsType`を削除した。
+  `SchemaTableListPage.test.tsx`を改訂（4件のまま、内容変更）。
+- `npx vitest run`（フロントエンド全体）271/271件成功、`npx tsc -b`・`npx oxlint`・
+  `./gradlew build -x test`いずれもエラーなしを確認済み。

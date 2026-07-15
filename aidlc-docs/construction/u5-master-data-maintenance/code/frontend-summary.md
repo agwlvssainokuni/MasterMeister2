@@ -7,9 +7,9 @@ API・ルーティングの一覧。設計は`functional-design/frontend-compone
 
 | ファイル | 内容 |
 |---|---|
-| `types.ts` | `RdbmsType`/`ConnectionSummary`/`TableType`/`Permission`/`TableSummary`/`ColumnMetadata`/`RecordListResult`/`FilterMode`/`Operator`/`UiCondition`/`SortDirection`/`UiSort`/`FilterCriteria`/`RecordCreate`/`RecordUpdate`/`RecordDelete`/`MutationRequest`/`MutationResult`。`ConnectionSummary`/`RdbmsType`/`TableType`/`Permission`は`rdbmsConnection`/`schema`/`permission`各featureの型と同一shapeで本feature内にローカル再定義（他feature非依存の方針）。`PageResult`のみ共通`src/types/api.ts`からimport |
-| `api.ts` | `listAccessibleConnections()` → `GET /api/master-data/connections`、`listAccessibleSchemas(connectionId)` → `GET /api/master-data/{connectionId}/schemas`、`listAccessibleTables(connectionId, schema)` → `GET /api/master-data/{connectionId}/schemas/{schema}/tables`、`listRecords(connectionId, schema, table, criteria, page)` → `POST .../records:search`、`applyChanges(connectionId, schema, table, request)` → `POST .../records:apply`。U1の`apiClient`（`apiFetch`）を再利用 |
-| `SchemaTableListPage.tsx` | 接続選択→スキーマ選択→`DataTable`（U1既存）による`TableSummary`一覧表示の3段階UI。行選択で`useNavigate`により`/master-data/:connectionId/:schema/:table`へ遷移する |
+| `types.ts` | `TableType`/`Permission`/`TableSummary`/`ColumnMetadata`/`RecordListResult`/`FilterMode`/`Operator`/`UiCondition`/`SortDirection`/`UiSort`/`FilterCriteria`/`RecordCreate`/`RecordUpdate`/`RecordDelete`/`MutationRequest`/`MutationResult`。`TableType`/`Permission`は`schema`/`permission`各featureの型と同一shapeで本feature内にローカル再定義（他feature非依存の方針）。`PageResult`のみ共通`src/types/api.ts`からimport。**（2026-07-15変更要求）** `RdbmsType`/`ConnectionSummary`は削除した（`listAccessibleConnections`削除に伴い不要化） |
+| `api.ts` | `listAccessibleSchemas(connectionId)` → `GET /api/master-data/{connectionId}/schemas`、`listAccessibleTables(connectionId, schema)` → `GET /api/master-data/{connectionId}/schemas/{schema}/tables`、`listRecords(connectionId, schema, table, criteria, page)` → `POST .../records:search`、`applyChanges(connectionId, schema, table, request)` → `POST .../records:apply`。U1の`apiClient`（`apiFetch`）を再利用。**（2026-07-15変更要求）** `listAccessibleConnections()`（`GET /api/master-data/connections`）は削除した（`rdbmsConnection/api.ts`の`listAccessibleConnections()`＝`GET /api/rdbms-connections/accessible`へ一本化） |
+| `SchemaTableListPage.tsx` | **（2026-07-15変更要求により改訂）** 接続はU1の`useConnection()`（グローバル接続コンテキスト）から取得し、ページ内接続選択UIは持たない。`connectionId`が`null`の場合は「接続が指定されていません。」を表示する。`connectionId`変化時はスキーマ選択を`useEffect`でリセットして再取得する。以降はスキーマ選択→`DataTable`（U1既存）による`TableSummary`一覧表示。行選択で`useNavigate`により`/master-data/:connectionId/:schema/:table`へ遷移する |
 | `FilterPanel.tsx` | UI/RAWモードトグル。UIモードは`columns`のうち`effectivePermission`が`PERMISSION_ORDER`（NONE=0/READ=1/UPDATE=2）で`READ`以上のカラムのみを対象に`UiCondition`（カラム・`Operator`・値、`IS_NULL`/`IS_NOT_NULL`時は値欄非表示）と`UiSort`（カラム・昇順/降順）の追加・編集・削除フォームを提供する。RAWモードは`rawWhere`/`rawOrderBy`のテキスト入力欄を提供する。モード切り替えは排他的で`criteria.mode`を都度更新して`onChange`に通知する |
 | `RecordListPage.tsx` | `RecordListResult`を`DataTable`拡張版（`components/DataTable`本体は変更せず、`DataTableColumn.render`で列ごとに拡張）で表示する。`effectivePermission === 'UPDATE'`のセルのみ`<input>`を描画し、編集内容を主キー（`primaryKeySequence`が設定された列から構築した`primaryKeyValues`をソート済みキー文字列化した`pkKey`）で`pendingChanges.updates`へupsertする。テーブルの`canDelete`が`true`の場合のみ削除チェックボックス列を先頭に追加し`pendingChanges.deletes`へ反映、`canCreate`が`true`の場合のみ「新規行を追加」ボタンと別テーブルの新規行編集UIを表示し`pendingChanges.creates`へ反映する。`canCreate`/`canDelete`は`RecordListPage`のURLパラメータに含まれないため`listAccessibleTables(connectionId, schema)`から対象テーブル名で検索して取得する。フィルタ条件変更時はページを0へリセットして再取得し、「反映」ボタンで`applyChanges`を呼び出し、成功時は`pendingChanges`をクリアして`reloadKey`をインクリメントし一覧を再取得、失敗時は`pendingChanges`を保持する |
 | `MutationResultDialog.tsx` | `result`が`null`の間何も描画しない。成功時は作成/更新/削除件数、失敗時は`errorMessage`を表示するモーダル |
@@ -29,7 +29,7 @@ API・ルーティングの一覧。設計は`functional-design/frontend-compone
 
 ## data-testid一覧（新規分）
 
-`schema-table-list-page`, `schema-table-list-page-connection-select`,
+`schema-table-list-page`,
 `schema-table-list-page-schema-select`, `schema-table-list-page-row`, `filter-panel`,
 `filter-panel-ui-mode`, `filter-panel-raw-mode`, `filter-panel-raw-where`,
 `filter-panel-raw-order-by`, `record-list-page`, `record-list-page-delete-checkbox`,
@@ -65,7 +65,7 @@ API・ルーティングの一覧。設計は`functional-design/frontend-compone
 
 | テストファイル | 件数 | 検証内容 |
 |---|---|---|
-| `features/masterData/SchemaTableListPage.test.tsx` | 4 | 接続一覧表示とスキーマ選択前の非表示、接続選択時のスキーマロード、スキーマ選択時のテーブル一覧表示、行選択による`/master-data/:connectionId/:schema/:table`への遷移（`MemoryRouter`+`Routes`+遷移先スタブ`Route`） |
+| `features/masterData/SchemaTableListPage.test.tsx` | 4 | **（2026-07-15変更要求により改訂）** `connectionId`未設定時のメッセージ表示、グローバル接続コンテキストの`connectionId`に基づくスキーマロード、スキーマ選択時のテーブル一覧表示、行選択による`/master-data/:connectionId/:schema/:table`への遷移（`MemoryRouter`+`Routes`+遷移先スタブ`Route`、`useConnectionStore.setState`で`connectionId`を直接設定） |
 | `features/masterData/FilterPanel.test.tsx` | 8 | UI/RAWモード切替、`effectivePermission=NONE`列のプルダウン除外、`IS_NULL`演算子選択時の値入力欄非表示、条件の追加/削除、ソート追加時の既定ASC、RAWモードの`rawWhere`/`rawOrderBy`入力反映、読み取り可能列0件時の追加ボタン非活性、`onChange`呼び出し引数の直接検証 |
 | `features/masterData/RecordListPage.test.tsx` | 12 | 一覧描画、READ列の非編集表示とUPDATE列の`<input>`編集、`canDelete`/`canCreate`に応じた削除チェックボックス列・新規行UIの表示切替、セル編集→反映→`applyChanges`への`primaryKeyValues`/`changedValues`引数と成功時の`pendingChanges`クリア・再取得（`reloadKey`）、失敗時の`pendingChanges`保持、削除チェック→反映の`applyChanges`引数、新規行追加・編集→反映の`applyChanges`引数、ページングボタンの活性/非活性 |
 | `features/masterData/MutationResultDialog.test.tsx` | 3 | `result=null`時の非描画、成功時の件数表示、失敗時の`errorMessage`表示、閉じるボタンの`onClose`呼び出し |

@@ -88,9 +88,11 @@ opt → Application Design amendment) then re-enters CONSTRUCTION PHASE for the 
 - [x] U3 Code Generation — approved 2026-07-15T11:55:00Z. U3 change-request work COMPLETE.
 - [x] U1 Functional Design amendment — approved 2026-07-15T12:10:00Z
 - [x] U1 Code Generation — approved 2026-07-15T12:55:00Z. U1 change-request work COMPLETE.
-- [x] U5 Functional Design amendment — generated 2026-07-15T13:00:00Z (frontend-components.md:
-  `SchemaTableListPage` responsibilities, `/master-data` routing note), awaiting user review.
-  Code Generation not yet started.
+- [x] U5 Functional Design amendment — approved 2026-07-15T13:05:00Z
+- [x] U5 Code Generation — Part 1 Planning approved 2026-07-15T13:10:00Z; Part 2 Generation
+  complete 2026-07-15T13:25:00Z (backend: removed `listAccessibleConnections` +2 tests; frontend:
+  `SchemaTableListPage` now reads global connection context, removed dup API/types). All tests
+  green (271 frontend, backend masterdata green), build/tsc/oxlint clean. Awaiting user review.
 - [ ] U6 Functional Design amendment / Code Generation
 - [ ] U7 Functional Design amendment / Code Generation (largest change: schema param, history
   column/migration, new permission dependency)

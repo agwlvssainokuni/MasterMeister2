@@ -45,7 +45,6 @@ import cherry.mastermeister.common.exception.PermissionDeniedException;
 import cherry.mastermeister.permission.EffectivePermissionResolver;
 import cherry.mastermeister.permission.Permission;
 import cherry.mastermeister.rdbmsconnection.ConnectionPoolRegistry;
-import cherry.mastermeister.rdbmsconnection.ConnectionSummary;
 import cherry.mastermeister.rdbmsconnection.RdbmsConnection;
 import cherry.mastermeister.rdbmsconnection.RdbmsConnectionRepository;
 import cherry.mastermeister.schema.ColumnDetail;
@@ -82,13 +81,6 @@ public class MasterDataQueryService {
         this.auditLogService = auditLogService;
         this.queryTimeout = queryTimeout;
         this.largeRecordThreshold = largeRecordThreshold;
-    }
-
-    public List<ConnectionSummary> listAccessibleConnections(Long userId) {
-        return rdbmsConnectionRepository.findAll().stream()
-                .filter(c -> !effectivePermissionResolver.listAccessibleSchemas(userId, c.getId()).isEmpty())
-                .map(c -> new ConnectionSummary(c.getId(), c.getName(), c.getRdbmsType(), c.getHost(), c.getDatabaseName()))
-                .toList();
     }
 
     public List<String> listAccessibleSchemas(Long userId, Long connectionId) {

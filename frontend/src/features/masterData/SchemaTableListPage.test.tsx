@@ -17,21 +17,19 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { listAccessibleConnections, listAccessibleSchemas, listAccessibleTables } from './api'
+import { useConnectionStore } from '../../store/connectionStore'
+import { listAccessibleSchemas, listAccessibleTables } from './api'
 import { SchemaTableListPage } from './SchemaTableListPage'
-import type { ConnectionSummary, TableSummary } from './types'
+import type { TableSummary } from './types'
 
 vi.mock('./api', () => ({
-  listAccessibleConnections: vi.fn(),
   listAccessibleSchemas: vi.fn(),
   listAccessibleTables: vi.fn(),
 }))
 
-const listAccessibleConnectionsMock = vi.mocked(listAccessibleConnections)
 const listAccessibleSchemasMock = vi.mocked(listAccessibleSchemas)
 const listAccessibleTablesMock = vi.mocked(listAccessibleTables)
 
-const connection: ConnectionSummary = { id: 1, name: 'conn-1', rdbmsType: 'MYSQL', host: 'host1', databaseName: 'db1' }
 const table: TableSummary = {
   schemaName: 'public',
   tableName: 'employees',
@@ -58,35 +56,32 @@ function renderPage() {
 
 describe('SchemaTableListPage', () => {
   beforeEach(() => {
-    listAccessibleConnectionsMock.mockReset()
     listAccessibleSchemasMock.mockReset()
     listAccessibleTablesMock.mockReset()
-    listAccessibleConnectionsMock.mockResolvedValue([connection])
     listAccessibleSchemasMock.mockResolvedValue(['public'])
     listAccessibleTablesMock.mockResolvedValue([table])
+    useConnectionStore.setState({ connectionId: null, connections: [] })
   })
 
-  it('lists accessible connections and does not show the schema select until one is chosen', async () => {
+  it('shows a message when connectionId is not set in the global connection context', () => {
     renderPage()
 
-    await screen.findByText('conn-1')
-    expect(screen.queryByTestId('schema-table-list-page-schema-select')).not.toBeInTheDocument()
+    expect(screen.getByText('接続が指定されていません。')).toBeInTheDocument()
+    expect(listAccessibleSchemasMock).not.toHaveBeenCalled()
   })
 
-  it('loads schemas once a connection is selected', async () => {
-    renderPage()
-    await screen.findByText('conn-1')
+  it('loads schemas for the connectionId from the global connection context', async () => {
+    useConnectionStore.setState({ connectionId: 1, connections: [] })
 
-    fireEvent.change(screen.getByTestId('schema-table-list-page-connection-select'), { target: { value: '1' } })
+    renderPage()
 
     expect(await screen.findByTestId('schema-table-list-page-schema-select')).toBeInTheDocument()
     expect(listAccessibleSchemasMock).toHaveBeenCalledWith(1)
   })
 
   it('loads and displays tables once a schema is selected', async () => {
+    useConnectionStore.setState({ connectionId: 1, connections: [] })
     renderPage()
-    await screen.findByText('conn-1')
-    fireEvent.change(screen.getByTestId('schema-table-list-page-connection-select'), { target: { value: '1' } })
     await screen.findByTestId('schema-table-list-page-schema-select')
 
     fireEvent.change(screen.getByTestId('schema-table-list-page-schema-select'), { target: { value: 'public' } })
@@ -96,9 +91,8 @@ describe('SchemaTableListPage', () => {
   })
 
   it('navigates to the record list page when a table row is selected', async () => {
+    useConnectionStore.setState({ connectionId: 1, connections: [] })
     renderPage()
-    await screen.findByText('conn-1')
-    fireEvent.change(screen.getByTestId('schema-table-list-page-connection-select'), { target: { value: '1' } })
     await screen.findByTestId('schema-table-list-page-schema-select')
     fireEvent.change(screen.getByTestId('schema-table-list-page-schema-select'), { target: { value: 'public' } })
     await screen.findByText('employeesを開く')

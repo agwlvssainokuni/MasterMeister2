@@ -16,16 +16,6 @@
 
 import type { PageResult } from '../../types/api'
 
-export type RdbmsType = 'MYSQL' | 'MARIADB' | 'POSTGRESQL' | 'H2'
-
-export interface ConnectionSummary {
-  id: number
-  name: string
-  rdbmsType: RdbmsType
-  host: string
-  databaseName: string
-}
-
 export type TableType = 'TABLE' | 'VIEW'
 
 export type Permission = 'NONE' | 'READ' | 'UPDATE'
