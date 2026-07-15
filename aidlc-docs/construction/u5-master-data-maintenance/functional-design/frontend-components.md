@@ -24,12 +24,16 @@ RecordListPage（ProtectedRoute配下）
 ```
 
 ### SchemaTableListPage
-- **状態**: `connectionId: Long | null`, `schema: string | null`, `tables: TableSummary[]`,
-  `loading: boolean`
-- **責務**: 接続選択後`masterDataApi.listAccessibleSchemas(connectionId)`、スキーマ選択後
+- **状態**: `schema: string | null`, `tables: TableSummary[]`, `loading: boolean`
+  （**2026-07-15変更要求**: `connectionId`はページ内state ではなく、U1の`useConnection()`
+  フックからグローバル接続コンテキストとして取得する。ページ内に接続選択UIは持たない）
+- **責務**: `connectionId`（グローバルコンテキスト）が変化するたびに`schema`/`tables`を
+  リセットし、`masterDataApi.listAccessibleSchemas(connectionId)`を呼び出す。スキーマ選択後
   `masterDataApi.listAccessibleTables(connectionId, schema)`を呼び出し、結果を`DataTable`で
   表示する（`business-logic-model.md` フロー1、MVP-10 AC）。行選択で
-  `/master-data/:connectionId/:schema/:table`（`RecordListPage`）へ遷移する。
+  `/master-data/:connectionId/:schema/:table`（`RecordListPage`）へ遷移する。`connectionId`が
+  `null`（グローバル接続未選択）の場合は「接続が指定されていません。」を表示し、スキーマ取得を
+  行わない。
 
 ### FilterPanel
 - **Props**: `columns: ColumnMetadata[]`, `criteria: FilterCriteria`,
@@ -105,7 +109,7 @@ Q2の`RecordListResult`詳細化に準拠する。）
 
 | パス | コンポーネント | 認可 |
 |---|---|---|
-| `/master-data` | `SchemaTableListPage`（接続選択を内包） | `ProtectedRoute`（認証済みユーザ全員、管理者ロール制約なし） |
+| `/master-data` | `SchemaTableListPage`（**2026-07-15変更要求**: 接続はU1のグローバル接続コンテキストを参照、ページ内接続選択UIは廃止） | `ProtectedRoute`（認証済みユーザ全員、管理者ロール制約なし） |
 | `/master-data/:connectionId/:schema/:table` | `RecordListPage` | 同上 |
 
 `AppLayout`（U1）のナビゲーションに「マスタデータ」への遷移リンクを追加する（全ユーザに
