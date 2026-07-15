@@ -31,7 +31,10 @@ SavedQueryDetailPage
   を表示し、ナビゲーションから直接アクセスしても行き止まりにならない（CHG-3）。`connectionId`
   が確立していれば`listQueries(connectionId, includeRetired)`（フロー1手順2）を呼び出し、
   Public全件＋自分のPrivateを一覧表示する（`/saved-queries`）。「廃止済みも表示」トグルで
-  `includeRetired`を切り替える。各行に「実行」「詳細」リンクを配置する。
+  `includeRetired`を切り替える。各行に「実行」「詳細」リンクを配置する。**（2026-07-15
+  変更要求・訂正）** 「実行」リンクは`savedQueryId`のみを付与して`/query-execution`へ遷移する
+  （`connectionId`は付与しない——`QueryExecutionPage`が`getQuery(savedQueryId)`のレスポンスから
+  取得するため。下記`QueryExecutionPage`参照）。
 
 ### SavedQuerySaveForm
 
@@ -50,7 +53,12 @@ SavedQueryDetailPage
   作成者のみ「編集」「廃止」ボタンを活性化する（GEN-12）。編集モードでは`updateQuery`、
   廃止ボタン押下時は`ConfirmDialog`（U1既存）で確認後`retireQuery`を呼び出す
   （`business-rules.md` 1.3）。「実行」ボタンから`queryExecution/`の実行画面へ
-  `savedQueryId`付きで遷移する。
+  `savedQueryId`のみを付与して遷移する（**2026-07-15変更要求・訂正**: `connectionId`は
+  付与しない。本ページはグローバル接続コンテキストとは独立に、直接リンク経由でも
+  `savedQuery.connectionId`を表示・保持しているため、この値を確実に使う必要がある
+  ——グローバルコンテキストで代替すると、閲覧中の保存クエリの実際の接続と、たまたま現在
+  選択中のグローバル接続が一致しない場合に誤動作する。`QueryExecutionPage`側が
+  `getQuery(savedQueryId)`を再度呼び出し`connectionId`を取得する設計に統一した）。
 
 ### api.ts（`features/savedQuery/`）
 
@@ -76,12 +84,17 @@ QueryExecutionPage
 
 - **状態**: `sql: string`, `readOnly: boolean`（`savedQueryId`指定時true）,
   `detectedParams: DetectedParam[]`, `paramValues: Record<string, string>`,
-  `paging: PagingOption`, `result: QueryResult | null`。**（2026-07-15変更要求）**
-  `connectionId`はU1の`useConnection()`からグローバル接続コンテキストとして取得する
-  （URLクエリパラメータでの受け取りは廃止）。新規に`schemas: string[]`,
-  `schema: string | null`を保持する
-- **責務**: `connectionId`（グローバルコンテキスト）が`null`の場合は「接続が指定されていません。」
-  を表示する（CHG-3）。`connectionId`確立時、URLクエリパラメータで`rawSql`（手入力実行、
+  `paging: PagingOption`, `result: QueryResult | null`。**（2026-07-15変更要求、訂正版）**
+  `connectionId`の取得元は`savedQueryId`の有無で分岐する: `savedQueryId`指定時（保存クエリ
+  実行）は`getQuery(savedQueryId)`のレスポンス（`SavedQueryDetail.connectionId`、保存クエリに
+  固定された値）を用いる（グローバルコンテキストは使わない——バックエンドの
+  `executeSavedQuery`が渡された`connectionId`と保存クエリ自身の`connectionId`の一致を検証する
+  ため、`business-rules.md` 1.4、誤った接続での実行を防ぐ）。`savedQueryId`未指定時（手入力
+  SQL実行）はU1の`useConnection()`からグローバル接続コンテキストとして取得する（手入力SQLは
+  特定の接続に固定されないため）。いずれの場合もURLクエリパラメータでの`connectionId`受け取りは
+  廃止する。新規に`schemas: string[]`, `schema: string | null`を保持する
+- **責務**: 実効`connectionId`（上記のいずれか）が`null`の場合は「接続が指定されていません。」
+  を表示する（CHG-3）。確立時、URLクエリパラメータで`rawSql`（手入力実行、
   GEN-13）または`savedQueryId`（保存クエリ実行、GEN-11）のいずれかを受け取る
   （`/query-execution`）。`savedQueryId`指定時はSQL入力欄を読み取り専用にする
   （`business-rules.md` 1.4）。**（2026-07-15変更要求）** マウント時に
