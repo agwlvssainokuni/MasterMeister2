@@ -5218,3 +5218,31 @@ URLパラメータで引き継ぐことを追記した。
 
 ---
 
+## U6 Functional Design（変更要求）承認、Code Generation Part 1 Planning
+**Timestamp**: 2026-07-15T13:56:00Z
+**User Input**: "Continue to Next Stage"
+**AI Response**: U6 Functional Design（変更要求）を承認済みとして記録。Code Generationへ進む。
+バックエンド`QueryBuilderController`/`QueryBuilderMetadataService`にもU5と同様の重複
+`listSelectableConnections`（`GET /api/query-builder/connections`）が存在することを確認し、
+U5と同様に削除対象に含めることとした。
+**Context**: U6 Code Generation（変更要求）Part 1 Planning着手。
+
+---
+
+## U6 Code Generation（変更要求）Part 1 Planning
+**Timestamp**: 2026-07-15T13:58:00Z
+**AI Response**: `u6-query-builder-code-generation-plan-connection-schema.md`を作成した
+（8ステップ: バックエンド削除・テスト削除、フロントエンド改修×3（接続コンテキスト、
+モデルリセット、スキーマURL引き継ぎ）、API/型削除、テスト改修、ドキュメント更新）。
+**Context**: U6 Code Generation（変更要求）Part 1 Planning。ユーザー承認待ち。
+
+---
+
+## U6 Code Generation（変更要求）Part 1 Planning承認
+**Timestamp**: 2026-07-15T14:00:00Z
+**User Input**: "承認します。コミットしてから進めてください。"
+**AI Response**: U6 Code Generation（変更要求）計画を承認済みとして記録。Part 2 Generationへ進む。
+**Context**: U6 Code Generation（変更要求）Part 2 Generation着手。
+
+---
+
