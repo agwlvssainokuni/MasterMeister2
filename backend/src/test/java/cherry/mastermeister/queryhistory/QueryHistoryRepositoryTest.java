@@ -41,10 +41,12 @@ class QueryHistoryRepositoryTest {
     @Autowired
     private QueryHistoryRepository queryHistoryRepository;
 
+    private static final String SCHEMA = "S1";
+
     @Test
     void saveAssignsGeneratedId() {
         QueryHistory saved = queryHistoryRepository.saveAndFlush(new QueryHistory(
-                1L, 42L, "SELECT 1", Map.of(), 1, 10L, Instant.ofEpochSecond(1_700_000_000L),
+                1L, 42L, SCHEMA, "SELECT 1", Map.of(), 1, 10L, Instant.ofEpochSecond(1_700_000_000L),
                 null, null, null));
 
         assertThat(saved.getId()).isNotNull();
@@ -55,7 +57,7 @@ class QueryHistoryRepositoryTest {
     @Test
     void savedParamsRoundTripThroughJsonMapConverter() {
         QueryHistory saved = queryHistoryRepository.saveAndFlush(new QueryHistory(
-                1L, 42L, "SELECT :id", Map.of("id", 1), 1, 10L, Instant.ofEpochSecond(1_700_000_000L),
+                1L, 42L, SCHEMA, "SELECT :id", Map.of("id", 1), 1, 10L, Instant.ofEpochSecond(1_700_000_000L),
                 null, null, null));
         queryHistoryRepository.flush();
 
@@ -68,7 +70,7 @@ class QueryHistoryRepositoryTest {
     @Test
     void deleteRemovesEntity() {
         QueryHistory saved = queryHistoryRepository.saveAndFlush(new QueryHistory(
-                1L, 42L, "SELECT 1", Map.of(), 1, 10L, Instant.ofEpochSecond(1_700_000_000L),
+                1L, 42L, SCHEMA, "SELECT 1", Map.of(), 1, 10L, Instant.ofEpochSecond(1_700_000_000L),
                 null, null, null));
 
         queryHistoryRepository.delete(saved);
@@ -81,13 +83,13 @@ class QueryHistoryRepositoryTest {
     void searchReturnsAllRowsForConnectionDescendingByExecutedAtWhenOtherCriteriaAreNull() {
         queryHistoryRepository.deleteAll();
         queryHistoryRepository.saveAll(List.of(
-                new QueryHistory(1L, 42L, "SELECT a", Map.of(), 1, 10L,
+                new QueryHistory(1L, 42L, SCHEMA, "SELECT a", Map.of(), 1, 10L,
                         Instant.ofEpochSecond(1_700_000_000L), null, null, null),
-                new QueryHistory(2L, 42L, "SELECT b", Map.of(), 1, 10L,
+                new QueryHistory(2L, 42L, SCHEMA, "SELECT b", Map.of(), 1, 10L,
                         Instant.ofEpochSecond(1_700_000_200L), null, null, null),
-                new QueryHistory(3L, 42L, "SELECT c", Map.of(), 1, 10L,
+                new QueryHistory(3L, 42L, SCHEMA, "SELECT c", Map.of(), 1, 10L,
                         Instant.ofEpochSecond(1_700_000_100L), null, null, null),
-                new QueryHistory(1L, 99L, "SELECT d", Map.of(), 1, 10L,
+                new QueryHistory(1L, 99L, SCHEMA, "SELECT d", Map.of(), 1, 10L,
                         Instant.ofEpochSecond(1_700_000_300L), null, null, null)
         ));
 
@@ -101,13 +103,13 @@ class QueryHistoryRepositoryTest {
     @Test
     void searchFiltersByDateRangeUserIdAndSqlTextSearch() {
         queryHistoryRepository.deleteAll();
-        QueryHistory matching = new QueryHistory(1L, 42L, "SELECT match FROM tbl", Map.of(), 1, 10L,
+        QueryHistory matching = new QueryHistory(1L, 42L, SCHEMA, "SELECT match FROM tbl", Map.of(), 1, 10L,
                 Instant.ofEpochSecond(1_700_000_100L), null, null, null);
-        QueryHistory differentUser = new QueryHistory(2L, 42L, "SELECT match FROM tbl", Map.of(), 1, 10L,
+        QueryHistory differentUser = new QueryHistory(2L, 42L, SCHEMA, "SELECT match FROM tbl", Map.of(), 1, 10L,
                 Instant.ofEpochSecond(1_700_000_100L), null, null, null);
-        QueryHistory differentSql = new QueryHistory(1L, 42L, "SELECT other FROM tbl", Map.of(), 1, 10L,
+        QueryHistory differentSql = new QueryHistory(1L, 42L, SCHEMA, "SELECT other FROM tbl", Map.of(), 1, 10L,
                 Instant.ofEpochSecond(1_700_000_100L), null, null, null);
-        QueryHistory outOfRange = new QueryHistory(1L, 42L, "SELECT match FROM tbl", Map.of(), 1, 10L,
+        QueryHistory outOfRange = new QueryHistory(1L, 42L, SCHEMA, "SELECT match FROM tbl", Map.of(), 1, 10L,
                 Instant.ofEpochSecond(1_600_000_000L), null, null, null);
         queryHistoryRepository.saveAll(List.of(matching, differentUser, differentSql, outOfRange));
 
@@ -121,7 +123,7 @@ class QueryHistoryRepositoryTest {
     @Test
     void searchIsCaseInsensitiveOnSqlTextSearch() {
         queryHistoryRepository.deleteAll();
-        queryHistoryRepository.save(new QueryHistory(1L, 42L, "SELECT * FROM Employees", Map.of(), 1, 10L,
+        queryHistoryRepository.save(new QueryHistory(1L, 42L, SCHEMA, "SELECT * FROM Employees", Map.of(), 1, 10L,
                 Instant.ofEpochSecond(1_700_000_100L), null, null, null));
 
         Page<QueryHistory> page = queryHistoryRepository.search(
@@ -135,7 +137,7 @@ class QueryHistoryRepositoryTest {
     void searchRespectsPageSize() {
         queryHistoryRepository.deleteAll();
         for (int i = 0; i < 5; i++) {
-            queryHistoryRepository.save(new QueryHistory(1L, 42L, "SELECT " + i, Map.of(), 1, 10L,
+            queryHistoryRepository.save(new QueryHistory(1L, 42L, SCHEMA, "SELECT " + i, Map.of(), 1, 10L,
                     Instant.ofEpochSecond(1_700_000_000L + i), null, null, null));
         }
 

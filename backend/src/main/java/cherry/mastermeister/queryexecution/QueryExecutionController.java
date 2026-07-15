@@ -16,7 +16,10 @@
 
 package cherry.mastermeister.queryexecution;
 
+import java.util.List;
+
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -33,11 +36,18 @@ public class QueryExecutionController {
         this.queryExecutionService = queryExecutionService;
     }
 
+    @GetMapping("/{connectionId}/schemas")
+    public List<String> listAccessibleSchemas(@PathVariable Long connectionId, Authentication authentication) {
+        Long userId = (Long) authentication.getPrincipal();
+        return queryExecutionService.listAccessibleSchemas(userId, connectionId);
+    }
+
     @PostMapping("/adhoc")
     public QueryResult executeAdhocSql(@RequestBody AdhocExecutionRequest request, Authentication authentication) {
         Long userId = (Long) authentication.getPrincipal();
         return queryExecutionService.executeAdhocSql(
-                userId, request.connectionId(), request.sql(), request.params(), request.paging());
+                userId, request.connectionId(), request.schema(), request.sql(), request.params(),
+                request.paging());
     }
 
     @PostMapping("/saved/{savedQueryId}")
@@ -47,7 +57,8 @@ public class QueryExecutionController {
     ) {
         Long userId = (Long) authentication.getPrincipal();
         return queryExecutionService.executeSavedQuery(
-                userId, request.connectionId(), savedQueryId, request.params(), request.paging());
+                userId, request.connectionId(), request.schema(), savedQueryId, request.params(),
+                request.paging());
     }
 
 }

@@ -14,39 +14,70 @@
  * limitations under the License.
  */
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { ApiError } from '../../api/apiClient'
 import { DataTable } from '../../components/DataTable'
 import type { DataTableColumn } from '../../components/DataTable'
+import { useConnection } from '../../hooks/useConnection'
 import { getQuery } from '../savedQuery/api'
-import { detectParams, executeAdhocSql, executeSavedQuery } from './api'
+import { detectParams, executeAdhocSql, executeSavedQuery, listAccessibleSchemas } from './api'
 import type { PagingOption, QueryResult } from './types'
 
 const DEFAULT_PAGING: PagingOption = { enabled: false, page: 0, pageSize: 50 }
 
 export function QueryExecutionPage() {
   const [searchParams] = useSearchParams()
-  const connectionId = searchParams.get('connectionId') !== null ? Number(searchParams.get('connectionId')) : null
   const savedQueryId = searchParams.get('savedQueryId') !== null ? Number(searchParams.get('savedQueryId')) : null
   const readOnly = savedQueryId !== null
+  const { connectionId: globalConnectionId } = useConnection()
+
+  const [savedQueryConnectionId, setSavedQueryConnectionId] = useState<number | null>(null)
+  // savedQueryId指定時はSavedQueryDetail.connectionId（保存クエリに固定された値）を、
+  // 未指定時はグローバル接続コンテキストを用いる（frontend-components.md、2026-07-15変更要求・訂正）
+  const connectionId = savedQueryId !== null ? savedQueryConnectionId : globalConnectionId
 
   const [sql, setSql] = useState(searchParams.get('rawSql') ?? '')
+  const [schemas, setSchemas] = useState<string[]>([])
+  const [schema, setSchema] = useState<string | null>(null)
   const [paramValues, setParamValues] = useState<Record<string, string>>({})
   const [paging, setPaging] = useState<PagingOption>(DEFAULT_PAGING)
   const [result, setResult] = useState<QueryResult | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const hasInitializedConnection = useRef(false)
 
   useEffect(() => {
     if (savedQueryId !== null) {
-      getQuery(savedQueryId).then((detail) => setSql(detail.sql))
+      getQuery(savedQueryId).then((detail) => {
+        setSql(detail.sql)
+        setSavedQueryConnectionId(detail.connectionId)
+      })
     }
   }, [savedQueryId])
+
+  useEffect(() => {
+    if (connectionId === null) {
+      setSchemas([])
+      return
+    }
+    listAccessibleSchemas(connectionId).then(setSchemas)
+    if (!hasInitializedConnection.current) {
+      hasInitializedConnection.current = true
+      const urlSchema = searchParams.get('schema')
+      if (urlSchema !== null) {
+        setSchema(urlSchema)
+      }
+      return
+    }
+    setSchema(null)
+    // 接続切替時のスキーマ選択リセット（QueryBuilderPageと同じ流儀）
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [connectionId])
 
   const detectedParams = useMemo(() => detectParams(sql), [sql])
 
   const handleExecute = async (pagingOverride?: PagingOption) => {
-    if (connectionId === null) {
+    if (connectionId === null || schema === null) {
       return
     }
     const effectivePaging = pagingOverride ?? paging
@@ -57,8 +88,8 @@ export function QueryExecutionPage() {
       })
       const queryResult =
         savedQueryId !== null
-          ? await executeSavedQuery(connectionId, savedQueryId, params, effectivePaging)
-          : await executeAdhocSql(connectionId, sql, params, effectivePaging)
+          ? await executeSavedQuery(connectionId, schema, savedQueryId, params, effectivePaging)
+          : await executeAdhocSql(connectionId, schema, sql, params, effectivePaging)
       setResult(queryResult)
       setError(null)
     } catch (e) {
@@ -88,6 +119,24 @@ export function QueryExecutionPage() {
         <p>接続が指定されていません。</p>
       ) : (
         <>
+          <label>
+            スキーマ
+            <select
+              data-testid="query-execution-page-schema-select"
+              value={schema ?? ''}
+              onChange={(e) => setSchema(e.target.value)}
+            >
+              <option value="" disabled>
+                選択してください
+              </option>
+              {schemas.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          </label>
+
           <label>
             SQL
             <textarea
@@ -135,7 +184,12 @@ export function QueryExecutionPage() {
             </label>
           )}
 
-          <button type="button" data-testid="query-execution-page-execute-button" onClick={() => handleExecute()}>
+          <button
+            type="button"
+            data-testid="query-execution-page-execute-button"
+            disabled={schema === null}
+            onClick={() => handleExecute()}
+          >
             実行
           </button>
 

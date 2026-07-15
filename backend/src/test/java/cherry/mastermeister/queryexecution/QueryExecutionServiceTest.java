@@ -17,12 +17,15 @@
 package cherry.mastermeister.queryexecution;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -30,6 +33,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.Duration;
@@ -40,10 +46,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.sql.DataSource;
+
 import org.h2.tools.Server;
 
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Arbitrary;
+import net.jqwik.api.Example;
 import net.jqwik.api.ForAll;
 import net.jqwik.api.Property;
 import net.jqwik.api.Provide;
@@ -60,7 +69,10 @@ import cherry.mastermeister.audit.EventType;
 import cherry.mastermeister.audit.Result;
 import cherry.mastermeister.common.dialect.DialectStrategyFactory;
 import cherry.mastermeister.common.dialect.H2DialectStrategy;
+import cherry.mastermeister.common.dialect.MySqlDialectStrategy;
 import cherry.mastermeister.common.dialect.RdbmsType;
+import cherry.mastermeister.common.exception.PermissionDeniedException;
+import cherry.mastermeister.permission.EffectivePermissionResolver;
 import cherry.mastermeister.queryhistory.ExecutionRecord;
 import cherry.mastermeister.queryhistory.QueryHistoryService;
 import cherry.mastermeister.rdbmsconnection.ConnectionPoolRegistry;
@@ -72,7 +84,7 @@ import cherry.mastermeister.savedquery.SavedQueryService;
 import cherry.mastermeister.savedquery.Visibility;
 
 /**
- * P6〜P8（business-logic-model.md）を検証するプロパティテスト。
+ * P6〜P8・P11（business-logic-model.md）を検証するプロパティテスト。
  */
 @JqwikSpringSupport
 @DataJpaTest
@@ -126,7 +138,7 @@ class QueryExecutionServiceTest {
         QueryExecutionService service = newService(dbName, 1000);
 
         QueryResult result = service.executeAdhocSql(
-                1L, CONNECTION_ID, "SELECT * FROM " + TEST_SCHEMA + ".T1", Map.of(),
+                1L, CONNECTION_ID, TEST_SCHEMA, "SELECT * FROM " + TEST_SCHEMA + ".T1", Map.of(),
                 new PagingOption(true, 0, pageSize));
 
         assertThat(result.rows().size()).isLessThanOrEqualTo(pageSize);
@@ -143,7 +155,7 @@ class QueryExecutionServiceTest {
         QueryExecutionService service = newService(dbName, maxResultRows);
 
         QueryResult result = service.executeAdhocSql(
-                1L, CONNECTION_ID, "SELECT * FROM " + TEST_SCHEMA + ".T1", Map.of(),
+                1L, CONNECTION_ID, TEST_SCHEMA, "SELECT * FROM " + TEST_SCHEMA + ".T1", Map.of(),
                 new PagingOption(false, 0, 0));
 
         assertThat(result.rows().size()).isLessThanOrEqualTo(maxResultRows);
@@ -160,7 +172,7 @@ class QueryExecutionServiceTest {
         AuditLogService auditLogService = mock(AuditLogService.class);
         QueryExecutionService service = newService(dbName, 1000, queryHistoryService, auditLogService);
 
-        service.executeAdhocSql(1L, CONNECTION_ID, "SELECT * FROM " + TEST_SCHEMA + ".T1", Map.of(),
+        service.executeAdhocSql(1L, CONNECTION_ID, TEST_SCHEMA, "SELECT * FROM " + TEST_SCHEMA + ".T1", Map.of(),
                 new PagingOption(false, 0, 0));
 
         verify(queryHistoryService, times(1)).recordExecution(any());
@@ -188,7 +200,8 @@ class QueryExecutionServiceTest {
                 dbName, 1000, new SavedQueryService(savedQueryRepository), queryHistoryService,
                 mock(AuditLogService.class));
 
-        service.executeSavedQuery(1L, CONNECTION_ID, saved.getId(), Map.of(), new PagingOption(false, 0, 0));
+        service.executeSavedQuery(
+                1L, CONNECTION_ID, TEST_SCHEMA, saved.getId(), Map.of(), new PagingOption(false, 0, 0));
 
         SavedQuery reloaded = savedQueryRepository.findById(saved.getId()).orElseThrow();
         assertThat(reloaded.getExecutionCount()).isEqualTo(before + 1);
@@ -249,6 +262,16 @@ class QueryExecutionServiceTest {
             String dbName, int maxResultRows, SavedQueryService savedQueryService,
             QueryHistoryService queryHistoryService, AuditLogService auditLogService
     ) {
+        return newService(
+                dbName, maxResultRows, savedQueryService, queryHistoryService, auditLogService,
+                accessibleSchemasResolver(List.of(TEST_SCHEMA)));
+    }
+
+    private QueryExecutionService newService(
+            String dbName, int maxResultRows, SavedQueryService savedQueryService,
+            QueryHistoryService queryHistoryService, AuditLogService auditLogService,
+            EffectivePermissionResolver effectivePermissionResolver
+    ) {
         RdbmsConnectionRepository connectionRepository = mock(RdbmsConnectionRepository.class);
         Instant now = Instant.now();
         when(connectionRepository.findById(CONNECTION_ID)).thenReturn(Optional.of(new RdbmsConnection(
@@ -258,8 +281,94 @@ class QueryExecutionServiceTest {
 
         return new QueryExecutionService(
                 savedQueryService, validator, new SqlParamDetector(), new PagingSqlBuilder(), connectionRepository,
-                dialectStrategyFactory, registry, queryHistoryService, auditLogService,
+                dialectStrategyFactory, registry, queryHistoryService, auditLogService, effectivePermissionResolver,
                 Duration.ofSeconds(30), maxResultRows);
+    }
+
+    private EffectivePermissionResolver accessibleSchemasResolver(List<String> accessibleSchemas) {
+        EffectivePermissionResolver resolver = mock(EffectivePermissionResolver.class);
+        when(resolver.listAccessibleSchemas(1L, CONNECTION_ID)).thenReturn(accessibleSchemas);
+        return resolver;
+    }
+
+    // P11: 指定schemaがlistAccessibleSchemasの許可リストに含まれない場合、常にPermissionDeniedExceptionと
+    //      なり、対象RDBMSへの実行・履歴記録は一切発生しない。
+    @Example
+    void executeAdhocSqlRejectsInaccessibleSchemaWithoutRecordingHistory() throws Exception {
+        String dbName = "QUERYEXECP11" + DB_COUNTER.incrementAndGet();
+        seedRows(dbName, 0);
+
+        QueryHistoryService queryHistoryService = mock(QueryHistoryService.class);
+        AuditLogService auditLogService = mock(AuditLogService.class);
+        QueryExecutionService service = newService(
+                dbName, 1000, new SavedQueryService(savedQueryRepository), queryHistoryService, auditLogService,
+                accessibleSchemasResolver(List.of("OTHERSCHEMA")));
+
+        assertThatThrownBy(() -> service.executeAdhocSql(
+                1L, CONNECTION_ID, TEST_SCHEMA, "SELECT * FROM " + TEST_SCHEMA + ".T1", Map.of(),
+                new PagingOption(false, 0, 0)))
+                .isInstanceOf(PermissionDeniedException.class);
+
+        verifyNoInteractions(queryHistoryService, auditLogService);
+    }
+
+    // SCHEMA_BASED方言（H2）では、実行直前に発行されるSET search_pathにより、スキーマ非修飾の
+    // テーブル参照が指定スキーマに対して解決される（同一コネクション上でSETとクエリが実行される証跡）。
+    @Example
+    void executeAdhocSqlAppliesSearchPathSoUnqualifiedTableNameResolvesToRequestedSchema() throws Exception {
+        String dbName = "QUERYEXECSP" + DB_COUNTER.incrementAndGet();
+        seedRows(dbName, 3);
+        QueryExecutionService service = newService(dbName, 1000);
+
+        QueryResult result = service.executeAdhocSql(
+                1L, CONNECTION_ID, TEST_SCHEMA, "SELECT * FROM T1", Map.of(),
+                new PagingOption(false, 0, 0));
+
+        assertThat(result.rows()).hasSize(3);
+    }
+
+    // CATALOG_BASED方言（MySQL/MariaDB）では、スキーマが接続のdatabaseNameで既に固定されているため
+    // SET search_pathは発行されない（Connection.createStatementが一切呼ばれない）。
+    @Example
+    void executeAdhocSqlNeverIssuesSetSearchPathForCatalogBasedDialect() throws Exception {
+        Connection mockConnection = mock(Connection.class);
+        DataSource mockDataSource = mock(DataSource.class);
+        when(mockDataSource.getConnection()).thenReturn(mockConnection);
+
+        PreparedStatement mockStatement = mock(PreparedStatement.class);
+        ResultSet mockResultSet = mock(ResultSet.class);
+        ResultSetMetaData mockMetaData = mock(ResultSetMetaData.class);
+        when(mockMetaData.getColumnCount()).thenReturn(0);
+        when(mockResultSet.getMetaData()).thenReturn(mockMetaData);
+        when(mockResultSet.next()).thenReturn(false);
+        when(mockStatement.executeQuery()).thenReturn(mockResultSet);
+        when(mockConnection.prepareStatement(anyString())).thenReturn(mockStatement);
+
+        RdbmsConnectionRepository connectionRepository = mock(RdbmsConnectionRepository.class);
+        Instant now = Instant.now();
+        when(connectionRepository.findById(CONNECTION_ID)).thenReturn(Optional.of(new RdbmsConnection(
+                "test", RdbmsType.MYSQL, "localhost", 3306, "catalogdb", "sa", "sa", null, now, now)));
+
+        DialectStrategyFactory mysqlDialectStrategyFactory =
+                new DialectStrategyFactory(List.of(new MySqlDialectStrategy()));
+        ConnectionPoolRegistry registry = new ConnectionPoolRegistry(
+                connectionRepository, mysqlDialectStrategyFactory, 1, 0, Duration.ofSeconds(5)) {
+            @Override
+            public DataSource getDataSource(Long connectionId) {
+                return mockDataSource;
+            }
+        };
+
+        QueryExecutionService service = new QueryExecutionService(
+                new SavedQueryService(savedQueryRepository), validator, new SqlParamDetector(),
+                new PagingSqlBuilder(), connectionRepository, mysqlDialectStrategyFactory, registry,
+                mock(QueryHistoryService.class), mock(AuditLogService.class),
+                accessibleSchemasResolver(List.of("catalogdb")), Duration.ofSeconds(30), 1000);
+
+        service.executeAdhocSql(
+                1L, CONNECTION_ID, "catalogdb", "SELECT * FROM T1", Map.of(), new PagingOption(false, 0, 0));
+
+        verify(mockConnection, never()).createStatement();
     }
 
 }

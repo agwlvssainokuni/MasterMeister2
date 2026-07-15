@@ -20,6 +20,7 @@ import java.util.Map;
 
 public record AdhocExecutionRequest(
         Long connectionId,
+        String schema,
         String sql,
         Map<String, Object> params,
         PagingOption paging

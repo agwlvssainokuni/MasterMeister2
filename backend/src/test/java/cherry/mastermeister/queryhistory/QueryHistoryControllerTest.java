@@ -85,7 +85,7 @@ class QueryHistoryControllerTest {
     void listHistoryReturnsOkForAuthenticatedUser() throws Exception {
         Instant now = Instant.now();
         HistoryEntry entry = new HistoryEntry(
-                100L, 1L, 42L, "SELECT 1", java.util.Map.of(), 1, 10L, now, null, null, null, false, false);
+                100L, 1L, 42L, "S1", "SELECT 1", java.util.Map.of(), 1, 10L, now, null, null, null, false, false);
         when(queryHistoryService.listHistory(eq(1L), eq(42L), any(HistoryFilterCriteria.class), any(PageRequest.class)))
                 .thenReturn(new PageResult<>(List.of(entry), 1, 0, 50));
 

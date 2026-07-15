@@ -25,6 +25,7 @@ import java.util.Map;
  */
 public record SavedExecutionRequest(
         Long connectionId,
+        String schema,
         Map<String, Object> params,
         PagingOption paging
 ) {

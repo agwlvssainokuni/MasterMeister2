@@ -22,6 +22,7 @@ import java.util.Map;
 public record ExecutionRecord(
         Long userId,
         Long connectionId,
+        String schema,
         String sql,
         Map<String, Object> params,
         int resultCount,

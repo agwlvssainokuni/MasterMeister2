@@ -56,6 +56,9 @@ public class QueryHistory {
     @Column(nullable = false)
     private Long connectionId;
 
+    @Column(nullable = false)
+    private String schema;
+
     @Lob
     @Column(nullable = false)
     private String sql;
@@ -85,6 +88,7 @@ public class QueryHistory {
     public QueryHistory(
             Long userId,
             Long connectionId,
+            String schema,
             String sql,
             Map<String, Object> params,
             int resultCount,
@@ -96,6 +100,7 @@ public class QueryHistory {
     ) {
         this.userId = userId;
         this.connectionId = connectionId;
+        this.schema = schema;
         this.sql = sql;
         this.params = params;
         this.resultCount = resultCount;
@@ -116,6 +121,10 @@ public class QueryHistory {
 
     public Long getConnectionId() {
         return connectionId;
+    }
+
+    public String getSchema() {
+        return schema;
     }
 
     public String getSql() {

@@ -28,6 +28,7 @@ public record HistoryEntry(
         Long id,
         Long userId,
         Long connectionId,
+        String schema,
         String sql,
         Map<String, Object> params,
         int resultCount,

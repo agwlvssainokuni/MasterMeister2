@@ -118,3 +118,52 @@ U6時点では未実装だった`GeneratedSqlPanel`の`onNavigateToSave`/`onNavi
 2件）がU7で新規追加・変更したフロントエンドテスト。U1〜U6既存分と合わせ、フロントエンド全体は
 **57ファイル・254件、全テスト成功**（`npx vitest run`）。`tsc -b`（型チェック）・`npm run lint`
 （oxlint）もエラー・警告なしで完了している（詳細は`testing-summary.md`参照）。
+
+## 変更要求（2026-07-15）: 接続コンテキストのグローバル化 + クエリ実行時スキーマ指定
+
+上記「実装時判断事項」で記録した「`connectionId`は3feature全てURLクエリパラメータ経由」という
+方針を撤回し、U1で新設されたグローバル接続コンテキスト（`store/connectionStore.ts`・
+`hooks/useConnection.ts`）に統一した。
+
+- **`SavedQueryListPage.tsx`/`SavedQuerySaveForm.tsx`/`QueryHistoryListPage.tsx`**:
+  `connectionId`を`useConnection()`から取得するよう変更し、URLクエリパラメータでの受け取りを
+  廃止した。
+- **`SavedQueryListPage.tsx`の「実行」リンク・`SavedQueryDetailPage.tsx`の「実行」ボタン**:
+  遷移先URLから`connectionId`を削除し、`savedQueryId`のみを付与するよう変更した
+  （`QueryExecutionPage`が`getQuery(savedQueryId)`から`connectionId`を再取得するため）。
+- **`QueryExecutionPage.tsx`**: `connectionId`の取得元を`savedQueryId`の有無で分岐する設計に
+  変更した——`savedQueryId`指定時（保存クエリ実行）は`getQuery(savedQueryId)`のレスポンス
+  （`SavedQueryDetail.connectionId`、保存クエリに固定された値）を、未指定時（手入力SQL実行）は
+  `useConnection()`のグローバル接続コンテキストを用いる。**設計時の見落とし訂正**:
+  Functional Design当初案は`savedQueryId`指定時も一律グローバルコンテキストを使う設計だったが、
+  バックエンドの`executeSavedQuery`が渡された`connectionId`と保存クエリ自身の`connectionId`の
+  一致を検証するため、ブックマーク等でグローバル接続と異なる状態でアクセスすると誤動作する
+  リスクに気付き、上記の分岐方式に訂正した（詳細は`aidlc-docs/audit.md`参照）。新規に
+  `schemas: string[]`・`schema: string | null`のstateと、常設のスキーマ選択`<select>`
+  （マウント時に`listAccessibleSchemas(connectionId)`で選択肢取得、URLクエリパラメータ`schema`が
+  あれば初期値としてプリフィル、選択肢1件でも自動選択しない、`QueryBuilderPage`と同じ流儀）を
+  追加した。`schema`が未選択の間は実行ボタンを非活性にする。`executeAdhocSql`/
+  `executeSavedQuery`呼び出しに`schema`を追加した。
+- **`QueryHistoryListPage.tsx`**: スキーマ列を追加した。「再実行」「ビルダーで編集」の遷移先URLに
+  `schema`（`HistoryEntry.schema`）を付与するよう変更した（「保存」は`schema`を引き継がない）。
+  いずれのボタンも`connectionId`は付与しない。
+- **`queryExecution/api.ts`**: `listAccessibleSchemas(connectionId)`を新規追加し、
+  `executeAdhocSql`/`executeSavedQuery`に`schema`引数を追加した。
+- **`queryHistory/types.ts`**: `HistoryEntry`に`schema: string`フィールドを追加した。
+
+### data-testid追加分
+
+`query-execution-page-schema-select`
+
+### テストへの影響
+
+`SavedQueryListPage.test.tsx`・`SavedQuerySaveForm.test.tsx`・`QueryHistoryListPage.test.tsx`は
+`useConnectionStore.setState(...)`でグローバル接続状態を直接操作する方式に改訂した
+（`SchemaTableListPage.test.tsx`・`AppLayout.test.tsx`と同じパターン）。`SavedQueryListPage.
+test.tsx`・`SavedQueryDetailPage.test.tsx`・`QueryHistoryListPage.test.tsx`の遷移系テストは、
+遷移先のスタブコンポーネントで`useSearchParams()`を読み取りURLクエリパラメータの内容を
+アサートする方式（`connectionId`が付与されないこと・`schema`が正しく引き継がれることの検証）に
+変更した。`QueryExecutionPage.test.tsx`は6件から9件に拡張し、スキーマ選択・
+グローバル/保存クエリ両方の`connectionId`解決経路（特にグローバル接続と保存クエリの接続が
+食い違うケース）を新規カバーした。フロントエンド全体は**59ファイル・276件、全テスト成功**
+（`npx vitest run`）、`tsc -b`・`npm run lint`（oxlint）もエラー・警告なし。

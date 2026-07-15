@@ -17,13 +17,14 @@
 import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { ApiError } from '../../api/apiClient'
+import { useConnection } from '../../hooks/useConnection'
 import { saveQuery } from './api'
 import type { Visibility } from './types'
 
 export function SavedQuerySaveForm() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const connectionId = searchParams.get('connectionId') !== null ? Number(searchParams.get('connectionId')) : null
+  const { connectionId } = useConnection()
 
   const [name, setName] = useState('')
   const [sql, setSql] = useState(searchParams.get('rawSql') ?? '')

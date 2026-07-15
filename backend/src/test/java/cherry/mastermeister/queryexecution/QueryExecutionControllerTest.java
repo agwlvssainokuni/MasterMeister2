@@ -21,6 +21,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -85,7 +86,7 @@ class QueryExecutionControllerTest {
     @Test
     void executeAdhocSqlReturnsOkForAuthenticatedUser() throws Exception {
         when(queryExecutionService.executeAdhocSql(
-                eq(1L), eq(42L), eq("SELECT 1"), eq(Map.of()), any(PagingOption.class)))
+                eq(1L), eq(42L), eq("S1"), eq("SELECT 1"), eq(Map.of()), any(PagingOption.class)))
                 .thenReturn(new QueryResult(
                         List.of(new ResultColumn("c1", "INTEGER")), List.of(List.of(1)), 1, false));
 
@@ -93,7 +94,7 @@ class QueryExecutionControllerTest {
                         .with(authentication(userAuthentication()))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                                {"connectionId":42,"sql":"SELECT 1","params":{},
+                                {"connectionId":42,"schema":"S1","sql":"SELECT 1","params":{},
                                  "paging":{"enabled":false,"page":0,"pageSize":0}}
                                 """))
                 .andExpect(status().isOk())
@@ -106,7 +107,7 @@ class QueryExecutionControllerTest {
         mockMvc.perform(post("/api/query-execution/adhoc")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                                {"connectionId":42,"sql":"SELECT 1","params":{},
+                                {"connectionId":42,"schema":"S1","sql":"SELECT 1","params":{},
                                  "paging":{"enabled":false,"page":0,"pageSize":0}}
                                 """))
                 .andExpect(status().isUnauthorized());
@@ -115,14 +116,14 @@ class QueryExecutionControllerTest {
     @Test
     void executeAdhocSqlReturnsBadRequestOnReadOnlyViolation() throws Exception {
         when(queryExecutionService.executeAdhocSql(
-                eq(1L), eq(42L), eq("DELETE FROM tbl"), eq(Map.of()), any(PagingOption.class)))
+                eq(1L), eq(42L), eq("S1"), eq("DELETE FROM tbl"), eq(Map.of()), any(PagingOption.class)))
                 .thenThrow(new ValidationException("読み取り専用SQL（SELECT文）1件のみ実行できます"));
 
         mockMvc.perform(post("/api/query-execution/adhoc")
                         .with(authentication(userAuthentication()))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                                {"connectionId":42,"sql":"DELETE FROM tbl","params":{},
+                                {"connectionId":42,"schema":"S1","sql":"DELETE FROM tbl","params":{},
                                  "paging":{"enabled":false,"page":0,"pageSize":0}}
                                 """))
                 .andExpect(status().isBadRequest())
@@ -131,7 +132,8 @@ class QueryExecutionControllerTest {
 
     @Test
     void executeSavedQueryReturnsOkForAuthenticatedUser() throws Exception {
-        when(queryExecutionService.executeSavedQuery(eq(1L), eq(42L), eq(10L), eq(Map.of()), any(PagingOption.class)))
+        when(queryExecutionService.executeSavedQuery(
+                eq(1L), eq(42L), eq("S1"), eq(10L), eq(Map.of()), any(PagingOption.class)))
                 .thenReturn(new QueryResult(
                         List.of(new ResultColumn("c1", "INTEGER")), List.of(List.of(1)), 1, false));
 
@@ -139,7 +141,7 @@ class QueryExecutionControllerTest {
                         .with(authentication(userAuthentication()))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                                {"connectionId":42,"params":{},
+                                {"connectionId":42,"schema":"S1","params":{},
                                  "paging":{"enabled":false,"page":0,"pageSize":0}}
                                 """))
                 .andExpect(status().isOk())
@@ -152,9 +154,27 @@ class QueryExecutionControllerTest {
         mockMvc.perform(post("/api/query-execution/saved/{savedQueryId}", 10L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                                {"connectionId":42,"params":{},
+                                {"connectionId":42,"schema":"S1","params":{},
                                  "paging":{"enabled":false,"page":0,"pageSize":0}}
                                 """))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void listAccessibleSchemasReturnsOkForAuthenticatedUser() throws Exception {
+        when(queryExecutionService.listAccessibleSchemas(eq(1L), eq(42L))).thenReturn(List.of("S1", "S2"));
+
+        mockMvc.perform(get("/api/query-execution/{connectionId}/schemas", 42L)
+                        .with(authentication(userAuthentication())))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0]").value("S1"))
+                .andExpect(jsonPath("$[1]").value("S2"));
+    }
+
+    @Test
+    @WithAnonymousUser
+    void listAccessibleSchemasReturnsUnauthorizedWhenNotAuthenticated() throws Exception {
+        mockMvc.perform(get("/api/query-execution/{connectionId}/schemas", 42L))
                 .andExpect(status().isUnauthorized());
     }
 

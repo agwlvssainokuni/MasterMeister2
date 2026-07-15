@@ -15,16 +15,16 @@
  */
 
 import { useEffect, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { DataTable } from '../../components/DataTable'
 import type { DataTableColumn } from '../../components/DataTable'
+import { useConnection } from '../../hooks/useConnection'
 import { listQueries } from './api'
 import type { SavedQuerySummary } from './types'
 
 export function SavedQueryListPage() {
   const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
-  const connectionId = searchParams.get('connectionId') !== null ? Number(searchParams.get('connectionId')) : null
+  const { connectionId } = useConnection()
 
   const [savedQueries, setSavedQueries] = useState<SavedQuerySummary[]>([])
   const [includeRetired, setIncludeRetired] = useState(false)
@@ -56,7 +56,7 @@ export function SavedQueryListPage() {
           <button
             type="button"
             data-testid="saved-query-list-page-execute-button"
-            onClick={() => navigate(`/query-execution?connectionId=${connectionId}&savedQueryId=${row.id}`)}
+            onClick={() => navigate(`/query-execution?savedQueryId=${row.id}`)}
           >
             実行
           </button>

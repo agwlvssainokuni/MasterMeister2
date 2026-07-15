@@ -18,6 +18,7 @@ import { fireEvent, render, screen } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ApiError } from '../../api/apiClient'
+import { useConnectionStore } from '../../store/connectionStore'
 import { saveQuery } from './api'
 import { SavedQuerySaveForm } from './SavedQuerySaveForm'
 
@@ -43,21 +44,24 @@ describe('SavedQuerySaveForm', () => {
     saveQueryMock.mockReset()
   })
 
-  it('shows a message when connectionId is missing from the URL', () => {
+  it('shows a message when the global connectionId is not set', () => {
+    useConnectionStore.setState({ connectionId: null, connections: [] })
     renderPage('/saved-queries/new')
 
     expect(screen.getByText('接続が指定されていません。')).toBeInTheDocument()
   })
 
   it('prefills the SQL textarea from the rawSql query parameter', () => {
-    renderPage('/saved-queries/new?connectionId=1&rawSql=SELECT%201')
+    useConnectionStore.setState({ connectionId: 1, connections: [] })
+    renderPage('/saved-queries/new?rawSql=SELECT%201')
 
     expect(screen.getByTestId('saved-query-save-form-sql-textarea')).toHaveValue('SELECT 1')
   })
 
-  it('saves the query and navigates to its detail page on success', async () => {
+  it('saves the query using the global connectionId and navigates to its detail page on success', async () => {
+    useConnectionStore.setState({ connectionId: 1, connections: [] })
     saveQueryMock.mockResolvedValue(42)
-    renderPage('/saved-queries/new?connectionId=1&rawSql=SELECT%201')
+    renderPage('/saved-queries/new?rawSql=SELECT%201')
 
     fireEvent.change(screen.getByTestId('saved-query-save-form-name-input'), { target: { value: 'my-query' } })
     fireEvent.change(screen.getByTestId('saved-query-save-form-visibility-select'), { target: { value: 'PUBLIC' } })
@@ -68,8 +72,9 @@ describe('SavedQuerySaveForm', () => {
   })
 
   it('shows an error message when saving fails', async () => {
+    useConnectionStore.setState({ connectionId: 1, connections: [] })
     saveQueryMock.mockRejectedValue(new ApiError(400, 'VALIDATION_ERROR', '名前は必須です'))
-    renderPage('/saved-queries/new?connectionId=1')
+    renderPage('/saved-queries/new')
 
     fireEvent.click(screen.getByTestId('saved-query-save-form-submit-button'))
 

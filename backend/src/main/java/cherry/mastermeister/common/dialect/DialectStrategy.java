@@ -31,6 +31,14 @@ public interface DialectStrategy {
 
     SchemaResolutionMode getSchemaResolutionMode();
 
+    /**
+     * {@code getSchemaResolutionMode()}が{@code SCHEMA_BASED}の場合にのみ呼び出される、
+     * 接続のデフォルトスキーマを切り替えるSQL文を返す（方言によってSET文の構文が異なる——
+     * PostgreSQLは{@code SET search_path TO}、H2は{@code SET SCHEMA}）。{@code quotedSchema}は
+     * 呼び出し側で{@code quoteIdentifier}済みの値。{@code CATALOG_BASED}方言では呼び出されない。
+     */
+    String buildSetSchemaStatement(String quotedSchema);
+
     String buildJdbcUrl(String host, int port, String databaseName);
 
 }

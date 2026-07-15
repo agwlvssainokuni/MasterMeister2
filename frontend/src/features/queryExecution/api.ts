@@ -71,26 +71,32 @@ function skipStringLiteral(sql: string, start: number, len: number): number {
   return i
 }
 
+export function listAccessibleSchemas(connectionId: number): Promise<string[]> {
+  return apiFetch<string[]>(`/api/query-execution/${connectionId}/schemas`)
+}
+
 export function executeAdhocSql(
   connectionId: number,
+  schema: string,
   sql: string,
   params: Record<string, unknown>,
   paging: PagingOption,
 ): Promise<QueryResult> {
   return apiFetch<QueryResult>('/api/query-execution/adhoc', {
     method: 'POST',
-    body: { connectionId, sql, params, paging },
+    body: { connectionId, schema, sql, params, paging },
   })
 }
 
 export function executeSavedQuery(
   connectionId: number,
+  schema: string,
   savedQueryId: number,
   params: Record<string, unknown>,
   paging: PagingOption,
 ): Promise<QueryResult> {
   return apiFetch<QueryResult>(`/api/query-execution/saved/${savedQueryId}`, {
     method: 'POST',
-    body: { connectionId, params, paging },
+    body: { connectionId, schema, params, paging },
   })
 }

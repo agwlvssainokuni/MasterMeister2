@@ -52,6 +52,11 @@ public class MySqlDialectStrategy implements DialectStrategy {
     }
 
     @Override
+    public String buildSetSchemaStatement(String quotedSchema) {
+        throw new UnsupportedOperationException("CATALOG_BASED dialect never issues a schema-switching statement");
+    }
+
+    @Override
     public String buildJdbcUrl(String host, int port, String databaseName) {
         return "jdbc:mysql://" + host + ":" + port + "/" + databaseName;
     }

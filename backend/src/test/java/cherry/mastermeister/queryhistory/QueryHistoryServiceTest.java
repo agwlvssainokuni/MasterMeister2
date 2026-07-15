@@ -88,7 +88,7 @@ class QueryHistoryServiceTest {
                 executionCount = 1;
             }
             queryHistoryRepository.save(new QueryHistory(
-                    seed.userId(), CONNECTION_ID, "SELECT " + i, Map.of(), 1, 10L,
+                    seed.userId(), CONNECTION_ID, "S1", "SELECT " + i, Map.of(), 1, 10L,
                     now.plusSeconds(i), savedQueryId, savedQueryName, executionCount));
         }
 

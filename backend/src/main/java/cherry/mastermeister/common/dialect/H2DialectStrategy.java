@@ -50,6 +50,11 @@ public class H2DialectStrategy implements DialectStrategy {
     }
 
     @Override
+    public String buildSetSchemaStatement(String quotedSchema) {
+        return "SET SCHEMA " + quotedSchema;
+    }
+
+    @Override
     public String buildJdbcUrl(String host, int port, String databaseName) {
         return "jdbc:h2:tcp://" + host + ":" + port + "/" + databaseName;
     }

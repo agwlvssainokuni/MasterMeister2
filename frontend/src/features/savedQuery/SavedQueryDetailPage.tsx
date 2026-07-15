@@ -125,9 +125,7 @@ export function SavedQueryDetailPage() {
           <button
             type="button"
             data-testid="saved-query-detail-page-execute-button"
-            onClick={() =>
-              navigate(`/query-execution?connectionId=${savedQuery.connectionId}&savedQueryId=${savedQuery.id}`)
-            }
+            onClick={() => navigate(`/query-execution?savedQueryId=${savedQuery.id}`)}
           >
             実行
           </button>

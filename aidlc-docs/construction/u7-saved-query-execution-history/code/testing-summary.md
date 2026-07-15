@@ -109,3 +109,27 @@ P1〜P10全10性質にjqwik `@Property`テストが対応済み（PBT-02〜PBT-0
 search`のCLOB関数引数型エラー、`ReadOnlySqlValidator`のスタックドクエリ検知漏れ）はいずれも
 `business-logic-summary.md`に記録済みで、本Step時点で`./gradlew test`が全体ビルド経由で成功
 していることにより解消済みであることを再確認した。
+
+## 変更要求（2026-07-15）: 接続コンテキストのグローバル化 + クエリ実行時スキーマ指定
+
+P1〜P10に加え、新規性質P11（スキーマ許可リスト検証Invariant）を追加した。
+
+| # | 対象 | 検証テストクラス | 検証方式 | 層 |
+|---|---|---|---|---|
+| P11 | スキーマ許可リスト検証Invariant（`listAccessibleSchemas`に含まれない`schema`指定は常に`PermissionDeniedException`となり実行・履歴記録は一切発生しない） | `QueryExecutionServiceTest`（`executeAdhocSqlRejectsInaccessibleSchemaWithoutRecordingHistory`） | jqwik `@Example` | ビジネスロジック |
+
+`QueryExecutionServiceTest`にはP11の他、SET文の実効性検証（SCHEMA_BASED方言でのスキーマ非修飾
+テーブル参照の解決）・SET文の非発行検証（CATALOG_BASED方言でのMockitoベース検証）の2つの
+example-basedテストを`@Example`で追加した。いずれも`@JqwikSpringSupport`クラスにおいて
+`@BeforeContainer`（jqwikのみのライフサイクル）が素のJUnit `@Test`には適用されないため、
+`@Example`（jqwikの単発テストアノテーション）を用いる必要がある——これを誤って`@Test`で
+実装し、静的フィールド未初期化のNullPointerExceptionを起こした後に修正した経緯がある
+（`business-logic-summary.md`参照）。
+
+`QueryExecutionServiceTest`は4件→7件、`QueryExecutionControllerTest`は5件→7件
+（新規スキーマ一覧エンドポイントの成功系・未認証401）に拡張した。バックエンド全体は
+**303件、全テスト成功**（`./gradlew test`）。フロントエンドは`QueryExecutionPage.test.tsx`が
+6件→9件に拡張し、`SavedQueryListPage.test.tsx`・`SavedQuerySaveForm.test.tsx`・
+`SavedQueryDetailPage.test.tsx`・`QueryHistoryListPage.test.tsx`もグローバル接続コンテキスト・
+スキーマ引き継ぎの検証を追加する形で改訂した。フロントエンド全体は**59ファイル・276件、
+全テスト成功**（`npx vitest run`）、`tsc -b`・`npm run lint`（oxlint）もエラー・警告なし。

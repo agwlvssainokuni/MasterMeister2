@@ -3,7 +3,7 @@
 ## Project Information
 - **Project Type**: Brownfield
 - **Start Date**: 2026-07-06T10:38:36Z
-- **Current Stage**: Change Request (connection context globalization + execution-time schema) — Requirements Analysis drafted, awaiting approval. Re-entered INCEPTION PHASE for a cross-cutting change touching existing units U3/U5/U6/U7 (see aidlc-docs/inception/requirements/requirements.md §9).
+- **Current Stage**: Change Request (connection context globalization + execution-time schema) — all 5 affected units (U3/U1/U5/U6/U7) Functional Design + Code Generation complete; Build and Test re-run is the only remaining step (see aidlc-docs/inception/requirements/requirements.md §9).
 
 ## Execution Plan Summary
 - **Plan Document**: aidlc-docs/inception/plans/execution-plan.md
@@ -92,9 +92,30 @@ opt → Application Design amendment) then re-enters CONSTRUCTION PHASE for the 
 - [x] U5 Code Generation — approved 2026-07-15T13:30:00Z. U5 change-request work COMPLETE.
 - [x] U6 Functional Design amendment — approved 2026-07-15T13:56:00Z
 - [x] U6 Code Generation — approved 2026-07-15T14:50:00Z. U6 change-request work COMPLETE.
-- [x] U7 Functional Design amendment — generated 2026-07-15T15:10:00Z (domain-entities.md:
+- [x] U7 Functional Design amendment — approved 2026-07-15T15:30:00Z (domain-entities.md:
   `QueryHistory.schema`; business-rules.md: §2.3 schema validation/SET search_path + newly
   identified `listAccessibleSchemas` API need; frontend-components.md: 4 pages amended for
-  global connection context + schema selector/column), awaiting user review. Code Generation
-  not yet started.
-- [ ] Build and Test (re-run)
+  global connection context + schema selector/column; QueryExecutionPage connectionId-source
+  correction applied before Code Generation started, see audit.md).
+- [x] U7 Code Generation — Part 1 Planning committed 2026-07-16T08:04:00Z (commit 3e16188,
+  14-step plan). Part 2 Generation approved 2026-07-16T08:22:00Z: all 14 steps complete.
+  Backend: schema fields added across `QueryHistory`/`ExecutionRecord`/`HistoryEntry`/
+  `AdhocExecutionRequest`/`SavedExecutionRequest`; `QueryExecutionService` schema validation
+  (`PermissionDeniedException`) + `SET`-statement schema switch for `SCHEMA_BASED` dialects
+  (new `DialectStrategy.buildSetSchemaStatement`, per-dialect since H2 uses `SET SCHEMA` and
+  PostgreSQL uses `SET search_path TO` — corrected mid-Step-5 after H2 TCP test failures) +
+  new `listAccessibleSchemas`; `QueryExecutionController` new `GET /{connectionId}/schemas`;
+  `QueryHistoryService` schema propagation. New PBT property P11 (schema allow-list
+  invariant) plus 2 example-based tests (`@Example`, not `@Test`, since
+  `@JqwikSpringSupport`'s `@BeforeContainer` does not run for plain JUnit `@Test` methods —
+  caught via NPE and fixed). Backend: 303 tests, all green (`./gradlew test`).
+  Frontend: `queryExecution/api.ts` (+`listAccessibleSchemas`, `schema` params);
+  `QueryExecutionPage.tsx` rewritten (connectionId branches on savedQueryId presence per the
+  earlier correction, new schema `<select>`); `SavedQueryListPage`/`SavedQuerySaveForm`/
+  `QueryHistoryListPage` switched to `useConnection()`; `SavedQueryListPage`/
+  `SavedQueryDetailPage` execute links drop `connectionId`; `QueryHistoryListPage` adds schema
+  column + schema-carrying navigation (rerun/edit-in-builder only, not save). All 5 affected
+  test files rewritten. Frontend: 59 files, 276 tests, all green (`npx vitest run`); `tsc -b`
+  and `npm run lint` clean. Documentation (`code/*.md`) updated for all 5 U7 summary files.
+  U7 change-request work COMPLETE.
+- [ ] Build and Test (re-run, across all 5 affected units U1/U3/U5/U6/U7)

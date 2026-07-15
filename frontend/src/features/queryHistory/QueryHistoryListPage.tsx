@@ -15,10 +15,11 @@
  */
 
 import { useCallback, useEffect, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { DataTable } from '../../components/DataTable'
 import type { DataTableColumn } from '../../components/DataTable'
 import { Pagination } from '../../components/Pagination'
+import { useConnection } from '../../hooks/useConnection'
 import { usePagination } from '../../hooks/usePagination'
 import { listHistory } from './api'
 import type { ExecutorScope, HistoryEntry, HistoryFilterCriteria } from './types'
@@ -31,8 +32,7 @@ const EMPTY_CRITERIA: HistoryFilterCriteria = { executorScope: 'ALL' }
 
 export function QueryHistoryListPage() {
   const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
-  const connectionId = searchParams.get('connectionId') !== null ? Number(searchParams.get('connectionId')) : null
+  const { connectionId } = useConnection()
 
   const [criteria, setCriteria] = useState<HistoryFilterCriteria>(EMPTY_CRITERIA)
   const [executedAtFrom, setExecutedAtFrom] = useState('')
@@ -76,11 +76,11 @@ export function QueryHistoryListPage() {
     goToPage(0)
   }
 
-  const navigateWithSql = (path: string, entry: HistoryEntry, includeConnectionId: boolean) => {
+  const navigateWithSql = (path: string, entry: HistoryEntry, includeSchema: boolean) => {
     const params = new URLSearchParams()
     params.set('rawSql', entry.sql)
-    if (includeConnectionId) {
-      params.set('connectionId', String(entry.connectionId))
+    if (includeSchema) {
+      params.set('schema', entry.schema)
     }
     navigate(`${path}?${params.toString()}`)
   }
@@ -91,6 +91,7 @@ export function QueryHistoryListPage() {
       header: 'SQL',
       render: (row) => <pre>{row.sql}</pre>,
     },
+    { key: 'schema', header: 'スキーマ' },
     {
       key: 'source',
       header: '種別',
@@ -123,7 +124,7 @@ export function QueryHistoryListPage() {
           <button
             type="button"
             data-testid="query-history-list-page-save-button"
-            onClick={() => navigateWithSql('/saved-queries/new', row, true)}
+            onClick={() => navigateWithSql('/saved-queries/new', row, false)}
           >
             保存
           </button>

@@ -20,6 +20,7 @@ export interface HistoryEntry {
   id: number
   userId: number
   connectionId: number
+  schema: string
   sql: string
   params: Record<string, unknown>
   resultCount: number

@@ -50,6 +50,11 @@ public class PostgreSqlDialectStrategy implements DialectStrategy {
     }
 
     @Override
+    public String buildSetSchemaStatement(String quotedSchema) {
+        return "SET search_path TO " + quotedSchema;
+    }
+
+    @Override
     public String buildJdbcUrl(String host, int port, String databaseName) {
         return "jdbc:postgresql://" + host + ":" + port + "/" + databaseName;
     }

@@ -15,8 +15,9 @@
  */
 
 import { fireEvent, render, screen } from '@testing-library/react'
-import { MemoryRouter, Route, Routes } from 'react-router-dom'
+import { MemoryRouter, Route, Routes, useSearchParams } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { useConnectionStore } from '../../store/connectionStore'
 import { listQueries } from './api'
 import { SavedQueryListPage } from './SavedQueryListPage'
 import type { SavedQuerySummary } from './types'
@@ -29,12 +30,21 @@ const listQueriesMock = vi.mocked(listQueries)
 
 const summary: SavedQuerySummary = { id: 10, name: 'q1', visibility: 'PUBLIC', retired: false, ownerId: 1 }
 
-function renderPage(initialEntry: string) {
+function ExecutionPageStub() {
+  const [searchParams] = useSearchParams()
+  return (
+    <div data-testid="query-execution-page-stub">
+      connectionId={searchParams.get('connectionId')};savedQueryId={searchParams.get('savedQueryId')}
+    </div>
+  )
+}
+
+function renderPage() {
   return render(
-    <MemoryRouter initialEntries={[initialEntry]}>
+    <MemoryRouter initialEntries={['/saved-queries']}>
       <Routes>
         <Route path="/saved-queries" element={<SavedQueryListPage />} />
-        <Route path="/query-execution" element={<div data-testid="query-execution-page-stub" />} />
+        <Route path="/query-execution" element={<ExecutionPageStub />} />
         <Route path="/saved-queries/:id" element={<div data-testid="saved-query-detail-page-stub" />} />
       </Routes>
     </MemoryRouter>,
@@ -47,22 +57,25 @@ describe('SavedQueryListPage', () => {
     listQueriesMock.mockResolvedValue([summary])
   })
 
-  it('shows a message when connectionId is missing from the URL', () => {
-    renderPage('/saved-queries')
+  it('shows a message when the global connectionId is not set', () => {
+    useConnectionStore.setState({ connectionId: null, connections: [] })
+    renderPage()
 
     expect(screen.getByText('接続が指定されていません。')).toBeInTheDocument()
     expect(listQueriesMock).not.toHaveBeenCalled()
   })
 
-  it('lists saved queries for the given connectionId with includeRetired=false by default', async () => {
-    renderPage('/saved-queries?connectionId=1')
+  it('lists saved queries for the global connectionId with includeRetired=false by default', async () => {
+    useConnectionStore.setState({ connectionId: 1, connections: [] })
+    renderPage()
 
     expect(await screen.findByText('q1')).toBeInTheDocument()
     expect(listQueriesMock).toHaveBeenCalledWith(1, false)
   })
 
   it('reloads with includeRetired=true when the toggle is checked', async () => {
-    renderPage('/saved-queries?connectionId=1')
+    useConnectionStore.setState({ connectionId: 1, connections: [] })
+    renderPage()
     await screen.findByText('q1')
 
     fireEvent.click(screen.getByTestId('saved-query-list-page-include-retired-checkbox'))
@@ -71,17 +84,21 @@ describe('SavedQueryListPage', () => {
     expect(listQueriesMock).toHaveBeenLastCalledWith(1, true)
   })
 
-  it('navigates to the execution page when "実行" is clicked', async () => {
-    renderPage('/saved-queries?connectionId=1')
+  it('navigates to the execution page with only savedQueryId (no connectionId) when "実行" is clicked', async () => {
+    useConnectionStore.setState({ connectionId: 1, connections: [] })
+    renderPage()
     await screen.findByText('q1')
 
     fireEvent.click(screen.getByTestId('saved-query-list-page-execute-button'))
 
-    expect(await screen.findByTestId('query-execution-page-stub')).toBeInTheDocument()
+    expect(await screen.findByTestId('query-execution-page-stub')).toHaveTextContent(
+      'connectionId=;savedQueryId=10',
+    )
   })
 
   it('navigates to the detail page when "詳細" is clicked', async () => {
-    renderPage('/saved-queries?connectionId=1')
+    useConnectionStore.setState({ connectionId: 1, connections: [] })
+    renderPage()
     await screen.findByText('q1')
 
     fireEvent.click(screen.getByTestId('saved-query-list-page-detail-button'))

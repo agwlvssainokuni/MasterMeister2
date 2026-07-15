@@ -15,8 +15,9 @@
  */
 
 import { fireEvent, render, screen } from '@testing-library/react'
-import { MemoryRouter, Route, Routes } from 'react-router-dom'
+import { MemoryRouter, Route, Routes, useSearchParams } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { useConnectionStore } from '../../store/connectionStore'
 import { listHistory } from './api'
 import { QueryHistoryListPage } from './QueryHistoryListPage'
 import type { HistoryEntry } from './types'
@@ -31,6 +32,7 @@ const savedEntry: HistoryEntry = {
   id: 1,
   userId: 1,
   connectionId: 1,
+  schema: 'PUBLIC',
   sql: 'SELECT 1',
   params: {},
   resultCount: 1,
@@ -43,14 +45,23 @@ const savedEntry: HistoryEntry = {
   masked: false,
 }
 
+function DestinationStub() {
+  const [searchParams] = useSearchParams()
+  return (
+    <div data-testid="destination-stub">
+      rawSql={searchParams.get('rawSql')};schema={searchParams.get('schema')}
+    </div>
+  )
+}
+
 function renderPage(initialEntry: string) {
   return render(
     <MemoryRouter initialEntries={[initialEntry]}>
       <Routes>
         <Route path="/query-history" element={<QueryHistoryListPage />} />
-        <Route path="/query-execution" element={<div data-testid="query-execution-page-stub" />} />
-        <Route path="/saved-queries/new" element={<div data-testid="saved-query-save-form-stub" />} />
-        <Route path="/query-builder" element={<div data-testid="query-builder-page-stub" />} />
+        <Route path="/query-execution" element={<DestinationStub />} />
+        <Route path="/saved-queries/new" element={<DestinationStub />} />
+        <Route path="/query-builder" element={<DestinationStub />} />
       </Routes>
     </MemoryRouter>,
   )
@@ -62,15 +73,17 @@ describe('QueryHistoryListPage', () => {
     listHistoryMock.mockResolvedValue({ content: [savedEntry], totalCount: 1, page: 0, pageSize: 50 })
   })
 
-  it('shows a message when connectionId is missing from the URL', () => {
+  it('shows a message when the global connectionId is not set', () => {
+    useConnectionStore.setState({ connectionId: null, connections: [] })
     renderPage('/query-history')
 
     expect(screen.getByText('接続が指定されていません。')).toBeInTheDocument()
     expect(listHistoryMock).not.toHaveBeenCalled()
   })
 
-  it('loads history for the given connectionId with default criteria on mount', async () => {
-    renderPage('/query-history?connectionId=1')
+  it('loads history for the global connectionId with default criteria on mount', async () => {
+    useConnectionStore.setState({ connectionId: 1, connections: [] })
+    renderPage('/query-history')
 
     expect(await screen.findByText('SELECT 1')).toBeInTheDocument()
     expect(listHistoryMock).toHaveBeenCalledWith(
@@ -80,15 +93,18 @@ describe('QueryHistoryListPage', () => {
     )
   })
 
-  it('shows the saved-query name and the "廃止済み" badge for a saved-query row', async () => {
-    renderPage('/query-history?connectionId=1')
+  it('shows the schema column, saved-query name, and the "廃止済み" badge for a saved-query row', async () => {
+    useConnectionStore.setState({ connectionId: 1, connections: [] })
+    renderPage('/query-history')
 
     expect(await screen.findByText('保存クエリ: q1')).toBeInTheDocument()
+    expect(screen.getByText('PUBLIC')).toBeInTheDocument()
     expect(screen.getByText('廃止済み')).toBeInTheDocument()
   })
 
   it('re-runs the search with updated filters when the search button is clicked', async () => {
-    renderPage('/query-history?connectionId=1')
+    useConnectionStore.setState({ connectionId: 1, connections: [] })
+    renderPage('/query-history')
     await screen.findByText('SELECT 1')
 
     fireEvent.change(screen.getByTestId('query-history-list-page-sql-text-search-input'), {
@@ -105,7 +121,8 @@ describe('QueryHistoryListPage', () => {
   })
 
   it('re-runs the search when the executor scope is changed to SELF', async () => {
-    renderPage('/query-history?connectionId=1')
+    useConnectionStore.setState({ connectionId: 1, connections: [] })
+    renderPage('/query-history')
     await screen.findByText('SELECT 1')
 
     fireEvent.change(screen.getByTestId('query-history-list-page-executor-scope-select'), {
@@ -120,30 +137,33 @@ describe('QueryHistoryListPage', () => {
     )
   })
 
-  it('navigates to the execution page with rawSql/connectionId when "再実行" is clicked', async () => {
-    renderPage('/query-history?connectionId=1')
+  it('navigates to the execution page with rawSql/schema (no connectionId) when "再実行" is clicked', async () => {
+    useConnectionStore.setState({ connectionId: 1, connections: [] })
+    renderPage('/query-history')
     await screen.findByText('SELECT 1')
 
     fireEvent.click(screen.getByTestId('query-history-list-page-rerun-button'))
 
-    expect(await screen.findByTestId('query-execution-page-stub')).toBeInTheDocument()
+    expect(await screen.findByTestId('destination-stub')).toHaveTextContent('rawSql=SELECT 1;schema=PUBLIC')
   })
 
-  it('navigates to the save form when "保存" is clicked', async () => {
-    renderPage('/query-history?connectionId=1')
+  it('navigates to the save form with rawSql only (no schema/connectionId) when "保存" is clicked', async () => {
+    useConnectionStore.setState({ connectionId: 1, connections: [] })
+    renderPage('/query-history')
     await screen.findByText('SELECT 1')
 
     fireEvent.click(screen.getByTestId('query-history-list-page-save-button'))
 
-    expect(await screen.findByTestId('saved-query-save-form-stub')).toBeInTheDocument()
+    expect(await screen.findByTestId('destination-stub')).toHaveTextContent('rawSql=SELECT 1;schema=')
   })
 
-  it('navigates to the query builder when "ビルダーで編集" is clicked', async () => {
-    renderPage('/query-history?connectionId=1')
+  it('navigates to the query builder with rawSql/schema (no connectionId) when "ビルダーで編集" is clicked', async () => {
+    useConnectionStore.setState({ connectionId: 1, connections: [] })
+    renderPage('/query-history')
     await screen.findByText('SELECT 1')
 
     fireEvent.click(screen.getByTestId('query-history-list-page-edit-in-builder-button'))
 
-    expect(await screen.findByTestId('query-builder-page-stub')).toBeInTheDocument()
+    expect(await screen.findByTestId('destination-stub')).toHaveTextContent('rawSql=SELECT 1;schema=PUBLIC')
   })
 })

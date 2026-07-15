@@ -63,9 +63,9 @@ public class QueryHistoryService {
     public void recordExecution(ExecutionRecord record) {
         try {
             QueryHistory entity = new QueryHistory(
-                    record.userId(), record.connectionId(), record.sql(), record.params(), record.resultCount(),
-                    record.elapsedMillis(), record.executedAt(), record.savedQueryId(), record.savedQueryName(),
-                    record.executionCount());
+                    record.userId(), record.connectionId(), record.schema(), record.sql(), record.params(),
+                    record.resultCount(), record.elapsedMillis(), record.executedAt(), record.savedQueryId(),
+                    record.savedQueryName(), record.executionCount());
             queryHistoryRepository.save(entity);
         } catch (Exception e) {
             log.error(
@@ -109,7 +109,7 @@ public class QueryHistoryService {
         boolean masked = !ownRow && status != null && !status.visibleToViewer();
         boolean retired = status != null && status.retired();
         return new HistoryEntry(
-                h.getId(), h.getUserId(), h.getConnectionId(),
+                h.getId(), h.getUserId(), h.getConnectionId(), h.getSchema(),
                 masked ? MASKED_PLACEHOLDER : h.getSql(),
                 masked ? Map.of() : h.getParams(),
                 h.getResultCount(), h.getElapsedMillis(), h.getExecutedAt(),
