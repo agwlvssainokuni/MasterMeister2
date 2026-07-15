@@ -92,6 +92,9 @@ opt → Application Design amendment) then re-enters CONSTRUCTION PHASE for the 
 - [x] U5 Code Generation — approved 2026-07-15T13:30:00Z. U5 change-request work COMPLETE.
 - [x] U6 Functional Design amendment — approved 2026-07-15T13:56:00Z
 - [x] U6 Code Generation — approved 2026-07-15T14:50:00Z. U6 change-request work COMPLETE.
-- [ ] U7 Functional Design amendment / Code Generation (largest change: schema param, history
-  column/migration, new permission dependency)
+- [x] U7 Functional Design amendment — generated 2026-07-15T15:10:00Z (domain-entities.md:
+  `QueryHistory.schema`; business-rules.md: §2.3 schema validation/SET search_path + newly
+  identified `listAccessibleSchemas` API need; frontend-components.md: 4 pages amended for
+  global connection context + schema selector/column), awaiting user review. Code Generation
+  not yet started.
 - [ ] Build and Test (re-run)

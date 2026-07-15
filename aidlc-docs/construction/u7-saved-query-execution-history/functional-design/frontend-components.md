@@ -25,17 +25,23 @@ SavedQueryDetailPage
 ### SavedQueryListPage
 
 - **状態**: `savedQueries: SavedQuerySummary[]`, `includeRetired: boolean`
-- **責務**: `listQueries(connectionId, includeRetired)`（フロー1手順2）を呼び出し、Public全件＋
-  自分のPrivateを一覧表示する（`/saved-queries`）。「廃止済みも表示」トグルで`includeRetired`
-  を切り替える。各行に「実行」「詳細」リンクを配置する。
+  （**2026-07-15変更要求**: `connectionId`はページ内stateではなくU1の`useConnection()`から
+  グローバル接続コンテキストとして取得する）
+- **責務**: `connectionId`（グローバルコンテキスト）が`null`の場合は「接続が指定されていません。」
+  を表示し、ナビゲーションから直接アクセスしても行き止まりにならない（CHG-3）。`connectionId`
+  が確立していれば`listQueries(connectionId, includeRetired)`（フロー1手順2）を呼び出し、
+  Public全件＋自分のPrivateを一覧表示する（`/saved-queries`）。「廃止済みも表示」トグルで
+  `includeRetired`を切り替える。各行に「実行」「詳細」リンクを配置する。
 
 ### SavedQuerySaveForm
 
 - **状態**: `name: string`, `visibility: Visibility`
-- **Props**: なし（URLクエリパラメータ`rawSql`/`connectionId`から初期値を取得）
+- **Props**: なし（URLクエリパラメータ`rawSql`から初期値を取得。**2026-07-15変更要求**:
+  `connectionId`はU1の`useConnection()`から取得し、URLクエリパラメータでの受け取りは廃止する）
 - **責務**: 名前・SQL（`rawSql`プリセット、`business-rules.md` 6節）・可視性を入力し
   `saveQuery`を呼び出す（GEN-10、フロー1手順1、`/saved-queries/new`）。保存成功後は
-  `SavedQueryDetailPage`へ遷移する。
+  `SavedQueryDetailPage`へ遷移する。`connectionId`が`null`の場合は「接続が指定されていません。」
+  を表示し保存操作を行わせない。
 
 ### SavedQueryDetailPage
 
@@ -70,23 +76,35 @@ QueryExecutionPage
 
 - **状態**: `sql: string`, `readOnly: boolean`（`savedQueryId`指定時true）,
   `detectedParams: DetectedParam[]`, `paramValues: Record<string, string>`,
-  `paging: PagingOption`, `result: QueryResult | null`
-- **責務**: URLクエリパラメータで`rawSql`（手入力実行、GEN-13）または`savedQueryId`
-  （保存クエリ実行、GEN-11）のいずれかを受け取る（`/query-execution`）。`savedQueryId`
-  指定時はSQL入力欄を読み取り専用にする（`business-rules.md` 1.4）。SQL入力/変更のたびに
-  パラメータ自動検出（フロー2手順4）を行い、検出された`:param`ごとに値入力欄を表示する。
-  ページング切替（あり/なし）・実行ボタンを提供し、`executeAdhocSql`/`executeSavedQuery`を
+  `paging: PagingOption`, `result: QueryResult | null`。**（2026-07-15変更要求）**
+  `connectionId`はU1の`useConnection()`からグローバル接続コンテキストとして取得する
+  （URLクエリパラメータでの受け取りは廃止）。新規に`schemas: string[]`,
+  `schema: string | null`を保持する
+- **責務**: `connectionId`（グローバルコンテキスト）が`null`の場合は「接続が指定されていません。」
+  を表示する（CHG-3）。`connectionId`確立時、URLクエリパラメータで`rawSql`（手入力実行、
+  GEN-13）または`savedQueryId`（保存クエリ実行、GEN-11）のいずれかを受け取る
+  （`/query-execution`）。`savedQueryId`指定時はSQL入力欄を読み取り専用にする
+  （`business-rules.md` 1.4）。**（2026-07-15変更要求）** マウント時に
+  `listAccessibleSchemas(connectionId)`（新規API、`business-rules.md` 2.3追記事項）でスキーマ
+  選択肢を取得し、常設のスキーマ選択`<select>`を表示する（CHG-4）。選択肢が1件のみでも
+  自動選択は行わない（`masterData`/`queryBuilder`と同じ流儀）。URLクエリパラメータ`schema`が
+  あれば初期値としてプリフィルする（画面内で上書き可能、`business-rules.md` 6節）。`schema`が
+  未選択の間は実行操作を行えない。SQL入力/変更のたびにパラメータ自動検出（フロー2手順4）を
+  行い、検出された`:param`ごとに値入力欄を表示する。ページング切替（あり/なし）・実行ボタンを
+  提供し、`executeAdhocSql`/`executeSavedQuery`（いずれも`schema`を必須パラメータとして渡す）を
   呼び出す。結果は`DataTable`（U5既存コンポーネントの再利用、`business-rules.md` 5.4）で
   表形式表示し、ページングあり時はページ送りUIを提供する（GEN-14）。読み取り専用検証エラー
-  （`ValidationException`）はエラーメッセージとして表示する。
+  （`ValidationException`）・スキーマ許可リスト検証エラー（`PermissionDeniedException`）は
+  エラーメッセージとして表示する。
 
 ### api.ts（`features/queryExecution/`）
 
 | 関数 | 対応API | 責務 |
 |---|---|---|
 | `detectParams(sql)` | フロントエンド側の正規表現処理（`business-rules.md` 3節）、API呼び出しなし | パラメータ自動検出UI |
-| `executeAdhocSql(connectionId, sql, params, paging)` | `POST /api/query-execution/adhoc` | フロー2手順1〜9（手入力） |
-| `executeSavedQuery(connectionId, savedQueryId, params, paging)` | `POST /api/query-execution/saved/{savedQueryId}` | フロー2手順1〜9（保存クエリ） |
+| `listAccessibleSchemas(connectionId)`（2026-07-15変更要求で新規追加） | `GET /api/query-execution/{connectionId}/schemas` | スキーマ選択UI（CHG-4） |
+| `executeAdhocSql(connectionId, schema, sql, params, paging)` | `POST /api/query-execution/adhoc` | フロー2手順1〜9（手入力）。`schema`追加（2026-07-15変更要求） |
+| `executeSavedQuery(connectionId, schema, savedQueryId, params, paging)` | `POST /api/query-execution/saved/{savedQueryId}` | フロー2手順1〜9（保存クエリ）。`schema`追加（2026-07-15変更要求） |
 
 ---
 
@@ -100,16 +118,20 @@ QueryHistoryListPage
 
 ### QueryHistoryListPage
 
-- **状態**: `entries: HistoryEntry[]`, `filter: HistoryFilterCriteria`, `page: PageRequest`
-- **責務**: 日時範囲・実行者スコープ（`ALL`/`SELF`）・SQLテキスト検索の絞り込みフォームを
-  提供し、`listHistory`（フロー3手順1）を呼び出す（`/query-history`）。保存クエリ実行と
-  直接入力実行を区別して表示する（`savedQueryId`の有無、GEN-15 AC）。マスキングされた行は
-  `sql`/`savedQueryName`をプレースホルダ文字列としてそのまま表示する（バックエンドが既に
-  置換済みの値を返すため、フロントエンド側での追加判定は不要）。`retired=true`の行には
-  「廃止済み」バッジを表示する（`business-rules.md` 5.3）。各行に「再実行」「保存」
-  「ビルダーで編集」ボタンを配置し、`business-rules.md` 6節の遷移表に従いURLクエリ
-  パラメータ（`rawSql`、「ビルダーで編集」時は`connectionId`も）を付与して`navigate`する
-  （GEN-16、フロー4）。
+- **状態**: `entries: HistoryEntry[]`, `filter: HistoryFilterCriteria`, `page: PageRequest`。
+  （**2026-07-15変更要求**: `connectionId`はページ内stateではなくU1の`useConnection()`から
+  グローバル接続コンテキストとして取得する）
+- **責務**: `connectionId`（グローバルコンテキスト）が`null`の場合は「接続が指定されていません。」
+  を表示する（CHG-3）。`connectionId`確立時、日時範囲・実行者スコープ（`ALL`/`SELF`）・SQL
+  テキスト検索の絞り込みフォームを提供し、`listHistory`（フロー3手順1）を呼び出す
+  （`/query-history`）。保存クエリ実行と直接入力実行を区別して表示する（`savedQueryId`の有無、
+  GEN-15 AC）。**（2026-07-15変更要求）** 各行に実行時に対象としたスキーマ（`HistoryEntry.
+  schema`）を列表示する（CHG-5）。マスキングされた行は`sql`/`savedQueryName`をプレースホルダ
+  文字列としてそのまま表示する（バックエンドが既に置換済みの値を返すため、フロントエンド側での
+  追加判定は不要）。`retired=true`の行には「廃止済み」バッジを表示する（`business-rules.md`
+  5.3）。各行に「再実行」「保存」「ビルダーで編集」ボタンを配置し、`business-rules.md` 6節の
+  遷移表に従いURLクエリパラメータ（`rawSql`、「再実行」「ビルダーで編集」時は`schema`も
+  ——2026-07-15変更要求、CHG-5）を付与して`navigate`する（GEN-16、フロー4）。
 
 ### api.ts（`features/queryHistory/`）
 
@@ -122,16 +144,22 @@ QueryHistoryListPage
 ## U6との連携（`business-rules.md` 6節）
 
 U6の`GeneratedSqlPanel`の`onNavigateToSave`/`onNavigateToExecute` props（U6時点では未実装、
-ボタンdisabled）に、本ユニットのCode Generationで以下の実装を差し込む。
+ボタンdisabled）は、U6のCode Generation（変更要求）時点で既に実装済み
+（`QueryBuilderPage.tsx`の`handleNavigateToSave`/`handleNavigateToExecute`、U6
+`frontend-summary.md`参照）。**2026-07-15変更要求時点の実装**は以下のとおり:
 
 - `onNavigateToSave(generatedSql)`: `generatedSql.sql`を`rawSql`クエリパラメータとして
-  `/saved-queries/new`へ`navigate`する。
-- `onNavigateToExecute(generatedSql)`: `generatedSql.sql`を`rawSql`クエリパラメータとして
-  `/query-execution`へ`navigate`する。
+  `/saved-queries/new`へ`navigate`する（`connectionId`・`schema`は引き継がない、
+  `SavedQuerySaveForm`は`connectionId`をグローバルコンテキストから取得し`schema`を保存対象と
+  しないため）。
+- `onNavigateToExecute(generatedSql)`: `generatedSql.sql`を`rawSql`、選択中の`schema`を
+  `schema`クエリパラメータとして`/query-execution`へ`navigate`する（`connectionId`は
+  グローバルコンテキストに従うため引き継がない）。
 
-`querybuilder`（U6）の`QueryBuilderPage`は`rawSql`/`connectionId`クエリパラメータを既に
-受け付ける実装を持つため、`queryHistory/`からの「ビルダーで編集」遷移（GEN-16）は追加実装
-不要——U6側の既存実装をそのまま利用する。
+`querybuilder`（U6）の`QueryBuilderPage`は`rawSql`/`schema`クエリパラメータを受け付ける実装を
+持つため（`connectionId`はグローバルコンテキスト参照に統一済み）、`queryHistory/`からの
+「ビルダーで編集」遷移（GEN-16）で`rawSql`・`schema`を引き継げばよい——U6側の既存実装を
+そのまま利用する。
 
 `features/{savedQuery,queryExecution,queryHistory}/`は`masterData/`・`querybuilder/`等、
 他featureのAPIを直接参照しない（`component-dependency.md`のとおり、`savedquery`が`common`

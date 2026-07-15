@@ -67,6 +67,9 @@ record QueryHistory(
         Long id,
         Long userId,               // FK: User.id（U2）、実行者
         Long connectionId,         // FK: RdbmsConnection.id（U3）
+        String schema,             // NOT NULL（2026-07-15変更要求）。実行時に実際に対象とした
+                                    // スキーマ。SavedQueryはスキーマを保存しないため、実行の
+                                    // たびに指定された値をここに記録する
         String sql,                // 実行時点のSQL文字列そのもの（スナップショット）
         Map<String, Object> params,
         int resultCount,
@@ -77,6 +80,10 @@ record QueryHistory(
         Integer executionCount     // nullable。手入力SQL実行時はnull
 )
 ```
+
+**（2026-07-15変更要求）** `schema`列は本プロジェクトが未リリースで実データがないため、
+`NOT NULL`列として追加する（`ddl-auto: update`前提、マイグレーション互換は考慮しない、
+Requirements Analysis Q7=A）。
 
 - `sql`/`params`/`savedQueryName`はいずれも実行時点のスナップショットであり、`SavedQuery`が
   後から編集・廃止（`retired=true`）されても影響を受けない（Q3追補・Q5訂正: `retired`は
