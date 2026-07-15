@@ -30,12 +30,14 @@
 | コンポーネント | 責務 | 主な状態 |
 |---|---|---|
 | `authStore` | 認証状態（ログイン中ユーザ情報・ロール・JWT）の保持 | `currentUser: { id, email, role } \| null`, `token: string \| null` |
+| `connectionStore`（2026-07-15変更要求） | グローバル接続コンテキスト（選択中の対象RDBMS接続、アクセス可能な接続一覧）の保持。`authStore`と同じ`sessionStorage`永続化パターン。ログアウト時にクリアされる（`business-logic-model.md` フロー5手順5） | `connectionId: number \| null`, `connections: ConnectionSummary[]` |
 
 ### hooks/ — 共通フック
 | コンポーネント | 責務 |
 |---|---|
 | `useAuth` | `authStore`の値と、ログイン/ログアウト操作を提供 |
 | `usePagination` | `common.PageRequest`/`PageResult<T>`パターンに対応したページング状態管理（ページ番号・ページサイズ・総件数） |
+| `useConnection`（2026-07-15変更要求） | `connectionStore`の値（`connectionId`, `connections`）と、`setConnectionId`操作を提供。`masterData`/`queryBuilder`/`savedQuery`/`queryExecution`/`queryHistory`の各画面が、自身のページ内接続セレクタの代わりにこのフックから`connectionId`を取得する |
 
 ### routes/ — ルーティング基盤
 | コンポーネント | 責務 |
@@ -52,7 +54,7 @@
 ### components/ — 共通UIコンポーネント
 | コンポーネント | Props | 責務 |
 |---|---|---|
-| `AppLayout` | `children` | ヘッダー・ナビゲーション・メインコンテンツ領域の共通レイアウト。`authStore`のロールに応じ管理者専用メニュー項目の出し分けを行う |
+| `AppLayout` | `children` | ヘッダー・ナビゲーション・メインコンテンツ領域の共通レイアウト。`authStore`のロールに応じ管理者専用メニュー項目の出し分けを行う。**（2026-07-15変更要求）** 常設のグローバル接続セレクタを持ち、`connectionStore`が空の場合はマウント時に`listAccessibleConnections()`（U3所有API）を呼び出す。接続切替時、現在のパスが`/master-data/:connectionId/:schema/:table`に一致する場合のみ`/master-data`へナビゲーションする（`business-logic-model.md` フロー5、`stories.md` CHG-1〜CHG-3） |
 | `DataTable<T>` | `columns`, `rows`, `onSort?` | 汎用テーブル表示（他ユニットの一覧画面から再利用） |
 | `Pagination` | `page`, `pageSize`, `pageSizeOptions`, `totalCount`, `onPageChange`, `onPageSizeChange` | `PageResult<T>`に対応したページング操作UI。ページサイズ選択肢は`business-rules.md` 1.4のとおりAPI経由で取得した設定値を反映 |
 | `ToastNotification` | `message`, `severity` (`info`/`success`/`warning`/`error`) | 操作結果・エラー通知の共通トースト表示 |

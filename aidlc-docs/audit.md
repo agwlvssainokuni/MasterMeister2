@@ -5036,3 +5036,41 @@ summary.md`・`api-layer-summary.md`・`frontend-summary.md`・`testing-summary.
 
 ---
 
+## U3 Code Generation（変更要求）承認、U1着手
+**Timestamp**: 2026-07-15T11:55:00Z
+**User Input**: "Continue to Next Stage"
+**AI Response**: U3 Code Generation（変更要求）を承認済みとして記録。U3ユニットの変更要求対応は
+これで完了（Functional Design改訂・Code Generationとも承認済み）。次にU1（Platform
+Foundation）のFunctional Design改訂へ進む。
+**Context**: U3完了。U1のFunctional Design（変更要求）へ進む。
+
+---
+
+## U1 Functional Design（変更要求）Part 1 Planning
+**Timestamp**: 2026-07-15T12:00:00Z
+**User Input**: （進行継続）
+**AI Response**: `aidlc-docs/construction/plans/u1-platform-foundation-functional-design-plan-
+connection-schema.md`を作成した。新たな確認質問は不要と判断（ストア実装は既存`authStore`と
+同パターン、接続一覧1件時の自動選択は既存`SchemaTableListPage`/`QueryBuilderPage`と同様
+「行わない」）。実行チェックリスト（Step A〜D: `frontend-components.md`の
+`store`/`hooks`/`AppLayout`責務、`business-logic-model.md`への新規フロー追加）を記載した。
+**Context**: U1 Functional Design（変更要求）Part 1 Planning。Part 2 Generationへ進む。
+
+---
+
+## U1 Functional Design（変更要求）Part 2 Generation
+**Timestamp**: 2026-07-15T12:05:00Z
+**User Input**: （進行継続）
+**AI Response**: プランのStep A〜Dを実行した。`frontend-components.md`の`store/`表に
+`connectionStore`（`authStore`と同じsessionStorage永続化パターン、ログアウト時クリア）、
+`hooks/`表に`useConnection`を追加した。`AppLayout`の責務記述に、グローバル接続セレクタの
+追加・マウント時の`listAccessibleConnections()`呼び出し・接続切替時のナビゲーション
+（`/master-data/:connectionId/:schema/:table`パターンのみ`/master-data`へ）を追記した。
+`business-logic-model.md`に新規フロー5「グローバル接続コンテキストの解決」を追加し、
+PBT性質P10（`connectionStore`の状態遷移Invariant）・P11（`AppLayout`ナビゲーションの
+パターンマッチOracle）を識別した。`QueryBuilderPage`自身によるモデルリセットはU1の責務外
+（U6のCode Generationで実装）と明記した。プランのStep A〜Dを`[x]`に更新した。
+**Context**: U1 Functional Design（変更要求）Part 2 Generation完了。ユーザーレビュー待ち。
+
+---
+

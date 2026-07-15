@@ -77,6 +77,33 @@
 
 ---
 
+## フロー5: グローバル接続コンテキストの解決（CHG-1〜CHG-3、2026-07-15変更要求）
+
+**関与コンポーネント**: `AppLayout`（U1） → `connectionStore`（U1、新設） →
+`features/rdbmsConnection/api.ts`の`listAccessibleConnections()`（U3が所有するAPI関数）
+
+1. `AppLayout`は`connectionStore`（`authStore`と同様のzustandストア、`sessionStorage`永続化）を
+   参照する。ストアが空（未取得）の場合、マウント時に`listAccessibleConnections()`
+   （`GET /api/rdbms-connections/accessible`、U3所有）を呼び出し、結果を`connectionStore`に
+   格納する。
+2. `AppLayout`は常設の接続選択`<select>`を描画する。選択肢が1件のみであっても自動選択は
+   行わない（既存の`SchemaTableListPage`/`QueryBuilderPage`の接続セレクタと同じ流儀）。
+3. ユーザーが接続を選択すると、`connectionStore.setConnectionId(id)`を呼び出し、
+   `sessionStorage`に永続化する。以降、各機能（`masterData`/`queryBuilder`/`savedQuery`/
+   `queryExecution`/`queryHistory`）はこの値を参照してAPIリクエストへ明示的に含める
+   （バックエンドAPI契約自体は変更なし、`application-design.md` フロー8）。
+4. 接続切替時、現在のURLが既知の「詳細な作業状態を持つ画面」のパターンに合致する場合のみ、
+   `AppLayout`は明示的にナビゲーションを行う（CHG-2）:
+   - `/master-data/:connectionId/:schema/:table`（`RecordListPage`）に一致する場合 →
+     `/master-data`（`SchemaTableListPage`）へ遷移する。
+   - それ以外のパス（`/query-builder`等）では`AppLayout`はナビゲーションを行わない。
+     `QueryBuilderPage`自身が`connectionStore`の`connectionId`変化を検知し、自身の
+     編集中モデルをリセットする（U6のCode Generationで実装、U1の責務外）。
+5. ログアウト（`authStore.clearTokens`）時、`connectionStore`もクリアする
+   （`sessionStorage`は認証状態と同じライフサイクルで扱う）。
+
+---
+
 ## テスト可能な性質（Testable Properties, PBT-01）
 
 `property-based-testing`拡張（enabled）のRule PBT-01に基づき、本ユニットの業務ロジック
@@ -94,6 +121,8 @@ Code Generation計画時に確定する。
 | P7 | `MailService.send`（フロー3） | Invariant（テンプレート変数埋め込み） | Thymeleafテンプレートに渡した変数（宛先名・リンクURL・有効期限等）は、生成されたメール本文に必ず出現し、未解決のプレースホルダ（`${...}`等）が本文に残らない | `business-rules.md` 2.1-2.2 |
 | P8 | `@ControllerAdvice`共通例外変換（フロー4） | Oracle（参照マッピング比較） | 任意の共通例外インスタンスに対し、変換後のHTTPステータスコードは`business-rules.md` 3.1のマッピング表と常に一致する（決定的関数） | PBT-05該当。マッピング表自体がオラクル |
 | P9 | `DialectStrategy`系（`common/dialect`） | （本ユニットではNo PBT properties identified） | 対象RDBMS方言吸収の具体的アルゴリズムは技術的関心事としてFunctional Designのスコープ外（本plan「ユニット適用可否の判定」）。方言別SQL生成の性質識別（例: 生成されたLIMIT/OFFSET句が各方言で構文的に妥当）はこの機能を実装するCode Generation計画時に改めて識別する | スコープ外のため本stageではN/A |
+| P10 | `connectionStore`（フロー5、2026-07-15変更要求） | Invariant（状態遷移） | `setConnectionId(id)`呼び出し後、`connectionStore`の`connectionId`は常に呼び出し時の`id`と一致する。`clearTokens`（ログアウト）呼び出し後は常に`null`に戻る | `business-logic-model.md` フロー5手順3・5 |
+| P11 | `AppLayout`の接続切替時ナビゲーション（フロー5手順4、2026-07-15変更要求） | Invariant（Oracle、パターンマッチ） | 現在のパスが`/master-data/:connectionId/:schema/:table`パターンに一致する場合のみ`/master-data`へのナビゲーションが発生し、それ以外の任意のパスでは発生しない（決定的関数） | `stories.md` CHG-2 |
 
 **PBT-09（フレームワーク選定）**: Java実装のため`jqwik`（JUnit 5統合）を候補として
 NFR Requirementsステージで確定する。
