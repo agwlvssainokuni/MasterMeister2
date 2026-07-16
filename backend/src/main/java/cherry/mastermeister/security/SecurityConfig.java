@@ -60,7 +60,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/saved-queries/**").authenticated()
                         .requestMatchers("/api/query-execution/**").authenticated()
                         .requestMatchers("/api/query-history/**").authenticated()
-                        .anyRequest().authenticated())
+                        .requestMatchers("/api/**").authenticated()
+                        .anyRequest().permitAll())
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(restAuthenticationEntryPoint)
                         .accessDeniedHandler(restAccessDeniedHandler))
