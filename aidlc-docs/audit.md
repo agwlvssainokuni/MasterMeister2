@@ -5563,3 +5563,53 @@ Current Stageは変更なし（OPERATIONS PHASEプレースホルダのまま）
 
 ---
 
+## バグ修正: グループへのユーザー追加が成功時に「失敗しました」と表示され画面も更新されない
+
+**Timestamp**: 2026-07-16T12:35:00Z
+
+**User Input**: "グループ管理でユーザを追加すると、成功しても「ユーザの追加に失敗しました」のメッセージ。
+また、画面が更新されない。"
+
+**AI Response**:
+
+**Root Cause**: `POST /api/groups/{id}/members`
+（`GroupController#addUserToGroup`）が`void`戻り値 + `@ResponseStatus(HttpStatus.CREATED)`
+（201）で実装されており、レスポンスボディが空だった。フロントエンドの`apiFetch`
+（`frontend/src/api/apiClient.ts`の`handleResponse`）はボディなしレスポンスを
+`response.status === 204`の場合のみ特別扱いしており、201はこの分岐に該当しないため
+`await response.json()`が空文字列のパースを試みて`SyntaxError`を送出していた。
+この例外が`addUserToGroup()`のPromiseを reject させ、`GroupDetailPage.handleAddUser`
+の`try`ブロック内で送出されるため、後続の成功トースト表示・`refresh()`呼び出しが
+一切実行されずに`catch`ブロックへ飛び、エラートーストのみが表示されていた
+（バックエンド側の登録処理自体は正常に完了していたため、報告どおり「成功しているのに
+失敗と表示され、画面も更新されない」という症状と一致）。
+
+**Fix**: 同一コントローラ内の他の変更系エンドポイント
+（`renameGroup`・`deleteGroup`・`removeUserFromGroup`）はいずれも`ResponseEntity<Void>`を
+返し`.noContent().build()`（204）で応答するパターンに統一されていた。`addUserToGroup`
+はこのパターンから外れた唯一の例外だったため、同じ`ResponseEntity<Void>` + 204パターンに
+揃えて修正した（`GroupMemberAddRequest`の内容自体に変更はなく、201→204へのステータス変更
+のみ）。フロントエンド側の変更は不要（`handleResponse`の204分岐は既存のまま機能する）。
+
+単一エンドポイントの実装規約からの逸脱に起因する孤立したバグであり、業務ルール・データモデル
+への変更を伴わないため、AI-DLCワークフローの適応的実行方針に基づきUser
+Stories/Application Design/Functional Designの改訂は行わず、調査→修正→検証→audit.md記録の
+軽量パスで完結させた。
+
+**Verification**: バックエンド全テスト（`./gradlew test`）成功。修正したコントローラテスト
+`GroupControllerTest`について、既存の`addUserToGroupReturnsCreatedForAdminAndUsesPrincipalAsAdminUserId`
+を`addUserToGroupReturnsNoContentForAdminAndUsesPrincipalAsAdminUserId`にリネームし、
+アサーションを`status().isCreated()`から`status().isNoContent()`に変更。他のグループ機能
+テスト・全体テストスイートともに green。フロントエンドは無変更のため再実行不要
+（既存の`GroupDetailPage.test.tsx`はAPIをモックしているため、このクラスの実HTTPレスポンス
+形状に起因するバグを検知できていなかった点が今回見逃しの一因）。
+
+**Files Modified**:
+- `backend/src/main/java/cherry/mastermeister/group/GroupController.java`
+- `backend/src/test/java/cherry/mastermeister/group/GroupControllerTest.java`
+
+**Context**: OPERATIONS PHASE（プレースホルダ）中に発見・修正されたバグ。`aidlc-state.md`の
+Current Stageは変更なし（OPERATIONS PHASEプレースホルダのまま）。
+
+---
+

@@ -74,11 +74,11 @@ public class GroupController {
     }
 
     @PostMapping("/{id}/members")
-    @ResponseStatus(HttpStatus.CREATED)
-    public void addUserToGroup(
+    public ResponseEntity<Void> addUserToGroup(
             @PathVariable Long id, @RequestBody GroupMemberAddRequest request, Authentication authentication) {
         Long adminUserId = (Long) authentication.getPrincipal();
         groupService.addUserToGroup(adminUserId, id, request.userId());
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}/members/{userId}")

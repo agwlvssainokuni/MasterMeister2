@@ -218,14 +218,14 @@ class GroupControllerTest {
     }
 
     @Test
-    void addUserToGroupReturnsCreatedForAdminAndUsesPrincipalAsAdminUserId() throws Exception {
+    void addUserToGroupReturnsNoContentForAdminAndUsesPrincipalAsAdminUserId() throws Exception {
         doNothing().when(groupService).addUserToGroup(eq(1L), eq(42L), eq(7L));
 
         mockMvc.perform(post("/api/groups/{id}/members", 42L)
                         .with(authentication(adminAuthentication()))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"userId\":7}"))
-                .andExpect(status().isCreated());
+                .andExpect(status().isNoContent());
 
         verify(groupService).addUserToGroup(1L, 42L, 7L);
     }
