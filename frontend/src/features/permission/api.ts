@@ -16,7 +16,28 @@
 
 import { apiFetch } from '../../api/apiClient'
 import { useAuthStore } from '../../store/authStore'
-import type { AuxPermissionType, ImportResult, Permission, PrincipalRef } from './types'
+import type { AuxPermissionType, ImportResult, Permission, PermissionLookupResult, PrincipalRef } from './types'
+
+export function lookupPermission(
+  principal: PrincipalRef,
+  connectionId: number,
+  schema: string,
+  table: string | null,
+  column: string | null,
+): Promise<PermissionLookupResult> {
+  const params = new URLSearchParams({
+    principalType: principal.principalType,
+    principalId: String(principal.principalId),
+    schema,
+  })
+  if (table !== null) {
+    params.set('table', table)
+  }
+  if (column !== null) {
+    params.set('column', column)
+  }
+  return apiFetch<PermissionLookupResult>(`/api/rdbms-connections/${connectionId}/permissions?${params.toString()}`)
+}
 
 export function setPermission(
   principal: PrincipalRef,

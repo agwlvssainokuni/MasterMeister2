@@ -5702,3 +5702,73 @@ Designの改訂は行わず、モック提示→承認→実装→検証→audit
 
 ---
 
+## バグ修正: 権限設定画面で現在の設定値が表示されない
+
+**Timestamp**: 2026-07-16T13:50:00Z
+
+**User Input**: "権限設定で、スキーマ・テーブル・カラムとユーザ・グループを選択した時に、
+現在どう設定されているかがわからないのは改善点。"
+
+**AI Response**:
+
+**Root Cause**: `PermissionAssignmentPage.tsx`が`PermissionForm`へ`currentPermission={null}`・
+`currentAuxPermissions={null}`を決め打ちで渡しており、選択中のプリンシパル+ノードに
+実際に設定されている権限を取得する処理が存在しなかった。バックエンド側にも単一の
+プリンシパル+ノードの現在値を返すGET APIがなく（`PermissionController`には
+PUT（更新）・GET /export（YAML全体エクスポート）・POST /import のみ）、機能として
+未実装だった（表示バグではなく機能欠落）。
+
+ユーザーからの補足質問「auxCreate/auxDeleteはgranted/revoked/not-setの3値では？」を
+契機に`AuxPermissionAssignment`エンティティを確認し、`granted`は`boolean`（3値ではない）、
+`Permission`側は元々`NONE`を含む3値であることを確認・回答した上で実装方針を確定。
+
+**Fix**:
+- バックエンド: `GET /api/rdbms-connections/{connectionId}/permissions`
+  （クエリパラメータ`principalType`/`principalId`/`schema`/`table`/`column`）を新設。
+  `PermissionAssignmentService.lookupPermission`で既存の完全一致finderを流用し、
+  未設定時は`Permission.NONE`/`auxCreate=false`/`auxDelete=false`を返す
+  `PermissionLookupResponse`を返却。認可は既存の`/api/rdbms-connections/**` → ADMIN
+  ロールのパターンにそのまま乗るため、SecurityConfigの変更は不要。
+- フロントエンド: `features/permission/api.ts`に`lookupPermission`を追加。
+  `PermissionAssignmentPage.tsx`で`connectionId`・`principal`・`selectedNode`が揃った
+  時点で取得し、`PermissionForm`へ実際の現在値を渡すよう変更。ノード切替時は
+  フォームが古い値を一瞬表示しないよう明示的に`null`へリセットしてから再取得。
+  `PermissionForm`に`onSaved`コールバックを追加し、保存成功時に親へ通知して
+  再取得することで、保存直後に別ノードへ移動して戻ってきた場合も最新値が
+  反映されるようにした。
+
+業務ルールの変更を伴わない機能改善であり、AI-DLCワークフローの適応的実行方針に
+基づきUser Stories/Application Design/Functional Designの改訂は行わず、調査
+（Explore サブエージェント）→ユーザーへの設計確認→実装→検証→audit.md記録の
+軽量パスで完結させた。`aidlc-state.md`のCurrent Stageは変更なし
+（OPERATIONS PHASEプレースホルダのまま）。
+
+**Verification**: バックエンドは新規`PermissionLookupResponse`・
+`PermissionAssignmentService.lookupPermission`・`PermissionController`の
+GETエンドポイントを追加し、`PermissionControllerTest`（ADMIN成功系・403・401）と
+`PermissionAssignmentServiceTest`（jqwikプロパティテスト2件:
+`lookupPermissionReflectsSetPermission`・`lookupPermissionReflectsSetAuxPermission`、
+既存のFakeRepositoriesハーネスを再利用）を追加。`./gradlew test`全体green。
+フロントエンドは`PermissionAssignmentPage.test.tsx`に`lookupPermission`モックと
+現在値表示・呼び出し引数を検証するテストを追加、`PermissionForm.test.tsx`に
+`onSaved`コールバックのテストを追加。`npx vitest run`279/279件成功、
+`npx tsc -b`・`npm run lint`ともにクリーン。
+
+**Files Modified**:
+- `backend/src/main/java/cherry/mastermeister/permission/PermissionLookupResponse.java`（新規）
+- `backend/src/main/java/cherry/mastermeister/permission/PermissionAssignmentService.java`
+- `backend/src/main/java/cherry/mastermeister/permission/PermissionController.java`
+- `backend/src/test/java/cherry/mastermeister/permission/PermissionControllerTest.java`
+- `backend/src/test/java/cherry/mastermeister/permission/PermissionAssignmentServiceTest.java`
+- `frontend/src/features/permission/types.ts`
+- `frontend/src/features/permission/api.ts`
+- `frontend/src/features/permission/PermissionAssignmentPage.tsx`
+- `frontend/src/features/permission/PermissionAssignmentPage.test.tsx`
+- `frontend/src/features/permission/PermissionForm.tsx`
+- `frontend/src/features/permission/PermissionForm.test.tsx`
+
+**Context**: OPERATIONS PHASE（プレースホルダ）中に発見・修正された機能欠落。
+`aidlc-state.md`のCurrent Stageは変更なし（OPERATIONS PHASEプレースホルダのまま）。
+
+---
+

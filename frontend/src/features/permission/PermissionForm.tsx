@@ -24,6 +24,7 @@ interface PermissionFormProps {
   node: SchemaTreeNode
   currentPermission: Permission | null
   currentAuxPermissions: Record<AuxPermissionType, boolean> | null
+  onSaved?: () => void
 }
 
 const PERMISSIONS: Permission[] = ['NONE', 'READ', 'UPDATE']
@@ -36,6 +37,7 @@ export function PermissionForm({
   node,
   currentPermission,
   currentAuxPermissions,
+  onSaved,
 }: PermissionFormProps) {
   const [permission, setPermission] = useState<Permission>(currentPermission ?? 'NONE')
   const [auxPermissions, setAuxPermissions] = useState<Record<AuxPermissionType, boolean>>(
@@ -71,6 +73,7 @@ export function PermissionForm({
           )
         }
       }
+      onSaved?.()
     } catch (e) {
       setError(e instanceof Error ? e.message : '権限の保存に失敗しました')
     } finally {

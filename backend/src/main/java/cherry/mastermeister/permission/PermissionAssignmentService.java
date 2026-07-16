@@ -182,6 +182,34 @@ public class PermissionAssignmentService {
                 Result.SUCCESS, target, "Aux permission set: " + auxType + "=" + granted);
     }
 
+    public PermissionLookupResponse lookupPermission(
+            PrincipalRef principal, Long connectionId, String schema,
+            Optional<String> table, Optional<String> column
+    ) {
+        Permission permission = permissionAssignmentRepository
+                .findByPrincipalTypeAndPrincipalIdAndConnectionIdAndSchemaNameAndTableNameAndColumnName(
+                        principal.principalType(), principal.principalId(), connectionId,
+                        schema, table.orElse(null), column.orElse(null))
+                .map(PermissionAssignment::getPermission)
+                .orElse(Permission.NONE);
+
+        boolean auxCreate = lookupAuxGranted(principal, connectionId, schema, table, AuxPermissionType.CREATE);
+        boolean auxDelete = lookupAuxGranted(principal, connectionId, schema, table, AuxPermissionType.DELETE);
+
+        return new PermissionLookupResponse(permission, auxCreate, auxDelete);
+    }
+
+    private boolean lookupAuxGranted(
+            PrincipalRef principal, Long connectionId, String schema, Optional<String> table, AuxPermissionType auxType
+    ) {
+        return auxPermissionAssignmentRepository
+                .findByPrincipalTypeAndPrincipalIdAndConnectionIdAndSchemaNameAndTableNameAndAuxType(
+                        principal.principalType(), principal.principalId(), connectionId,
+                        schema, table.orElse(null), auxType)
+                .map(AuxPermissionAssignment::isGranted)
+                .orElse(false);
+    }
+
     public byte[] exportPermissionsAsYaml(Long adminUserId, Long connectionId) {
         List<PermissionAssignment> permissions = permissionAssignmentRepository.findByConnectionId(connectionId);
         List<AuxPermissionAssignment> auxPermissions = auxPermissionAssignmentRepository.findByConnectionId(connectionId);

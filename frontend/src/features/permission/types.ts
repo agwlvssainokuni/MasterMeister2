@@ -38,3 +38,9 @@ export interface ImportResult {
   success: boolean
   message: string
 }
+
+export interface PermissionLookupResult {
+  permission: Permission
+  auxCreate: boolean
+  auxDelete: boolean
+}

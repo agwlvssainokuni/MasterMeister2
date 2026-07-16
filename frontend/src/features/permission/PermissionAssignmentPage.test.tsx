@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { listGroups } from '../group/api'
 import type { ConnectionSummary } from '../rdbmsConnection/types'
 import { listConnections } from '../rdbmsConnection/api'
 import { getTableDetail, listSchemas, listTables } from '../schema/api'
 import { listApprovedUsers } from '../userRegistration/api'
+import { lookupPermission } from './api'
 import { PermissionAssignmentPage } from './PermissionAssignmentPage'
 
 vi.mock('../rdbmsConnection/api', () => ({
@@ -37,6 +38,13 @@ vi.mock('../schema/api', () => ({
 vi.mock('../userRegistration/api', () => ({
   listApprovedUsers: vi.fn(),
 }))
+vi.mock('./api', () => ({
+  lookupPermission: vi.fn(),
+  setPermission: vi.fn(),
+  setAuxPermission: vi.fn(),
+  exportPermissionsAsYaml: vi.fn(),
+  importPermissionsFromYaml: vi.fn(),
+}))
 
 const listConnectionsMock = vi.mocked(listConnections)
 const listGroupsMock = vi.mocked(listGroups)
@@ -44,6 +52,7 @@ const listSchemasMock = vi.mocked(listSchemas)
 const listTablesMock = vi.mocked(listTables)
 const getTableDetailMock = vi.mocked(getTableDetail)
 const listApprovedUsersMock = vi.mocked(listApprovedUsers)
+const lookupPermissionMock = vi.mocked(lookupPermission)
 
 const connection: ConnectionSummary = { id: 1, name: 'conn-1', rdbmsType: 'MYSQL', host: 'host1', databaseName: 'db1' }
 
@@ -55,11 +64,13 @@ describe('PermissionAssignmentPage', () => {
     listTablesMock.mockReset()
     getTableDetailMock.mockReset()
     listApprovedUsersMock.mockReset()
+    lookupPermissionMock.mockReset()
     listConnectionsMock.mockResolvedValue([connection])
     listGroupsMock.mockResolvedValue([])
     listApprovedUsersMock.mockResolvedValue([{ id: 7, email: 'user-7@example.com' }])
     listSchemasMock.mockResolvedValue(['public'])
     listTablesMock.mockResolvedValue([])
+    lookupPermissionMock.mockResolvedValue({ permission: 'NONE', auxCreate: false, auxDelete: false })
     getTableDetailMock.mockResolvedValue({
       schemaName: 'public',
       tableName: 'employees',
@@ -92,6 +103,24 @@ describe('PermissionAssignmentPage', () => {
     fireEvent.click(screen.getByTestId('permission-tree-schema-select'))
 
     expect(await screen.findByTestId('permission-form')).toBeInTheDocument()
+  })
+
+  it('fetches and displays the current permission for the selected principal and node', async () => {
+    lookupPermissionMock.mockResolvedValue({ permission: 'UPDATE', auxCreate: true, auxDelete: false })
+    render(<PermissionAssignmentPage />)
+    await screen.findByText('conn-1')
+    fireEvent.change(screen.getByTestId('connection-selector-select'), { target: { value: '1' } })
+    await screen.findByTestId('permission-tree')
+    await screen.findByText('public')
+    await screen.findByText('user-7@example.com')
+    fireEvent.change(screen.getByTestId('principal-selector-user-select'), { target: { value: '7' } })
+    fireEvent.click(screen.getByTestId('permission-tree-schema-select'))
+
+    await screen.findByTestId('permission-form')
+    expect(lookupPermissionMock).toHaveBeenCalledWith({ principalType: 'USER', principalId: 7 }, 1, 'public', null, null)
+    await waitFor(() => expect(screen.getByTestId('permission-form-permission-select')).toHaveValue('UPDATE'))
+    expect(screen.getByTestId('permission-form-aux-create-checkbox')).toBeChecked()
+    expect(screen.getByTestId('permission-form-aux-delete-checkbox')).not.toBeChecked()
   })
 
   it('hides the form again when switching to a different connection', async () => {

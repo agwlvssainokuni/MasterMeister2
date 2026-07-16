@@ -87,6 +87,47 @@ class PermissionControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "ADMIN")
+    void lookupPermissionReturnsCurrentPermissionForAdmin() throws Exception {
+        when(permissionAssignmentService.lookupPermission(
+                eq(new PrincipalRef(PrincipalType.USER, 7L)), eq(42L), eq("public"),
+                eq(Optional.of("employees")), eq(Optional.of("email"))))
+                .thenReturn(new PermissionLookupResponse(Permission.UPDATE, true, false));
+
+        mockMvc.perform(get("/api/rdbms-connections/{connectionId}/permissions", 42L)
+                        .param("principalType", "USER")
+                        .param("principalId", "7")
+                        .param("schema", "public")
+                        .param("table", "employees")
+                        .param("column", "email")
+                        .with(authentication(adminAuthentication())))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.permission").value("UPDATE"))
+                .andExpect(jsonPath("$.auxCreate").value(true))
+                .andExpect(jsonPath("$.auxDelete").value(false));
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    void lookupPermissionReturnsForbiddenForNonAdmin() throws Exception {
+        mockMvc.perform(get("/api/rdbms-connections/{connectionId}/permissions", 42L)
+                        .param("principalType", "USER")
+                        .param("principalId", "7")
+                        .param("schema", "public"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithAnonymousUser
+    void lookupPermissionReturnsUnauthorizedWhenNotAuthenticated() throws Exception {
+        mockMvc.perform(get("/api/rdbms-connections/{connectionId}/permissions", 42L)
+                        .param("principalType", "USER")
+                        .param("principalId", "7")
+                        .param("schema", "public"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
     void updatePermissionDispatchesToSetPermissionWhenPermissionPresent() throws Exception {
         doNothing().when(permissionAssignmentService).setPermission(
                 eq(1L), eq(new PrincipalRef(PrincipalType.USER, 7L)), eq(42L), eq("public"),

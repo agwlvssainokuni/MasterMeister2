@@ -131,6 +131,51 @@ class PermissionAssignmentServiceTest {
         assertThat(matches.get(0).isGranted()).isEqualTo(granted);
     }
 
+    // lookupPermissionは、未設定のノードに対してはNONE/false/falseを返し、setPermission/
+    // setAuxPermissionで設定した値をそのまま反映する。
+    @Property(tries = 20)
+    void lookupPermissionReflectsSetPermission(
+            @ForAll("principals") PrincipalRef principal,
+            @ForAll("connectionIds") Long connectionId,
+            @ForAll("schemaNames") String schema,
+            @ForAll("targets") Target target,
+            @ForAll("permissions") Permission permission
+    ) {
+        FakeRepositories repos = new FakeRepositories();
+        PermissionAssignmentService service = repos.newService();
+
+        PermissionLookupResponse before =
+                service.lookupPermission(principal, connectionId, schema, target.table(), target.column());
+        assertThat(before.permission()).isEqualTo(Permission.NONE);
+        assertThat(before.auxCreate()).isFalse();
+        assertThat(before.auxDelete()).isFalse();
+
+        service.setPermission(1L, principal, connectionId, schema, target.table(), target.column(), permission);
+
+        PermissionLookupResponse after =
+                service.lookupPermission(principal, connectionId, schema, target.table(), target.column());
+        assertThat(after.permission()).isEqualTo(permission);
+    }
+
+    @Property(tries = 20)
+    void lookupPermissionReflectsSetAuxPermission(
+            @ForAll("principals") PrincipalRef principal,
+            @ForAll("connectionIds") Long connectionId,
+            @ForAll("schemaNames") String schema,
+            @ForAll("tableOptions") Optional<String> table,
+            @ForAll("auxTypes") AuxPermissionType auxType,
+            @ForAll boolean granted
+    ) {
+        FakeRepositories repos = new FakeRepositories();
+        PermissionAssignmentService service = repos.newService();
+
+        service.setAuxPermission(1L, principal, connectionId, schema, table, auxType, granted);
+
+        PermissionLookupResponse result = service.lookupPermission(principal, connectionId, schema, table, Optional.empty());
+        boolean actual = auxType == AuxPermissionType.CREATE ? result.auxCreate() : result.auxDelete();
+        assertThat(actual).isEqualTo(granted);
+    }
+
     // P4: exportPermissionsAsYamlで得たYAMLをそのまま同じ接続へimportPermissionsFromYaml
     // した結果、(principalType, principal識別子, schema, table, column, permission)／
     // (..., auxType, granted)のタプル集合はエクスポート前と完全一致する。

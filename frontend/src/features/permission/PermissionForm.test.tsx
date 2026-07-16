@@ -119,6 +119,26 @@ describe('PermissionForm', () => {
     expect(setAuxPermissionMock).not.toHaveBeenCalled()
   })
 
+  it('calls onSaved after a successful save', async () => {
+    setPermissionMock.mockResolvedValue(undefined)
+    const onSaved = vi.fn()
+    render(
+      <PermissionForm
+        principal={principal}
+        connectionId={1}
+        node={columnNode}
+        currentPermission={null}
+        currentAuxPermissions={null}
+        onSaved={onSaved}
+      />,
+    )
+
+    fireEvent.click(screen.getByTestId('permission-form-submit-button'))
+
+    await screen.findByTestId('permission-form-submit-button')
+    expect(onSaved).toHaveBeenCalledTimes(1)
+  })
+
   it('shows an error message when saving fails', async () => {
     setPermissionMock.mockRejectedValue(new Error('保存に失敗しました'))
     render(

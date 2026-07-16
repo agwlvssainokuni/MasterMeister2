@@ -14,23 +14,47 @@
  * limitations under the License.
  */
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { lookupPermission } from './api'
 import { ConnectionSelector } from './ConnectionSelector'
 import { PermissionForm } from './PermissionForm'
 import { PermissionTree } from './PermissionTree'
 import { PermissionYamlPanel } from './PermissionYamlPanel'
 import { PrincipalSelector } from './PrincipalSelector'
-import type { PrincipalRef, SchemaTreeNode } from './types'
+import type { AuxPermissionType, Permission, PrincipalRef, SchemaTreeNode } from './types'
 
 export function PermissionAssignmentPage() {
   const [connectionId, setConnectionId] = useState<number | null>(null)
   const [principal, setPrincipal] = useState<PrincipalRef | null>(null)
   const [selectedNode, setSelectedNode] = useState<SchemaTreeNode | null>(null)
+  const [currentPermission, setCurrentPermission] = useState<Permission | null>(null)
+  const [currentAuxPermissions, setCurrentAuxPermissions] = useState<Record<AuxPermissionType, boolean> | null>(null)
+  const [reloadKey, setReloadKey] = useState(0)
 
   const handleSelectConnection = (id: number) => {
     setConnectionId(id)
     setSelectedNode(null)
   }
+
+  useEffect(() => {
+    if (connectionId === null || principal === null || selectedNode === null) {
+      setCurrentPermission(null)
+      setCurrentAuxPermissions(null)
+      return
+    }
+    setCurrentPermission(null)
+    setCurrentAuxPermissions(null)
+    lookupPermission(
+      principal,
+      connectionId,
+      selectedNode.schema,
+      selectedNode.table ?? null,
+      selectedNode.column ?? null,
+    ).then((result) => {
+      setCurrentPermission(result.permission)
+      setCurrentAuxPermissions({ CREATE: result.auxCreate, DELETE: result.auxDelete })
+    })
+  }, [connectionId, principal, selectedNode, reloadKey])
 
   return (
     <div className="permission-assignment-page" data-testid="permission-assignment-page">
@@ -48,8 +72,9 @@ export function PermissionAssignmentPage() {
                 principal={principal}
                 connectionId={connectionId}
                 node={selectedNode}
-                currentPermission={null}
-                currentAuxPermissions={null}
+                currentPermission={currentPermission}
+                currentAuxPermissions={currentAuxPermissions}
+                onSaved={() => setReloadKey((k) => k + 1)}
               />
             )}
             <PermissionYamlPanel connectionId={connectionId} />

@@ -18,6 +18,7 @@ package cherry.mastermeister.permission;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.Optional;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -41,6 +42,18 @@ public class PermissionController {
 
     public PermissionController(PermissionAssignmentService permissionAssignmentService) {
         this.permissionAssignmentService = permissionAssignmentService;
+    }
+
+    @GetMapping
+    public PermissionLookupResponse lookupPermission(
+            @PathVariable Long connectionId,
+            @RequestParam PrincipalType principalType,
+            @RequestParam Long principalId,
+            @RequestParam String schema,
+            @RequestParam Optional<String> table,
+            @RequestParam Optional<String> column) {
+        PrincipalRef principal = new PrincipalRef(principalType, principalId);
+        return permissionAssignmentService.lookupPermission(principal, connectionId, schema, table, column);
     }
 
     @PutMapping
