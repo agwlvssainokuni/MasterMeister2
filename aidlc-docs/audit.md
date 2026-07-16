@@ -5613,3 +5613,92 @@ Current Stageは変更なし（OPERATIONS PHASEプレースホルダのまま）
 
 ---
 
+## UI改善: デザインモック作成→承認→全画面へのデザインシステム適用
+
+**Timestamp**: 2026-07-16T13:30:00Z
+
+**User Input**: "画面のデザインを格好よくしたい。まずモックを作ってデザインを調整したい。"
+（その後、AskUserQuestionでの選択: 対象範囲=認証/一般ユーザー/管理者それぞれの
+共通レイアウト+代表画面、方向性=エンタープライズ・堅実） → モックを
+Artifactとして提示し、"このデザインを承認します。" → 実装の適用範囲について
+AskUserQuestionで確認: "共通デザイントークン+共通部品を全画面に適用（推奨）"を選択。
+
+**AI Response**:
+
+**背景**: `frontend/`はVite Reactテンプレートの残骸（紫アクセント・固定幅レイアウト・
+巨大見出し）がほぼ手つかずで残っており、`design-tokens.css`は定義されているのに
+ほぼ未使用、全画面が生のHTMLフォームコントロールで表示されていた。
+
+**Part 1（モック）**: Artifactツールでスタンドアロンのモックアップ（6画面切替式の
+単一HTMLファイル）を作成し、配色（紺+ブラス）・タイポグラフィ（見出しに明朝体、
+UIにゴシック体、数値に等幅フォント+tabular-nums）・レイアウト方針を提示し承認を得た。
+
+**Part 2（全画面適用）**: 実装に先立ち、既存コードベースの命名規則を調査（Explore
+サブエージェント2回）した結果、全ページ・共通コンポーネントのクラス名が
+`{feature}-page`/`{feature}-panel`/`{feature}-form`/`{feature}-tab`という一貫した
+命名規則になっており、テーブルは全て共通`DataTable`経由、`data-testid`も一貫した
+命名になっていることを確認。これを活かし、属性セレクタ（`[class$="-page"]`等）と
+要素セレクタ（`table`/`button`/`input`/`select`）中心のグローバルCSSで、個別画面の
+JSXをほぼ変更せずに全画面へ一括適用する方針とした。
+
+**実装内容**:
+1. `design-tokens.css`を承認済みモックの配色・フォントトークンに刷新
+   （既存トークン名は維持し値のみ変更、`audit-log-badge`等の既存参照は無停止）。
+2. `index.css`のVite雛形残骸を撤去しリセット+ベースタイポグラフィに置換。
+3. 新規`styles/app.css`で共通プリミティブ（ページコンテナ、カード/パネル/フォーム、
+   テーブル、ボタン、`role="tablist"`/`aria-pressed`パターン、認証画面シェル等）を
+   属性セレクタで全画面へ適用。主要な操作ボタン15箇所に`btn-primary`を付与。
+   `ConfirmDialog`は内部にカード用ラッパーdivを追加（オーバーレイ/カード/ボタン行の
+   分離に必要な最小限のJSX変更）。
+4. `AppLayout.tsx`のヘッダー/ナビを再編。業務メニューと管理者メニューを区切り線+
+   薄いブラス背景で視覚的に分離し、現在ルートに一致するリンクへの`is-active`付与
+   ロジックを新設（既存data-testid・hrefは全て維持）。
+5. モックで具体的に設計した3画面のうち、`RecordListPage`（列見出しへの実効権限
+   ピル表示）と`PermissionAssignmentPage`（ツリー+フォーム/YAMLパネルの2カラム化）
+   にモック相当の軽微なJSX調整を追加。`PermissionForm`の権限選択はモックの
+   セグメントボタンではなく既存のネイティブ`<select>`のまま（フォームロジックへの
+   リスクを避けるための意図的な簡略化）。`LoginPage`はJSX変更なしでCSSのみ適用。
+
+業務ルール・データモデルへの変更を一切伴わない見た目のみの変更であり、AI-DLC
+ワークフローの適応的実行方針に基づきUser Stories/Application Design/Functional
+Designの改訂は行わず、モック提示→承認→実装→検証→audit.md記録の軽量パスで実施した。
+`aidlc-state.md`のCurrent Stageは変更なし（OPERATIONS PHASEプレースホルダのまま）。
+
+**Verification**: 各コミット単位で`npx vitest run`（277/277件成功）・`npx tsc -b`・
+`npm run lint`（oxlint）を実行しいずれもクリーン。既存の`data-testid`・DOM構造への
+影響は最小限（`DataTableColumn.header`の型を`string`→`ReactNode`に拡張したのみで
+既存の文字列指定は無停止）。バックエンドはファイル変更なしのため未実行。
+ブラウザでの目視確認は本セッション内では実施できておらず、実際の描画結果は
+別途ユーザー側での確認を依頼した。
+
+**Files Modified**:
+- `frontend/src/styles/design-tokens.css`
+- `frontend/src/index.css`
+- `frontend/src/styles/app.css`（新規）
+- `frontend/src/main.tsx`
+- `frontend/src/components/AppLayout.tsx`
+- `frontend/src/components/ConfirmDialog.tsx`
+- `frontend/src/components/DataTable.tsx`
+- `frontend/src/features/masterData/RecordListPage.tsx`
+- `frontend/src/features/permission/PermissionAssignmentPage.tsx`
+- `frontend/src/features/permission/PermissionForm.tsx`
+- `frontend/src/features/auth/LoginPage.tsx`
+- `frontend/src/features/group/GroupDetailPage.tsx`
+- `frontend/src/features/group/GroupListPage.tsx`
+- `frontend/src/features/userRegistration/RegistrationRequestPage.tsx`
+- `frontend/src/features/userRegistration/PasswordSetupPage.tsx`
+- `frontend/src/features/rdbmsConnection/ConnectionFormPage.tsx`
+- `frontend/src/features/queryExecution/QueryExecutionPage.tsx`
+- `frontend/src/features/queryHistory/QueryHistoryListPage.tsx`
+- `frontend/src/features/schema/SchemaImportPanel.tsx`
+- `frontend/src/features/savedQuery/SavedQueryDetailPage.tsx`
+- `frontend/src/features/savedQuery/SavedQuerySaveForm.tsx`
+- `frontend/src/features/queryBuilder/SqlReverseParsePanel.tsx`
+- `frontend/src/features/queryBuilder/GeneratedSqlPanel.tsx`
+- `frontend/src/features/auditLog/AuditLogFilterPanel.tsx`
+
+**Context**: OPERATIONS PHASE（プレースホルダ）中に実施したUI改善。ユーザーの明示的な
+承認プロセス（モック提示→承認、適用範囲確認→承認）を経て実装した。
+
+---
+
