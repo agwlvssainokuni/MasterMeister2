@@ -27,12 +27,17 @@ interface AppLayoutProps {
 
 const MASTER_DATA_DETAIL_PATTERN = /^\/master-data\/[^/]+\/[^/]+\/[^/]+$/
 
+function isActivePath(pathname: string, path: string): boolean {
+  return pathname === path || pathname.startsWith(`${path}/`)
+}
+
 export function AppLayout({ children }: AppLayoutProps) {
   const { currentUser, isAuthenticated, logout } = useAuth()
   const { connectionId, connections, setConnectionId, setConnections, clearConnection } = useConnection()
   const navigate = useNavigate()
   const location = useLocation()
   const hasMountedWithConnection = useRef(false)
+  const isActive = (path: string) => isActivePath(location.pathname, path)
 
   useEffect(() => {
     if (isAuthenticated && connections.length === 0) {
@@ -60,62 +65,12 @@ export function AppLayout({ children }: AppLayoutProps) {
   return (
     <div className="app-layout">
       <header className="app-layout-header">
-        <nav data-testid="app-layout-nav">
-          <a href="/" data-testid="app-layout-nav-home">
-            MasterMeister
-          </a>
+        <a className="app-header-brand" href="/" data-testid="app-layout-nav-home">
+          MasterMeister <small>MASTER DATA CONSOLE</small>
+        </a>
+        <div className="app-header-right">
           {isAuthenticated && (
-            <a href="/master-data" data-testid="app-layout-nav-master-data">
-              マスタデータ
-            </a>
-          )}
-          {isAuthenticated && (
-            <a href="/query-builder" data-testid="app-layout-nav-query-builder">
-              クエリビルダー
-            </a>
-          )}
-          {isAuthenticated && (
-            <a href="/saved-queries" data-testid="app-layout-nav-saved-queries">
-              保存クエリ
-            </a>
-          )}
-          {isAuthenticated && (
-            <a href="/query-execution" data-testid="app-layout-nav-query-execution">
-              クエリ実行
-            </a>
-          )}
-          {isAuthenticated && (
-            <a href="/query-history" data-testid="app-layout-nav-query-history">
-              クエリ履歴
-            </a>
-          )}
-          {isAuthenticated && currentUser?.role === 'ADMIN' && (
-            <a href="/admin/pending-users" data-testid="app-layout-nav-pending-users">
-              承認待ちユーザー
-            </a>
-          )}
-          {isAuthenticated && currentUser?.role === 'ADMIN' && (
-            <a href="/admin/audit-logs" data-testid="app-layout-nav-audit-logs">
-              監査ログ
-            </a>
-          )}
-          {isAuthenticated && currentUser?.role === 'ADMIN' && (
-            <a href="/admin/rdbms-connections" data-testid="app-layout-nav-rdbms-connections">
-              RDBMS接続管理
-            </a>
-          )}
-          {isAuthenticated && currentUser?.role === 'ADMIN' && (
-            <a href="/admin/groups" data-testid="app-layout-nav-groups">
-              グループ管理
-            </a>
-          )}
-          {isAuthenticated && currentUser?.role === 'ADMIN' && (
-            <a href="/admin/permissions" data-testid="app-layout-nav-permissions">
-              権限設定
-            </a>
-          )}
-          {isAuthenticated && (
-            <label>
+            <label className="conn-select">
               対象接続
               <select
                 data-testid="app-layout-connection-select"
@@ -133,13 +88,106 @@ export function AppLayout({ children }: AppLayoutProps) {
               </select>
             </label>
           )}
+          {isAuthenticated && currentUser && (
+            <div className="user-chip">
+              <span className="user-chip-avatar">{currentUser.email.charAt(0).toUpperCase()}</span>
+              <span>
+                {currentUser.email}
+                <span className="user-chip-role">{currentUser.role === 'ADMIN' ? '管理者' : '一般ユーザー'}</span>
+              </span>
+            </div>
+          )}
           {isAuthenticated && (
-            <button type="button" data-testid="app-layout-nav-logout" onClick={handleLogout}>
+            <button type="button" className="logout-btn" data-testid="app-layout-nav-logout" onClick={handleLogout}>
               ログアウト
             </button>
           )}
-        </nav>
+        </div>
       </header>
+      {isAuthenticated && (
+        <nav className="app-nav" data-testid="app-layout-nav">
+          <div className="nav-group">
+            <a
+              href="/master-data"
+              className={isActive('/master-data') ? 'is-active' : undefined}
+              data-testid="app-layout-nav-master-data"
+            >
+              マスタデータ
+            </a>
+            <a
+              href="/query-builder"
+              className={isActive('/query-builder') ? 'is-active' : undefined}
+              data-testid="app-layout-nav-query-builder"
+            >
+              クエリビルダー
+            </a>
+            <a
+              href="/saved-queries"
+              className={isActive('/saved-queries') ? 'is-active' : undefined}
+              data-testid="app-layout-nav-saved-queries"
+            >
+              保存クエリ
+            </a>
+            <a
+              href="/query-execution"
+              className={isActive('/query-execution') ? 'is-active' : undefined}
+              data-testid="app-layout-nav-query-execution"
+            >
+              クエリ実行
+            </a>
+            <a
+              href="/query-history"
+              className={isActive('/query-history') ? 'is-active' : undefined}
+              data-testid="app-layout-nav-query-history"
+            >
+              クエリ履歴
+            </a>
+          </div>
+          {currentUser?.role === 'ADMIN' && (
+            <>
+              <div className="nav-divider" />
+              <div className="nav-group nav-group-admin">
+                <span className="nav-group-tag">管理</span>
+                <a
+                  href="/admin/pending-users"
+                  className={isActive('/admin/pending-users') ? 'is-active' : undefined}
+                  data-testid="app-layout-nav-pending-users"
+                >
+                  承認待ちユーザー
+                </a>
+                <a
+                  href="/admin/audit-logs"
+                  className={isActive('/admin/audit-logs') ? 'is-active' : undefined}
+                  data-testid="app-layout-nav-audit-logs"
+                >
+                  監査ログ
+                </a>
+                <a
+                  href="/admin/rdbms-connections"
+                  className={isActive('/admin/rdbms-connections') ? 'is-active' : undefined}
+                  data-testid="app-layout-nav-rdbms-connections"
+                >
+                  RDBMS接続管理
+                </a>
+                <a
+                  href="/admin/groups"
+                  className={isActive('/admin/groups') ? 'is-active' : undefined}
+                  data-testid="app-layout-nav-groups"
+                >
+                  グループ管理
+                </a>
+                <a
+                  href="/admin/permissions"
+                  className={isActive('/admin/permissions') ? 'is-active' : undefined}
+                  data-testid="app-layout-nav-permissions"
+                >
+                  権限設定
+                </a>
+              </div>
+            </>
+          )}
+        </nav>
+      )}
       <main className="app-layout-main">{children}</main>
     </div>
   )
