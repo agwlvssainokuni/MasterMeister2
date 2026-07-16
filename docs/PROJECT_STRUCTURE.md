@@ -1,6 +1,6 @@
 # プロジェクトディレクトリ構成
 
-[docs/REQUIREMENTS.md](./REQUIREMENTS.md) の要件に基づくディレクトリ構成案。
+[docs/REQUIREMENTS.md](./REQUIREMENTS.md) の要件に基づくディレクトリ構成。U1〜U7 の全ユニット実装が完了した現在の as-built 構成を反映する。
 
 ## トップレベル構成
 
@@ -30,8 +30,9 @@ backend/
     │   ├── java/cherry/mastermeister/
     │   │   ├── MasterMeisterApplication.java
     │   │   ├── config/           # 共通設定 (JpaConfig, DataSourceConfig 等。MailはSpring Boot自動設定に委ねる)
-    │   │   ├── common/           # 共通例外, 共通レスポンス, ページング等のユーティリティ
-    │   │   │   └── dialect/      # 対象RDBMS方言吸収 (DialectStrategy, DB種別ごとの実装)
+    │   │   ├── common/           # 共通レスポンス, ページング等のユーティリティ
+    │   │   │   ├── dialect/      # 対象RDBMS方言吸収 (DialectStrategy, DB種別ごとの実装)
+    │   │   │   └── exception/    # 共通例外 (ValidationException, EntityNotFoundException 等)
     │   │   ├── security/         # JWT認証 (SecurityConfig, JwtAuthenticationFilter, JwtTokenValidator,
     │   │   │                     #  RestAuthenticationEntryPoint, RestAccessDeniedHandler)
     │   │   │                     #  U1 NFR Design（logical-components.md）で確定した専用パッケージ
@@ -62,7 +63,7 @@ backend/
         └── java/cherry/mastermeister/...  # 各機能パッケージに対応
 ```
 
-- 各機能パッケージ内部は `controller / service / repository(or dao) / entity(or model) / dto` を持たせる（機能ごとに縦割り、パッケージ内は横割り）。
+- 各機能パッケージ内部はレイヤー別サブディレクトリを作らず、フラットに `XxxController` / `XxxService` / `XxxRepository` / エンティティ / DTO のファイルを直接配置する（機能ごとに縦割り、パッケージ内はファイル単位）。フロントエンドの `features/xxx/` と同じ「ディレクトリ名がすでにフィーチャーを表すため、単一目的のサブディレクトリは作らない」方針をバックエンドにも適用したもの。
 - 対象RDBMS（MySQL/MariaDB/PostgreSQL/H2）の方言差異（識別子クォート、ページング句、NULLソート順、スキーマ/カタログ解釈等）は、パッケージごとに個別実装せず `common/dialect/` に `DialectStrategy`（Strategyパターン）として一元化する（Application Designで確定。`rdbmsconnection` / `schema` / `masterdata` / `querybuilder` / `queryexecution` が共通で参照する）。
 
 ## frontend/ 構成
@@ -90,12 +91,14 @@ frontend/
     │   └── auditLog/            # 監査ログ閲覧（管理者）
     ├── components/              # 共通UIコンポーネント
     ├── api/                     # 共通APIクライアント（axios/fetch設定, 型付きエンドポイント）
-    ├── hooks/                   # 共通カスタムフック
-    ├── store/                   # 認証状態等のグローバル状態管理
+    ├── hooks/                   # 共通カスタムフック（useConnection: 選択中RDBMS接続の参照等）
+    ├── store/                   # グローバル状態管理（authStore: 認証状態, connectionStore: 選択中RDBMS接続。sessionStorageに永続化）
+    ├── styles/                  # 共通デザイントークン・プリミティブCSS（design-tokens.css, app.css）
+    ├── test/                    # テストセットアップ（setup.ts）
     └── types/                   # API型定義（バックエンドDTOに対応）
 ```
 
-- 各 `features/xxx/` 配下はフラット構成を基本とする（`api.ts`, `types.ts`, 各コンポーネント/フックのファイルを `features/xxx/` 直下に配置）。ディレクトリ名がすでにフィーチャーを表すため、`api/xxxApi.ts` のような単一ファイルだけのサブディレクトリは作らない。ファイル数が増えて分割が必要になった場合のみ、`components/` や `hooks/` などのサブディレクトリを導入する。
+- 各 `features/xxx/` 配下はフラット構成を基本とする（`api.ts`, `types.ts`, 各コンポーネント/フックのファイルを `features/xxx/` 直下に配置）。ディレクトリ名がすでにフィーチャーを表すため、`api/xxxApi.ts` のような単一ファイルだけのサブディレクトリは作らない。ファイル数が増えて分割が必要になった場合のみ、`components/` や `hooks/` などのサブディレクトリを導入する（U1〜U7完了時点では全フィーチャーがフラット構成のまま）。
 
 ## devenv/ 構成
 
