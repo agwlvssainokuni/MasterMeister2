@@ -66,7 +66,7 @@ export function QueryBuilderPage() {
   const [offset, setOffset] = useState<number | null>(null)
   const [generatedSql, setGeneratedSql] = useState<GeneratedSql | null>(null)
   const [generateError, setGenerateError] = useState<string | null>(null)
-  const hasInitializedConnection = useRef(false)
+  const initializedConnectionId = useRef<number | null | undefined>(undefined)
 
   useEffect(() => {
     if (connectionId === null) {
@@ -74,12 +74,16 @@ export function QueryBuilderPage() {
       return
     }
     listSelectableSchemas(connectionId).then(setSchemas)
-    if (!hasInitializedConnection.current) {
-      hasInitializedConnection.current = true
+    // StrictModeの開発時二重effect実行では同一connectionIdで再度呼ばれるため、
+    // 「既にこのconnectionIdで初期化済みか」で判定する（真の接続切替と区別する）
+    if (initializedConnectionId.current === connectionId) {
+      return
+    }
+    const isFirstInit = initializedConnectionId.current === undefined
+    initializedConnectionId.current = connectionId
+    if (isFirstInit) {
       const urlSchema = searchParams.get('schema')
-      if (urlSchema !== null) {
-        setSchema(urlSchema)
-      }
+      setSchema(urlSchema)
       return
     }
     setSchema(null)

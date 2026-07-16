@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { StrictMode } from 'react'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes, useSearchParams } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -49,14 +50,17 @@ function DestinationStub({ testId }: { testId: string }) {
 }
 
 function renderPage(initialEntry = '/query-builder') {
+  // StrictModeでラップし、開発モードのeffect二重実行下でも挙動が壊れないことを検証する
   return render(
-    <MemoryRouter initialEntries={[initialEntry]}>
-      <Routes>
-        <Route path="/query-builder" element={<QueryBuilderPage />} />
-        <Route path="/saved-queries/new" element={<DestinationStub testId="saved-query-save-form-stub" />} />
-        <Route path="/query-execution" element={<DestinationStub testId="query-execution-page-stub" />} />
-      </Routes>
-    </MemoryRouter>,
+    <StrictMode>
+      <MemoryRouter initialEntries={[initialEntry]}>
+        <Routes>
+          <Route path="/query-builder" element={<QueryBuilderPage />} />
+          <Route path="/saved-queries/new" element={<DestinationStub testId="saved-query-save-form-stub" />} />
+          <Route path="/query-execution" element={<DestinationStub testId="query-execution-page-stub" />} />
+        </Routes>
+      </MemoryRouter>
+    </StrictMode>,
   )
 }
 
