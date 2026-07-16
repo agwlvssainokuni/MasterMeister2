@@ -75,6 +75,35 @@ dependencies {
     testImplementation("com.h2database:h2")
 }
 
+val frontendDir = layout.projectDirectory.dir("../frontend")
+
+val npmInstall = tasks.register<Exec>("npmInstall") {
+    group = "frontend"
+    workingDir = frontendDir.asFile
+    commandLine("npm", "ci")
+    inputs.file(frontendDir.file("package.json"))
+    inputs.file(frontendDir.file("package-lock.json"))
+    outputs.dir(frontendDir.dir("node_modules"))
+}
+
+val npmBuildFrontend = tasks.register<Exec>("npmBuildFrontend") {
+    group = "frontend"
+    dependsOn(npmInstall)
+    workingDir = frontendDir.asFile
+    commandLine("npm", "run", "build")
+    inputs.dir(frontendDir.dir("src"))
+    inputs.file(frontendDir.file("index.html"))
+    inputs.file(frontendDir.file("vite.config.ts"))
+    outputs.dir(frontendDir.dir("dist"))
+}
+
+tasks.named<ProcessResources>("processResources") {
+    dependsOn(npmBuildFrontend)
+    from(frontendDir.dir("dist")) {
+        into("static")
+    }
+}
+
 tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
 }
