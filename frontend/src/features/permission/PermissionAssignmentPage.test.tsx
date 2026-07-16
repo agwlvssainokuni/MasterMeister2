@@ -20,6 +20,7 @@ import { listGroups } from '../group/api'
 import type { ConnectionSummary } from '../rdbmsConnection/types'
 import { listConnections } from '../rdbmsConnection/api'
 import { getTableDetail, listSchemas, listTables } from '../schema/api'
+import { listApprovedUsers } from '../userRegistration/api'
 import { PermissionAssignmentPage } from './PermissionAssignmentPage'
 
 vi.mock('../rdbmsConnection/api', () => ({
@@ -33,12 +34,16 @@ vi.mock('../schema/api', () => ({
   listTables: vi.fn(),
   getTableDetail: vi.fn(),
 }))
+vi.mock('../userRegistration/api', () => ({
+  listApprovedUsers: vi.fn(),
+}))
 
 const listConnectionsMock = vi.mocked(listConnections)
 const listGroupsMock = vi.mocked(listGroups)
 const listSchemasMock = vi.mocked(listSchemas)
 const listTablesMock = vi.mocked(listTables)
 const getTableDetailMock = vi.mocked(getTableDetail)
+const listApprovedUsersMock = vi.mocked(listApprovedUsers)
 
 const connection: ConnectionSummary = { id: 1, name: 'conn-1', rdbmsType: 'MYSQL', host: 'host1', databaseName: 'db1' }
 
@@ -49,8 +54,10 @@ describe('PermissionAssignmentPage', () => {
     listSchemasMock.mockReset()
     listTablesMock.mockReset()
     getTableDetailMock.mockReset()
+    listApprovedUsersMock.mockReset()
     listConnectionsMock.mockResolvedValue([connection])
     listGroupsMock.mockResolvedValue([])
+    listApprovedUsersMock.mockResolvedValue([{ id: 7, email: 'user-7@example.com' }])
     listSchemasMock.mockResolvedValue(['public'])
     listTablesMock.mockResolvedValue([])
     getTableDetailMock.mockResolvedValue({
@@ -80,8 +87,8 @@ describe('PermissionAssignmentPage', () => {
     await screen.findByTestId('permission-tree')
     await screen.findByText('public')
 
-    fireEvent.change(screen.getByTestId('principal-selector-user-id-input'), { target: { value: '7' } })
-    fireEvent.click(screen.getByTestId('principal-selector-user-select-button'))
+    await screen.findByText('user-7@example.com')
+    fireEvent.change(screen.getByTestId('principal-selector-user-select'), { target: { value: '7' } })
     fireEvent.click(screen.getByTestId('permission-tree-schema-select'))
 
     expect(await screen.findByTestId('permission-form')).toBeInTheDocument()
@@ -97,8 +104,8 @@ describe('PermissionAssignmentPage', () => {
     fireEvent.change(screen.getByTestId('connection-selector-select'), { target: { value: '1' } })
     await screen.findByTestId('permission-tree')
     await screen.findByText('public')
-    fireEvent.change(screen.getByTestId('principal-selector-user-id-input'), { target: { value: '7' } })
-    fireEvent.click(screen.getByTestId('principal-selector-user-select-button'))
+    await screen.findByText('user-7@example.com')
+    fireEvent.change(screen.getByTestId('principal-selector-user-select'), { target: { value: '7' } })
     fireEvent.click(screen.getByTestId('permission-tree-schema-select'))
     await screen.findByTestId('permission-form')
 

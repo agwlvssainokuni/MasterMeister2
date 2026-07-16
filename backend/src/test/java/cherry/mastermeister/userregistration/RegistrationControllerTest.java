@@ -130,6 +130,29 @@ class RegistrationControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "ADMIN")
+    void listApprovedUsersReturnsOkForAdmin() throws Exception {
+        when(userRegistrationService.listApprovedUsers())
+                .thenReturn(List.of(new UserAccountSummary(1L, "approved@example.com")));
+
+        mockMvc.perform(get("/api/registrations/approved"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].email").value("approved@example.com"));
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    void listApprovedUsersReturnsForbiddenForNonAdmin() throws Exception {
+        mockMvc.perform(get("/api/registrations/approved")).andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithAnonymousUser
+    void listApprovedUsersReturnsUnauthorizedWhenNotAuthenticated() throws Exception {
+        mockMvc.perform(get("/api/registrations/approved")).andExpect(status().isUnauthorized());
+    }
+
+    @Test
     void approveUserReturnsNoContentForAdminAndUsesPrincipalAsAdminUserId() throws Exception {
         Authentication adminAuthentication = new UsernamePasswordAuthenticationToken(
                 1L, null, List.of(new SimpleGrantedAuthority("ROLE_ADMIN")));

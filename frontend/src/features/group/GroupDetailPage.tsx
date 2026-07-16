@@ -18,6 +18,8 @@ import { type FormEvent, useCallback, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { ToastNotification } from '../../components/ToastNotification'
 import type { ToastSeverity } from '../../components/ToastNotification'
+import { listApprovedUsers } from '../userRegistration/api'
+import type { UserAccountSummary } from '../userRegistration/types'
 import { addUserToGroup, listGroupMembers, listGroups, removeUserFromGroup } from './api'
 import { GroupMemberTable } from './GroupMemberTable'
 import type { GroupSummary, UserSummary } from './types'
@@ -33,6 +35,7 @@ export function GroupDetailPage() {
 
   const [group, setGroup] = useState<GroupSummary | null>(null)
   const [members, setMembers] = useState<UserSummary[]>([])
+  const [approvedUsers, setApprovedUsers] = useState<UserAccountSummary[]>([])
   const [loading, setLoading] = useState(false)
   const [newUserId, setNewUserId] = useState('')
   const [toast, setToast] = useState<Toast | null>(null)
@@ -40,13 +43,20 @@ export function GroupDetailPage() {
   const refresh = useCallback(async () => {
     setLoading(true)
     try {
-      const [groups, groupMembers] = await Promise.all([listGroups(), listGroupMembers(groupId)])
+      const [groups, groupMembers, users] = await Promise.all([
+        listGroups(),
+        listGroupMembers(groupId),
+        listApprovedUsers(),
+      ])
       setGroup(groups.find((g) => g.id === groupId) ?? null)
       setMembers(groupMembers)
+      setApprovedUsers(users)
     } finally {
       setLoading(false)
     }
   }, [groupId])
+
+  const addableUsers = approvedUsers.filter((u) => !members.some((m) => m.id === u.id))
 
   useEffect(() => {
     refresh()
@@ -80,14 +90,22 @@ export function GroupDetailPage() {
       {toast && <ToastNotification message={toast.message} severity={toast.severity} />}
       <form onSubmit={handleAddUser}>
         <label>
-          ユーザID
-          <input
-            type="number"
-            data-testid="group-detail-page-new-user-id-input"
+          ユーザ
+          <select
+            data-testid="group-detail-page-new-user-select"
             value={newUserId}
             onChange={(e) => setNewUserId(e.target.value)}
             required
-          />
+          >
+            <option value="" disabled>
+              選択してください
+            </option>
+            {addableUsers.map((u) => (
+              <option key={u.id} value={u.id}>
+                {u.email}
+              </option>
+            ))}
+          </select>
         </label>
         <button type="submit" data-testid="group-detail-page-add-user-button">
           所属ユーザ追加

@@ -15,7 +15,7 @@
  */
 
 import { apiFetch } from '../../api/apiClient'
-import type { PendingUserSummary } from './types'
+import type { PendingUserSummary, UserAccountSummary } from './types'
 
 export function requestRegistration(email: string): Promise<void> {
   return apiFetch<void>('/api/registrations', { method: 'POST', body: { email } })
@@ -27,6 +27,10 @@ export function completeRegistration(token: string, password: string): Promise<v
 
 export function listPendingUsers(): Promise<PendingUserSummary[]> {
   return apiFetch<PendingUserSummary[]>('/api/registrations/pending')
+}
+
+export function listApprovedUsers(): Promise<UserAccountSummary[]> {
+  return apiFetch<UserAccountSummary[]>('/api/registrations/approved')
 }
 
 export function approveUser(userId: number): Promise<void> {

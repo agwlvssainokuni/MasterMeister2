@@ -18,28 +18,38 @@ import { fireEvent, render, screen } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { listGroups } from '../group/api'
 import type { GroupSummary } from '../group/types'
+import { listApprovedUsers } from '../userRegistration/api'
+import type { UserAccountSummary } from '../userRegistration/types'
 import { PrincipalSelector } from './PrincipalSelector'
 
 vi.mock('../group/api', () => ({
   listGroups: vi.fn(),
 }))
+vi.mock('../userRegistration/api', () => ({
+  listApprovedUsers: vi.fn(),
+}))
 
 const listGroupsMock = vi.mocked(listGroups)
+const listApprovedUsersMock = vi.mocked(listApprovedUsers)
 
 const groups: GroupSummary[] = [{ id: 5, name: 'group-5', createdAt: '2026-01-01T00:00:00Z' }]
+const users: UserAccountSummary[] = [{ id: 3, email: 'user-3@example.com' }]
 
 describe('PrincipalSelector', () => {
   beforeEach(() => {
     listGroupsMock.mockReset()
+    listApprovedUsersMock.mockReset()
     listGroupsMock.mockResolvedValue(groups)
+    listApprovedUsersMock.mockResolvedValue(users)
   })
 
-  it('defaults to the USER tab and submits a USER principal by id', () => {
+  it('defaults to the USER tab, lists approved users, and submits a USER principal on select', async () => {
     const onSelect = vi.fn()
     render(<PrincipalSelector selected={null} onSelect={onSelect} />)
 
-    fireEvent.change(screen.getByTestId('principal-selector-user-id-input'), { target: { value: '3' } })
-    fireEvent.click(screen.getByTestId('principal-selector-user-select-button'))
+    expect(await screen.findByText('user-3@example.com')).toBeInTheDocument()
+
+    fireEvent.change(screen.getByTestId('principal-selector-user-select'), { target: { value: '3' } })
 
     expect(onSelect).toHaveBeenCalledWith({ principalType: 'USER', principalId: 3 })
   })

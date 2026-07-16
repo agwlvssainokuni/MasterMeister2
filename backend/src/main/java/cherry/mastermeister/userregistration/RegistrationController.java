@@ -54,6 +54,11 @@ public class RegistrationController {
         return userRegistrationService.listPendingUsers();
     }
 
+    @GetMapping("/approved")
+    public List<UserAccountSummary> listApprovedUsers() {
+        return userRegistrationService.listApprovedUsers();
+    }
+
     @PostMapping("/{userId}/approve")
     public ResponseEntity<Void> approveUser(@PathVariable Long userId, Authentication authentication) {
         Long adminUserId = (Long) authentication.getPrincipal();

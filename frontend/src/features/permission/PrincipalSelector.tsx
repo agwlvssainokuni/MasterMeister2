@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-import { type FormEvent, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { listGroups } from '../group/api'
 import type { GroupSummary } from '../group/types'
+import { listApprovedUsers } from '../userRegistration/api'
+import type { UserAccountSummary } from '../userRegistration/types'
 import type { PrincipalRef, PrincipalType } from './types'
 
 interface PrincipalSelectorProps {
@@ -26,19 +28,16 @@ interface PrincipalSelectorProps {
 
 export function PrincipalSelector({ selected, onSelect }: PrincipalSelectorProps) {
   const [principalType, setPrincipalType] = useState<PrincipalType>(selected?.principalType ?? 'USER')
-  const [userIdInput, setUserIdInput] = useState('')
+  const [users, setUsers] = useState<UserAccountSummary[]>([])
   const [groups, setGroups] = useState<GroupSummary[]>([])
 
   useEffect(() => {
-    if (principalType === 'GROUP') {
+    if (principalType === 'USER') {
+      listApprovedUsers().then(setUsers)
+    } else {
       listGroups().then(setGroups)
     }
   }, [principalType])
-
-  const handleUserIdSubmit = (event: FormEvent) => {
-    event.preventDefault()
-    onSelect({ principalType: 'USER', principalId: Number(userIdInput) })
-  }
 
   return (
     <div className="principal-selector" data-testid="principal-selector">
@@ -61,21 +60,20 @@ export function PrincipalSelector({ selected, onSelect }: PrincipalSelectorProps
         </button>
       </div>
       {principalType === 'USER' ? (
-        <form onSubmit={handleUserIdSubmit}>
-          <label>
-            ユーザID
-            <input
-              type="number"
-              data-testid="principal-selector-user-id-input"
-              value={userIdInput}
-              onChange={(e) => setUserIdInput(e.target.value)}
-              required
-            />
-          </label>
-          <button type="submit" data-testid="principal-selector-user-select-button">
-            選択
-          </button>
-        </form>
+        <select
+          data-testid="principal-selector-user-select"
+          value={selected?.principalType === 'USER' ? selected.principalId : ''}
+          onChange={(e) => onSelect({ principalType: 'USER', principalId: Number(e.target.value) })}
+        >
+          <option value="" disabled>
+            選択してください
+          </option>
+          {users.map((user) => (
+            <option key={user.id} value={user.id}>
+              {user.email}
+            </option>
+          ))}
+        </select>
       ) : (
         <select
           data-testid="principal-selector-group-select"

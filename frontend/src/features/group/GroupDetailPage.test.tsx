@@ -17,6 +17,8 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { listApprovedUsers } from '../userRegistration/api'
+import type { UserAccountSummary } from '../userRegistration/types'
 import { addUserToGroup, listGroupMembers, listGroups, removeUserFromGroup } from './api'
 import { GroupDetailPage } from './GroupDetailPage'
 import type { GroupSummary, UserSummary } from './types'
@@ -27,14 +29,19 @@ vi.mock('./api', () => ({
   listGroups: vi.fn(),
   removeUserFromGroup: vi.fn(),
 }))
+vi.mock('../userRegistration/api', () => ({
+  listApprovedUsers: vi.fn(),
+}))
 
 const addUserToGroupMock = vi.mocked(addUserToGroup)
 const listGroupMembersMock = vi.mocked(listGroupMembers)
 const listGroupsMock = vi.mocked(listGroups)
 const removeUserFromGroupMock = vi.mocked(removeUserFromGroup)
+const listApprovedUsersMock = vi.mocked(listApprovedUsers)
 
 const group: GroupSummary = { id: 1, name: 'group-1', createdAt: '2026-01-01T00:00:00Z' }
 const member: UserSummary = { id: 7, email: 'member@example.com' }
+const approvedUser: UserAccountSummary = { id: 9, email: 'addable@example.com' }
 
 function renderPage(id = '1') {
   return render(
@@ -52,8 +59,10 @@ describe('GroupDetailPage', () => {
     listGroupMembersMock.mockReset()
     listGroupsMock.mockReset()
     removeUserFromGroupMock.mockReset()
+    listApprovedUsersMock.mockReset()
     listGroupsMock.mockResolvedValue([group])
     listGroupMembersMock.mockResolvedValue([member])
+    listApprovedUsersMock.mockResolvedValue([approvedUser])
   })
 
   it('loads the group name (filtered client-side from listGroups) and its members', async () => {
@@ -65,12 +74,13 @@ describe('GroupDetailPage', () => {
     expect(listGroupMembersMock).toHaveBeenCalledWith(1)
   })
 
-  it('adds a user by id and shows a success toast', async () => {
+  it('adds a user selected from the approved-users dropdown and shows a success toast', async () => {
     addUserToGroupMock.mockResolvedValue(undefined)
     renderPage()
     await screen.findByText('グループ「group-1」')
 
-    fireEvent.change(screen.getByTestId('group-detail-page-new-user-id-input'), {
+    expect(await screen.findByText('addable@example.com')).toBeInTheDocument()
+    fireEvent.change(screen.getByTestId('group-detail-page-new-user-select'), {
       target: { value: '9' },
     })
     fireEvent.click(screen.getByTestId('group-detail-page-add-user-button'))
@@ -79,12 +89,23 @@ describe('GroupDetailPage', () => {
     expect(addUserToGroupMock).toHaveBeenCalledWith(1, 9)
   })
 
+  it('excludes users who are already members from the addable-users dropdown', async () => {
+    listApprovedUsersMock.mockResolvedValue([approvedUser, { id: 7, email: 'member@example.com' }])
+    renderPage()
+    await screen.findByText('グループ「group-1」')
+
+    await screen.findByText('addable@example.com')
+    expect(
+      screen.getByTestId('group-detail-page-new-user-select').querySelector('option[value="7"]'),
+    ).not.toBeInTheDocument()
+  })
+
   it('shows an error toast when adding a user fails', async () => {
     addUserToGroupMock.mockRejectedValue(new Error('failed'))
     renderPage()
     await screen.findByText('グループ「group-1」')
 
-    fireEvent.change(screen.getByTestId('group-detail-page-new-user-id-input'), {
+    fireEvent.change(screen.getByTestId('group-detail-page-new-user-select'), {
       target: { value: '9' },
     })
     fireEvent.click(screen.getByTestId('group-detail-page-add-user-button'))

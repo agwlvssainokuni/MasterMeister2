@@ -29,4 +29,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     List<User> findByStatusOrderByCreatedAtAsc(UserStatus status);
 
+    List<User> findByStatusOrderByEmailAsc(UserStatus status);
+
 }

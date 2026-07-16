@@ -135,6 +135,12 @@ public class UserRegistrationService {
                 .toList();
     }
 
+    public List<UserAccountSummary> listApprovedUsers() {
+        return userRepository.findByStatusOrderByEmailAsc(UserStatus.APPROVED).stream()
+                .map(user -> new UserAccountSummary(user.getId(), user.getEmail()))
+                .toList();
+    }
+
     private User requirePendingUser(Long targetUserId) {
         User user = userRepository.findById(targetUserId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found: id=" + targetUserId));

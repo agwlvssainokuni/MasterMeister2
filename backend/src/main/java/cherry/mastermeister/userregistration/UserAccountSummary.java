@@ -14,13 +14,7 @@
  * limitations under the License.
  */
 
-export interface PendingUserSummary {
-  id: number
-  email: string
-  createdAt: string
-}
+package cherry.mastermeister.userregistration;
 
-export interface UserAccountSummary {
-  id: number
-  email: string
+public record UserAccountSummary(Long id, String email) {
 }
