@@ -18,7 +18,7 @@ import type { ReactNode } from 'react'
 
 export interface DataTableColumn<T> {
   key: string
-  header: string
+  header: ReactNode
   sortable?: boolean
   render?: (row: T) => ReactNode
 }

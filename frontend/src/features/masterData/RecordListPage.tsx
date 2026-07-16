@@ -188,7 +188,14 @@ export function RecordListPage() {
 
   const dataColumns: DataTableColumn<RecordRow>[] = columns.map((column, i) => ({
     key: column.columnName,
-    header: column.columnName,
+    header: (
+      <span className="col-header-cell">
+        {column.columnName}
+        <span className={`pill ${column.effectivePermission === 'UPDATE' ? 'pill-warning' : 'pill-neutral'}`}>
+          {column.effectivePermission}
+        </span>
+      </span>
+    ),
     render: (row) => {
       if (column.effectivePermission !== 'UPDATE') {
         return <span>{row.values[i] == null ? '' : String(row.values[i])}</span>

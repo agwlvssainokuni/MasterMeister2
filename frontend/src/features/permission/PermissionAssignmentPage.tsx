@@ -35,22 +35,26 @@ export function PermissionAssignmentPage() {
   return (
     <div className="permission-assignment-page" data-testid="permission-assignment-page">
       <h1>権限設定</h1>
-      <ConnectionSelector selected={connectionId} onSelect={handleSelectConnection} />
-      <PrincipalSelector selected={principal} onSelect={setPrincipal} />
+      <div className="perm-toolbar">
+        <ConnectionSelector selected={connectionId} onSelect={handleSelectConnection} />
+        <PrincipalSelector selected={principal} onSelect={setPrincipal} />
+      </div>
       {connectionId !== null && (
-        <>
+        <div className="perm-grid">
           <PermissionTree connectionId={connectionId} selectedNode={selectedNode} onSelectNode={setSelectedNode} />
-          {principal && selectedNode && (
-            <PermissionForm
-              principal={principal}
-              connectionId={connectionId}
-              node={selectedNode}
-              currentPermission={null}
-              currentAuxPermissions={null}
-            />
-          )}
-          <PermissionYamlPanel connectionId={connectionId} />
-        </>
+          <div className="perm-grid-side">
+            {principal && selectedNode && (
+              <PermissionForm
+                principal={principal}
+                connectionId={connectionId}
+                node={selectedNode}
+                currentPermission={null}
+                currentAuxPermissions={null}
+              />
+            )}
+            <PermissionYamlPanel connectionId={connectionId} />
+          </div>
+        </div>
       )}
     </div>
   )
