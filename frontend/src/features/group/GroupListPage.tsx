@@ -91,7 +91,7 @@ export function GroupListPage() {
           onChange={(e) => setNewGroupName(e.target.value)}
           required
         />
-        <button type="submit" data-testid="group-list-page-new-button">
+        <button type="submit" className="btn-primary" data-testid="group-list-page-new-button">
           新規作成
         </button>
       </form>

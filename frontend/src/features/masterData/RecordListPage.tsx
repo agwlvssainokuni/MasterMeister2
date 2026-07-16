@@ -304,7 +304,7 @@ export function RecordListPage() {
             </div>
           )}
 
-          <button type="button" data-testid="record-list-page-apply" onClick={handleApply}>
+          <button type="button" className="btn-primary" data-testid="record-list-page-apply" onClick={handleApply}>
             反映
           </button>
         </>

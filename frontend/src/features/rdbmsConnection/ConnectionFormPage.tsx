@@ -199,7 +199,12 @@ export function ConnectionFormPage({ mode }: ConnectionFormPageProps) {
             {testResult.success ? '接続に成功しました' : `接続に失敗しました: ${testResult.message}`}
           </p>
         )}
-        <button type="submit" data-testid="connection-form-page-submit-button" disabled={submitting}>
+        <button
+          type="submit"
+          className="btn-primary"
+          data-testid="connection-form-page-submit-button"
+          disabled={submitting}
+        >
           保存
         </button>
       </form>

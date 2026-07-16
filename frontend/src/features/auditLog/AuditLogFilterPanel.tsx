@@ -118,7 +118,7 @@ export function AuditLogFilterPanel({ filter, onFilterChange }: AuditLogFilterPa
           {error}
         </p>
       )}
-      <button type="button" data-testid="audit-log-filter-search-button" onClick={handleSearch}>
+      <button type="button" className="btn-primary" data-testid="audit-log-filter-search-button" onClick={handleSearch}>
         検索
       </button>
     </div>

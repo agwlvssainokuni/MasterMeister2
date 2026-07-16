@@ -59,7 +59,12 @@ export function RegistrationRequestPage() {
             required
           />
         </label>
-        <button type="submit" data-testid="registration-request-page-submit-button" disabled={submitting}>
+        <button
+          type="submit"
+          className="btn-primary"
+          data-testid="registration-request-page-submit-button"
+          disabled={submitting}
+        >
           送信
         </button>
       </form>

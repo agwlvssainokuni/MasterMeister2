@@ -73,7 +73,7 @@ export function LoginPage() {
             {error}
           </p>
         )}
-        <button type="submit" data-testid="login-page-submit-button" disabled={submitting}>
+        <button type="submit" className="btn-primary" data-testid="login-page-submit-button" disabled={submitting}>
           ログイン
         </button>
       </form>

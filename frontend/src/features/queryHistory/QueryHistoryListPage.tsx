@@ -187,7 +187,12 @@ export function QueryHistoryListPage() {
                 onChange={(e) => setSqlTextSearch(e.target.value)}
               />
             </label>
-            <button type="button" data-testid="query-history-list-page-search-button" onClick={handleSearch}>
+            <button
+              type="button"
+              className="btn-primary"
+              data-testid="query-history-list-page-search-button"
+              onClick={handleSearch}
+            >
               検索
             </button>
           </div>

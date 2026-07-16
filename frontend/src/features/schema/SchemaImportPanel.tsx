@@ -44,6 +44,7 @@ export function SchemaImportPanel({ connectionId, onClose }: SchemaImportPanelPr
       <h2>スキーマ取り込み</h2>
       <button
         type="button"
+        className="btn-primary"
         data-testid="schema-import-panel-import-button"
         onClick={handleImport}
         disabled={importing}

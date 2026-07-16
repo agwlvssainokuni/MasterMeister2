@@ -79,6 +79,7 @@ export function GeneratedSqlPanel({
           </button>
           <button
             type="button"
+            className="btn-primary"
             disabled={onNavigateToExecute == null}
             onClick={() => onNavigateToExecute?.(generatedSql)}
           >

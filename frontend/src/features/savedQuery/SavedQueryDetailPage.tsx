@@ -108,7 +108,12 @@ export function SavedQueryDetailPage() {
               <option value="PUBLIC">公開</option>
             </select>
           </label>
-          <button type="button" data-testid="saved-query-detail-page-save-button" onClick={handleUpdate}>
+          <button
+            type="button"
+            className="btn-primary"
+            data-testid="saved-query-detail-page-save-button"
+            onClick={handleUpdate}
+          >
             保存
           </button>
           <button type="button" data-testid="saved-query-detail-page-cancel-button" onClick={() => setEditing(false)}>

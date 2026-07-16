@@ -107,7 +107,7 @@ export function GroupDetailPage() {
             ))}
           </select>
         </label>
-        <button type="submit" data-testid="group-detail-page-add-user-button">
+        <button type="submit" className="btn-primary" data-testid="group-detail-page-add-user-button">
           所属ユーザ追加
         </button>
       </form>

@@ -23,13 +23,17 @@ interface ConfirmDialogProps {
 export function ConfirmDialog({ message, onConfirm, onCancel }: ConfirmDialogProps) {
   return (
     <div className="confirm-dialog" role="dialog">
-      <p>{message}</p>
-      <button type="button" data-testid="confirm-dialog-confirm-button" onClick={onConfirm}>
-        OK
-      </button>
-      <button type="button" data-testid="confirm-dialog-cancel-button" onClick={onCancel}>
-        キャンセル
-      </button>
+      <div className="confirm-dialog-box">
+        <p>{message}</p>
+        <div className="confirm-dialog-actions">
+          <button type="button" data-testid="confirm-dialog-cancel-button" onClick={onCancel}>
+            キャンセル
+          </button>
+          <button type="button" className="btn-primary" data-testid="confirm-dialog-confirm-button" onClick={onConfirm}>
+            OK
+          </button>
+        </div>
+      </div>
     </div>
   )
 }

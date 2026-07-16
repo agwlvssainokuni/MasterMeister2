@@ -86,7 +86,12 @@ export function SavedQuerySaveForm() {
             </p>
           )}
 
-          <button type="button" data-testid="saved-query-save-form-submit-button" onClick={handleSubmit}>
+          <button
+            type="button"
+            className="btn-primary"
+            data-testid="saved-query-save-form-submit-button"
+            onClick={handleSubmit}
+          >
             保存
           </button>
         </>

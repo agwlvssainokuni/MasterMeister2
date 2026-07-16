@@ -115,7 +115,7 @@ export function PermissionForm({
           ))}
         </fieldset>
       )}
-      <button type="submit" data-testid="permission-form-submit-button" disabled={submitting}>
+      <button type="submit" className="btn-primary" data-testid="permission-form-submit-button" disabled={submitting}>
         保存
       </button>
     </form>

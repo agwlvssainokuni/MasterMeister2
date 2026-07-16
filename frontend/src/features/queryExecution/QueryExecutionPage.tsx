@@ -190,6 +190,7 @@ export function QueryExecutionPage() {
 
           <button
             type="button"
+            className="btn-primary"
             data-testid="query-execution-page-execute-button"
             disabled={schema === null}
             onClick={() => handleExecute()}

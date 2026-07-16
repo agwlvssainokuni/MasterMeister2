@@ -58,6 +58,7 @@ export function SqlReverseParsePanel({ connectionId, initialRawSql, onApply }: S
         </label>
         <button
           type="button"
+          className="btn-primary"
           data-testid="sql-reverse-parse-panel-parse-button"
           onClick={() => handleParse(rawSql)}
         >

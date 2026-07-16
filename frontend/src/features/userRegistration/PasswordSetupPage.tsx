@@ -103,7 +103,12 @@ export function PasswordSetupPage() {
             {error}
           </p>
         )}
-        <button type="submit" data-testid="password-setup-page-submit-button" disabled={submitting}>
+        <button
+          type="submit"
+          className="btn-primary"
+          data-testid="password-setup-page-submit-button"
+          disabled={submitting}
+        >
           設定する
         </button>
       </form>

@@ -1,0 +1,599 @@
+/*
+ * 共通デザインプリミティブ。
+ * 各画面のクラス名は "{feature}-page" / "{feature}-panel" / "{feature}-form" / "{feature}-tab"
+ * という一貫した命名規則になっているため、個別画面のJSXを変更せず属性セレクタで
+ * 全画面へ一括適用する。
+ */
+
+/* ---------- Page container ---------- */
+[class$='-page'] {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 1.75rem 1.5rem 3.5rem;
+}
+
+[class$='-page'] > h1 {
+  font-size: 1.6rem;
+  margin-bottom: 1.3rem;
+}
+
+/* ---------- Buttons ---------- */
+button {
+  appearance: none;
+  border: 1px solid var(--color-line-strong);
+  background: var(--color-surface);
+  color: var(--color-ink-soft);
+  padding: 0.5rem 0.9rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+button:hover:not(:disabled) {
+  border-color: var(--color-ink-soft);
+  color: var(--color-ink);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+button.btn-primary {
+  background: var(--color-brass);
+  border-color: var(--color-brass);
+  color: #201705;
+  font-weight: 600;
+}
+
+button.btn-primary:hover:not(:disabled) {
+  background: var(--color-brass-strong);
+  border-color: var(--color-brass-strong);
+  color: #201705;
+}
+
+button.btn-danger {
+  background: transparent;
+  border-color: var(--color-error);
+  color: var(--color-error);
+}
+
+button.btn-danger:hover:not(:disabled) {
+  background: var(--color-error-bg);
+  color: var(--color-error);
+}
+
+/* ---------- Form fields ---------- */
+input,
+select,
+textarea {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: var(--color-ink);
+  background: var(--color-surface);
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-sm);
+  padding: 0.45rem 0.6rem;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--color-brass);
+}
+
+label {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--color-ink-soft);
+  margin-bottom: 0.9rem;
+}
+
+label > input,
+label > select,
+label > textarea {
+  display: block;
+  width: 100%;
+  margin-top: 0.3rem;
+}
+
+fieldset {
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  padding: 0.9rem 1rem;
+  margin: 0 0 0.9rem;
+}
+
+legend {
+  font-size: 0.72rem;
+  letter-spacing: 0.03em;
+  color: var(--color-muted);
+  padding: 0 0.4rem;
+}
+
+/* ---------- Tables ---------- */
+table {
+  width: 100%;
+  font-size: 0.82rem;
+}
+
+th {
+  text-align: left;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.03em;
+  color: var(--color-ink-soft);
+  background: var(--color-surface-alt);
+  border-bottom: 1px solid var(--color-line-strong);
+  white-space: nowrap;
+}
+
+td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--color-line);
+  vertical-align: middle;
+}
+
+tbody tr:nth-child(even) {
+  background: var(--color-surface-alt);
+}
+
+tbody tr:hover {
+  background: var(--color-brass-soft);
+}
+
+th button {
+  all: unset;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+}
+
+th button:hover {
+  color: var(--color-brass-strong);
+}
+
+td input[type='text'],
+td input[type='number'] {
+  width: 100%;
+  border-color: transparent;
+  background: transparent;
+  padding: 0.28rem 0.4rem;
+}
+
+td input[type='text']:hover,
+td input[type='number']:hover {
+  border-color: var(--color-line-strong);
+  background: var(--color-surface);
+}
+
+td input[type='text']:focus,
+td input[type='number']:focus {
+  border-color: var(--color-brass);
+  background: var(--color-surface);
+}
+
+/* ---------- Cards: panels / forms / query-builder tabs ---------- */
+[class$='-panel'],
+[class$='-form'],
+[class$='-tab'] {
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  padding: 1.1rem 1.2rem;
+  margin-bottom: 1.1rem;
+}
+
+/* nested condition/sort rows inside filter-panel should stay compact, not card-like */
+.filter-panel-condition,
+.filter-panel-sort {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.filter-panel-mode-toggle {
+  display: flex;
+  gap: 1.2rem;
+  margin-bottom: 0.9rem;
+  padding-bottom: 0.7rem;
+  border-bottom: 1px solid var(--color-line);
+}
+
+.filter-panel-mode-toggle label {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0;
+  cursor: pointer;
+}
+
+.filter-panel-mode-toggle label:has(input:checked) {
+  color: var(--color-brass-strong);
+  font-weight: 600;
+}
+
+/* ---------- role=tablist / aria-pressed toggle pattern ---------- */
+[role='tablist'] {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--color-line);
+  margin-bottom: 1rem;
+}
+
+[role='tablist'] button {
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  padding: 0.5rem 0.9rem;
+  color: var(--color-muted);
+}
+
+[role='tablist'] button[aria-pressed='true'] {
+  color: var(--color-brass-strong);
+  border-bottom-color: var(--color-brass);
+  font-weight: 600;
+}
+
+/* ---------- Permission tree ---------- */
+.permission-tree,
+.permission-tree ul {
+  list-style: none;
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.permission-tree {
+  padding-left: 0.2rem;
+}
+
+.permission-tree li {
+  margin: 0.1rem 0;
+}
+
+.permission-tree button {
+  border: none;
+  background: transparent;
+  padding: 0.28rem 0.4rem;
+  border-radius: var(--radius-sm);
+  color: var(--color-ink-soft);
+}
+
+.permission-tree button[data-testid$='-toggle'] {
+  width: 1.4rem;
+  color: var(--color-muted);
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.permission-tree button[aria-pressed='true'] {
+  background: var(--color-brass-soft);
+  color: var(--color-brass-strong);
+  font-weight: 700;
+}
+
+/* ---------- Dialogs / toasts / pagination (shared components) ---------- */
+.confirm-dialog {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(23, 35, 45, 0.45);
+  z-index: 100;
+  padding: 1rem;
+}
+
+.confirm-dialog-box {
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  padding: 1.5rem 1.5rem 1.2rem;
+  min-width: 280px;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.confirm-dialog-box p {
+  margin: 0;
+}
+
+.confirm-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+}
+
+.mutation-result-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(23, 35, 45, 0.45);
+  z-index: 100;
+}
+
+.mutation-result-dialog {
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  padding: 1.4rem 1.5rem;
+  min-width: 320px;
+  max-width: 560px;
+}
+
+.mutation-result-dialog button {
+  background: var(--color-brass);
+  border-color: var(--color-brass);
+  color: #201705;
+  font-weight: 600;
+  margin-top: 0.6rem;
+}
+
+.mutation-result-dialog button:hover:not(:disabled) {
+  background: var(--color-brass-strong);
+  border-color: var(--color-brass-strong);
+}
+
+.toast-notification {
+  padding: 0.7rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  margin-bottom: 1rem;
+  border: 1px solid transparent;
+}
+
+.toast-notification-success {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+  border-color: var(--color-success);
+}
+
+.toast-notification-error {
+  background: var(--color-error-bg);
+  color: var(--color-error);
+  border-color: var(--color-error);
+}
+
+.toast-notification-warning {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+  border-color: var(--color-warning);
+}
+
+.toast-notification-info {
+  background: var(--color-info-bg);
+  color: var(--color-info);
+  border-color: var(--color-info);
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin: 0.9rem 0;
+  font-size: 0.78rem;
+  color: var(--color-muted);
+}
+
+.record-list-page-pagination {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin: 0.9rem 0;
+  font-size: 0.78rem;
+  color: var(--color-muted);
+}
+
+/* ---------- Pre-login shell (login / registration / password setup) ---------- */
+.login-page,
+.registration-request-page,
+.password-setup-page {
+  max-width: none;
+  min-height: 100vh;
+  margin: 0;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  text-align: center;
+}
+
+.login-page > h1,
+.registration-request-page > h1,
+.password-setup-page > h1 {
+  font-size: 1.4rem;
+  margin: 0 0 0.3rem;
+}
+
+.login-page form,
+.registration-request-page form,
+.password-setup-page form {
+  width: 100%;
+  max-width: 380px;
+  text-align: left;
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  padding: 2.1rem 2rem 1.8rem;
+}
+
+.login-page button[type='submit'],
+.registration-request-page button[type='submit'],
+.password-setup-page button[type='submit'] {
+  width: 100%;
+  margin-top: 0.4rem;
+}
+
+/* ---------- App chrome (AppLayout) ---------- */
+.app-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-layout-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0 1.5rem;
+  height: 56px;
+  background: var(--color-header-bg);
+  color: #f1ede1;
+}
+
+.app-header-brand {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  letter-spacing: 0.04em;
+  color: #f6f2e6;
+  text-decoration: none;
+}
+
+.app-header-brand small {
+  font-family: var(--font-body);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  color: #b9c3cf;
+}
+
+.app-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.conn-select {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.72rem;
+  color: #c7d0da;
+}
+
+.conn-select select {
+  background: rgba(255, 255, 255, 0.08);
+  color: #f6f2e6;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  font-size: 0.78rem;
+}
+
+.user-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-left: 0.9rem;
+  border-left: 1px solid rgba(255, 255, 255, 0.18);
+  font-size: 0.78rem;
+  color: #f1ede1;
+}
+
+.user-chip-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--color-brass);
+  color: #1c1508;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.user-chip-role {
+  display: block;
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  color: #b9c3cf;
+}
+
+.app-layout-header .logout-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: #e7e2d3;
+  font-size: 0.72rem;
+}
+
+.app-layout-header .logout-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.28);
+  color: #e7e2d3;
+}
+
+.app-nav {
+  display: flex;
+  align-items: stretch;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-line);
+  padding: 0 1.5rem;
+  overflow-x: auto;
+}
+
+.nav-group {
+  display: flex;
+  align-items: stretch;
+}
+
+.nav-group-admin {
+  background: var(--color-brass-soft);
+}
+
+.app-nav a {
+  display: flex;
+  align-items: center;
+  padding: 0 0.85rem;
+  height: 42px;
+  font-size: 0.8rem;
+  color: var(--color-ink-soft);
+  text-decoration: none;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+}
+
+.app-nav a:hover {
+  color: var(--color-ink);
+}
+
+.app-nav a.is-active {
+  color: var(--color-brass-strong);
+  border-bottom-color: var(--color-brass);
+  font-weight: 600;
+}
+
+.nav-divider {
+  width: 1px;
+  align-self: center;
+  height: 22px;
+  background: var(--color-line-strong);
+  margin: 0 0.35rem;
+}
+
+.nav-group-tag {
+  align-self: center;
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  color: var(--color-brass-strong);
+  padding: 0 0.6rem;
+}
+
+.app-layout-main {
+  flex: 1;
+}
