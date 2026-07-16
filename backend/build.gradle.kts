@@ -36,14 +36,14 @@ dependencyManagement {
         mavenBom("org.springframework.boot:spring-boot-dependencies:4.1.0")
     }
     dependencies {
-        dependency("io.jsonwebtoken:jjwt-api:0.12.6")
-        dependency("io.jsonwebtoken:jjwt-impl:0.12.6")
-        dependency("io.jsonwebtoken:jjwt-jackson:0.12.6")
-        dependency("net.jqwik:jqwik:1.9.1")
+        dependency("io.jsonwebtoken:jjwt-api:0.13.0")
+        dependency("io.jsonwebtoken:jjwt-impl:0.13.0")
+        dependency("io.jsonwebtoken:jjwt-jackson:0.13.0")
+        dependency("net.jqwik:jqwik:1.10.1")
         dependency("net.jqwik:jqwik-spring:0.12.0")
-        dependency("com.mysql:mysql-connector-j:9.3.0")
-        dependency("org.mariadb.jdbc:mariadb-java-client:3.5.3")
-        dependency("org.postgresql:postgresql:42.7.7")
+        dependency("com.mysql:mysql-connector-j:9.7.0")
+        dependency("org.mariadb.jdbc:mariadb-java-client:3.5.9")
+        dependency("org.postgresql:postgresql:42.7.13")
         dependency("com.github.jsqlparser:jsqlparser:5.3")
     }
 }
